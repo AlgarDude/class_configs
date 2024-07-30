@@ -1505,10 +1505,10 @@ local _ClassConfig = {
                 -- type = "Spell",
                 -- tooltip = Tooltips.BuffTap,
                 -- cond = function(self, spell)
-				-- --this needs to be cleaned up, mq.TLO.Spell("insertspellfromthisline").RankName.Trigger returns "Gift of ...", should work fine.
+				--TODO: Cleanup and test (I'm not using anyway)
                     -- return RGMercUtils.SpellLoaded(spell) 
-					            -- and not RGMercUtils.BuffActive(mq.TLO.Spell(spell.RankName.AutoCast(spell)))
-                      -- and RGMercUtils.SpellStacksOnMe(mq.TLO.Spell(spell.RankName.AutoCast(spell)))
+					            -- and not RGMercUtils.BuffActive(spell.RankName.Name.Trigger())
+                      -- and RGMercUtils.SpellStacksOnMe(spell.RankName.Name.Trigger())
                 -- end,
             -- },
             -- {
