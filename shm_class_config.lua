@@ -19,15 +19,15 @@ local _ClassConfig = {
                 return RGMercUtils.UseAA("Radiant Cure", targetId)
             end
 			
-			-- local cureSpell = RGMercUtils.GetResolvedActionMapItem('CureSpell')
-            -- if not cureSpell or not cureSpell() then return false end
-            -- return RGMercUtils.UseSpell(cureSpell.RankName.Name(), targetId, true)
+			local cureSpell = RGMercUtils.GetResolvedActionMapItem('CureSpell')
+            if not cureSpell or not cureSpell() then return false end
+            return RGMercUtils.UseSpell(cureSpell.RankName.Name(), targetId, true)
+			
             -- if type:lower() == "poison" then
                 -- cureSpell = RGMercUtils.GetResolvedActionMapItem('TLPCurePoison')
             -- elseif type:lower() == "disease" then
                 -- cureSpell = RGMercUtils.GetResolvedActionMapItem('TLPCureDisease')
             -- end
-
             -- if not cureSpell or not cureSpell() then return false end
             -- return RGMercUtils.UseSpell(cureSpell.RankName.Name(), targetId, true)
         end,
@@ -652,21 +652,15 @@ local _ClassConfig = {
           if conLevel >= RGMercUtils.GetSetting('DebuffMinCon') or (RGMercUtils.IsNamed(mq.TLO.Target) and RGMercUtils.GetSetting('DebuffNamedAlways')) then return true end
           return false
         end,  
+	
 		
 		--customizing the dotspellcheck to add support for stopping DoT at a different HP% on named and trash
 		--TODO: Refactors, p.sure there is some redundant code here
-		DotSpellCheck = function(NamedStopDOT, HPStopDOT, spell)
+		DotSpellCheck = function(spell)
 			if not spell or not spell() then return false end
 			
-			--if RGMercUtils.TargetHasBuff(spell) or not RGMercUtils.SpellStacksOnTarget(spell) then return false end
+			return (RGMercUtils.GetSetting('NamedStopDOT') and RGMercUtils.IsNamed(mq.TLO.Target) or RGMercUtils.GetSetting('HPStopDOT')) and RGMercUtils.DetSpellCheck(spell)
 			
-			if RGMercUtils.IsNamed(mq.TLO.Target) then
-				return not RGMercUtils.TargetHasBuff(spell) and RGMercUtils.SpellStacksOnTarget(spell) and (RGMercUtils.GetTargetPctHPs() > RGMercUtils.GetSetting('NamedStopDOT'))
-			else
-				return not RGMercUtils.TargetHasBuff(spell) and RGMercUtils.SpellStacksOnTarget(spell) and (RGMercUtils.GetTargetPctHPs() > RGMercUtils.GetSetting('HPStopDOT'))
-			end
-		
-			return false
 		end,
 		
 		-- DotSpellCheck = function(spell)
@@ -916,16 +910,17 @@ local _ClassConfig = {
                     RGMercConfig:GetTimeSinceLastMove() > RGMercUtils.GetSetting('BuffWaitMoveTimer')
             end,
         },
-        {
-            name = 'Twin Heal',
-            state = 1,
-            steps = 1,
-            targetId = function(self) return mq.TLO.Target.ID() == RGMercUtils.GetMainAssistId() and { RGMercUtils.GetMainAssistId(), } or {} end,
-            cond = function(self, combat_state)
-                return combat_state == "Combat" and RGMercUtils.GetSetting('DoTwinHeal') and not RGMercUtils.SongActiveByName("Healing Twincast") and
-                    RGMercUtils.IsHealing() and not RGMercUtils.Feigning()
-            end,
-        },
+		--broken, autotarget wont stay on target long enough to get a cast off
+        -- {
+            -- name = 'Twin Heal',
+            -- state = 1,
+            -- steps = 1,
+            -- targetId = function(self) return mq.TLO.Target.ID() == RGMercUtils.GetMainAssistId() and { RGMercUtils.GetMainAssistId(), } or {} end,
+            -- cond = function(self, combat_state)
+                -- return combat_state == "Combat" and RGMercUtils.GetSetting('DoTwinHeal') and not RGMercUtils.SongActiveByName("Healing Twincast") and
+                    -- RGMercUtils.IsHealing() and not RGMercUtils.Feigning()
+            -- end,
+        -- },
         {
             name = 'Malo',
             state = 1,
@@ -986,13 +981,13 @@ local _ClassConfig = {
         },
     },
     ['Rotations']         = {
-        ['Twin Heal'] = {
-            {
-                name = "TwinHealNuke",
-                type = "Spell",
-                cond = function(self, _) return not RGMercUtils.SongActiveByName("Healing Twincast") end,
-            },
-        },
+        -- ['Twin Heal'] = {
+            -- {
+                -- name = "TwinHealNuke",
+                -- type = "Spell",
+                -- cond = function(self, _) return not RGMercUtils.SongActiveByName("Healing Twincast") end,
+            -- },
+        -- },
         -- ['Burn'] = {
             -- {
                 -- name = "Ancestral Aid",
@@ -1305,27 +1300,27 @@ local _ClassConfig = {
                 name = "ChaoticDoT",
                 type = "Spell",
                 cond = function(self, spell)
-                    return mq.TLO.Me.PctMana() > 50 and self.ClassConfig.HelperFunctions.DotSpellCheck(NamedStopDOT, HPStopDOT, spell)
+                    return mq.TLO.Me.PctMana() > 50 and self.ClassConfig.HelperFunctions.DotSpellCheck(spell)
                 end,
             },
             {
                 name = "CurseDoT2",
                 type = "Spell",
                 cond = function(self, spell)
-                    return mq.TLO.Me.PctMana() > 50 and self.ClassConfig.HelperFunctions.DotSpellCheck(NamedStopDOT, HPStopDOT, spell)
+                    return mq.TLO.Me.PctMana() > 50 and self.ClassConfig.HelperFunctions.DotSpellCheck(spell)
                 end,
             },
             {
                 name = "PandemicDot",
                 type = "Spell",
                 cond = function(self, spell)
-                    return mq.TLO.Me.PctMana() > 50 and self.ClassConfig.HelperFunctions.DotSpellCheck(NamedStopDOT, HPStopDOT, spell)
+                    return mq.TLO.Me.PctMana() > 50 and self.ClassConfig.HelperFunctions.DotSpellCheck(spell)
                 end,
             },
             {
                 name = "GroupRenewalHoT",
                 type = "Spell",
-                cond = function(self, spell) return not self.ClassConfig.HelperFunctions.DotSpellCheck(NamedStopDOT, HPStopDOT, spell) 
+                cond = function(self, spell) return not self.ClassConfig.HelperFunctions.DotSpellCheck(spell)
 					and RGMercUtils.SpellStacksOnMe(spell) and (mq.TLO.Me.Song(spell).Duration.TotalSeconds() or 0) < 30
 				end,
             },

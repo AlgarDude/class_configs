@@ -997,7 +997,7 @@ local _ClassConfig = {
 			{
                 name = "HealWard",
                 type = "Spell",
-                cond = function(self, spell) return RGMercUtils.PCSpellReady(spell) and RGMercUtils.SpellStacksOnMe(spell) and RGMercUtils.IsModeActive("Tank") and (mq.TLO.Me.Buff(spell).Duration.TotalSeconds() or 0) < 15
+                cond = function(self, spell) return RGMercUtils.PCSpellReady(spell) and RGMercUtils.SpellStacksOnMe(spell) and RGMercUtils.IsModeActive("Tank") and (mq.TLO.Me.Song(spell).Duration.TotalSeconds() or 0) < 15
 				end,
             },
             {
@@ -1485,7 +1485,7 @@ local _ClassConfig = {
                 tooltip = Tooltips.Carapace,
                 cond = function(self, discSpell)
                     return RGMercUtils.PCDiscReady(discSpell) and RGMercUtils.IsTanking() and
-                        (RGMercUtils.IsNamed(mq.TLO.Target) or mq.TLO.SpawnCount("NPC radius 30 zradius 50")() >= RGMercUtils.GetSetting('CarapaceCount')) and
+                        (RGMercUtils.IsNamed(mq.TLO.Target) or mq.TLO.SpawnCount("NPC radius 30 zradius 50")() >= RGMercUtils.GetSetting('ArmorCount')) and
                         not mq.TLO.Me.ActiveDisc.ID()
                 end,
             },
@@ -1942,8 +1942,8 @@ local _ClassConfig = {
         {
             id = 'ForHonor',
             Type = "Spell",
-            DisplayName = function() return RGMercUtils.GetResolvedActionMapItem('ForHonor')() or "" end,
-            AbilityName = function() return RGMercUtils.GetResolvedActionMapItem('ForHonor')() or "" end,
+            DisplayName = function() return RGMercUtils.GetResolvedActionMapItem('ForHonor').RankName.Name() or "" end,
+            AbilityName = function() return RGMercUtils.GetResolvedActionMapItem('ForHonor').RankName.Name() or "" end,
             AbilityRange = 200,
             cond = function(self)
                 local resolvedSpell = RGMercUtils.GetResolvedActionMapItem('ForHonor')

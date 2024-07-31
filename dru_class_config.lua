@@ -1253,9 +1253,11 @@ local _ClassConfig = {
                 name = "TempHPBuff",
                 type = "Spell",
                 active_cond = function(self, spell) return true end,
-                cond = function(self, spell, target)
-                    return not RGMercUtils.TargetHasBuff(spell) and target and target and
-                        RGMercConfig.Constants.RGTank:contains(target.Class.ShortName())
+                cond = function(self, spell, target, uiCheck)
+                    -- force the target for StacksTarget to work.
+                    if not uiCheck then RGMercUtils.SetTarget(target.ID() or 0) end
+                    return RGMercConfig.Constants.RGTank:contains(target.Class.ShortName()) and not RGMercUtils.TargetHasBuff(spell)
+                        and RGMercUtils.SpellStacksOnTarget(spell)
                 end,
             },
             {
