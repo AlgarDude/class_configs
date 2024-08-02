@@ -5,6 +5,7 @@ local Set          = require('mq.Set')
 local _ClassConfig = {
     _version              = "1.0 Beta",
     _author               = "Derple",
+	['FullConfig'] = true,
     ['ModeChecks']        = {
         IsHealing = function() return true end,
         IsCuring = function() return RGMercUtils.IsModeActive("Heal") end,
@@ -1243,8 +1244,8 @@ local _ClassConfig = {
                 name = "AtkBuff",
                 type = "Spell",
                 active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
-                cond = function(self, spell, target, uiCheck)
-                    if not uiCheck then RGMercUtils.SetTarget(target.ID() or 0) end
+                cond = function(self, spell, target)
+                    RGMercUtils.SetTarget(target.ID() or 0)
                     return not RGMercUtils.TargetHasBuff(spell) and RGMercUtils.SpellStacksOnTarget(spell) and
                         Set.new({ "BRD", "SHD", "PAL", "WAR", "ROG", "BER", "MNK", "RNG", }):contains((target.Class.ShortName() or ""))
                 end,
@@ -1253,9 +1254,9 @@ local _ClassConfig = {
                 name = "TempHPBuff",
                 type = "Spell",
                 active_cond = function(self, spell) return true end,
-                cond = function(self, spell, target, uiCheck)
+                cond = function(self, spell, target)
                     -- force the target for StacksTarget to work.
-                    if not uiCheck then RGMercUtils.SetTarget(target.ID() or 0) end
+                    RGMercUtils.SetTarget(target.ID() or 0)
                     return RGMercConfig.Constants.RGTank:contains(target.Class.ShortName()) and not RGMercUtils.TargetHasBuff(spell)
                         and RGMercUtils.SpellStacksOnTarget(spell)
                 end,
@@ -1264,9 +1265,9 @@ local _ClassConfig = {
                 name = "HPTypeOneGroup",
                 type = "Spell",
                 active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
-                cond = function(self, spell, target, uiCheck)
+                cond = function(self, spell, target)
                     -- force the target for StacksTarget to work.
-                    if not uiCheck then RGMercUtils.SetTarget(target.ID() or 0) end
+                    RGMercUtils.SetTarget(target.ID() or 0)
                     return not RGMercUtils.TargetHasBuff(spell, target) and RGMercUtils.SpellStacksOnTarget(spell)
                 end,
             },
@@ -1279,16 +1280,16 @@ local _ClassConfig = {
                         Set.new({ "SHD", "WAR", }):contains(target.Class.ShortName())
                 end,
             },
-            {
-                name = "GroupRegenBuff",
-                type = "Spell",
-                active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
-                cond = function(self, spell, target, uiCheck)
-                    -- force the target for StacksTarget to work.
-                    if not uiCheck then RGMercUtils.SetTarget(target.ID() or 0) end
-                    return not RGMercUtils.TargetHasBuff(spell, target) and RGMercUtils.SpellStacksOnTarget(spell)
-                end,
-            },
+            -- {
+                -- name = "GroupRegenBuff",
+                -- type = "Spell",
+                -- active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
+                -- cond = function(self, spell, target)
+                    -- -- force the target for StacksTarget to work.
+                    -- RGMercUtils.SetTarget(target.ID() or 0)
+                    -- return not RGMercUtils.TargetHasBuff(spell, target) and RGMercUtils.SpellStacksOnTarget(spell)
+                -- end,
+            -- },
             {
                 name = "Wrath of the Wild",
                 type = "AA",
@@ -1367,6 +1368,16 @@ local _ClassConfig = {
                 end,
                 cond = function(self, aaName)
                     return RGMercUtils.SelfBuffAACheck(aaName)
+                end,
+            },
+			{
+                name = "GroupRegenBuff",
+                type = "Spell",
+                active_cond = function(self, spell)
+                    return RGMercUtils.BuffActive(spell)
+                end,
+                cond = function(self, spell)
+                    return not RGMercUtils.BuffActive(spell) and RGMercUtils.SpellStacksOnMe(spell)
                 end,
             },
         },

@@ -75,6 +75,7 @@ local Tooltips     = {
 local _ClassConfig = {
     _version            = "1.1",
     _author             = "Algar (based on AlgarSK based on 1.0 Derple)",
+	['FullConfig'] = true,
     ['ModeChecks']        = {
         IsTanking = function() return RGMercUtils.IsModeActive("Tank") end,
         IsHealing = function() return true end,

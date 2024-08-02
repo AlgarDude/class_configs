@@ -4,6 +4,7 @@ local RGMercUtils = require("utils.rgmercs_utils")
 _ClassConfig      = {
     _version              = "Jank",
     _author               = "Algar",
+	['FullConfig'] = true,
     ['ModeChecks']        = {
         IsHealing = function() return true end,
         IsTanking = function() return RGMercUtils.IsModeActive("PetTank") end,
@@ -1237,10 +1238,12 @@ _ClassConfig      = {
 		
 			if scope == "group" then 
 				RGMercUtils.PrintGroupMessage("%s summoned, issuing autoinventory command momentarily.", mq.TLO.Cursor())
-				mq.delay(100)
-				RGMercUtils.DoCmd("/dgae /autoinventory")
+				local delay = RGMercUtils.GetSetting('AIGroupDelay')
+				mq.delay(delay)
+				RGMercUtils.DoGroupCmd("/autoinventory")
 			elseif scope == "personal" then
-				mq.delay(50)
+				local delay = RGMercUtils.GetSetting('AISelfDelay')
+				mq.delay(delay)
 				RGMercUtils.DoCmd("/autoinventory")
 			else
 				RGMercsLogger.log_debug("Invalid scope sent: (%s). Item handling aborted.", scope)
@@ -1645,18 +1648,18 @@ _ClassConfig      = {
             {
                 name = "LongDurDmgShield",
                 type = "Spell",
-                cond = function(self, spell, target, uiCheck)
+                cond = function(self, spell, target)
 					if (spell and spell() and ((spell.TargetType() or ""):lower() == "single")) and (target.ID() or 0) ~= RGMercUtils.GetMainAssistId() then return false end
-                    --if not uiCheck then RGMercUtils.SetTarget(target.ID() or 0) end
-                    return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName(), uiCheck) and RGMercUtils.SpellStacksOnTarget(spell)
+                    --RGMercUtils.SetTarget(target.ID() or 0)
+                    return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName()) and RGMercUtils.SpellStacksOnTarget(spell)
                 end, --not RGMercUtils.TargetHasBuff(spell) and
             },
 			-- {
                 -- name = "FireShroud",
                 -- type = "Spell",
-                -- cond = function(self, spell, target, uiCheck)
+                -- cond = function(self, spell, target)
                     -- -- force the target for StacksTarget to work.
-                    -- if not uiCheck then RGMercUtils.SetTarget(target.ID() or 0) end
+                    -- RGMercUtils.SetTarget(target.ID() or 0)
                     -- return RGMercUtils.TargetClassIs({ "WAR", "PAL", "SHD", }, target) and
                         -- not RGMercUtils.TargetHasBuff(spell, target) and RGMercUtils.SpellStacksOnTarget(spell)
                 -- end,
@@ -2012,6 +2015,8 @@ _ClassConfig      = {
         ['DoForce']        = { DisplayName = "Do Force", Category = "Spells & Abilities", Tooltip = "Use Force of Elements AA", Default = true, },
         ['DoMagicNuke']    = { DisplayName = "Do Magic Nuke", Category = "Spells & Abilities", Tooltip = "Use Magic nukes instead of Fire", Default = false, },
         ['DoChestClick']   = { DisplayName = "Do Chest Click", Category = "Utilities", Tooltip = "Click your chest item", Default = true, },
+		['AISelfDelay']    = { DisplayName = "Summon Autoinventory Delay (Self)", Category = "Utilities", Tooltip = "Delay in ms before /autoinventory after summoning, adjust to your network environment if you notice items left on cursors regularly.", Default = 50, Min = 1, Max = 250, },
+		['AIGroupDelay']    = { DisplayName = "Summon Autoinventory Delay (Group)", Category = "Utilities", Tooltip = "Delay in ms before /autoinventory after summoning, adjust to your network environment if you notice items left on cursors regularly.", Default = 150, Min = 1, Max = 500, },
         ['DoMalo']         = { DisplayName = "Cast Malo", Category = "Debuffs", Tooltip = "Do Malo Spells/AAs", Default = true, },
         ['DoAEMalo']       = { DisplayName = "Cast AE Malo", Category = "Debuffs", Tooltip = "Do AE Malo Spells/AAs", Default = false, },
         ['DebuffMinCon']         = { DisplayName = "Debuff Min Con", Category = "Debuffs", Tooltip = "Min Con to use debuffs on", Default = 4, Min = 1, Max = #RGMercConfig.Constants.ConColors, Type = "Combo", ComboOptions = RGMercConfig.Constants.ConColors, },

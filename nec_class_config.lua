@@ -14,6 +14,7 @@ local RGMercUtils  = require("utils.rgmercs_utils")
 local _ClassConfig = {
     _version            = "Jank",
     _author             = "Algar",
+	['FullConfig'] = true,
     ['Modes']           = {
         'DPS',
     },

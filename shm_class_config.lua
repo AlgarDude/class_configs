@@ -4,6 +4,7 @@ local RGMercUtils  = require("utils.rgmercs_utils")
 local _ClassConfig = {
      _version            = "Jank",
 	_author             ="Algar",
+	['FullConfig'] = true,
     ['ModeChecks']        = {
         IsHealing = function() return true end,
 		IsCuring = function() return true end,
@@ -766,9 +767,9 @@ local _ClassConfig = {
 			{
                 name = "GroupRenewalHoT",
                 type = "Spell",
-                cond = function(self, spell, target, uiCheck)
+                cond = function(self, spell, target)
                     -- force the target for StacksTarget to work.
-                    if not uiCheck then RGMercUtils.SetTarget(target.ID() or 0) end
+                    RGMercUtils.SetTarget(target.ID() or 0)
                     return RGMercUtils.GetSetting('DoHOT') and RGMercUtils.SpellStacksOnTarget(spell) and
                         not RGMercUtils.TargetHasBuff(spell)
                 end,
@@ -808,9 +809,9 @@ local _ClassConfig = {
             {
                 name = "RecourseHeal",
                 type = "Spell",
-                cond = function(self, spell, target, uiCheck)
+                cond = function(self, spell, target)
                     -- force the target for StacksTarget to work.
-                    if not uiCheck then RGMercUtils.SetTarget(target.ID() or 0) end
+                    RGMercUtils.SetTarget(target.ID() or 0)
                     return RGMercUtils.SpellStacksOnTarget(spell) and not RGMercUtils.TargetHasBuff(spell)
                 end,
             },
@@ -860,9 +861,9 @@ local _ClassConfig = {
             -- {
                 -- name = "GroupRenewalHoT",
                 -- type = "Spell",
-                -- cond = function(self, spell, target, uiCheck)
+                -- cond = function(self, spell, target)
                     -- -- force the target for StacksTarget to work.
-                    -- if not uiCheck then RGMercUtils.SetTarget(target.ID() or 0) end
+                    -- RGMercUtils.SetTarget(target.ID() or 0)
                     -- return RGMercUtils.GetSetting('DoHOT') and RGMercUtils.SpellStacksOnTarget(spell) and
                         -- not RGMercUtils.TargetHasBuff(spell)
                 -- end,
@@ -911,16 +912,16 @@ local _ClassConfig = {
             end,
         },
 		--broken, autotarget wont stay on target long enough to get a cast off
-        -- {
-            -- name = 'Twin Heal',
-            -- state = 1,
-            -- steps = 1,
-            -- targetId = function(self) return mq.TLO.Target.ID() == RGMercUtils.GetMainAssistId() and { RGMercUtils.GetMainAssistId(), } or {} end,
-            -- cond = function(self, combat_state)
-                -- return combat_state == "Combat" and RGMercUtils.GetSetting('DoTwinHeal') and not RGMercUtils.SongActiveByName("Healing Twincast") and
-                    -- RGMercUtils.IsHealing() and not RGMercUtils.Feigning()
-            -- end,
-        -- },
+        {
+            name = 'Twin Heal',
+            state = 1,
+            steps = 1,
+            targetId = function(self) return { RGMercUtils.GetMainAssistId(), } end,
+            cond = function(self, combat_state)
+                return combat_state == "Combat" and RGMercUtils.GetSetting('DoTwinHeal') and not RGMercUtils.SongActiveByName("Healing Twincast") and
+                    RGMercUtils.IsHealing() and not RGMercUtils.Feigning()
+            end,
+        },
         {
             name = 'Malo',
             state = 1,
@@ -981,13 +982,13 @@ local _ClassConfig = {
         },
     },
     ['Rotations']         = {
-        -- ['Twin Heal'] = {
-            -- {
-                -- name = "TwinHealNuke",
-                -- type = "Spell",
-                -- cond = function(self, _) return not RGMercUtils.SongActiveByName("Healing Twincast") end,
-            -- },
-        -- },
+        ['Twin Heal'] = {
+            {
+                name = "TwinHealNuke",
+                type = "Spell",
+                cond = function(self, _) return not RGMercUtils.SongActiveByName("Healing Twincast") end,
+            },
+        },
         -- ['Burn'] = {
             -- {
                 -- name = "Ancestral Aid",
@@ -1461,9 +1462,9 @@ local _ClassConfig = {
             -- {
                 -- name = "GrowthBuff",
                 -- type = "Spell",
-                -- cond = function(self, spell, target, uiCheck)
+                -- cond = function(self, spell, target)
                     -- -- force the target for StacksTarget to work.
-                    -- if not uiCheck then RGMercUtils.SetTarget(target.ID() or 0) end
+                    -- RGMercUtils.SetTarget(target.ID() or 0)
                     -- return RGMercUtils.GetSetting('DoGrowth') and RGMercUtils.TargetClassIs("WAR", target) and not RGMercUtils.TargetHasBuff(spell, target) and
                         -- RGMercUtils.SpellStacksOnTarget(spell)
                 -- end,
@@ -1471,9 +1472,9 @@ local _ClassConfig = {
             {
                 name = "SlowProcBuff",
                 type = "Spell",
-                cond = function(self, spell, target, uiCheck)
+                cond = function(self, spell, target)
                     -- force the target for StacksTarget to work.
-                    if not uiCheck then RGMercUtils.SetTarget(target.ID() or 0) end
+                    RGMercUtils.SetTarget(target.ID() or 0)
                     return RGMercUtils.TargetClassIs({ "WAR", "PAL", "SHD", }, target) and
                         not RGMercUtils.TargetHasBuff(spell, target) and RGMercUtils.SpellStacksOnTarget(spell)
                 end,
@@ -1481,9 +1482,9 @@ local _ClassConfig = {
             -- {
                 -- name = "LowLvlStaminaBuff",
                 -- type = "Spell",
-                -- cond = function(self, spell, target, uiCheck)
+                -- cond = function(self, spell, target)
                     -- -- force the target for StacksTarget to work.
-                    -- if not uiCheck then RGMercUtils.SetTarget(target.ID() or 0) end
+                    -- RGMercUtils.SetTarget(target.ID() or 0)
                     -- return mq.TLO.Me.Level() <= 85 and RGMercUtils.TargetClassIs({ "WAR", "PAL", "SHD", }, target) and
                         -- not RGMercUtils.TargetHasBuff(spell, target) and RGMercUtils.GetSetting('DoStatBuff') and
                         -- RGMercUtils.SpellStacksOnTarget(spell)
@@ -1492,9 +1493,9 @@ local _ClassConfig = {
             -- {
                 -- name = "LowLvlAttackBuff",
                 -- type = "Spell",
-                -- cond = function(self, spell, target, uiCheck)
+                -- cond = function(self, spell, target)
                     -- -- force the target for StacksTarget to work.
-                    -- if not uiCheck then RGMercUtils.SetTarget(target.ID() or 0) end
+                    -- RGMercUtils.SetTarget(target.ID() or 0)
                     -- return mq.TLO.Me.Level() <= 85 and
                         -- RGMercUtils.TargetClassIs({ "WAR", "PAL", "SHD", "ROG", "MNK", "BER", "RNG", "BST", }, target) and
                         -- not RGMercUtils.TargetHasBuff(spell, target) and RGMercUtils.GetSetting('DoStatBuff') and
@@ -1504,9 +1505,9 @@ local _ClassConfig = {
             -- {
                 -- name = "LowLvlStrBuff",
                 -- type = "Spell",
-                -- cond = function(self, spell, target, uiCheck)
+                -- cond = function(self, spell, target)
                     -- -- force the target for StacksTarget to work.
-                    -- if not uiCheck then RGMercUtils.SetTarget(target.ID() or 0) end
+                    -- RGMercUtils.SetTarget(target.ID() or 0)
                     -- return mq.TLO.Me.Level() <= 85 and (spell.Level() or 0) >= 71 and
                         -- RGMercUtils.TargetClassIs({ "WAR", "PAL", "SHD", "ROG", "MNK", "BER", "RNG", "BST", }, target) and
                         -- not RGMercUtils.TargetHasBuff(spell, target) and RGMercUtils.GetSetting('DoStatBuff') and
@@ -1516,9 +1517,9 @@ local _ClassConfig = {
             -- {
                 -- name = "LowLvlAgiBuff",
                 -- type = "Spell",
-                -- cond = function(self, spell, target, uiCheck)
+                -- cond = function(self, spell, target)
                     -- -- force the target for StacksTarget to work.
-                    -- if not uiCheck then RGMercUtils.SetTarget(target.ID() or 0) end
+                    -- RGMercUtils.SetTarget(target.ID() or 0)
                     -- return mq.TLO.Me.Level() <= 85 and
                         -- RGMercUtils.TargetClassIs({ "WAR", "PAL", "SHD", "ROG", "MNK", "BER", "RNG", "BST", }, target) and
                         -- not RGMercUtils.TargetHasBuff(spell, target) and RGMercUtils.GetSetting('DoStatBuff') and
@@ -1528,9 +1529,9 @@ local _ClassConfig = {
             -- {
                 -- name = "LowLvlDexBuff",
                 -- type = "Spell",
-                -- cond = function(self, spell, target, uiCheck)
+                -- cond = function(self, spell, target)
                     -- -- force the target for StacksTarget to work.
-                    -- if not uiCheck then RGMercUtils.SetTarget(target.ID() or 0) end
+                    -- RGMercUtils.SetTarget(target.ID() or 0)
                     -- return mq.TLO.Me.Level() <= 85 and
                         -- RGMercUtils.TargetClassIs({ "WAR", "PAL", "SHD", "ROG", "MNK", "BER", "RNG", "BST", }, target) and
                         -- not RGMercUtils.TargetHasBuff(spell, target) and RGMercUtils.GetSetting('DoStatBuff') and
@@ -1540,25 +1541,25 @@ local _ClassConfig = {
             {
                 name = "FocusSpell",
                 type = "Spell",
-                cond = function(self, spell, target, uiCheck)
+                cond = function(self, spell, target)
                     -- force the target for StacksTarget to work.
                     --if (spell and spell() and ((spell.TargetType() or ""):lower() ~= "single")) then return false end
 
-                    if not uiCheck then RGMercUtils.SetTarget(target.ID() or 0) end
+                    RGMercUtils.SetTarget(target.ID() or 0)
                     return not RGMercUtils.TargetHasBuff(spell, target) and RGMercUtils.SpellStacksOnTarget(spell)
                 end,
             },
             -- {
                 -- name = "HasteBuff",
                 -- type = "Spell",
-                -- cond = function(self, spell, target, uiCheck)
+                -- cond = function(self, spell, target)
                     -- if RGMercUtils.CanUseAA("Talisman of Celerity") then return false end
                     -- local focusSpell = self:GetResolvedActionMapItem('FocusSpell')
 
                     -- local focusLevelPass = focusSpell and (focusSpell.Level() or 0) <= 111 or true
 
                     -- -- force the target for StacksTarget to work.
-                    -- if not uiCheck then RGMercUtils.SetTarget(target.ID() or 0) end
+                    -- RGMercUtils.SetTarget(target.ID() or 0)
 
                     -- return focusLevelPass and
                         -- RGMercUtils.TargetClassIs({ "WAR", "PAL", "SHD", "ROG", "MNK", "BER", "RNG", "BST", }, target) and
@@ -1570,9 +1571,9 @@ local _ClassConfig = {
                 -- name = "RunSpeedBuff",
                 -- type = "Spell",
                 -- active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
-                -- cond = function(self, spell, target, uiCheck)
+                -- cond = function(self, spell, target)
                     -- -- force the target for StacksTarget to work.
-                    -- -- not uiCheck then RGMercUtils.SetTarget(target.ID() or 0) end
+                    -- -- not uiCheck then RGMercUtils.SetTarget(target.ID() or 0)
                     -- return RGMercUtils.GetSetting('DoRunSpeed') and not RGMercUtils.TargetHasBuff(spell) and RGMercUtils.SpellStacksOnTarget(spell) and
                         -- not RGMercUtils.CanUseAA("Lupine Spirit") and RGMercUtils.TargetIsType("PC", target)
                 -- end,
@@ -1588,7 +1589,7 @@ local _ClassConfig = {
                     local speedSpell = mq.TLO.Me.AltAbility(aaName).Spell.Trigger(1)
                     if not speedSpell or not speedSpell() then return false end
                     -- force the target for StacksTarget to work.
-                    if not uiCheck then RGMercUtils.SetTarget(target.ID() or 0) end
+                    RGMercUtils.SetTarget(target.ID() or 0)
 
                     return RGMercUtils.GetSetting('DoRunSpeed') and RGMercUtils.TargetIsType("PC", target) and RGMercUtils.CanUseAA(aaName) and
                         not RGMercUtils.TargetHasBuff(speedSpell) and not RGMercUtils.TargetHasBuff(spell) and RGMercUtils.SpellStacksOnTarget(speedSpell)
@@ -1766,6 +1767,7 @@ local _ClassConfig = {
             spells = {
                 -- [ HEAL MODE ] --
 				--Took this out because it lasts over 20 minutes, it will mem as needed.
+				{ name = "CureSpell", 	 cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
 				{ name = "GroupHealProcBuff", 	 cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
                 -- [ Hybrid MODE ] --
                -- { name = "GrowthBuff", cond = function(self) return RGMercUtils.GetSetting('DoGrowth') end, },
