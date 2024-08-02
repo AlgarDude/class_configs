@@ -26,9 +26,8 @@ local Tooltips                    = {
     "Song Line: Triggers Psalm of Empowerment and Psalm of Potential H/M/E Increase Melee and Caster Dam Increase",
     BardDPSAura      = "Aura Line: OverHaste, Melee/Caster DPS",
     BardRegenAura    = "Aura Line: HP/Mana Regen",
-    PulseRegenSong   = "Song Line: HP/Mana/Endurence Regen Increases Healing Yield",
-    ChorusRegenSong  = "Song Line: AE HP/Mana Regen",
-    CantataRegenSong = "Song Line: Group HP/Mana Regen",
+    AreaRegenSong  	 = "Song Line: AE HP/Mana Regen",
+    GroupRegenSong 	 = "Song Line: Group HP/Mana Regen",
     CasterAriaSong   = "Song Line: Fire DD Damage Increase + Effiency",
     SlowSong         = "Song Line: Melee Attack Slow",
     AESlowSong       = "Song Line: PBAE Melee Attack Slow",
@@ -125,7 +124,6 @@ local function generateSongList()
 
     local function AddHealerSongs()
         ConditionallyAddSong("UseReckless", "RecklessSong")
-        ConditionallyAddSong("UsePulse", "PulseRegenSong")
     end
 
     local function AddCasterDPSSongs()
@@ -138,9 +136,9 @@ local function generateSongList()
     local function AddRegenSongs()
         ConditionallyAddSong("UseAmp", "AmpSong")
         ConditionallyAddSong("UseCrescendo", "CrescendoSong")
-        ConditionallyAddSong("UseChorus", "ChorusRegenSong")
-        ConditionallyAddSong("UsePulse", "PulseRegenSong")
-        ConditionallyAddSong("UseCantata", "CantataRegenSong")
+        if RGMercUtils.GetSetting('UseAura') == 1 then addSong("GroupRegenSong")
+        elseif RGMercUtils.GetSetting('UseAura') == 2 then addSong("AreaRegenSong")
+        end
     end
     -- local function AddEnduringBreathSongs()
         -- ConditionallyAddSong("UseEnduringBreath", "EnduringBreathSong")
@@ -194,7 +192,6 @@ local function generateSongList()
         AddMeleeDPSSongs()
         AddCasterDPSSongs()
     end
-    --AddBardAura()
     return songCache
 end
 
@@ -376,8 +373,8 @@ local _ClassConfig = {
             "Aura of Renewal",
             "Aura of Rodcet",
         },
-        ['PulseRegenSong'] = {
-            -- PulseRegenSong - Level Range 77 - 111 ** -- Low level regens are for TLP users thus preferring mana over health.
+        ['GroupRegenSong'] = {
+			--Note level 77 pulse only offers a heal% buff
             "Pulse of August", -- 125
             "Pulse of Nikolas",
             "Pulse of Vhal`Sera",
@@ -385,47 +382,35 @@ local _ClassConfig = {
             "Pulse of Sionachie",
             "Pulse of Salarra",
             "Pulse of Lunanyn",
-            "Pulse of Renewal",
-            "Pulse of Rodcet",
-            "Cassindra's Chorus of Clarity",
-            "Cassindra's Chant of Clarity",
-            "Rhythm of Restoration",
+            "Pulse of Renewal", 		--86 start hp/mana/endurance
+			"Cantata of Rodcet",        -- 81
+            "Cantata of Restoration",   -- 76
+            "Erollisi's Cantata",       -- 71
+            "Cantata of Life",          -- 67
+            "Wind of Marr",             -- 62
+            "Cantata of Replenishment", -- 55
+            "Cantata of Soothing",      -- 34 start hp/mana
+			"Cassindra's Chant of Clarity", --20, mana only
+            "Hymn of Restoration",      -- 7, hp only
+            
         },
-        ['ChorusRegenSong'] = {
-            -- ChorusRegenSong - Level Range 6 - 113
-            "Chorus of Shalowain", -- 125
-            "Chorus of Shei Vinitras",
-            "Chorus of Vhal`Sera",
-            "Chorus of Xigam",
-            "Chorus of Sionachie",
-            "Chorus of Salarra",
-            "Chorus of Lunanyn",
-            "Chorus of Renewal",
-            "Chorus of Rodcet",
-            "Cantata of Rodcet",
-            "Chorus of Restoration",
-            "Cantata of Restoration",
-            "Erollisi's Cantata",
-            "Chorus of Life",
-            "Cantata of Life",
-            "Chorus of Marr",
-            "Wind of Marr",
-            "Chorus of Replenishment",
-            "Cantata of Replenishment",
-            "Cantata of Soothing",
-            "Hymn of Restoration",
-
-        },
-        ['CantataRegenSong'] = {
-            -- CantataRegenSong - Level Range 6 - 113
-            "Cantata of Rodcet",
-            "Cantata of Restoration",
-            "Erollisi's Cantata",
-            "Cantata of Life",
-            "Wind of Marr",
-            "Cantata of Replenishment",
-            "Cantata of Soothing",
-            "Hymn of Restoration",
+        ['AreaRegenSong'] = {
+            -- ChorusRegenSong - Level Range 58 - 113
+            "Chorus of Shalowain",      -- 123
+            "Chorus of Shei Vinitras",  -- 118
+            "Chorus of Vhal`Sera",      -- 113
+            "Chorus of Xigam",          -- 108
+            "Chorus of Sionachie",      -- 103
+            "Chorus of Salarra",        -- 98
+            "Chorus of Lunanyn",        -- 93
+            "Chorus of Renewal",        -- 88
+            "Chorus of Rodcet",         -- 83
+            "Chorus of Restoration",    -- 78
+            "Erollisi's Chorus",        -- 73
+            "Chorus of Life",           -- 69
+            "Chorus of Marr",           -- 64
+            "Ancient: Lcea's Lament",   -- 60
+            "Chorus of Replenishment",  -- 58
         },
         ['WarMarchSong'] = {
             -- WarMarchSong Level Range 10 - 114
@@ -1072,12 +1057,12 @@ local _ClassConfig = {
                 end,
             },
 			{
-                name = "PulseRegenSong",
+                name = "GroupRegenSong",
                 type = "Song",
                 targetId = function(self) return { mq.TLO.Me.ID(), } end,
                 cond = function(self, songSpell, combat_state)
                     if combat_state == "Combat" then return RGMercUtils.BuffSong(songSpell) 
-						and mq.TLO.Group.LowMana(RGMercUtils.Settings('CombatRegentPct'))() or -1) => RGMercUtils.Settings('CombatRegentCt')
+						and (mq.TLO.Group.LowMana(RGMercUtils.GetSetting('CombatRegenPct'))() or -1) >= RGMercUtils.GetSetting('CombatRegenCt')
 					else return RGMercUtils.SongMemed(songSpell) and
 						(mq.TLO.Me.Song(songSpell.Name()).Duration.TotalSeconds() or 0) < 15 end
                 end,
@@ -1210,11 +1195,11 @@ local _ClassConfig = {
         ['UseResist']        = { DisplayName = "Use Resists", Category = "Heal Songs", Tooltip = Tooltips.ResistSong, RequiresLoadoutChange = true, Default = false, },
         ['UseReckless']      = { DisplayName = "Use Reckless", Category = "Heal Songs", Tooltip = Tooltips.RecklessSong, RequiresLoadoutChange = true, Default = false, },
         ['UseCure']          = { DisplayName = "Use Cure", Category = "Heal Songs", Tooltip = Tooltips.CureSong, RequiresLoadoutChange = true, Default = false, },
-        ['UsePulse']         = { DisplayName = "Use Pulse", Category = "Heal Songs", Tooltip = Tooltips.PulseRegenSong, RequiresLoadoutChange = true, Default = true, },
         --Regen
         ['UseAmp']           = { DisplayName = "Use Amp", Category = "Regen Songs", Tooltip = Tooltips.AmpSong, RequiresLoadoutChange = true, Default = false, },
-        ['UseChorus']        = { DisplayName = "Use Chorus", Category = "Regen Songs", Tooltip = Tooltips.ChorusRegenSong, RequiresLoadoutChange = true, Default = true, },
-        ['UseCantata']       = { DisplayName = "Use Cantata", Category = "Regen Songs", Tooltip = Tooltips.CantataRegenSong, RequiresLoadoutChange = true, Default = false, },
+        
+		
+		['Regen Song']     	= { DisplayName = "Regen Song Choice", Category = "Regen Songs", RequiresLoadoutChange = true, Type = "Combo", ComboOptions = { 'Group', 'Area', 'Off', }, Default = 1, Min = 1, Max = 3, },
         ['UseCrescendo']     = { DisplayName = "Use Crescendo", Category = "Regen Songs", Tooltip = Tooltips.CrescendoSong, RequiresLoadoutChange = true, Default = true, },
         ['UseAccelerando']   = { DisplayName = "Use Accelerando", Category = "Regen Songs", Tooltip = Tooltips.AccelerandoSong, RequiresLoadoutChange = true, Default = false, },
 		['CombatRegenPct']   = { DisplayName = "Combat Regen Mana", Category = "Regen Songs", Tooltip = "Start using regen songs in combat when party members are below this % Mana", Default = 80, Min = 1, Max = 100, },
