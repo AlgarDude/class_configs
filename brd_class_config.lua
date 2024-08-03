@@ -136,8 +136,8 @@ local function generateSongList()
     local function AddRegenSongs()
         ConditionallyAddSong("UseAmp", "AmpSong")
         ConditionallyAddSong("UseCrescendo", "CrescendoSong")
-        if RGMercUtils.GetSetting('UseAura') == 1 then addSong("GroupRegenSong")
-        elseif RGMercUtils.GetSetting('UseAura') == 2 then addSong("AreaRegenSong")
+        if RGMercUtils.GetSetting('RegenSong') == 1 then addSong("GroupRegenSong")
+        elseif RGMercUtils.GetSetting('RegenSong') == 2 then addSong("AreaRegenSong")
         end
     end
     -- local function AddEnduringBreathSongs()
@@ -205,6 +205,7 @@ end
 local _ClassConfig = {
     _version          = "0.3",
     _author           = "Derple, Tiddliestix, SonicZentropy, Algar",
+	['FullConfig'] = true,
     ['Modes']         = {
         'General',
         'Tank',
@@ -719,14 +720,21 @@ local _ClassConfig = {
             "Wave of Slumber",
         },
     },
+	['HelperFunctions']   = {
+		CheckSongStateUse = function(self, config)
+		local usestate = RGMercUtils.GetSetting(config)
+		if (not mq.TLO.Me.Combat() and usestate > 1) or (mq.TLO.Me.Combat() and usestate < 3) then return true end
+		return false
+		end,
+	},
     ['RotationOrder'] = {
 		{
             name = 'Melody',
 			state = 1,
             steps = 1,
             targetId = function(self) return { mq.TLO.Me.ID(), } end,
-            cond = function(self)
-                return not RGMercUtils.Feigning() and not (combat_state == "Downtime" and mq.TLO.Me.Invis())
+            cond = function(self, combat_state)
+				return not RGMercUtils.Feigning() and not (combat_state == "Downtime" and mq.TLO.Me.Invis())
             end,
         },
         {
@@ -774,7 +782,7 @@ local _ClassConfig = {
                 name = "Epic",
                 type = "Item",
                 cond = function(self)
-                    return RGMercUtils.GetSetting('UseEpic') == 2
+                    return RGMercUtils.GetSetting('UseEpic') == 2 and mq.TLO.FindItemCount(itemName)() ~= 0 and mq.TLO.FindItem(itemName).TimerReady() == 0
                 end,
             },
             {
@@ -853,24 +861,22 @@ local _ClassConfig = {
                 name = "Cacophony",
                 type = "AA",
                 cond = function(self, aaName)
-                    return RGMercUtils.AAReady(aaName)
+                    return RGMercUtils.NPCAAReady(aaName, targetId)
                 end,
             },
             {
                 name = "Frenzied Kicks",
                 type = "AA",
                 cond = function(self, aaName)
-                    return RGMercUtils.AAReady(aaName)
+                    return RGMercUtils.NPCAAReady(aaName, targetId)
                 end,
             },
 			{
                 name = "Boastful Bellow",
                 type = "AA",
                 cond = function(self, aaName)
-                    return RGMercUtils.GetSetting('UseBellow')
-                        and not RGMercUtils.SongActiveByName("Boastful Bellow")
-                        and RGMercUtils.AAReady(aaName)
-                        and mq.TLO.Me.PctEndurance() > 20 -- Bellow DEVOURS endurance
+                    return RGMercUtils.GetSetting('UseBellow') and RGMercUtils.NPCAAReady(aaName, targetId) and RGMercUtils.SelfBuffAACheck(aaName)
+						and mq.TLO.Me.PctEndurance() > RGMercUtils.GetSetting('BellowPct')
                 end,
             },
         },
@@ -970,7 +976,15 @@ local _ClassConfig = {
                         and mq.TLO.Me.PctEndurance() > 40 -- Bellow DEVOURS endurance
                 end,
             },
-						{
+			{
+                name = "DichoSong",
+                type = "Song",
+                cond = function(self, songSpell)
+                    return RGMercUtils.GetSetting('UseProgressive') and RGMercUtils.SongMemed(songSpell) and mq.TLO.Me.PctEndurance() > 25
+						and RGMercUtils.BuffActiveByID(mq.TLO.Me.AltAbility("Quick Time").Spell.ID()) --and mq.TLO.Me.Song(mq.TLO.Me.AltAbility("Quick Time").Spell.Name)()
+                end,
+            },
+			{
                 name = "FireDotSong",
                 type = "Song",
                 cond = function(self, songSpell)
@@ -1024,8 +1038,7 @@ local _ClassConfig = {
                 type = "Song",
                 targetId = function(self) return { mq.TLO.Me.ID(), } end,
                 cond = function(self, songSpell, combat_state)
-                    if combat_state == "Combat" then return RGMercUtils.BuffSong(songSpell) else return RGMercUtils.SongMemed(songSpell) and
-						(mq.TLO.Me.Song(songSpell.Name()).Duration.TotalSeconds() or 0) < 15 end
+				 return RGMercUtils.BuffSong(songSpell)
                 end,
             },
             {
@@ -1033,16 +1046,14 @@ local _ClassConfig = {
                 type = "Song",
                 targetId = function(self) return { mq.TLO.Me.ID(), } end,
                 cond = function(self, songSpell, combat_state)
-                    if combat_state == "Combat" then return RGMercUtils.BuffSong(songSpell) else return RGMercUtils.SongMemed(songSpell) and
-						(mq.TLO.Me.Song(songSpell.Name()).Duration.TotalSeconds() or 0) < 15 end
+				 return RGMercUtils.BuffSong(songSpell)
                 end,
             },
 			{
                 name = "ArcaneSong",
                 type = "Song",
                 cond = function(self, songSpell, combat_state)
-                    if combat_state == "Combat" then return RGMercUtils.BuffSong(songSpell) else return RGMercUtils.SongMemed(songSpell) and
-						(mq.TLO.Me.Song(songSpell.Name()).Duration.TotalSeconds() or 0) < 15 end
+				 return RGMercUtils.BuffSong(songSpell)
                 end,
             },
 			{
@@ -1051,9 +1062,9 @@ local _ClassConfig = {
                 targetId = function(self) return { mq.TLO.Me.ID(), } end,
                 cond = function(self, songSpell)
                     local gemTimer = mq.TLO.Me.GemTimer(songSpell.Name())() or 0
-                    return RGMercUtils.BuffSong(songSpell) and gemTimer == 0 and
-                        mq.TLO.Me.PctMana() < 75
-                        and not mq.TLO.Me.Invis()
+					local pct = RGMercUtils.GetSetting('CrescendoPct')
+                    return RGMercUtils.GetSetting('UseCrescendo') and RGMercUtils.SongMemed(songSpell) and gemTimer == 0 and
+						(mq.TLO.Group.LowMana(pct)() or -1) < RGMercUtils.GetSetting('CrescendoCt')
                 end,
             },
 			{
@@ -1061,29 +1072,16 @@ local _ClassConfig = {
                 type = "Song",
                 targetId = function(self) return { mq.TLO.Me.ID(), } end,
                 cond = function(self, songSpell, combat_state)
-                    if combat_state == "Combat" then return RGMercUtils.BuffSong(songSpell) 
-						and (mq.TLO.Group.LowMana(RGMercUtils.GetSetting('CombatRegenPct'))() or -1) >= RGMercUtils.GetSetting('CombatRegenCt')
-					else return RGMercUtils.SongMemed(songSpell) and
-						(mq.TLO.Me.Song(songSpell.Name()).Duration.TotalSeconds() or 0) < 15 end
-                end,
-            },
-			{
-                name = "DichoSong",
-                type = "Song",
-                cond = function(self, songSpell)
-                    return RGMercUtils.GetSetting('UseProgressive') and
-                        RGMercUtils.BuffSong(songSpell) and RGMercUtils.PCSpellReady(songSpell)
-						and (mq.TLO.Group.LowMana(80)() or -1) > 1
-                        and mq.TLO.Me.PctEndurance() > 25
+					local pct = RGMercUtils.GetSetting('CombatRegenPct')
+                    return RGMercUtils.BuffSong(songSpell) and not (mq.TLO.Me.Combat() and (mq.TLO.Group.LowMana(pct)() or -1) < RGMercUtils.GetSetting('CombatRegenCt'))
                 end,
             },
 			{
                 name = "SufferingSong",
                 type = "Song",
-                cond = function(self, songSpell, combat_state)
-                    if combat_state == "Combat" then return RGMercUtils.BuffSong(songSpell) else return RGMercUtils.SongMemed(songSpell) and
-						(mq.TLO.Me.Song(songSpell.Name()).Duration.TotalSeconds() or 0) < 15 end
-                end,
+                cond = function(self, songSpell)
+					return self.ClassConfig.HelperFunctions.CheckSongStateUse(self, "SufferingState") and RGMercUtils.BuffSong(songSpell)
+				end,
             },
 		},
         ['Downtime'] = {
@@ -1121,7 +1119,7 @@ local _ClassConfig = {
                 -- type = "Song",
                 -- targetId = function(self) return { mq.TLO.Me.ID(), } end,
                 -- cond = function(self, songSpell)
-                    -- return RGMercUtils.SongMemed(songSpell) and RGMercUtils.BuffSong(songSpell)
+                    -- return RGMercUtils.BuffSong(songSpell)
                 -- end,
             -- },
             -- {
@@ -1129,7 +1127,7 @@ local _ClassConfig = {
                 -- type = "Song",
                 -- targetId = function(self) return { mq.TLO.Me.ID(), } end,
                 -- cond = function(self, songSpell)
-                    -- return RGMercUtils.SongMemed(songSpell) and RGMercUtils.BuffSong(songSpell) and
+                    -- return RGMercUtils.BuffSong(songSpell) and
                         -- not RGMercUtils.GetSetting('UseAASelo') and
                         -- RGMercUtils.GetSetting('DoRunSpeed')
                 -- end,
@@ -1139,10 +1137,7 @@ local _ClassConfig = {
                 type = "AA",
                 targetId = function(self) return { mq.TLO.Me.ID(), } end,
                 cond = function(self, aaName)
-                    return RGMercUtils.AAReady(aaName) and
-                        not RGMercUtils.SelfBuffCheck("Selo's Accelerato") and
-                        RGMercUtils.GetSetting('UseAASelo') and
-                        RGMercUtils.GetSetting('DoRunSpeed')
+                    return RGMercUtils.SelfBuffAACheck(aaName) and RGMercUtils.GetSetting('UseAASelo') and RGMercUtils.GetSetting('DoRunSpeed')
                 end,
             },
            
@@ -1180,6 +1175,7 @@ local _ClassConfig = {
 
         ['UseAlliance']      = { DisplayName = "Use Alliance", Category = "Combat", Tooltip = Tooltips.AllianceSong, RequiresLoadoutChange = true, Default = false, },
         ['UseBellow']        = { DisplayName = "Use Bellow", Category = "Combat", Tooltip = "Use Boastful Bellow", Default = true, },
+		['BellowPct']   	= { DisplayName = "Bellow Min End%", Category = "Combat", Tooltip = "Minimum End% to use Bellow.", Default = 40, Min = 1, Max = 100, },
 		['UseAura']           = { DisplayName = "Use Bard Aura", Category = "Buffs", Tooltip = "Select the Aura to be used, if any.", Type = "Combo", ComboOptions = { 'DPS', 'Regen', 'None' }, RequiresLoadoutChange = true, Default = 1, Min = 1, Max = 3, },
         -- Debuffs
         ['DoSlow']           = { DisplayName = "Cast Slow", Category = "Combat", Tooltip = Tooltips.SlowSong, RequiresLoadoutChange = true, Default = false, },
@@ -1199,11 +1195,13 @@ local _ClassConfig = {
         ['UseAmp']           = { DisplayName = "Use Amp", Category = "Regen Songs", Tooltip = Tooltips.AmpSong, RequiresLoadoutChange = true, Default = false, },
         
 		
-		['Regen Song']     	= { DisplayName = "Regen Song Choice", Category = "Regen Songs", RequiresLoadoutChange = true, Type = "Combo", ComboOptions = { 'Group', 'Area', 'Off', }, Default = 1, Min = 1, Max = 3, },
+		['RegenSong']     	= { DisplayName = "Regen Song Choice", Category = "Regen Songs", Tooltip = "Select the Regen Song to be used, if any.", RequiresLoadoutChange = true, Type = "Combo", 		ComboOptions = { 'Group', 'Area', 'None', }, Default = 1, Min = 1, Max = 3, },
         ['UseCrescendo']     = { DisplayName = "Use Crescendo", Category = "Regen Songs", Tooltip = Tooltips.CrescendoSong, RequiresLoadoutChange = true, Default = true, },
         ['UseAccelerando']   = { DisplayName = "Use Accelerando", Category = "Regen Songs", Tooltip = Tooltips.AccelerandoSong, RequiresLoadoutChange = true, Default = false, },
-		['CombatRegenPct']   = { DisplayName = "Combat Regen Mana", Category = "Regen Songs", Tooltip = "Start using regen songs in combat when party members are below this % Mana", Default = 80, Min = 1, Max = 100, },
-		['CombatRegenCt']   = { DisplayName = "Combat Regen Count", Category = "Regen Songs", Tooltip = "The number of party members (including yourself) that need to be under the above percentage", Default = 2, Min = 1, Max = 6, },
+		['CombatRegenPct']   = { DisplayName = "Combat Regen Mana", Category = "Regen Songs", Tooltip = "Mana% to begin using your Regen Song in combat.", Default = 80, Min = 1, Max = 100, },
+		['CombatRegenCt']   = { DisplayName = "Combat Regen Count", Category = "Regen Songs", Tooltip = "The number of party members (including yourself) that need to be under the mana percentage", Default = 2, Min = 1, Max = 6, },
+		['CrescendoPct']   = { DisplayName = "Crescendo Mana", Category = "Regen Songs", Tooltip = "Mana% to begin using Crescendo or to begin using your Regen Song in combat.", Default = 85, Min = 1, Max = 100, },
+		['CrescendoCt']   = { DisplayName = "Crescendo Count", Category = "Regen Songs", Tooltip = "The number of party members (including yourself) that need to be under the mana percentage", Default = 2, Min = 1, Max = 6, },
 		
         --DPS
         ['UseInsult']        = { DisplayName = "Use Insult Nuke", Category = "DPS Songs", Tooltip = Tooltips.InsultSong, RequiresLoadoutChange = true, Default = true, },
@@ -1216,15 +1214,16 @@ local _ClassConfig = {
         ['UseSpiteful']      = { DisplayName = "Use Spiteful", Category = "Tank Songs", Tooltip = Tooltips.SpitefulSong, RequiresLoadoutChange = true, Default = false, },
         ['UseSpry']          = { DisplayName = "Use Spry", Category = "Tank Songs", Tooltip = Tooltips.SprySonataSong, RequiresLoadoutChange = true, Default = false, },
         --Caster
-        ['UseArcane']        = { DisplayName = "Use Arcane", Category = "Caster Songs", Tooltip = Tooltips.ArcaneSong, RequiresLoadoutChange = true, Default = false, },
+        ['UseArcane']        = { DisplayName = "Use Arcane", Category = "Caster Songs", Tooltip = Tooltips.ArcaneSong, RequiresLoadoutChange = true, Default = true, },
         ['UseFireDDMod']     = { DisplayName = "Use Fire Aria", Category = "Caster Songs", Tooltip = Tooltips.CasterAriaSong, RequiresLoadoutChange = true, Default = false, },
         ['UsePotency']       = { DisplayName = "Use Potency", Category = "Caster Songs", Tooltip = Tooltips.PotencySong, RequiresLoadoutChange = true, Default = false, },
         ['UseFate']          = { DisplayName = "Use Fate", Category = "Caster Songs", Tooltip = Tooltips.FateSong, RequiresLoadoutChange = true, Default = false, },
         -- Melee DPS Only
-        ['UseSuffering']     = { DisplayName = "Use Suffering", Category = "Melee Songs", Tooltip = Tooltips.SufferingSong, RequiresLoadoutChange = true, Default = false, },
+        ['UseSuffering']     = { DisplayName = "Use Suffering Line", Category = "Melee Songs", Tooltip = Tooltips.SufferingSong, RequiresLoadoutChange = true, Default = false, },
+		['SufferingState']   = { DisplayName = "Use Suffering When", Category = "Melee Songs", Type = "Combo", ComboOptions = { 'In-Combat Only', 'Always', 'Out-of-Combat Only', }, Default = 2, Min = 1, Max = 3, },
         ['UseProgressive']   = { DisplayName = "Use Progressive", Category = "Melee Songs", Tooltip = Tooltips.DichoSong, RequiresLoadoutChange = true, Default = true, },
         ['UseJonthan']       = { DisplayName = "Use Jonthan", Category = "Melee Songs", Tooltip = Tooltips.Jonthans, RequiresLoadoutChange = true, Default = false, },
-		['DoChestClick']   	= { DisplayName = "Do Chest Click", Category = "Utilities", Tooltip = "Click your chest item", Default = true, },
+		['DoChestClick']   	=  { DisplayName = "Do Chest Click", Category = "Utilities", Tooltip = "Click your chest item", Default = true, },
 
     },
     ['Spells']        = { getSpellCallback = generateSongList, },

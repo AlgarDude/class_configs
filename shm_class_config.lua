@@ -912,16 +912,7 @@ local _ClassConfig = {
             end,
         },
 		--broken, autotarget wont stay on target long enough to get a cast off
-        {
-            name = 'Twin Heal',
-            state = 1,
-            steps = 1,
-            targetId = function(self) return { RGMercUtils.GetMainAssistId(), } end,
-            cond = function(self, combat_state)
-                return combat_state == "Combat" and RGMercUtils.GetSetting('DoTwinHeal') and not RGMercUtils.SongActiveByName("Healing Twincast") and
-                    RGMercUtils.IsHealing() and not RGMercUtils.Feigning()
-            end,
-        },
+        
         {
             name = 'Malo',
             state = 1,
@@ -969,6 +960,16 @@ local _ClassConfig = {
             cond = function(self, combat_state)
                 return combat_state == "Combat" and
                     RGMercUtils.BurnCheck() and RGMercUtils.IsModeActive("Heal") and RGMercUtils.GetSetting('DoHealDPS') and not RGMercUtils.Feigning() and RGMercUtils.GetMainAssistPctHPs() >=80 
+            end,
+        },
+		{
+            name = 'Twin Heal',
+            state = 1,
+            steps = 1,
+            targetId = function(self) return { RGMercUtils.GetMainAssistId(), } end,
+            cond = function(self, combat_state)
+                return combat_state == "Combat" and RGMercUtils.GetSetting('DoTwinHeal') and not RGMercUtils.SongActiveByName("Healing Twincast") and
+                    RGMercUtils.IsHealing() and not RGMercUtils.Feigning()
             end,
         },
         {
