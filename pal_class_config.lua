@@ -1094,7 +1094,7 @@ local _ClassConfig = {
                 name = "Dicho",
                 type = "Spell",
                 cond = function(self, spell)
-                    return RGMercUtils.PCSpellReady(spell)
+                    return RGMercUtils.NPCSpellReady(spell)
                 end,
             },
 			{
@@ -1334,7 +1334,7 @@ local _ClassConfig = {
                 name = "ForHonor",
                 type = "Spell",
                 cond = function(self, spell)
-                     return RGMercUtils.PCSpellReady(spell) and RGMercUtils.DetSpellCheck(spell)
+                     return RGMercUtils.NPCSpellReady(spell) and RGMercUtils.DetSpellCheck(spell)
                     --hopefully this condition only uses the spell to maintain the hatred-over-time debuff
                 end,
             },
@@ -1520,7 +1520,7 @@ local _ClassConfig = {
                 type = "Spell",
                 -- tooltip = Tooltips.Dicho,
                 cond = function(self, spell)
-                    return RGMercUtils.PCSpellReady(spell) and (mq.TLO.Me.TargetOfTarget.PctHPs() or 0) <= RGMercUtils.GetSetting('StartDicho')
+                    return RGMercUtils.NPCSpellReady(spell) and (mq.TLO.Me.TargetOfTarget.PctHPs() or 0) <= RGMercUtils.GetSetting('StartDicho')
                 end,
             },
 			{
@@ -1543,7 +1543,7 @@ local _ClassConfig = {
                 name = "Lowaggronuke",
                 type = "Spell",
                 cond = function(self, spell)
-                    return RGMercUtils.PCSpellReady(spell) and
+                    return RGMercUtils.NPCSpellReady(spell) and
 						(mq.TLO.Me.TargetOfTarget.PctHPs() or 0) < RGMercUtils.GetSetting('TotHealPoint')
                 end,
             },
@@ -1632,14 +1632,14 @@ local _ClassConfig = {
                 name = "StunTimer4",
                 type = "Spell",
                 cond = function(self, spell)
-                    return RGMercUtils.PCSpellReady(spell) and RGMercUtils.DetSpellCheck(spell)
+                    return RGMercUtils.NPCSpellReady(spell) and RGMercUtils.DetSpellCheck(spell)
                 end,
             },
 			{
                 name = "HealStun",
                 type = "Spell",
                 cond = function(self, spell)
-                    return RGMercUtils.PCSpellReady(spell) and RGMercUtils.DetSpellCheck(spell) and RGMercUtils.SpellStacksOnMe(spell) and (mq.TLO.Me.Song(spell.Trigger(1).Name).Duration.TotalSeconds() or 0) < 12
+                    return RGMercUtils.NPCSpellReady(spell) and RGMercUtils.DetSpellCheck(spell) and RGMercUtils.SpellStacksOnMe(spell) and (mq.TLO.Me.Song(spell.Trigger(1).Name).Duration.TotalSeconds() or 0) < 12
                 end,
             },
 			{
@@ -1651,7 +1651,7 @@ local _ClassConfig = {
                 name = "HealNuke",
                 type = "Spell",
                 cond = function(self, spell)
-                    return RGMercUtils.PCSpellReady(spell)
+                    return RGMercUtils.NPCSpellReady(spell)
                 end,
             },
 			--below stuff thrown in, not vetted
@@ -1659,7 +1659,7 @@ local _ClassConfig = {
                 -- name = "Healtaunt",
                 -- type = "Spell",
                 -- cond = function(self, spell)
-                    -- return RGMercUtils.PCSpellReady(spell)
+                    -- return RGMercUtils.NPCSpellReady(spell)
                 -- end,
             -- },
 			{
@@ -1675,7 +1675,7 @@ local _ClassConfig = {
                 -- name = "StunTimer5",
                 -- type = "Spell",
                 -- cond = function(self, spell)
-                    -- return RGMercUtils.PCSpellReady(spell) and RGMercUtils.DetSpellCheck(spell)
+                    -- return RGMercUtils.NPCSpellReady(spell) and RGMercUtils.DetSpellCheck(spell)
                 -- end,
             -- },
             {
@@ -1689,7 +1689,7 @@ local _ClassConfig = {
                 -- name = "DebuffNuke",
                 -- type = "Spell",
                 -- cond = function(self, spell)
-                    -- return RGMercUtils.PCSpellReady(spell) and
+                    -- return RGMercUtils.NPCSpellReady(spell) and
                         -- ((RGMercUtils.TargetBodyIs(mq.TLO.Target, "Undead") or mq.TLO.Me.Level() >= 96) and not RGMercUtils.TargetHasBuff(spell) and RGMercUtils.GetSetting('DoNuke'))
                 -- end,
             -- },
@@ -1697,28 +1697,28 @@ local _ClassConfig = {
                 -- name = "AntiUndeadNuke",
                 -- type = "Spell",
                 -- cond = function(self, spell)
-                    -- return RGMercUtils.PCSpellReady(spell) and RGMercUtils.TargetBodyIs(mq.TLO.Target, "Undead")
+                    -- return RGMercUtils.NPCSpellReady(spell) and RGMercUtils.TargetBodyIs(mq.TLO.Target, "Undead")
                 -- end,
             -- },
             -- {
                 -- name = "Reverseds",
                 -- type = "Spell",
                 -- cond = function(self, spell)
-                    -- return RGMercUtils.PCSpellReady(spell) and RGMercUtils.TargetHasBuff(spell) and RGMercUtils.GetSetting('DoReverseDS')
+                    -- return RGMercUtils.NPCSpellReady(spell) and RGMercUtils.TargetHasBuff(spell) and RGMercUtils.GetSetting('DoReverseDS')
                 -- end,
             -- },
             {
                 name = "Lowaggronuke",
                 type = "Spell",
                 cond = function(self, spell)
-                    return RGMercUtils.PCSpellReady(spell) and RGMercUtils.GetSetting('DoNuke')
+                    return RGMercUtils.NPCSpellReady(spell) and RGMercUtils.GetSetting('DoNuke')
                 end,
             },
 			-- {
                 -- name = "CrushTimer6",
                 -- type = "Spell",
                 -- cond = function(self, spell)
-                    -- return RGMercUtils.PCSpellReady(spell)
+                    -- return RGMercUtils.NPCSpellReady(spell)
                 -- end,
             -- },
             

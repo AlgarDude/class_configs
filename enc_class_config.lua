@@ -1053,8 +1053,6 @@ local _ClassConfig = {
                 type = "Spell",
                 active_cond = function(self, spell) return mq.TLO.Me.FindBuff("id " .. tostring(spell.ID()))() ~= nil end,
                 cond = function(self, spell, target)
-                    if not target or not target() then return false end
-
                     return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName()) and RGMercUtils.ReagentCheck(spell) and RGMercUtils.SpellStacksOnTarget(spell) and not RGMercUtils.TargetHasBuff(spell, target)
                 end,
             },
@@ -1063,14 +1061,12 @@ local _ClassConfig = {
                 type = "Spell",
                 active_cond = function(self, spell) return mq.TLO.Me.FindBuff("id " .. tostring(spell.ID()))() ~= nil end,
                 cond = function(self, spell, target)
-                    if not RGMercUtils.GetSetting('DoNDTBuff') then return false end
-                    if not target or not target() then return false end
-
+				
                     if (spell and spell() and ((spell.TargetType() or ""):lower() ~= "group v2"))
                         and not RGMercConfig.Constants.RGMelee:contains(target.Class.ShortName()) then return false end
 
                     RGMercUtils.SetTarget(target.ID() or 0)
-                    return RGMercUtils.PCSpellReady(spell) and RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName()) and RGMercUtils.SpellStacksOnTarget(spell)
+                    return RGMercUtils.PCSpellReady(spell) and RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName()) and RGMercUtils.SpellStacksOnTarget(spell) and RGMercUtils.GetSetting('DoNDTBuff')
                 end,
             },
             {

@@ -1061,10 +1061,10 @@ local _ClassConfig = {
                 type = "Song",
                 targetId = function(self) return { mq.TLO.Me.ID(), } end,
                 cond = function(self, songSpell)
-                    local gemTimer = mq.TLO.Me.GemTimer(songSpell.Name())() or 0
+                    local gemTimer = mq.TLO.Me.GemTimer(songSpell.RankName.Name())() or 0
 					local pct = RGMercUtils.GetSetting('CrescendoPct')
                     return RGMercUtils.GetSetting('UseCrescendo') and RGMercUtils.SongMemed(songSpell) and gemTimer == 0 and
-						(mq.TLO.Group.LowMana(pct)() or -1) < RGMercUtils.GetSetting('CrescendoCt')
+						(mq.TLO.Group.LowMana(pct)() or -1) > RGMercUtils.GetSetting('CrescendoCt')
                 end,
             },
 			{
@@ -1137,7 +1137,10 @@ local _ClassConfig = {
                 type = "AA",
                 targetId = function(self) return { mq.TLO.Me.ID(), } end,
                 cond = function(self, aaName)
-                    return RGMercUtils.SelfBuffAACheck(aaName) and RGMercUtils.GetSetting('UseAASelo') and RGMercUtils.GetSetting('DoRunSpeed')
+                    return RGMercUtils.AAReady(aaName) and
+                        not RGMercUtils.SelfBuffCheck("Selo's Accelerato") and
+                        RGMercUtils.GetSetting('UseAASelo') and
+                        RGMercUtils.GetSetting('DoRunSpeed')
                 end,
             },
            
@@ -1220,7 +1223,7 @@ local _ClassConfig = {
         ['UseFate']          = { DisplayName = "Use Fate", Category = "Caster Songs", Tooltip = Tooltips.FateSong, RequiresLoadoutChange = true, Default = false, },
         -- Melee DPS Only
         ['UseSuffering']     = { DisplayName = "Use Suffering Line", Category = "Melee Songs", Tooltip = Tooltips.SufferingSong, RequiresLoadoutChange = true, Default = false, },
-		['SufferingState']   = { DisplayName = "Use Suffering When", Category = "Melee Songs", Type = "Combo", ComboOptions = { 'In-Combat Only', 'Always', 'Out-of-Combat Only', }, Default = 2, Min = 1, Max = 3, },
+		['SufferingState']   = { DisplayName = "Use Suffering When", Category = "Melee Songs", Tooltip = Tooltips.SufferingSong, Type = "Combo", ComboOptions = { 'In-Combat Only', 'Always', 'Out-of-Combat Only', }, Default = 2, Min = 1, Max = 3, RequiresLoadoutChange = true,},
         ['UseProgressive']   = { DisplayName = "Use Progressive", Category = "Melee Songs", Tooltip = Tooltips.DichoSong, RequiresLoadoutChange = true, Default = true, },
         ['UseJonthan']       = { DisplayName = "Use Jonthan", Category = "Melee Songs", Tooltip = Tooltips.Jonthans, RequiresLoadoutChange = true, Default = false, },
 		['DoChestClick']   	=  { DisplayName = "Do Chest Click", Category = "Utilities", Tooltip = "Click your chest item", Default = true, },
