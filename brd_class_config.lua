@@ -927,7 +927,6 @@ local _ClassConfig = {
         ['Heal'] = {
         },
         ['DPS'] = {
-		
             -- This makes the full rotation execute each round,
             --so it'll never pick up and resume wherever it left off the previous cast
             --doFullRotation = true,
@@ -964,6 +963,15 @@ local _ClassConfig = {
                 cond = function(self, aaName)
                     return RGMercUtils.GetSetting('UseFierceEye') == 3
                         and RGMercUtils.AAReady(aaName)
+                end,
+            },
+			{
+                name = "ReflexStrike",
+                type = "Disc",
+                tooltip = Tooltips.ReflexStrike,
+                cond = function(self, discSpell)
+					local pct = RGMercUtils.GetSetting('ManaManagePct')
+                    return RGMercUtils.NPCDiscReady(discSpell) and (mq.TLO.Group.LowMana(pct)() or -1) > RGMercUtils.GetSetting('ManaManageCt')
                 end,
             },
             {
@@ -1062,9 +1070,9 @@ local _ClassConfig = {
                 targetId = function(self) return { mq.TLO.Me.ID(), } end,
                 cond = function(self, songSpell)
                     local gemTimer = mq.TLO.Me.GemTimer(songSpell.RankName.Name())() or 0
-					local pct = RGMercUtils.GetSetting('CrescendoPct')
+					local pct = RGMercUtils.GetSetting('ManaManagePct')
                     return RGMercUtils.GetSetting('UseCrescendo') and RGMercUtils.SongMemed(songSpell) and gemTimer == 0 and
-						(mq.TLO.Group.LowMana(pct)() or -1) > RGMercUtils.GetSetting('CrescendoCt')
+						(mq.TLO.Group.LowMana(pct)() or -1) > RGMercUtils.GetSetting('ManaManageCt')
                 end,
             },
 			{
@@ -1072,8 +1080,8 @@ local _ClassConfig = {
                 type = "Song",
                 targetId = function(self) return { mq.TLO.Me.ID(), } end,
                 cond = function(self, songSpell, combat_state)
-					local pct = RGMercUtils.GetSetting('CombatRegenPct')
-                    return RGMercUtils.BuffSong(songSpell) and not (mq.TLO.Me.Combat() and (mq.TLO.Group.LowMana(pct)() or -1) < RGMercUtils.GetSetting('CombatRegenCt'))
+					local pct = RGMercUtils.GetSetting('ManaManagePct')
+                    return RGMercUtils.BuffSong(songSpell) and not (mq.TLO.Me.Combat() and (mq.TLO.Group.LowMana(pct)() or -1) < RGMercUtils.GetSetting('ManaManageCt'))
                 end,
             },
 			{
@@ -1201,10 +1209,8 @@ local _ClassConfig = {
 		['RegenSong']     	= { DisplayName = "Regen Song Choice", Category = "Regen Songs", Tooltip = "Select the Regen Song to be used, if any.", RequiresLoadoutChange = true, Type = "Combo", 		ComboOptions = { 'Group', 'Area', 'None', }, Default = 1, Min = 1, Max = 3, },
         ['UseCrescendo']     = { DisplayName = "Use Crescendo", Category = "Regen Songs", Tooltip = Tooltips.CrescendoSong, RequiresLoadoutChange = true, Default = true, },
         ['UseAccelerando']   = { DisplayName = "Use Accelerando", Category = "Regen Songs", Tooltip = Tooltips.AccelerandoSong, RequiresLoadoutChange = true, Default = false, },
-		['CombatRegenPct']   = { DisplayName = "Combat Regen Mana", Category = "Regen Songs", Tooltip = "Mana% to begin using your Regen Song in combat.", Default = 80, Min = 1, Max = 100, },
-		['CombatRegenCt']   = { DisplayName = "Combat Regen Count", Category = "Regen Songs", Tooltip = "The number of party members (including yourself) that need to be under the mana percentage", Default = 2, Min = 1, Max = 6, },
-		['CrescendoPct']   = { DisplayName = "Crescendo Mana", Category = "Regen Songs", Tooltip = "Mana% to begin using Crescendo or to begin using your Regen Song in combat.", Default = 85, Min = 1, Max = 100, },
-		['CrescendoCt']   = { DisplayName = "Crescendo Count", Category = "Regen Songs", Tooltip = "The number of party members (including yourself) that need to be under the mana percentage", Default = 2, Min = 1, Max = 6, },
+		['ManaManagePct']   = { DisplayName = "Mana Manage %", Category = "Regen Songs", Tooltip = "Mana% to begin managing group mana(Use Crescendoes and Reflexive Strikes, use Regen song in combat).", Default = 80, Min = 1, Max = 100, },
+		['ManaManageCt']   = { DisplayName = "Mana Manage Count", Category = "Regen Songs", Tooltip = "The number of party members (including yourself) that need to be under the mana percentage", Default = 2, Min = 1, Max = 6, },
 		
         --DPS
         ['UseInsult']        = { DisplayName = "Use Insult Nuke", Category = "DPS Songs", Tooltip = Tooltips.InsultSong, RequiresLoadoutChange = true, Default = true, },

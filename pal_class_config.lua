@@ -401,7 +401,7 @@ local _ClassConfig = {
             "Contrition",
             "Sorrow",
             "Grief",
-            "Exaltation",
+            "Expiation",
             "Propitiation",
             "Culpability",
         },
@@ -1555,7 +1555,7 @@ local _ClassConfig = {
                 type = "Disc",
                 tooltip = Tooltips.ReflexStrike,
                 cond = function(self, discSpell)
-                    return RGMercUtils.PCDiscReady(discSpell) and (mq.TLO.Group.Injured(80)() or 0) > 2
+                    return RGMercUtils.NPCDiscReady(discSpell) and (mq.TLO.Group.Injured(80)() or 0) > 2
                 end,
             },
 			{

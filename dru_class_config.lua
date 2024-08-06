@@ -953,13 +953,13 @@ local _ClassConfig = {
                         RGMercUtils.GetSetting('DoDot')
                 end,
             },
-            {
-                name = "Silent Casting",
-                type = "AA",
-                cond = function(self, aaName)
-                    return true
-                end,
-            },
+            -- {
+                -- name = "Silent Casting",
+                -- type = "AA",
+                -- cond = function(self, aaName)
+                    -- return true
+                -- end,
+            -- },
             {
                 name = "Season's Wrath",
                 type = "AA",
@@ -982,7 +982,7 @@ local _ClassConfig = {
                 type = "Spell",
                 cond = function(self, spell)
                     return RGMercUtils.IsModeActive("Mana") or (RGMercUtils.IsModeActive("Heal")
-                            and RGMercUtils.GetSetting('DoFire')) and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell)
+                            and RGMercUtils.GetSetting('DoFire') and mq.TLO.Me.PctMana() > 40) and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell)
                         and RGMercUtils.GetSetting('DoDot')
                 end,
             },
@@ -990,9 +990,9 @@ local _ClassConfig = {
                 name = "HordeDOT",
                 type = "Spell",
                 cond = function(self, spell)
-                    return RGMercUtils.IsModeActive("Mana")
-                        and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell) and
-                        RGMercUtils.GetSetting('DoDot')
+                    return --RGMercUtils.IsModeActive("Mana") and
+                         RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell) and
+                        RGMercUtils.GetSetting('DoDot') and not (RGMercUtils.IsModeActive("Heal") and not RGMercUtils.BurnCheck())
                 end,
             },
             {
@@ -1246,15 +1246,14 @@ local _ClassConfig = {
                 name = "GroupDmgShield",
                 type = "Spell",
                 active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
-                cond = function(self, spell) return RGMercUtils.SelfBuffCheck(spell) end,
+                cond = function(self, spell) return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName()) end,
             },
             {
                 name = "MoveSpells",
                 type = "Spell",
                 active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
                 cond = function(self, spell)
-                    return RGMercUtils.GetSetting("DoRunSpeed") and
-                        RGMercUtils.SelfBuffCheck(spell)
+                    return RGMercUtils.GetSetting("DoRunSpeed") and RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())
                 end,
             },
             {
@@ -1263,7 +1262,8 @@ local _ClassConfig = {
                 active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
                 cond = function(self, spell, target)
                     RGMercUtils.SetTarget(target.ID() or 0)
-                    return not RGMercUtils.TargetHasBuff(spell) and RGMercUtils.SpellStacksOnTarget(spell) and
+                    return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName()) and
+					--todo change this to melee and change to return false before buff checking
                         Set.new({ "BRD", "SHD", "PAL", "WAR", "ROG", "BER", "MNK", "RNG", }):contains((target.Class.ShortName() or ""))
                 end,
             },
@@ -1272,10 +1272,7 @@ local _ClassConfig = {
                 type = "Spell",
                 active_cond = function(self, spell) return true end,
                 cond = function(self, spell, target)
-                    -- force the target for StacksTarget to work.
-                    RGMercUtils.SetTarget(target.ID() or 0)
-                    return RGMercConfig.Constants.RGTank:contains(target.Class.ShortName()) and not RGMercUtils.TargetHasBuff(spell)
-                        and RGMercUtils.SpellStacksOnTarget(spell)
+                    return RGMercConfig.Constants.RGTank:contains(target.Class.ShortName()) and RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())
                 end,
             },
             {
@@ -1283,9 +1280,7 @@ local _ClassConfig = {
                 type = "Spell",
                 active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
                 cond = function(self, spell, target)
-                    -- force the target for StacksTarget to work.
-                    RGMercUtils.SetTarget(target.ID() or 0)
-                    return not RGMercUtils.TargetHasBuff(spell, target) and RGMercUtils.SpellStacksOnTarget(spell)
+                    return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())
                 end,
             },
             {
@@ -1293,7 +1288,7 @@ local _ClassConfig = {
                 type = "Spell",
                 active_cond = function(self, spell) return true end,
                 cond = function(self, spell, target)
-                    return not RGMercUtils.TargetHasBuff(spell) and target and target and
+                    return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName()) and target and target and
                         Set.new({ "SHD", "WAR", }):contains(target.Class.ShortName())
                 end,
             },
@@ -1302,9 +1297,7 @@ local _ClassConfig = {
                 type = "Spell",
                 active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
                 cond = function(self, spell, target)
-                    -- force the target for StacksTarget to work.
-                    RGMercUtils.SetTarget(target.ID() or 0)
-                    return not RGMercUtils.TargetHasBuff(spell, target) and RGMercUtils.SpellStacksOnTarget(spell)
+                    return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())
                 end,
             },
             {
@@ -1484,7 +1477,7 @@ local _ClassConfig = {
                 { name = "SunMoonDot",          cond = function(self) return RGMercUtils.IsModeActive("Mana") end, },
                 -- [ HEAL MODE ] --
                 { name = "FrostDebuff",         cond = function(self) return mq.TLO.Me.Level() >= 74 and not RGMercUtils.GetSetting('DoFire') end, },
-                { name = "ReptileCombatInnate", cond = function(self) return RGMercUtils.CanUseAA("Blessing of Ro") end, },
+                { name = "HordeDOT", 			cond = function(self) return RGMercUtils.CanUseAA("Blessing of Ro") end, },
                 { name = "RoDebuff",            cond = function(self) return true end, },
                 -- [ Fall Back ]--
                 { name = "HordeDOT",            cond = function(self) return true end, },
@@ -1505,6 +1498,7 @@ local _ClassConfig = {
                 { name = "RootSpells",   cond = function(self) return RGMercUtils.IsModeActive("Mana") end, },
                 -- [ HEAL MODE ] --
                 { name = "TwinHealNuke", cond = function(self) return RGMercUtils.GetSetting("DoTwinHeal") end, },
+				{ name = "ReptileCombatInnate", cond = function(self) return true end, },
                 { name = "GroupCure", cond = function(self) return true end, },
             },
         },
@@ -1571,6 +1565,7 @@ local _ClassConfig = {
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
                 { name = "Alliance", cond = function(self) return RGMercUtils.GetSetting("DoAlliance") end, },
+				{ name = "GroupCure", cond = function(self) return true end, },
             },
         },
     },

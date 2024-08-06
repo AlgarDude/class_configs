@@ -1442,16 +1442,16 @@ local _ClassConfig = {
                     return RGMercUtils.SelfBuffCheck(spell)
                 end,
             },
-            {
-                name = "FocusSpell",
-                type = "Spell",
-                active_cond = function(self, spell)
-                    return RGMercUtils.BuffActive(spell)
-                end,
-                cond = function(self, spell)
-                    return not RGMercUtils.BuffActive(spell) and RGMercUtils.SpellStacksOnMe(spell)
-                end,
-            },
+            -- {
+                -- name = "FocusSpell",
+                -- type = "Spell",
+                -- active_cond = function(self, spell)
+                    -- return RGMercUtils.BuffActive(spell)
+                -- end,
+                -- cond = function(self, spell)
+                    -- return not RGMercUtils.BuffActive(spell) and RGMercUtils.SpellStacksOnMe(spell)
+                -- end,
+            -- },
 			{
                 name = "GroupRenewalHoT",
                 type = "Spell",
@@ -1475,9 +1475,9 @@ local _ClassConfig = {
                 type = "Spell",
                 cond = function(self, spell, target)
                     -- force the target for StacksTarget to work.
-                    RGMercUtils.SetTarget(target.ID() or 0)
-                    return RGMercUtils.TargetClassIs({ "WAR", "PAL", "SHD", }, target) and
-                        not RGMercUtils.TargetHasBuff(spell, target) and RGMercUtils.SpellStacksOnTarget(spell)
+                   -- RGMercUtils.SetTarget(target.ID() or 0)
+                    return RGMercUtils.TargetClassIs({ "WAR", "PAL", "SHD", }, target) and RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())--and
+                       -- not RGMercUtils.TargetHasBuff(spell, target) and RGMercUtils.SpellStacksOnTarget(spell)
                 end,
             },
             -- {
@@ -1546,8 +1546,9 @@ local _ClassConfig = {
                     -- force the target for StacksTarget to work.
                     --if (spell and spell() and ((spell.TargetType() or ""):lower() ~= "single")) then return false end
 
-                    RGMercUtils.SetTarget(target.ID() or 0)
-                    return not RGMercUtils.TargetHasBuff(spell, target) and RGMercUtils.SpellStacksOnTarget(spell)
+                    --RGMercUtils.SetTarget(target.ID() or 0)
+					return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())
+                    --return not RGMercUtils.TargetHasBuff(spell, target) and RGMercUtils.SpellStacksOnTarget(spell)
                 end,
             },
             -- {
@@ -1589,11 +1590,8 @@ local _ClassConfig = {
                 cond = function(self, aaName, target, uiCheck)
                     local speedSpell = mq.TLO.Me.AltAbility(aaName).Spell.Trigger(1)
                     if not speedSpell or not speedSpell() then return false end
-                    -- force the target for StacksTarget to work.
-                    RGMercUtils.SetTarget(target.ID() or 0)
-
-                    return RGMercUtils.GetSetting('DoRunSpeed') and RGMercUtils.TargetIsType("PC", target) and RGMercUtils.CanUseAA(aaName) and
-                        not RGMercUtils.TargetHasBuff(speedSpell) and not RGMercUtils.TargetHasBuff(spell) and RGMercUtils.SpellStacksOnTarget(speedSpell)
+					
+                    return RGMercUtils.GetSetting('DoRunSpeed') and RGMercUtils.CanUseAA(aaName) and RGMercUtils.CheckPCNeedsBuff(speedSpell, target.ID(), target.CleanName())
                 end,
             },
         },

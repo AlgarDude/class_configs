@@ -1043,11 +1043,11 @@ _ClassConfig      = {
                     petToyResolvedSpell.Level())
                 return false
             end
-
-            if not RGMercUtils.PCSpellReady(petToyResolvedSpell) then
-                RGMercsLogger.log_super_verbose("summon_pet_toy() ==> \arFailed PCSpellReady() Check!", type)
-                return false
-            end
+				--this should not be needed, the conditions it protects against are checked later in the loop
+           -- if not RGMercUtils.PCSpellReady(petToyResolvedSpell) then
+             --   RGMercsLogger.log_super_verbose("summon_pet_toy() ==> \arFailed PCSpellReady() Check!", type)
+               -- return false
+            --end
 
             -- find a slot for the item
             local openSlot = 0
@@ -1650,9 +1650,7 @@ _ClassConfig      = {
                 type = "Spell",
                 cond = function(self, spell, target)
 					if (spell and spell() and ((spell.TargetType() or ""):lower() == "single")) and (target.ID() or 0) ~= RGMercUtils.GetMainAssistId() then return false end
-                    --RGMercUtils.SetTarget(target.ID() or 0)
-                    return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName()) and RGMercUtils.SpellStacksOnTarget(spell)
-                end, --not RGMercUtils.TargetHasBuff(spell) and
+                    return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName()) end,
             },
 			-- {
                 -- name = "FireShroud",

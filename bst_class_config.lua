@@ -1242,7 +1242,7 @@ return {
                 name = "ManaRegenBuff",
                 type = "Spell",
                 cond = function(self, spell, target)
-					return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName()) and RGMercUtils.SpellStacksOnTarget(spell)
+					return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())
                 end,
             },
             -- {
@@ -1258,10 +1258,7 @@ return {
                 name = "GroupAtkBuff",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    -- force the target for StacksTarget to work.
-                    --RGMercUtils.SetTarget(target.ID() or 0)
-                    return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName()) and RGMercUtils.SpellStacksOnTarget(spell)
-					--return not RGMercUtils.TargetHasBuff(spell) and RGMercUtils.SpellStacksOnTarget(spell)
+                    return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())
                 end,
             },
             -- {
@@ -1279,9 +1276,7 @@ return {
                 name = "GroupAtkHPBuff",
                 type = "Spell",
                 cond = function(self, spell, target)
-					RGMercUtils.SetTarget(target.ID() or 0)
-                    return not RGMercUtils.TargetHasBuff(spell, target) and RGMercUtils.SpellStacksOnTarget(spell)
-                    --return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName()) and RGMercUtils.SpellStacksOnTarget(spell)
+					return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())
                 end,
             },
             -- {
@@ -1299,7 +1294,7 @@ return {
                 name = "GroupFocusSpell",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName()) and RGMercUtils.SpellStacksOnTarget(spell)
+                    return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())
                 end,
             },
             -- {
