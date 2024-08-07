@@ -1246,13 +1246,13 @@ local _ClassConfig = {
                 name = "GroupDmgShield",
                 type = "Spell",
                 active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
-                cond = function(self, spell) return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName()) end,
+                cond = function(self, spell, target) return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName()) end,
             },
             {
                 name = "MoveSpells",
                 type = "Spell",
                 active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
-                cond = function(self, spell)
+                cond = function(self, spell, target)
                     return RGMercUtils.GetSetting("DoRunSpeed") and RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())
                 end,
             },

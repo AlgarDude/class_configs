@@ -1068,16 +1068,16 @@ local _ClassConfig = {
                     return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName()) and RGMercUtils.ReagentCheck(spell)
                 end,
             },
-            {
-                name = "AggroRune",
-                type = "Spell",
-                active_cond = function(self, spell) return mq.TLO.Me.FindBuff("id " .. tostring(spell.ID()))() ~= nil end,
-                cond = function(self, spell, target)
-                    if not RGMercUtils.GetSetting('DoAggroRune') and RGMercConfig.Constants.RGTank:contains(target.Class.ShortName()) then return false end
+            -- {
+                -- name = "AggroRune",
+                -- type = "Spell",
+                -- active_cond = function(self, spell) return mq.TLO.Me.FindBuff("id " .. tostring(spell.ID()))() ~= nil end,
+                -- cond = function(self, spell, target)
+                    -- if not RGMercUtils.GetSetting('DoAggroRune') and RGMercConfig.Constants.RGTank:contains(target.Class.ShortName()) then return false end
 
-                    return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())
-                end,
-            },
+                    -- return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())
+                -- end,
+            -- },
         },
         ['CombatSupport'] = {
             {
