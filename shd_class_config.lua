@@ -74,7 +74,7 @@ local Tooltips     = {
 }
 
 local _ClassConfig = {
-    _version            = "0.9d",
+    _version            = "1.2",
     _author             = "Algar (based on RGMercs 1.0beta by Derple)",
 	['FullConfig'] = true,
     ['ModeChecks']      = {
@@ -674,6 +674,9 @@ local _ClassConfig = {
 		end,
     },
     ['RotationOrder']   = {
+	
+	---TODO: CONSIDER COMBINING/REARRANGING LIFETAP VS EMERGENCY HEALING ROTATION... but it works for now!
+	
         -- Downtime doesn't have state because we run the whole rotation at once.
         -- Rebuffs and non-combat actions
         {
@@ -961,6 +964,14 @@ local _ClassConfig = {
                     return RGMercUtils.SpellLoaded(spell) and RGMercUtils.NPCSpellReady(spell)
                 end,
             },
+			{
+                name = "ReflexStrike",
+                type = "Disc",
+                tooltip = Tooltips.ReflexStrike,
+                cond = function(self, discSpell)
+                    return RGMercUtils.NPCDiscReady(discSpell)
+                end,
+            },
             --Staunch Recovery placed as low priority as it has a long(ish) cast time. Also often used manually after a combat rez.
 			--Considering dropping this and removing the dofullrotation flag
             {
@@ -1020,8 +1031,7 @@ local _ClassConfig = {
                 type = "Disc",
                 tooltip = Tooltips.InfluenceDisc,
                 cond = function(self, discSpell)
-                    return RGMercUtils.PCDiscReady(discSpell) and RGMercUtils.IsTanking() and
-                    not mq.TLO.Me.ActiveDisc.ID()
+                    return RGMercUtils.PCDiscReady(discSpell) and RGMercUtils.IsTanking() and not mq.TLO.Me.ActiveDisc.ID()
                 end,
             },
             {
