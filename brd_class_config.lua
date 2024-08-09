@@ -3,10 +3,6 @@ local mq                          = require('mq')
 local RGMercUtils                 = require("utils.rgmercs_utils")
 local RGMercsLogger               = require("utils.rgmercs_logger")
 
--- Used to let the bard juggle multiple downtime buffs and keep them as maximally refreshed as possible
--- Not intended to be directly edited by users
-local bardRecastDurationThreshold = 21000
-
 local Tooltips                    = {
     Epic             = 'Item: Casts Epic Weapon Ability',
     BardRunBuff      = "Song Line: Movement Speed Modifier",
@@ -197,6 +193,7 @@ end
 --- Checks target for duration remaining on dot songs
 local function getDetSongDuration(songSpell)
     local duration = mq.TLO.Target.FindBuff("name " .. songSpell.Name()).Duration.TotalSeconds() or 0
+	RGMercsLogger.log_debug("getDetSongDuration() Current duration for %s : %d", songSpell, duration)
     --BL.info("Det song duration is: ", duration)
     return duration
 end
@@ -996,8 +993,9 @@ local _ClassConfig = {
                 type = "Song",
                 cond = function(self, songSpell)
                     return RGMercUtils.SongMemed(songSpell) and RGMercUtils.GetSetting('UseFireDots') and
-                        -- If dot is about to wear off, recast
-                        getDetSongDuration(songSpell) <= 3500
+						-- If dot is about to wear off, recast
+                        getDetSongDuration(songSpell) <= 3
+                        --RGMercUtils.DetSpellCheck(songSpell)
                 end,
             },
             {
@@ -1005,8 +1003,9 @@ local _ClassConfig = {
                 type = "Song",
                 cond = function(self, songSpell)
                     return RGMercUtils.SongMemed(songSpell) and RGMercUtils.GetSetting('UseIceDots') and
-                        -- If dot is about to wear off, recast
-                        getDetSongDuration(songSpell) <= 3500
+					-- If dot is about to wear off, recast
+                        getDetSongDuration(songSpell) <= 3
+                        --RGMercUtils.DetSpellCheck(songSpell)
                 end,
             },
             {
@@ -1015,7 +1014,7 @@ local _ClassConfig = {
                 cond = function(self, songSpell)
                     return RGMercUtils.SongMemed(songSpell) and RGMercUtils.GetSetting('UsePoisonDots') and
                         -- If dot is about to wear off, recast
-                        getDetSongDuration(songSpell) <= 3500
+                        getDetSongDuration(songSpell) <= 3
                 end,
             },
             {

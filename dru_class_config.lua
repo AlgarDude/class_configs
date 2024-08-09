@@ -883,7 +883,7 @@ local _ClassConfig = {
         {
             name = 'Debuff',
             state = 1,
-            steps = 1,
+            steps = 2,
             targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
             cond = function(self, combat_state)
                 return combat_state == "Combat" and not RGMercUtils.Feigning()
@@ -927,7 +927,7 @@ local _ClassConfig = {
                 type = "Spell",
                 cond = function(self, spell)
 					if not RGMercUtils.DetGOMCheck() or RGMercUtils.IsNamed(mq.TLO.Target) then return false end
-                    return RGMercUtils.NPCSpellReady(spell) and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell)
+                    return RGMercUtils.NPCSpellReady(spell)
                 end,
             },
 			{
@@ -1406,7 +1406,7 @@ local _ClassConfig = {
         ['DoRunSpeed']   = { DisplayName = "Cast Run Speed", Category = "Spells and Abilities", Tooltip = "Cast Run Speed Spells", Default = true, },
         ['DoNuke']       = { DisplayName = "Cast Spells", Category = "Spells and Abilities", Tooltip = "Use Spells", Default = true, },
         ['NukePct']      = { DisplayName = "Cast Spells", Category = "Spells and Abilities", Tooltip = "Use Spells", Default = 90, Min = 1, Max = 100, },
-        ['HPStopDOT']    = { DisplayName = "HP Stop DOTs", Category = "Spells and Abilities", Tooltip = "Stop casting DOTs when the mob hits [x] HP %.", Default = 30, Min = 1, Max = 100, },
+        ['HPStopDOT']    = { DisplayName = "HP Stop DOTs", Category = "Spells and Abilities", Tooltip = "Stop casting DOTs when the mob hits [x] HP %.", Default = 50, Min = 1, Max = 100, },
         ['DoChestClick'] = { DisplayName = "Do Chest Click", Category = "Utilities", Tooltip = "Click your chest item", Default = true, },
         ['DoDot']        = { DisplayName = "Cast DOTs", Category = "Spells and Abilities", Tooltip = "Enable casting Damage Over Time spells.", Default = true, },
         ['DoTwinHeal']   = { DisplayName = "Cast Twin Heal Nuke", Category = "Spells and Abilities", Tooltip = "Use Twin Heal Nuke Spells", RequiresLoadoutChange = true, Default = true, },
