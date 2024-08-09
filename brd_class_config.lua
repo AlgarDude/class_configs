@@ -992,13 +992,24 @@ local _ClassConfig = {
                 name = "InsultSong",
                 type = "Song",
                 cond = function(self, songSpell)
-					local gemTimer = mq.TLO.Me.GemTimer(songSpell.RankName.Name())() or 0
                     return RGMercUtils.SongMemed(songSpell) and RGMercUtils.GetSetting('UseInsult')
-                        and gemtimer == 0
-               
+                        and mq.TLO.Me.SpellReady(self.ResolvedActionMap['InsultSong'] or "")()
+                        -- If dot is about to wear off, recast
+                        --and getDetSongDuration(songSpell) <= 4
                         and mq.TLO.Me.PctMana() > 20
                 end,
             },
+			-- {
+                -- name = "InsultSong",
+                -- type = "Song",
+                -- cond = function(self, songSpell)
+					-- local gemTimer = mq.TLO.Me.GemTimer(songSpell.RankName.Name())() or 0
+                    -- return RGMercUtils.SongMemed(songSpell) and RGMercUtils.GetSetting('UseInsult')
+                        -- and gemtimer == 0
+               
+                        -- and mq.TLO.Me.PctMana() > 20
+                -- end,
+            -- },
 			{
                 name = "FireDotSong",
                 type = "Song",
@@ -1095,6 +1106,13 @@ local _ClassConfig = {
             },
 			{
                 name = "SufferingSong",
+                type = "Song",
+                cond = function(self, songSpell)
+					return self.ClassConfig.HelperFunctions.CheckSongStateUse(self, "SufferingState") and RGMercUtils.BuffSong(songSpell)
+				end,
+            },
+			{
+                name = "RecklessSong",
                 type = "Song",
                 cond = function(self, songSpell)
 					return self.ClassConfig.HelperFunctions.CheckSongStateUse(self, "SufferingState") and RGMercUtils.BuffSong(songSpell)
@@ -1210,6 +1228,7 @@ local _ClassConfig = {
         --healer
         ['UseResist']        = { DisplayName = "Use Resists", Category = "Heal Songs", Tooltip = Tooltips.ResistSong, RequiresLoadoutChange = true, Default = false, },
         ['UseReckless']      = { DisplayName = "Use Reckless", Category = "Heal Songs", Tooltip = Tooltips.RecklessSong, RequiresLoadoutChange = true, Default = false, },
+		['RecklessState']   = { DisplayName = "Use Reckless When", Category = "Heal Songs", Tooltip = Tooltips.SufferingSong, Type = "Combo", ComboOptions = { 'In-Combat Only', 'Always', 'Out-of-Combat Only', }, Default = 3, Min = 1, Max = 3, RequiresLoadoutChange = true,},
         ['UseCure']          = { DisplayName = "Use Cure", Category = "Heal Songs", Tooltip = Tooltips.CureSong, RequiresLoadoutChange = true, Default = false, },
         --Regen
         ['UseAmp']           = { DisplayName = "Use Amp", Category = "Regen Songs", Tooltip = Tooltips.AmpSong, RequiresLoadoutChange = true, Default = false, },

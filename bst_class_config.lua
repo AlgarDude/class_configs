@@ -879,13 +879,6 @@ return {
                         not RGMercUtils.CanUseAA("Ferociousness"))
                 end,
             },
-			{
-                name = "False Death",
-                type = "AA",
-                cond = function(self, aaName)
-                    return RGMercUtils.IsNamed(mq.TLO.Target) and mq.TLO.Me.PctAggro() > 90 and RGMercUtils.AAReady(aaName)
-                end,
-            },
         },
         ['Debuff'] = {
             {
@@ -924,7 +917,7 @@ return {
                 name = "False Death",
                 type = "AA",
                 cond = function(self, aaName)
-                    return mq.TLO.Me.PctHPs() < 60 and mq.TLO.Me.PctAggro() > 90 and RGMercUtils.AAReady(aaName)
+                    return (mq.TLO.Me.PctHPs() < 60 or RGMercUtils.IsNamed(mq.TLO.Target)) and mq.TLO.Me.PctAggro() > 90 and RGMercUtils.AAReady(aaName)
                 end,
             },
 		},

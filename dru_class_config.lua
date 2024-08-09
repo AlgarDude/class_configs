@@ -714,26 +714,6 @@ local _ClassConfig = {
             "Sustaining Growth",
             "Bolstered Growth",
         },
-        ['SingleDS'] = {
-            --Single Target Damage Shield
-            "Shield of Thistles",
-            "Shield of Barbs",
-            "Shield of Brambles",
-            "Shield of Spikes",
-            "Shield of Thorns",
-            "Shield of Blades",
-            "Shield of Bracken",
-            "Nettle Shield",
-            "Viridifloral Shield",
-            "Viridifloral Bulwark",
-            "Brierbloom Bulwark",
-            "Bonebriar Bulwark",
-            "Spineburr Bulwark",
-            "Spikethistle Bulwark",
-            "Daggerspur Bulwark",
-            "Daggerspike Bulwark",
-            "Icebriar Bulwark",
-        },
     },
     ['HealRotationOrder'] = {
         {
@@ -995,7 +975,7 @@ local _ClassConfig = {
                 name = "Distant Conflagration",
                 type = "AA",
                 cond = function(self, aaName)
-                     return RGMercUtils.AAReady(aaName)
+                     return RGMercUtils.AAReady(aaName) and mq.TLO.Me.Buff("Twincast").ID() == 0
                 end,
             },
 			{

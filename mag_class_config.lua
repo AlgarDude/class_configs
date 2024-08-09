@@ -431,28 +431,6 @@ _ClassConfig      = {
             -- Mage Pet Aura
             "Arcane Distillect",
         },
-        ['SingleDS'] = {
-            -- Single target Dmg Shields For Pets
-            "Forgefire Coat",
-            "Emberweave Coat",
-            "Igneous Coat",
-            "Inferno Coat",
-            "Flameweave Coat",
-            "Flameskin",
-            "Embercoat",
-            "Dreamfire Coat",
-            "Brimstoneskin",
-            "Lavaskin",
-            "Magmaskin",
-            "Fireskin",
-            "FlameShield of Ro",
-            "Cadeau of Flame",
-            "Shield of Lava",
-            "Barrier of Combustion",
-            "Inferno Shield",
-            "Shield of Flame",
-            "Shield of Fire",
-        },
         ['FireShroud'] = {
             -- Defensive Proc 3-6m Buff
             "Igneous Veil",
