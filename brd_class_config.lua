@@ -719,7 +719,7 @@ local _ClassConfig = {
 	['HelperFunctions']   = {
 		CheckSongStateUse = function(self, config)
 		local usestate = RGMercUtils.GetSetting(config)
-		if (not mq.TLO.Me.Combat() and usestate > 1) or (mq.TLO.Me.Combat() and usestate < 3) then return true end
+		if (RGMercUtils.GetXTHaterCount() == 0 and usestate > 1) or (RGMercUtils.GetXTHaterCount() >= 1 and usestate < 3) then return true end
 		return false
 		end,
 	},
@@ -989,6 +989,17 @@ local _ClassConfig = {
                 end,
             },
 			{
+                name = "InsultSong",
+                type = "Song",
+                cond = function(self, songSpell)
+					local gemTimer = mq.TLO.Me.GemTimer(songSpell.RankName.Name())() or 0
+                    return RGMercUtils.SongMemed(songSpell) and RGMercUtils.GetSetting('UseInsult')
+                        and gemtimer == 0
+               
+                        and mq.TLO.Me.PctMana() > 20
+                end,
+            },
+			{
                 name = "FireDotSong",
                 type = "Song",
                 cond = function(self, songSpell)
@@ -1023,20 +1034,20 @@ local _ClassConfig = {
                 cond = function(self, songSpell)
                     return RGMercUtils.SongMemed(songSpell) and RGMercUtils.GetSetting('UseDiseaseDots') and
                         -- If dot is about to wear off, recast
-                        getDetSongDuration(songSpell) <= 3500
+                        getDetSongDuration(songSpell) <= 3
                 end,
             },
-			{
-                name = "InsultSong",
-                type = "Song",
-                cond = function(self, songSpell)
-                    return RGMercUtils.SongMemed(songSpell) and RGMercUtils.GetSetting('UseInsult')
-                        and mq.TLO.Me.SpellReady(self.ResolvedActionMap['InsultSong'] or "")()
-                        -- If dot is about to wear off, recast
-                        and getDetSongDuration(songSpell) <= 4
-                        and mq.TLO.Me.PctMana() > 20
-                end,
-            },
+			-- {
+                -- name = "InsultSong",
+                -- type = "Song",
+                -- cond = function(self, songSpell)
+                    -- return RGMercUtils.SongMemed(songSpell) and RGMercUtils.GetSetting('UseInsult')
+                        -- and mq.TLO.Me.SpellReady(self.ResolvedActionMap['InsultSong'] or "")()
+                        -- -- If dot is about to wear off, recast
+                        -- and getDetSongDuration(songSpell) <= 4
+                        -- and mq.TLO.Me.PctMana() > 20
+                -- end,
+            -- },
         },
 		['Melody'] = { doFullRotation = true,
 			{
