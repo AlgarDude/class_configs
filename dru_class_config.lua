@@ -3,8 +3,8 @@ local RGMercUtils  = require("utils.rgmercs_utils")
 local Set          = require('mq.Set')
 
 local _ClassConfig = {
-    _version              = "1.0 Beta",
-    _author               = "Derple",
+    _version              = "1.1 Custom",
+    _author               = "Algar (based on default by Derple)",
 	['FullConfig'] = true,
     ['ModeChecks']        = {
         IsHealing = function() return true end,
@@ -13,7 +13,6 @@ local _ClassConfig = {
     },
     ['Modes']             = {
         'Heal',
-        'Mana',
     },
     ['Cures']             = {
         CureNow = function(self, type, targetId)
@@ -479,6 +478,9 @@ local _ClassConfig = {
             "Snare",
             "Tangling Weeds",
         },
+		['TwincastSpell'] = {
+            "Twincast",
+        },
         ['TwinHealNuke'] = {
             -- Druid Twincast
             "Sundew Blessing",
@@ -787,13 +789,6 @@ local _ClassConfig = {
                 end,
             },
             {
-                name = "Swarm of Fireflies",
-                type = "AA",
-                cond = function(self, aaName, target)
-                    return RGMercUtils.AAReady(aaName)
-                end,
-            },
-            {
                 name = "Convergence of Spirits",
                 type = "AA",
                 cond = function(self, aaName, target)
@@ -843,17 +838,12 @@ local _ClassConfig = {
             {
                 name = "QuickHeal",
                 type = "Spell",
-                cond = function(self, _) return true end,
-            },
-            {
-                name = "LongHeal1",
-                type = "Spell",
                 cond = function(self, spell)
                     return RGMercUtils.PCSpellReady(spell)
                 end,
             },
             {
-                name = "LongHeal2",
+                name = "LongHeal1",
                 type = "Spell",
                 cond = function(self, spell)
                     return RGMercUtils.PCSpellReady(spell)
@@ -873,7 +863,7 @@ local _ClassConfig = {
         },
         {
             name = 'GroupBuff',
-            timer = 60, -- only run every 60 seconds top.
+            timer = 60, -- only run every 60 seconds tops.
             targetId = function(self)
                 local groupIds = { mq.TLO.Me.ID(), }
                 local count = mq.TLO.Group.Members()
@@ -900,7 +890,7 @@ local _ClassConfig = {
             end,
         },
         {
-            name = 'Burn',
+            name = 'HealBurn',
             state = 1,
             steps = 1,
             targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
@@ -910,17 +900,17 @@ local _ClassConfig = {
             end,
         },
         {
-            name = 'Twin Heal',
+            name = 'TwinHeal',
             state = 1,
             steps = 1,
             targetId = function(self) return { RGMercUtils.GetMainAssistId(), } end,
             cond = function(self, combat_state)
-                return combat_state == "Combat" and RGMercUtils.GetSetting('DoTwinHeal') and RGMercUtils.IsHealing() and
+                return combat_state == "Combat" and RGMercUtils.GetSetting('DoTwinHeal') and
                     RGMercUtils.GetTargetPctHPs() <= RGMercUtils.GetSetting('AutoAssistAt') and not RGMercUtils.Feigning()
             end,
         },
         {
-            name = 'DPS',
+            name = 'HealDPS',
             state = 1,
             steps = 1,
             targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
@@ -931,181 +921,68 @@ local _ClassConfig = {
 
     },
     ['Rotations']         = {
-        ['DPS'] = {
-            {
-                name = "SunrayDOT",
+        ['HealDPS'] = {
+			{
+                name = "NaturesWrathDOT",
                 type = "Spell",
                 cond = function(self, spell)
-                    return RGMercUtils.IsModeActive("Heal")
-                        and RGMercUtils.GetSetting('DoFire')
-                        and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell) and
-                        RGMercUtils.GetSetting('DoDot') and
-                        mq.TLO.FindItemCount(spell.NoExpendReagentID(1)())() >= 1
+					if not RGMercUtils.DetGOMCheck() or RGMercUtils.IsNamed(mq.TLO.Target) then return false end
+                    return RGMercUtils.NPCSpellReady(spell) and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell)
                 end,
             },
-            {
-                name = "ChillDOT",
+			{
+                name = "HordeDOT",
                 type = "Spell",
                 cond = function(self, spell)
-                    return RGMercUtils.IsModeActive("Heal")
-                        and not RGMercUtils.GetSetting('DoFire')
-                        and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell) and
-                        RGMercUtils.GetSetting('DoDot')
-                end,
-            },
-            -- {
-                -- name = "Silent Casting",
-                -- type = "AA",
-                -- cond = function(self, aaName)
-                    -- return true
-                -- end,
-            -- },
-            {
-                name = "Season's Wrath",
-                type = "AA",
-                cond = function(self, aaName)
-                    return RGMercUtils.IsModeActive("Mana") and RGMercUtils.DetAACheck(mq.TLO.Me.AltAbility(aaName).ID()) and
-                        RGMercUtils.GetTargetPctHPs() > 75
-                end,
-            },
-            {
-                name = mq.TLO.Me.Inventory("Chest").Name(),
-                type = "Item",
-                cond = function(self)
-                    local item = mq.TLO.Me.Inventory("Chest")
-                    return RGMercUtils.IsModeActive("Mana") and RGMercUtils.GetSetting('DoChestClick') and item() and
-                        item.Spell.Stacks() and item.TimerReady() == 0
+					if not RGMercUtils.DetGOMCheck() or RGMercUtils.IsNamed(mq.TLO.Target) then return false end
+                    return RGMercUtils.NPCSpellReady(spell) and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell)
                 end,
             },
             {
                 name = "SunDOT",
                 type = "Spell",
                 cond = function(self, spell)
-                    return RGMercUtils.IsModeActive("Mana") or (RGMercUtils.IsModeActive("Heal")
-                            and RGMercUtils.GetSetting('DoFire') and mq.TLO.Me.PctMana() > 40) and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell)
-                        and RGMercUtils.GetSetting('DoDot')
-                end,
-            },
-            {
-                name = "HordeDOT",
-                type = "Spell",
-                cond = function(self, spell)
-                    return --RGMercUtils.IsModeActive("Mana") and
-                         RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell) and
-                        RGMercUtils.GetSetting('DoDot') and not (RGMercUtils.IsModeActive("Heal") and not RGMercUtils.BurnCheck())
+                    return RGMercUtils.NPCSpellReady(spell) and RGMercUtils.ManaCheck() and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell)
                 end,
             },
             {
                 name = "DichoSpell",
                 type = "Spell",
                 cond = function(self, spell)
-                    return (RGMercUtils.IsModeActive("Mana") or RGMercUtils.GetSetting('DoNuke'))
-                        and RGMercUtils.DetSpellCheck(spell) and RGMercUtils.GetTargetPctHPs() > 60 and
-                        mq.TLO.Me.PctMana() > 50
+                    return RGMercUtils.NPCSpellReady(spell) and (mq.TLO.Me.TargetOfTarget.PctHPs() or 0) <= RGMercUtils.GetSetting('LightHealPoint')
                 end,
             },
             {
                 name = "RemoteSunDD",
                 type = "Spell",
                 cond = function(self, spell)
-                    return RGMercUtils.GetSetting('DoFire')
-                        and RGMercUtils.DetSpellCheck(spell) and RGMercUtils.GetSetting('DoNuke') and
-                        RGMercUtils.GetTargetPctHPs() < RGMercUtils.GetSetting('NukePct')
+                    return RGMercUtils.NPCSpellReady(spell) and (mq.TLO.Me.TargetOfTarget.PctHPs() or 0) <= RGMercUtils.GetSetting('LightHealPoint')
                 end,
-            },
-            {
-                name = "RemoteMoonDD",
-                type = "Spell",
-                cond = function(self, spell)
-                    return not RGMercUtils.GetSetting('DoFire')
-                        and RGMercUtils.DetSpellCheck(spell) and RGMercUtils.GetSetting('DoNuke') and
-                        RGMercUtils.GetTargetPctHPs() < RGMercUtils.GetSetting('NukePct')
-                end,
-            },
-            {
-                name = "SunMoonDot",
-                type = "Spell",
-                cond = function(self, spell)
-                    return RGMercUtils.IsModeActive("Mana")
-                        and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell) and
-                        RGMercUtils.GetSetting('DoDot') and
-                        RGMercUtils.GetTargetLevel() >= mq.TLO.Me.Level()
-                end,
-            },
-            {
-                name = "NaturesWrathDOT",
-                type = "Spell",
-                cond = function(self, spell)
-                    return RGMercUtils.IsModeActive("Mana")
-                        and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell) and
-                        RGMercUtils.GetSetting('DoDot')
-                end,
-            },
-            {
-                name = "ShroomPet",
-                type = "Spell",
-                cond = function(self, spell)
-                    return RGMercUtils.IsModeActive("Mana")
-                        and RGMercUtils.DetSpellCheck(spell) and mq.TLO.Me.PctMana() < 60
-                end,
-            },
-            {
-                name = "WinterFireDD",
-                type = "Spell",
-                cond = function(self, spell)
-                    return RGMercUtils.IsModeActive("Mana")
-                        and RGMercUtils.DetSpellCheck(spell) and RGMercUtils.GetSetting('DoFire') and
-                        (RGMercUtils.ManaCheck() or RGMercUtils.BurnCheck())
-                end,
-            },
-            {
-                name = "IceRainNuke",
-                type = "Spell",
-                cond = function(self, spell)
-                    return RGMercUtils.IsModeActive("Mana")
-                        and RGMercUtils.DetSpellCheck(spell) and not RGMercUtils.GetSetting('DoFire') and
-                        RGMercUtils.GetSetting('DoRain') and
-                        (RGMercUtils.ManaCheck() or RGMercUtils.BurnCheck())
-                end,
-            },
-            {
-                name = "IceNuke",
-                type = "Spell",
-                cond = function(self, spell)
-                    return RGMercUtils.IsModeActive("Mana")
-                        and RGMercUtils.DetSpellCheck(spell) and not RGMercUtils.GetSetting('DoFire') and
-                        (RGMercUtils.ManaCheck() or RGMercUtils.BurnCheck())
-                end,
-            },
+            },         
             {
                 name = "Nature's Frost",
                 type = "AA",
                 cond = function(self, aaName)
-                    return RGMercUtils.IsModeActive("Mana") and RGMercUtils.DetAACheck(mq.TLO.Me.AltAbility(aaName).ID()) and
-                        mq.TLO.Me.PctMana() > 50 and
-                        (not RGMercUtils.IsModeActive("Heal") or (RGMercUtils.IsModeActive("Heal") and not RGMercUtils.GetSetting('DoFire') and (RGMercUtils.ManaCheck() or RGMercUtils.BurnCheck())))
+                    return RGMercUtils.NPCAAReady(aaName) and RGMercUtils.ManaCheck()
                 end,
             },
             {
                 name = "Nature's Fire",
                 type = "AA",
                 cond = function(self, aaName)
-                    return RGMercUtils.DetAACheck(mq.TLO.Me.AltAbility(aaName).ID()) and mq.TLO.Me.PctMana() > 50 and
-                        RGMercUtils.GetSetting('DoNuke') and
-                        (not RGMercUtils.IsModeActive("Heal") or (RGMercUtils.IsModeActive("Heal") and RGMercUtils.GetSetting('DoFire') and (RGMercUtils.ManaCheck() or RGMercUtils.BurnCheck())))
+                    return RGMercUtils.NPCAAReady(aaName) and RGMercUtils.ManaCheck()
                 end,
             },
             {
                 name = "Nature's Bolt",
                 type = "AA",
                 cond = function(self, aaName)
-                    return RGMercUtils.IsModeActive("Mana") and RGMercUtils.DetAACheck(mq.TLO.Me.AltAbility(aaName).ID()) and
-                        mq.TLO.Me.PctMana() > 50
+                    return RGMercUtils.NPCAAReady(aaName) and RGMercUtils.ManaCheck()
                 end,
             },
         },
-        ['Burn'] = {
-            {
+        ['HealBurn'] = {
+			{
                 name = mq.TLO.Me.Inventory("Chest").Name(),
                 type = "Item",
                 cond = function(self)
@@ -1115,70 +992,88 @@ local _ClassConfig = {
                 end,
             },
             {
-                name = "Nature's Boon",
-                type = "AA",
-                cond = function(self, aaName)
-                    return true
-                end,
-            },
-            {
-                name = "Spirit of the Wood",
-                type = "AA",
-                cond = function(self, aaName)
-                    return true
-                end,
-            },
-            {
-                name = "Swarm of the Fireflies",
-                type = "AA",
-                cond = function(self, aaName)
-                    return true
-                end,
-            },
-            {
                 name = "Distant Conflagration",
                 type = "AA",
                 cond = function(self, aaName)
-                    return true
+                     return RGMercUtils.AAReady(aaName)
                 end,
             },
-            {
-                name = "Nature's Guardian",
+			{
+                name = "Improved Twincast",
                 type = "AA",
                 cond = function(self, aaName)
-                    return true
+                     return RGMercUtils.AAReady(aaName) and not RGMercUtils.BuffActiveByName("Twincast")
                 end,
             },
-            {
-                name = "Spirits of Nature",
+			{
+                name = "Group Spirit of the Great Wolf",
                 type = "AA",
+                active_cond = function(self, aaName)
+                    return RGMercUtils.BuffActiveByID(mq.TLO.Me.AltAbility(aaName)
+                        .Spell.ID())
+                end,
                 cond = function(self, aaName)
-                    return true
+                    return RGMercUtils.SelfBuffAACheck(aaName)
                 end,
             },
-            {
+			{
                 name = "Destructive Vortex",
                 type = "AA",
                 cond = function(self, aaName)
-                    return true
+                    return RGMercUtils.AAReady(aaName)
                 end,
             },
             {
                 name = "Nature's Fury",
                 type = "AA",
                 cond = function(self, aaName)
-                    return true
+                    return RGMercUtils.AAReady(aaName)
+                end,
+            },          
+            {
+                name = "Spirit of the Wood",
+                type = "AA",
+                cond = function(self, aaName)
+                    return RGMercUtils.AAReady(aaName)
+                end,
+            },
+			{
+                name = "Nature's Boon",
+                type = "AA",
+                cond = function(self, aaName)
+                    return RGMercUtils.AAReady(aaName)
                 end,
             },
             {
+                name = "Nature's Guardian",
+                type = "AA",
+                cond = function(self, aaName)
+                    return RGMercUtils.AAReady(aaName)
+                end,
+            },
+            {
+                name = "Spirit of Nature",
+                type = "AA",
+                cond = function(self, aaName)
+                    return RGMercUtils.AAReady(aaName)
+                end,
+            },
+			{
                 name = "Spire of Nature",
                 type = "AA",
                 cond = function(self, aaName)
-                    return true
+                    return RGMercUtils.AAReady(aaName)
+                end,
+            },
+			{
+                name = "TwincastSpell",
+                type = "Spell",
+                cond = function(self, spell)
+                    return RGMercUtils.AAReady(aaName) and mq.TLO.Me.Buff("Twincast").ID() == 0
                 end,
             },
         },
-        ['Twin Heal'] = {
+        ['TwinHeal'] = {
             {
                 name = "TwinHealNuke",
                 type = "Spell",
@@ -1187,94 +1082,63 @@ local _ClassConfig = {
         },
         ['Debuff'] = {
             {
-                name = "RoDebuff",
-                type = "Spell",
-                cond = function(self, spell) return RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell) end,
-            },
-            {
                 name = "Blessing of Ro",
                 type = "AA",
                 cond = function(self, aaName, target)
-                    return not RGMercUtils.TargetHasBuff(mq.TLO.Me.AltAbility(aaName).Spell.Trigger(1)) and
+                    return RGMercUtils.NPCAAReady(aaName) and not RGMercUtils.TargetHasBuff(mq.TLO.Me.AltAbility(aaName).Spell.Trigger(1)) and
                         mq.TLO.FindItemCount(mq.TLO.Me.AltAbility("Blessing of Ro").Spell.Trigger(1).NoExpendReagentID(1)())() >
                         0
                 end,
             },
-            {
-                name = "SkinDebuff",
-                type = "Spell",
-                cond = function(self, spell, target)
-                    return RGMercUtils.DetSpellCheck(spell) and not RGMercUtils.TargetBodyIs(target, "Undead") and
-                        not RGMercUtils.TargetBodyIs(target, "Undead Pet")
-                end,
-            },
-            {
-                name = "IceBreathDebuff",
-                type = "Spell",
-                cond = function(self, spell, target)
-                    return not RGMercUtils.GetSetting('DoFire') and RGMercUtils.DetSpellCheck(spell) and
-                        RGMercUtils.GetTargetPctHPs(target) < RGMercUtils.GetSetting('NukePct') and
-                        RGMercUtils.GetSetting('DoNuke')
-                end,
-            },
-            {
-                name = "FrostDebuff",
-                type = "Spell",
-                cond = function(self, spell, target)
-                    return not RGMercUtils.GetSetting('DoFire') and RGMercUtils.DetSpellCheck(spell) and
-                        RGMercUtils.GetTargetPctHPs(target) < RGMercUtils.GetSetting('NukePct') and
-                        RGMercUtils.GetSetting('DoNuke')
-                end,
-            },
-            {
-                name = "SnareSpells",
-                type = "Spell",
-                cond = function(self, spell, target)
-                    return RGMercUtils.DetSpellCheck(spell) and RGMercUtils.GetTargetPctHPs(target) < 50
-                end,
-            },
-            {
+			{
                 name = "Season's Wrath",
                 type = "AA",
                 cond = function(self, aaName, target)
-                    return RGMercUtils.DetAACheck(mq.TLO.Me.AltAbility(aaName).ID())
+                    return RGMercUtils.NPCAAReady(aaName) and RGMercUtils.DetAACheck(mq.TLO.Me.AltAbility(aaName).ID())
                 end,
             },
         },
         ['GroupBuff'] = {
+			{
+                name = "Swarm of Fireflies",
+                type = "AA",
+                cond = function(self, aaName, target)
+					if target.ID() ~= RGMercUtils.GetMainAssistId() then return false end
+                    return RGMercUtils.AAReady(aaName)
+                end,
+            },
             {
                 name = "GroupDmgShield",
                 type = "Spell",
                 active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
                 cond = function(self, spell, target) return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName()) end,
             },
-            {
-                name = "MoveSpells",
-                type = "Spell",
-                active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
-                cond = function(self, spell, target)
-                    return RGMercUtils.GetSetting("DoRunSpeed") and RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())
-                end,
-            },
+            -- {
+                -- name = "MoveSpells",
+                -- type = "Spell",
+                -- active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
+                -- cond = function(self, spell, target)
+                    -- return RGMercUtils.GetSetting("DoRunSpeed") and RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())
+                -- end,
+            -- },
             {
                 name = "AtkBuff",
                 type = "Spell",
                 active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
                 cond = function(self, spell, target)
-                    RGMercUtils.SetTarget(target.ID() or 0)
-                    return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName()) and
-					--todo change this to melee and change to return false before buff checking
-                        Set.new({ "BRD", "SHD", "PAL", "WAR", "ROG", "BER", "MNK", "RNG", }):contains((target.Class.ShortName() or ""))
+					if not RGMercConfig.Constants.RGMelee:contains(target.Class.ShortName()) then return false end
+                    return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())               
                 end,
             },
-            {
-                name = "TempHPBuff",
-                type = "Spell",
-                active_cond = function(self, spell) return true end,
-                cond = function(self, spell, target)
-                    return RGMercConfig.Constants.RGTank:contains(target.Class.ShortName()) and RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())
-                end,
-            },
+            -- {
+                -- name = "TempHPBuff",
+                -- type = "Spell",
+                -- active_cond = function(self, spell) return true end,
+                -- cond = function(self, spell, target)
+					--if not RGMercConfig.Constants.RGTank:contains(target.Class.ShortName()) then return false end
+                    -- return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())
+                -- end,
+            -- },
             {
                 name = "HPTypeOneGroup",
                 type = "Spell",
@@ -1283,15 +1147,15 @@ local _ClassConfig = {
                     return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())
                 end,
             },
-            {
-                name = "ReptileCombatInnate",
-                type = "Spell",
-                active_cond = function(self, spell) return true end,
-                cond = function(self, spell, target)
-                    return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName()) and target and target and
-                        Set.new({ "SHD", "WAR", }):contains(target.Class.ShortName())
-                end,
-            },
+            -- {
+                -- name = "ReptileCombatInnate",
+                -- type = "Spell",
+                -- active_cond = function(self, spell) return true end,
+                -- cond = function(self, spell, target)
+					--if not Set.new({ "SHD", "WAR", }):contains(target.Class.ShortName()) then return false end
+                    -- return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())
+                -- end,
+            -- },
             {
                 name = "GroupRegenBuff",
                 type = "Spell",
@@ -1311,18 +1175,6 @@ local _ClassConfig = {
             },
         },
         ['Downtime'] = {
-            {
-                name = "SelfShield",
-                type = "Spell",
-                active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
-                cond = function(self, spell) return RGMercUtils.SelfBuffCheck(spell) end,
-            },
-            {
-                name = "SelfManaRegen",
-                type = "Spell",
-                active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
-                cond = function(self, spell) return RGMercUtils.SelfBuffCheck(spell) and mq.TLO.Zone.Outdoor() end,
-            },
             {
                 name = "IceAura",
                 type = "Spell",
@@ -1357,6 +1209,18 @@ local _ClassConfig = {
                     return RGMercUtils.SelfBuffAACheck(aaName) and mq.TLO.Me.AltAbility(aaName).Spell.RankName.Stacks()
                 end,
             },
+			{
+                name = "SelfShield",
+                type = "Spell",
+                active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
+                cond = function(self, spell) return RGMercUtils.SelfBuffCheck(spell) end,
+            },
+            {
+                name = "SelfManaRegen",
+                type = "Spell",
+                active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
+                cond = function(self, spell) return RGMercUtils.SelfBuffCheck(spell) end,
+            },
             {
                 name = "Preincarnation",
                 type = "AA",
@@ -1374,80 +1238,45 @@ local _ClassConfig = {
         {
             gem = 1,
             spells = {
-                {
-                    name = "DichoSpell",
-                    cond = function(self)
-                        return mq.TLO.Me.Level() >= 101 and
-                            RGMercUtils.IsModeActive("Mana")
-                    end,
-                },
                 { name = "LongHeal1", },
             },
         },
         {
             gem = 2,
             spells = {
-                -- [ MANA MODE ] --
-                {
-                    name = "QuickHeal",
-                    cond = function(self)
-                        return mq.TLO.Me.Level() >= 75 and
-                            RGMercUtils.IsModeActive("Mana")
-                    end,
-                },
-                { name = "SnareSpells",    cond = function(self) return RGMercUtils.IsModeActive("Mana") end, },
-                -- [ HEAL MODE ] --
                 { name = "QuickHealSurge", cond = function(self) return mq.TLO.Me.Level() >= 75 end, },
-                { name = "LongHeal2",      cond = function(self) return true end, },
-                -- [ Fall Back ]--
-                { name = "WinterFireDD",   cond = function(self) return RGMercUtils.GetSetting("DoFire") end, },
-                { name = "IceNuke",        cond = function(self) return true end, },
+
 
             },
         },
         {
             gem = 3,
             spells = {
-                -- [ MANA MODE ] --
-                { name = "WinterFireDD",   cond = function(self) return RGMercUtils.IsModeActive("Mana") end, },
                 -- [ HEAL MODE ] --
                 { name = "QuickGroupHeal", cond = function(self) return mq.TLO.Me.Level() >= 90 end, },
-                { name = "QuickRoarDD",    cond = function(self) return true end, },
-                -- [ Fall Back ]--
-                { name = "IceRainNuke",    cond = function(self) return true end, },
+
             },
         },
         {
             gem = 4,
             spells = {
-                -- [ BOTH MODES ] --
+
                 { name = "QuickHeal",       cond = function(self) return mq.TLO.Me.Level() >= 90 end, },
-                -- [ MANA MODE ] --
-                { name = "QuickRoarDD",     cond = function(self) return RGMercUtils.IsModeActive("Mana") end, },
-                -- [ HEAL MODE ] --
-                { name = "HordeDOT",        cond = function(self) return true end, },
-                -- [ Fall Back ]--
-                { name = "RoDebuff",        cond = function(self) return RGMercUtils.GetSetting("DoFire") end, },
-                { name = "IceBreathDebuff", cond = function(self) return true end, },
+
             },
         },
         {
             gem = 5,
             spells = {
-                -- [ MANA MODE ] --
-                { name = "HordeDOT",      cond = function(self) return RGMercUtils.IsModeActive("Mana") end, },
-                -- [ HEAL MODE ] --
+  
                 { name = "LongGroupHeal", cond = function(self) return mq.TLO.Me.Level() >= 70 end, },
-                { name = "SunDOT",        cond = function(self) return true end, },
-                { name = "SunrayDOT",     cond = function(self) return true end, },
-                -- [ Fall Back ]--
-                { name = "SunrayDOT",     cond = function(self) return true end, },
+
             },
         },
         {
             gem = 6,
             spells = {
-                -- [ BOTH MODES ] --
+
                 {
                     name = "RemoteSunDD",
                     cond = function(self)
@@ -1460,43 +1289,23 @@ local _ClassConfig = {
                         return mq.TLO.Me.Level() >= 83 and not RGMercUtils.GetSetting('DoFire')
                     end,
                 },
-                -- [ MANA MODE ] --
-                { name = "RoDebuff",            cond = function(self) return RGMercUtils.IsModeActive("Mana") end, },
-                -- [ HEAL MODE ] --
-                { name = "SunrayDOT",           cond = function(self) return mq.TLO.Me.Level() >= 73 end, },
-                { name = "ReptileCombatInnate", cond = function(self) return true end, },
-                { name = "SnareSpells",         cond = function(self) return true end, },
-                -- [ Fall Back ]--
-                { name = "HordeDOT",            cond = function(self) return true end, },
+                
             },
         },
         {
             gem = 7,
             spells = {
-                -- [ MANA MODE ] --
-                { name = "SunMoonDot",          cond = function(self) return RGMercUtils.IsModeActive("Mana") end, },
-                -- [ HEAL MODE ] --
+                
                 { name = "FrostDebuff",         cond = function(self) return mq.TLO.Me.Level() >= 74 and not RGMercUtils.GetSetting('DoFire') end, },
                 { name = "HordeDOT", 			cond = function(self) return RGMercUtils.CanUseAA("Blessing of Ro") end, },
                 { name = "RoDebuff",            cond = function(self) return true end, },
-                -- [ Fall Back ]--
-                { name = "HordeDOT",            cond = function(self) return true end, },
-                { name = "SnareSpells",         cond = function(self) return true end, },
+
             },
         },
         {
             gem = 8,
             spells = {
-                -- [ MANA MODE ] --
-                {
-                    name = "SunDOT",
-                    cond = function(self)
-                        return mq.TLO.Me.Level() >= 49 and
-                            RGMercUtils.IsModeActive("Mana")
-                    end,
-                },
-                { name = "RootSpells",   cond = function(self) return RGMercUtils.IsModeActive("Mana") end, },
-                -- [ HEAL MODE ] --
+ 
                 { name = "TwinHealNuke", cond = function(self) return RGMercUtils.GetSetting("DoTwinHeal") end, },
 				{ name = "ReptileCombatInnate", cond = function(self) return true end, },
                 { name = "GroupCure", cond = function(self) return true end, },
@@ -1506,16 +1315,7 @@ local _ClassConfig = {
             gem = 9,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
-                -- [ MANA MODE ] --
-                {
-                    name = "IceBreathDebuff",
-                    cond = function(self)
-                        return mq.TLO.Me.Level() >= 63 and
-                            RGMercUtils.IsModeActive("Mana")
-                    end,
-                },
-                { name = "IceDD",           cond = function(self) return RGMercUtils.IsModeActive("Mana") end, },
-                -- [ HEAL MODE ] --
+               
                 { name = "SunDOT",          cond = function(self) return RGMercUtils.GetSetting("DoFire") end, },
                 { name = "IceBreathDebuff", cond = function(self) return true end, },
             },
@@ -1524,19 +1324,15 @@ local _ClassConfig = {
             gem = 10,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
-                -- [ MANA MODE ] --
-                { name = "NaturesWrathDOT", cond = function(self) return RGMercUtils.IsModeActive("Mana") end, },
-                -- [ HEAL MODE ] --
-                { name = "TempHPBuff",      cond = function(self) return true end, },
+                { name = "NaturesWrathDOT", cond = function(self) return true end, },
+
             },
         },
         {
             gem = 11,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
-                -- [ MANA MODE ] --
-                { name = "TempHPBuff",          cond = function(self) return RGMercUtils.IsModeActive("Mana") end, },
-                -- [ HEAL MODE ] --
+               
                 { name = "DichoSpell",          cond = function(self) return mq.TLO.Me.Level() >= 101 end, },
                 { name = "GroupCure",           cond = function(self) return true end, },
                 { name = "ReptileCombatInnate", cond = function(self) return true end, },
@@ -1546,16 +1342,7 @@ local _ClassConfig = {
             gem = 12,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
-                -- [ MANA MODE ] --
-                {
-                    name = "LongHeal1",
-                    cond = function(self)
-                        return mq.TLO.Me.Level() >= 99 and
-                            RGMercUtils.IsModeActive("Mana")
-                    end,
-                },
-                { name = "ChillDOT",  cond = function(self) return RGMercUtils.IsModeActive("Mana") end, },
-                -- [ HEAL MODE ] --
+                { name = "TwincastSpell",           cond = function(self) return true end, },
                 { name = "GroupCure", cond = function(self) return true end, },
                 { name = "ReptileCombatInnate", cond = function(self) return true end, },
             },
@@ -1564,7 +1351,6 @@ local _ClassConfig = {
             gem = 13,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
-                { name = "Alliance", cond = function(self) return RGMercUtils.GetSetting("DoAlliance") end, },
 				{ name = "GroupCure", cond = function(self) return true end, },
             },
         },

@@ -692,11 +692,11 @@ return {
 		{
             name = 'FocusedParagon',
             targetId = function(self)
-                return { RGMercUtils.FindWorstHurtManaGroupMember(RGMercUtils.GetSetting('ParagonPct')),
-                    RGMercUtils.FindWorstHurtManaXT(RGMercUtils.GetSetting('ParagonPct')), }
+                return { RGMercUtils.FindWorstHurtManaGroupMember(RGMercUtils.GetSetting('ParagonPct')), }
+                   -- RGMercUtils.FindWorstHurtManaXT(RGMercUtils.GetSetting('ParagonPct')), }
             end,
             cond = function(self, combat_state)
-                return combat_state == "Combat" and RGMercUtils.GetSetting('DoParagon') and not RGMercUtils.BuffActive(mq.TLO.Me.AltAbility('Paragon of Spirit').Spell)
+                return not RGMercUtils.Feigning() and not (combat_state == "Downtime" and mq.TLO.Me.Invis()) and RGMercUtils.GetSetting('DoParagon') and not RGMercUtils.BuffActive(mq.TLO.Me.AltAbility('Paragon of Spirit').Spell)
             end,
         },
         {
@@ -924,7 +924,7 @@ return {
                 name = "False Death",
                 type = "AA",
                 cond = function(self, aaName)
-                    return mq.TLO.Me.PctHPs() < 50 and mq.TLO.Me.PctAggro() > 90 and RGMercUtils.AAReady(aaName)
+                    return mq.TLO.Me.PctHPs() < 60 and mq.TLO.Me.PctAggro() > 90 and RGMercUtils.AAReady(aaName)
                 end,
             },
 		},
