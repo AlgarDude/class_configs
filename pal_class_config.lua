@@ -774,21 +774,8 @@ local _ClassConfig = {
             steps = 1,
             cond = function(self, target) return (target.PctHPs() or 999) < RGMercUtils.GetSetting('MainHealPoint') end,
         },
-        -- {
-            -- name = 'LightHealPoint',
-            -- state = 1,
-            -- steps = 1,
-            -- cond = function(self, target) return (target.PctHPs() or 999) < RGMercUtils.GetSetting('LightHealPoint') end,
-        -- },
     },
     ['HealRotations']     = {
-        -- ["LightHealPoint"] = {
-            -- {
-                -- name = "LightHeal",
-                -- type = "Spell",
-                -- cond = function(self, _) return true end,
-            -- },
-        -- },
         ["MainHealPoint"] = {
 			{
                 name = "Gift of Life",
@@ -810,7 +797,7 @@ local _ClassConfig = {
                 name = "Lay on Hands",
                 type = "AA",
                 cond = function(self, aaName)
-                    return combat_state == "Combat" and RGMercUtils.PCAAReady(aaName) and RGMercUtils.GetTargetPctHPs() < RGMercUtils.GetSetting('LayHandsPct')
+                    return combat_state == "Combat" and RGMercUtils.AAReady(aaName) and RGMercUtils.GetTargetPctHPs() < RGMercUtils.GetSetting('LayHandsPct')
                 end,
 			},
             {
@@ -818,7 +805,7 @@ local _ClassConfig = {
                 type = "Spell",
                 cond = function(self, _)
                     if not mq.TLO.Group() then return false end
-                    return mq.TLO.Group.Injured(RGMercUtils.GetSetting('GroupHealPoint'))() > RGMercUtils.GetSetting('GroupInjureCnt')
+                    return RGMercUtils.SpellLoaded(spell) and RGMercUtils.PCSpellReady(spell) and mq.TLO.Group.Injured(RGMercUtils.GetSetting('GroupHealPoint'))() > RGMercUtils.GetSetting('GroupInjureCnt')
                 end,
             },
             {
@@ -826,7 +813,7 @@ local _ClassConfig = {
                 type = "Spell",
                 cond = function(self, _)
                     if not mq.TLO.Group() then return false end
-                    return mq.TLO.Group.Injured(RGMercUtils.GetSetting('GroupHealPoint'))() > RGMercUtils.GetSetting('GroupInjureCnt')
+                    return RGMercUtils.SpellLoaded(spell) and RGMercUtils.PCSpellReady(spell) and mq.TLO.Group.Injured(RGMercUtils.GetSetting('GroupHealPoint'))() > RGMercUtils.GetSetting('GroupInjureCnt')
                 end,
             },
             {
@@ -834,7 +821,7 @@ local _ClassConfig = {
                 type = "Spell",
                 cond = function(self, _)
                     if not mq.TLO.Group() then return false end
-                    return mq.TLO.Group.Injured(RGMercUtils.GetSetting('GroupHealPoint'))() > RGMercUtils.GetSetting('GroupInjureCnt')
+                    return RGMercUtils.SpellLoaded(spell) and RGMercUtils.PCSpellReady(spell) and mq.TLO.Group.Injured(RGMercUtils.GetSetting('GroupHealPoint'))() > RGMercUtils.GetSetting('GroupInjureCnt')
                 end,
             },
             
@@ -1036,14 +1023,14 @@ local _ClassConfig = {
                     return not self.ClassConfig.HelperFunctions.castDPU(self) and RGMercUtils.PCSpellReady(spell) and RGMercUtils.SelfBuffCheck(spell)
                 end,
             },
-			{
-                name = "Huntsman's Ethereal Quiver",
-                type = "Item",
-                active_cond = function(self) return mq.TLO.FindItemCount("Ethereal Arrow")() > 1 end,
-                cond = function(self)
-                    return RGMercUtils.GetSetting('SummonArrows') and mq.TLO.FindItemCount("Ethereal Arrow")() < 1 and mq.TLO.Me.ItemReady("Huntsman's Ethereal Quiver")()
-                end,
-            },
+			-- {
+                -- name = "Huntsman's Ethereal Quiver",
+                -- type = "Item",
+                -- active_cond = function(self) return mq.TLO.FindItemCount("Ethereal Arrow")() > 1 end,
+                -- cond = function(self)
+                    -- return RGMercUtils.GetSetting('SummonArrows') and mq.TLO.FindItemCount("Ethereal Arrow")() < 1 and mq.TLO.Me.ItemReady("Huntsman's Ethereal Quiver")()
+                -- end,
+            -- },
 			{
                 name = "Aurabuff",
                 type = "Spell",
@@ -1080,7 +1067,7 @@ local _ClassConfig = {
                 name = "Lay on Hands",
                 type = "AA",
                 cond = function(self, aaName)
-                    return RGMercUtils.PCAAReady(aaName) and mq.TLO.Me.PctHPs() < 25
+                    return RGMercUtils.AAReady(aaName) and mq.TLO.Me.PctHPs() < 25
                 end,
 			},
 			{
@@ -1129,7 +1116,7 @@ local _ClassConfig = {
                 name = "TotLightHeal",
                 type = "Spell",
                 cond = function(self, spell)
-                    return RGMercUtils.PCSpellReady(spell)
+                    return RGMercUtils.SpellLoaded(spell) and RGMercUtils.PCSpellReady(spell)
                 end,
             },
             --Staunch Recovery placed as low priority as it has a long(ish) cast time. Also often used manually after a combat rez.
@@ -1165,17 +1152,9 @@ local _ClassConfig = {
                 type = "Disc",
                 tooltip = Tooltips.Deflection,
                 cond = function(self, discSpell)
-                    return RGMercUtils.PCDiscReady(discSpell) and mq.TLO.Me.ActiveDisc.Name() ~= "Leechcurse Discipline" and mq.TLO.Me.PctHPs() < 35
+                    return RGMercUtils.PCDiscReady(discSpell) and mq.TLO.Me.PctHPs() < 35
                 end,
             },
-            -- {
-                -- name = "LeechCurse",
-                -- type = "Disc",
-                -- tooltip = Tooltips.LeechCurse,
-                -- cond = function(self, discSpell)
-                    -- return RGMercUtils.PCDiscReady(discSpell) and mq.TLO.Me.ActiveDisc.Name() ~= "Deflection Discipline" and mq.TLO.Me.PctHPs() < 35
-                -- end,
-            -- },
             {
                 name = "Shield Flash",
                 type = "AA",
@@ -1191,9 +1170,7 @@ local _ClassConfig = {
                 name = "Penitent",
                 type = "Disc",
                 cond = function(self, discSpell)
-                    return RGMercUtils.PCDiscReady(discSpell) and RGMercUtils.IsTanking() and
-                    --mq.TLO.Me.PctHPs() < 50 and
-                    not mq.TLO.Me.ActiveDisc.ID()
+                    return RGMercUtils.PCDiscReady(discSpell) and RGMercUtils.IsTanking() and not mq.TLO.Me.ActiveDisc.ID()
                 end,
             },
 			{
@@ -1207,8 +1184,7 @@ local _ClassConfig = {
                 name = "Group Armor of The Inquisitor",
                 type = "AA",
                 cond = function(self, aaName)
-                    return RGMercUtils.AAReady(aaName) and
-                        not RGMercUtils.SongActiveByName('Armor of the Inquisitor')
+                    return RGMercUtils.AAReady(aaName) and not RGMercUtils.SongActiveByName('Armor of the Inquisitor')
                 end,
             },
             {
@@ -1231,7 +1207,7 @@ local _ClassConfig = {
                     return RGMercUtils.PCDiscReady(discSpell) and not mq.TLO.Me.ActiveDisc.ID()
                 end,
             },
-			--if we made it this far let's reset our dicho/burst and hope for the best!
+			--if we made it this far let's reset our selfheal/dicho/burst and hope for the best!
 			{
                 name = "Forceful Rejuvenation",
                 type = "AA",
@@ -1248,7 +1224,7 @@ local _ClassConfig = {
                 type = "AA",
                 tooltip = Tooltips.AgelessEnmity,
                 cond = function(self, aaName)
-                    return RGMercUtils.AAReady(aaName) and RGMercUtils.GetTargetPctHPs() < 90 and mq.TLO.Me.PctAggro() < 100
+                    return RGMercUtils.NPCAAReady(aaName) and RGMercUtils.GetTargetPctHPs() < 90 and mq.TLO.Me.PctAggro() < 100
 					end,
             },
           --used to jumpstart hatred on named from the outset and prevent early rips from burns
@@ -1257,7 +1233,7 @@ local _ClassConfig = {
                 type = "Disc",
                 tooltip = Tooltips.Acrimony,
                 cond = function(self, discSpell)
-                    return RGMercUtils.PCDiscReady(discSpell) and RGMercUtils.IsNamed(mq.TLO.Target)
+                    return RGMercUtils.NPCDiscReady(discSpell) and RGMercUtils.IsNamed(mq.TLO.Target)
                 end,
             },
           -- --used to reinforce hatred on named

@@ -940,9 +940,9 @@ local _ClassConfig = {
             steps = 1,
             targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
             cond = function(self, combat_state)
-                return combat_state == "Combat" and
-                    RGMercUtils.BurnCheck() and RGMercUtils.IsModeActive("Heal") and RGMercUtils.GetSetting('DoHealDPS') and not RGMercUtils.Feigning() and RGMercUtils.GetMainAssistPctHPs() >=80 
-            end,
+                return combat_state == "Combat" and RGMercUtils.BurnCheck() and RGMercUtils.IsModeActive("Heal") and not RGMercUtils.Feigning() 
+					and RGMercUtils.GetMainAssistPctHPs() >= RGMercUtils.GetSetting('MainHealPoint')
+			end,
         },
 		{
             name = 'Twin Heal',
@@ -951,7 +951,7 @@ local _ClassConfig = {
             targetId = function(self) return { RGMercUtils.GetMainAssistId(), } end,
             cond = function(self, combat_state)
                 return combat_state == "Combat" and RGMercUtils.GetSetting('DoTwinHeal') and not RGMercUtils.SongActiveByName("Healing Twincast") and
-                    RGMercUtils.IsHealing() and not RGMercUtils.Feigning()
+                    RGMercUtils.IsHealing() and not RGMercUtils.Feigning() and RGMercUtils.GetMainAssistPctHPs() >= RGMercUtils.GetSetting('MainHealPoint')
             end,
         },
         {
@@ -960,7 +960,8 @@ local _ClassConfig = {
             steps = 1,
             targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
             cond = function(self, combat_state)
-                return combat_state == "Combat" and RGMercUtils.IsModeActive("Heal") and RGMercUtils.GetSetting('DoHealDPS') and not RGMercUtils.Feigning() and RGMercUtils.GetMainAssistPctHPs() >=80
+                return combat_state == "Combat" and RGMercUtils.IsModeActive("Heal") and not RGMercUtils.Feigning()
+					and RGMercUtils.GetMainAssistPctHPs() >= RGMercUtils.GetSetting('MainHealPoint')
             end,
         },
     },
@@ -969,7 +970,7 @@ local _ClassConfig = {
             {
                 name = "TwinHealNuke",
                 type = "Spell",
-                cond = function(self, spell) return RGMercUtils.PCSpellReady(spell) and not RGMercUtils.SongActiveByName("Healing Twincast") end,
+                cond = function(self, spell) return RGMercUtils.PCSpellReady(spell) end,
             },
         },
         ['Debuff'] = {
@@ -1068,28 +1069,29 @@ local _ClassConfig = {
                 name = "ChaoticDoT",
                 type = "Spell",
                 cond = function(self, spell)
-                    return mq.TLO.Me.PctMana() > 50 and self.ClassConfig.HelperFunctions.DotSpellCheck(spell)
+                    return mq.TLO.Me.PctMana() > RGMercUtils.GetSetting('DOTMinMana') and self.ClassConfig.HelperFunctions.DotSpellCheck(spell)
                 end,
             },
             {
                 name = "CurseDoT2",
                 type = "Spell",
                 cond = function(self, spell)
-                    return mq.TLO.Me.PctMana() > 50 and self.ClassConfig.HelperFunctions.DotSpellCheck(spell)
+                    return mq.TLO.Me.PctMana() > RGMercUtils.GetSetting('DOTMinMana') and self.ClassConfig.HelperFunctions.DotSpellCheck(spell)
                 end,
             },
             {
                 name = "PandemicDot",
                 type = "Spell",
                 cond = function(self, spell)
-                    return mq.TLO.Me.PctMana() > 50 and self.ClassConfig.HelperFunctions.DotSpellCheck(spell)
+                    return mq.TLO.Me.PctMana() > RGMercUtils.GetSetting('DOTMinMana') and self.ClassConfig.HelperFunctions.DotSpellCheck(spell)
                 end,
             },
             {
                 name = "GroupRenewalHoT",
                 type = "Spell",
-                cond = function(self, spell) return not self.ClassConfig.HelperFunctions.DotSpellCheck(spell)
-					and RGMercUtils.SpellStacksOnMe(spell) and (mq.TLO.Me.Song(spell).Duration.TotalSeconds() or 0) < 30
+                cond = function(self, spell)
+					return not self.ClassConfig.HelperFunctions.DotSpellCheck(spell) and RGMercUtils.SpellStacksOnMe(spell) 
+						and (mq.TLO.Me.Song(spell).Duration.TotalSeconds() or 0) < 30
 				end,
             },
         },
@@ -1506,8 +1508,8 @@ local _ClassConfig = {
 		['DebuffNamedAlways'] = { DisplayName = "Always Debuff Named", Category = "Debuffs", Tooltip = "Debuff named regardless of con color", Default = true, },
 		['DoStatBuff']        = { DisplayName = "Do Stat Buff", Category = "Buffs", Tooltip = "Do Stat Buffs for Group", Default = true, },
         ['HPStopDOT']         = { DisplayName = "HP Stop DOTs", Category = "Spells and Abilities", Tooltip = "Stop casting DOTs when a non-named mob hits [x] HP %.", Default = 50, Min = 1, Max = 100, },
+		['DOTMinMana']         = { DisplayName = "DOT Min Mana", Category = "Spells and Abilities", Tooltip = "Stop casting DOTs when MP % falls below [x].", Default = 40, Min = 1, Max = 100, },
         ['NamedStopDOT']         = { DisplayName = "Named HP Stop DOTs", Category = "Spells and Abilities", Tooltip = "Stop casting DOTs when a named mob hits [x] HP %.", Default = 30, Min = 1, Max = 100, },
-		['DoHealDPS']         = { DisplayName = "Use HealDPS", Category = "Spells and Abilities", Tooltip = "Use HealDPS Rotation", Default = true, },
     },
 }
 
