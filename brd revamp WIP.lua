@@ -72,17 +72,11 @@ local function generateSongList()
             },
         })
     end
-
-    -- local function ConditionallyAddSong(settingToCheck, songToAdd)
-        -- if RGMercUtils.GetSetting(settingToCheck) then
-            -- addSong(songToAdd)
-        -- end
-    -- end
 	
 	local function ConditionallyAddSong(settingToCheck, songToAdd, configtype)
 		if configtype == "combo" then 
 			if RGMercUtils.GetSetting(settingToCheck) > 1 then addSong(songToAdd) end
-		else
+		else --if a third category is ever needed this can become "toggle" or somesuch
 			if RGMercUtils.GetSetting(settingToCheck) then addSong(songToAdd) end
         end
     end
@@ -103,7 +97,8 @@ local function generateSongList()
     local function AddMainGroupDPSSongs()
         addSong('WarMarchSong')
         addSong('MainAriaSong')
-        ConditionallyAddSong('UseProgressive', 'DichoSong')
+		ConditionallyAddSong("UseArcane", "ArcaneSong")
+        ConditionallyAddSong('UseProgressive', 'DichoSong', "combo")
     end
 
     local function AddSelfDPSSongs()
@@ -116,41 +111,35 @@ local function generateSongList()
     end
 
     local function AddMeleeDPSSongs()
-		ConditionallyAddSong("UseSuffering", "SufferingSong", "combo")
-        --ConditionallyAddSong("UseSuffering", "SufferingSong")
+		ConditionallyAddSong("UseSufferingSong", "SufferingSong", "combo")
     end
 
     local function AddTankSongs()
-        ConditionallyAddSong("UseSpiteful", "SpitefulSong")
-        ConditionallyAddSong("UseSpry", "SprySonataSong")
-        ConditionallyAddSong("UseResist", "ResistSong")
+        ConditionallyAddSong("UseSpiteful", "SpitefulSong", "combo")
+        ConditionallyAddSong("UseSpry", "SprySonataSong", "combo")
+        ConditionallyAddSong("UseResist", "ResistSong", "combo")
     end
 
     local function AddHealerSongs()
-        ConditionallyAddSong("UseReckless", "RecklessSong")
+        ConditionallyAddSong("UseReckless", "RecklessSong", "combo")
     end
 
     local function AddCasterDPSSongs()
-        ConditionallyAddSong("UseArcane", "ArcaneSong")
-        ConditionallyAddSong("UseFireDDMod", "CasterAriaSong")
-        ConditionallyAddSong("UseFate", "FateSong")
-        ConditionallyAddSong("UsePotency", "PotencySong")
+        
+        ConditionallyAddSong("UseFireDDMod", "CasterAriaSong", "combo")
+        ConditionallyAddSong("UseFate", "FateSong", "combo")
+        ConditionallyAddSong("UsePotency", "PotencySong", "combo")
     end
 
     local function AddRegenSongs()
-        ConditionallyAddSong("UseAmp", "AmpSong")
-        ConditionallyAddSong("UseCrescendo", "CrescendoSong")
+        ConditionallyAddSong("UseAmp", "AmpSong", "combo")
+        ConditionallyAddSong("UseCrescendo", "CrescendoSong", "combo")
         if RGMercUtils.GetSetting('RegenSong') == 1 then addSong("GroupRegenSong")
         elseif RGMercUtils.GetSetting('RegenSong') == 2 then addSong("AreaRegenSong")
         end
     end
     -- local function AddEnduringBreathSongs()
         -- ConditionallyAddSong("UseEnduringBreath", "EnduringBreathSong")
-    -- end
-    -- local function AddBardAura()
-		-- if RGMercUtils.GetSetting('UseAura') == 1 then addSong("BardDPSAura")
-        -- elseif RGMercUtils.GetSetting('UseAura') == 2 then addSong("BardRegenAura")
-        -- end
     -- end
     -----------------------------------------------------------------------------------------
 
@@ -726,8 +715,7 @@ local _ClassConfig = {
         },
     },
 	['HelperFunctions']   = {
-		CheckSongStateUse = function(self, config) --spellSong
-		--local usestate = RGMercUtils.GetSetting(..spellSong "When")
+		CheckSongStateUse = function(self, config)
 		local usestate = RGMercUtils.GetSetting(config)
 			if RGMercUtils.GetXTHaterCount() == 0 then return usestate > 2
 			else return usestate < 4
@@ -1267,8 +1255,7 @@ local _ClassConfig = {
         ['UsePotency']       = { DisplayName = "Use Potency", Category = "Caster Songs", Tooltip = Tooltips.PotencySong, RequiresLoadoutChange = true, Default = false, },
         ['UseFate']          = { DisplayName = "Use Fate", Category = "Caster Songs", Tooltip = Tooltips.FateSong, RequiresLoadoutChange = true, Default = false, },
         -- Melee DPS Only
-        -- ['UseSuffering']     = { DisplayName = "Use Suffering Line", Category = "Melee Songs", Tooltip = Tooltips.SufferingSong, RequiresLoadoutChange = true, Default = false, },
-		['UseSuffering']   = { DisplayName = "Use Suffering Line", Category = "Melee Songs", Tooltip = Tooltips.SufferingSong, Type = "Combo", ComboOptions = { 'Off', 'In-Combat Only', 'Always', 'Out-of-Combat Only', }, Default = 4, Min = 1, Max = 4, RequiresLoadoutChange = true,},
+		['UseSufferingSong']   = { DisplayName = "Use Suffering Line", Category = "Melee Songs", Tooltip = Tooltips.SufferingSong, Type = "Combo", ComboOptions = { 'Off', 'In-Combat Only', 'Always', 'Out-of-Combat Only', }, Default = 4, Min = 1, Max = 4, RequiresLoadoutChange = true,},
         ['UseProgressive']   = { DisplayName = "Use Progressive", Category = "Melee Songs", Tooltip = Tooltips.DichoSong, RequiresLoadoutChange = true, Default = true, },
         ['UseJonthan']       = { DisplayName = "Use Jonthan", Category = "Melee Songs", Tooltip = Tooltips.Jonthans, RequiresLoadoutChange = true, Default = false, },
 		['DoChestClick']   	=  { DisplayName = "Do Chest Click", Category = "Utilities", Tooltip = "Click your chest item", Default = true, },
