@@ -740,6 +740,22 @@ local _ClassConfig = {
 			else return usestate < 4
 			end
 		end,
+		RefreshBuffSong = function(songSpell)
+			if not songSpell or not songSpell() then return false end
+			local me = mq.TLO.Me
+			local casttime = songSpell.MyCastTime.Seconds()
+			local threshold = 6
+			if RGMercUtils.GetXTHaterCount() == 0 then threshold = 12 end
+			
+			local res = RGMercUtils.SongMemed(songSpell) and
+				(me.Song(songSpell.Name()).Duration.TotalSeconds() or 0) <= (casttime + threshold)
+				RGMercsLogger.log_verbose("\ayBuffSong(%s) => memed(%s), duration(%0.2f) < reusetime(%0.2f) --> result(%s)",
+				songSpell.Name(),
+				RGMercUtils.BoolToColorString(me.Gem(songSpell.RankName.Name())() ~= nil),
+				me.Song(songSpell.Name()).Duration.TotalSeconds() or 0, casttime + threshold,
+				RGMercUtils.BoolToColorString(res))
+			return res
+		end,
 	},
     ['RotationOrder'] = {  -----TODO: ADD EMERGENCY ROTATION (Hymn of the Last Stand, Fading Memories, Lyrical Prankster, Shield of Notes, Vet AA/ Armor of Experience)
 		{
@@ -1052,14 +1068,14 @@ local _ClassConfig = {
                 name = "MainAriaSong",
                 type = "Song",
                 cond = function(self, songSpell)
-					return RGMercUtils.BuffSong(songSpell)
+					return self.ClassConfig.HelperFunctions.RefreshBuffSong(songSpell)
                 end,
             },
             {
                 name = "WarMarchSong",
                 type = "Song",
                 cond = function(self, songSpell)
-					return RGMercUtils.BuffSong(songSpell)
+					return self.ClassConfig.HelperFunctions.RefreshBuffSong(songSpell)
                 end,
             },
 			{
@@ -1067,7 +1083,7 @@ local _ClassConfig = {
                 type = "Song",
                 cond = function(self, songSpell)
 					if RGMercUtils.GetSetting('UseJonthan') == 1 then return false end
-					return self.ClassConfig.HelperFunctions.CheckSongStateUse(self, "UseJonthan") and RGMercUtils.BuffSong(songSpell)
+					return self.ClassConfig.HelperFunctions.CheckSongStateUse(self, "UseJonthan") and self.ClassConfig.HelperFunctions.RefreshBuffSong(songSpell)
                 end,
             },
 			{
@@ -1075,7 +1091,7 @@ local _ClassConfig = {
                 type = "Song",
                 cond = function(self, songSpell)
 					if RGMercUtils.GetSetting('UseArcane') == 1 then return false end
-					return self.ClassConfig.HelperFunctions.CheckSongStateUse(self, "UseArcane") and RGMercUtils.BuffSong(songSpell)
+					return self.ClassConfig.HelperFunctions.CheckSongStateUse(self, "UseArcane") and self.ClassConfig.HelperFunctions.RefreshBuffSong(songSpell)
                 end,
             },
 			{
@@ -1093,7 +1109,7 @@ local _ClassConfig = {
                 type = "Song",
                 cond = function(self, songSpell)
 					local pct = RGMercUtils.GetSetting('GroupManaPct')
-                    return RGMercUtils.BuffSong(songSpell) and not (mq.TLO.Me.Combat() and (mq.TLO.Group.LowMana(pct)() or -1) < RGMercUtils.GetSetting('GroupManaCt'))
+                    return self.ClassConfig.HelperFunctions.RefreshBuffSong(songSpell) and not (mq.TLO.Me.Combat() and (mq.TLO.Group.LowMana(pct)() or -1) < RGMercUtils.GetSetting('GroupManaCt'))
                 end,
             },
 			{
@@ -1101,7 +1117,7 @@ local _ClassConfig = {
                 type = "Song",
                 cond = function(self, songSpell)
 					local pct = RGMercUtils.GetSetting('GroupManaPct')
-                    return RGMercUtils.BuffSong(songSpell) and not (mq.TLO.Me.Combat() and (mq.TLO.Group.LowMana(pct)() or -1) < RGMercUtils.GetSetting('GroupManaCt'))
+                    return self.ClassConfig.HelperFunctions.RefreshBuffSong(songSpell) and not (mq.TLO.Me.Combat() and (mq.TLO.Group.LowMana(pct)() or -1) < RGMercUtils.GetSetting('GroupManaCt'))
                 end,
             },
 			{
@@ -1109,7 +1125,7 @@ local _ClassConfig = {
                 type = "Song",
                 cond = function(self, songSpell)
 					if RGMercUtils.GetSetting('UseAmp') == 1 then return false end
-					return self.ClassConfig.HelperFunctions.CheckSongStateUse(self, "UseAmp") and RGMercUtils.BuffSong(songSpell)
+					return self.ClassConfig.HelperFunctions.CheckSongStateUse(self, "UseAmp") and self.ClassConfig.HelperFunctions.RefreshBuffSong(songSpell)
                 end,
             },
 			{
@@ -1117,7 +1133,7 @@ local _ClassConfig = {
                 type = "Song",
                 cond = function(self, songSpell)
 					if RGMercUtils.GetSetting('UseSuffering') == 1 then return false end
-					return self.ClassConfig.HelperFunctions.CheckSongStateUse(self, "UseSuffering") and RGMercUtils.BuffSong(songSpell)
+					return self.ClassConfig.HelperFunctions.CheckSongStateUse(self, "UseSuffering") and self.ClassConfig.HelperFunctions.RefreshBuffSong(songSpell)
 				end,
             },
 			{
@@ -1125,7 +1141,7 @@ local _ClassConfig = {
                 type = "Song",
                 cond = function(self, songSpell)
 					if RGMercUtils.GetSetting('UseSpiteful') == 1 then return false end
-					return self.ClassConfig.HelperFunctions.CheckSongStateUse(self, "UseSpiteful") and RGMercUtils.BuffSong(songSpell)
+					return self.ClassConfig.HelperFunctions.CheckSongStateUse(self, "UseSpiteful") and self.ClassConfig.HelperFunctions.RefreshBuffSong(songSpell)
 				end,
             },
 			{
@@ -1133,7 +1149,7 @@ local _ClassConfig = {
                 type = "Song",
                 cond = function(self, songSpell)
 					if RGMercUtils.GetSetting('UseSpry') == 1 then return false end
-					return self.ClassConfig.HelperFunctions.CheckSongStateUse(self, "UseSpry") and RGMercUtils.BuffSong(songSpell)
+					return self.ClassConfig.HelperFunctions.CheckSongStateUse(self, "UseSpry") and self.ClassConfig.HelperFunctions.RefreshBuffSong(songSpell)
 				end,
             },
 			{
@@ -1141,7 +1157,7 @@ local _ClassConfig = {
                 type = "Song",
                 cond = function(self, songSpell)
 					if RGMercUtils.GetSetting('UseResist') == 1 then return false end
-					return self.ClassConfig.HelperFunctions.CheckSongStateUse(self, "UseResist") and RGMercUtils.BuffSong(songSpell)
+					return self.ClassConfig.HelperFunctions.CheckSongStateUse(self, "UseResist") and self.ClassConfig.HelperFunctions.RefreshBuffSong(songSpell)
 				end,
             },
 			{
@@ -1149,7 +1165,7 @@ local _ClassConfig = {
                 type = "Song",
                 cond = function(self, songSpell)
 					if RGMercUtils.GetSetting('UseReckless') == 1 then return false end
-					return self.ClassConfig.HelperFunctions.CheckSongStateUse(self, "UseReckless") and RGMercUtils.BuffSong(songSpell)
+					return self.ClassConfig.HelperFunctions.CheckSongStateUse(self, "UseReckless") and self.ClassConfig.HelperFunctions.RefreshBuffSong(songSpell)
 				end,
             },
 			{
@@ -1157,7 +1173,7 @@ local _ClassConfig = {
                 type = "Song",
                 cond = function(self, songSpell)
 					if RGMercUtils.GetSetting('UseAccelerando') == 1 then return false end
-					return self.ClassConfig.HelperFunctions.CheckSongStateUse(self, "UseAccelerando") and RGMercUtils.BuffSong(songSpell)
+					return self.ClassConfig.HelperFunctions.CheckSongStateUse(self, "UseAccelerando") and self.ClassConfig.HelperFunctions.RefreshBuffSong(songSpell)
 				end,
             },
 			{
@@ -1165,7 +1181,7 @@ local _ClassConfig = {
                 type = "Song",
                 cond = function(self, songSpell)
 					if RGMercUtils.GetSetting('UseFireBuff') == 1 then return false end
-					return self.ClassConfig.HelperFunctions.CheckSongStateUse(self, "UseFireBuff") and RGMercUtils.BuffSong(songSpell)
+					return self.ClassConfig.HelperFunctions.CheckSongStateUse(self, "UseFireBuff") and self.ClassConfig.HelperFunctions.RefreshBuffSong(songSpell)
                 end,
             },
 			{
@@ -1173,7 +1189,7 @@ local _ClassConfig = {
                 type = "Song",
                 cond = function(self, songSpell)
 					if RGMercUtils.GetSetting('UseColdBuff') == 1 then return false end
-					return self.ClassConfig.HelperFunctions.CheckSongStateUse(self, "UseColdBuff") and RGMercUtils.BuffSong(songSpell)
+					return self.ClassConfig.HelperFunctions.CheckSongStateUse(self, "UseColdBuff") and self.ClassConfig.HelperFunctions.RefreshBuffSong(songSpell)
                 end,
             },
 			{
@@ -1181,7 +1197,7 @@ local _ClassConfig = {
                 type = "Song",
                 cond = function(self, songSpell)
 					if RGMercUtils.GetSetting('UseDotBuff') == 1 then return false end
-					return self.ClassConfig.HelperFunctions.CheckSongStateUse(self, "UseDotBuff") and RGMercUtils.BuffSong(songSpell)
+					return self.ClassConfig.HelperFunctions.CheckSongStateUse(self, "UseDotBuff") and self.ClassConfig.HelperFunctions.RefreshBuffSong(songSpell)
                 end,
             },
 		},
@@ -1231,7 +1247,7 @@ local _ClassConfig = {
                 targetId = function(self) return { mq.TLO.Me.ID(), } end,
                 cond = function(self, songSpell)
 					if RGMercUtils.GetSetting('UseRunBuff') ~= 2 then return false end
-                    return RGMercUtils.BuffSong(songSpell)
+                    return self.ClassConfig.HelperFunctions.RefreshBuffSong(songSpell)
                 end,
             },
 			{
@@ -1240,7 +1256,7 @@ local _ClassConfig = {
                 targetId = function(self) return { mq.TLO.Me.ID(), } end,
                 cond = function(self, songSpell)
 					if RGMercUtils.GetSetting('UseRunBuff') ~= 3 then return false end
-                    return RGMercUtils.BuffSong(songSpell)
+                    return self.ClassConfig.HelperFunctions.RefreshBuffSong(songSpell)
                 end,
             },
         },
