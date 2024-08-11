@@ -898,37 +898,26 @@ local _ClassConfig = {
                     RGMercConfig:GetTimeSinceLastMove() > RGMercUtils.GetSetting('BuffWaitMoveTimer')
             end,
         },
-		--broken, autotarget wont stay on target long enough to get a cast off
-        
-        {
-            name = 'Debuff',
+		{
+            name = 'Malo',
             state = 1,
-            steps = 2,
+            steps = 1,
+            targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
+            cond = function(self, combat_state)
+                return combat_state == "Combat" and not RGMercUtils.Feigning() and RGMercUtils.DoCombatActions() and self.ClassConfig.HelperFunctions.DebuffConCheck() and
+                    (not RGMercUtils.IsModeActive('Heal') or RGMercUtils.GetMainAssistPctHPs() >= RGMercUtils.GetSetting('MainHealPoint'))
+            end,
+        },
+        {
+            name = 'Slow',
+            state = 1,
+            steps = 1,
             targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
             cond = function(self, combat_state)
                 return combat_state == "Combat" and not RGMercUtils.Feigning() and RGMercUtils.DoCombatActions() and self.ClassConfig.HelperFunctions.DebuffConCheck() and
                     (not RGMercUtils.IsModeActive('Heal') or RGMercUtils.GetMainAssistPctHPs() >= RGMercUtils.GetSetting('MainHealPoint'))
             end,
 		},
-        -- {
-            -- name = 'Burn',
-            -- state = 1,
-            -- steps = 1,
-            -- targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
-            -- cond = function(self, combat_state)
-                -- return combat_state == "Combat" and
-                    -- RGMercUtils.BurnCheck() and RGMercUtils.IsModeActive("Hybrid") and not RGMercUtils.Feigning()
-            -- end,
-        -- },
-        -- {
-            -- name = 'DPS',
-            -- state = 1,
-            -- steps = 1,
-            -- targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
-            -- cond = function(self, combat_state)
-                -- return combat_state == "Combat" and RGMercUtils.IsModeActive("Hybrid") and not RGMercUtils.Feigning()
-            -- end,
-        -- },
 		{
             name = 'HealBurn',
             state = 1,
@@ -968,8 +957,13 @@ local _ClassConfig = {
                 cond = function(self, spell) return RGMercUtils.PCSpellReady(spell) end,
             },
         },
-        ['Debuff'] = {
-			{
+        ['Malo'] = {
+            -- {
+                -- name = "AEMaloSpell",
+                -- type = "Spell",
+                -- cond = function(self, _) return RGMercUtils.GetSetting('DoAEMalo') end,
+            -- },
+            {
                 name = "Wind of Malaise",
                 type = "AA",
                 cond = function(self, aaName)
@@ -992,6 +986,23 @@ local _ClassConfig = {
                     return RGMercUtils.GetSetting('DoMalo') and RGMercUtils.DetSpellCheck(aaSpell)
                 end,
             },
+            -- {
+                -- name = "MaloSpell",
+                -- type = "Spell",
+                -- cond = function(self, spell) return RGMercUtils.GetSetting('DoMalo') and RGMercUtils.DetSpellCheck(spell) end,
+            -- },
+          },
+        ['Slow'] = {
+            -- {
+                -- name = "AESlowSpell",
+                -- type = "Spell",
+                -- cond = function(self, spell) return RGMercUtils.GetSetting('DoAESlow') and RGMercUtils.DetSpellCheck(spell) and RGMercUtils.SpellStacksOnTarget(spell) end,
+            -- },
+            -- {
+                -- name = "SlowSpell",
+                -- type = "Spell",
+                -- cond = function(self, spell) return mq.TLO.Me.Gem(spell.RankName.Name())() and RGMercUtils.GetSetting('DoSlow') and RGMercUtils.DetSpellCheck(spell) end,
+            -- },
             {
                 name = "Turgur's Virulent Swarm",
                 type = "AA",
@@ -1000,6 +1011,13 @@ local _ClassConfig = {
                     RGMercUtils.GetXTHaterCount() >= RGMercUtils.GetSetting('AESlowCount')
                 end,
             },
+            -- {
+                -- name = "Languid Bite",
+                -- type = "AA",
+                -- cond = function(self, aaName)
+                    -- return RGMercUtils.GetSetting('DoSlow') and not RGMercUtils.BuffActiveByID(mq.TLO.Spell("Languid Bite").RankName.ID())
+                -- end,
+            -- },
             {
                 name = "Turgur's Swarm",
                 type = "AA",
@@ -1008,8 +1026,12 @@ local _ClassConfig = {
                         not RGMercUtils.TargetHasBuffByName(mq.TLO.Spell("Turgur's Swarm").Trigger(1).RankName.Name())
                 end,
             },
+            -- {
+                -- name = "DieaseSlow",
+                -- type = "Spell",
+                -- cond = function(self, spell) return mq.TLO.Me.Gem(spell.RankName.Name())() and RGMercUtils.GetSetting('DoSlow') and RGMercUtils.DetSpellCheck(spell) end,
+            -- },
         },
-        
 		['HealBurn'] = {
            {
                 name = "Ancestral Aid",
