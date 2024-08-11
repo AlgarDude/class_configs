@@ -71,6 +71,7 @@ local function generateSongList()
         })
     end
 	
+	--TODO: Consider adding a 4th variable (level) so we don't hold slots for songs we have selected but are too low level to use (or consider alternate solution)
 	local function ConditionallyAddSong(settingToCheck, songToAdd, configtype)
 		if configtype == "combo" then 
 			if RGMercUtils.GetSetting(settingToCheck) > 1 then addSong(songToAdd) end
@@ -185,7 +186,7 @@ local function generateSongList()
     end
     return songCache
 end
-
+---TODO: Move this to helper functions with the others
 --- Checks target for duration remaining on dot songs
 local function getDetSongDuration(songSpell)
     local duration = mq.TLO.Target.FindBuff("name " .. songSpell.Name()).Duration.TotalSeconds() or 0
@@ -207,7 +208,6 @@ local _ClassConfig = {
     ['ModeChecks']    = {
         IsMezzing = function() return true end,
 		IsCuring = function() return RGMercUtils.GetSetting('UseCure') end,
-		--todo: add iscuring with cure option checked and curespell memmed as conditions
     },
 	['Cures']             = {
         CureNow = function(self, type, targetId)
@@ -288,7 +288,7 @@ local _ClassConfig = {
             -- [] = "Jonthan's Whistling Warsong",
             -- [] = "Chant of Battle",
             -- SprySonataSong - Level Range 77 - 118
-            "Dhakka's Spry Sonata", -- 125, really bad song, nobody should ever use this
+            "Dhakka's Spry Sonata",
             "Xetheg's Spry Sonata",
             "Kellek's Spry Sonata",
             "Kluzen's Spry Sonata",
@@ -345,14 +345,14 @@ local _ClassConfig = {
             "Brusco's Boastful Bellow",
         },
         ['DichoSong'] = {
-            -- DichoSong Level Range - 101 - 106
+            -- DichoSong Level Range - 101 - 116
             "Ecliptic Psalm",
             "Composite Psalm",
             "Dissident Psalm",
             "Dichotomic Psalm",
         },
         ['BardDPSAura'] = {
-            -- BardDPSAura - Level Ranges 55 - 115
+            -- BardDPSAura - Level Ranges 55 - 125
             "Aura of Tenisbre", -- 125
             "Aura of Pli Xin Liako",
             "Aura of Margidor",
