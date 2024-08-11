@@ -13,4 +13,5 @@ function RGMercUtils.BuffSong(songSpell)
     RGMercsLogger.log_verbose("BuffSong(%s) => memed(%s), duration(%0.2f) < threshold(%0.2f) --> result(%s)", songSpell.Name(), 
 		RGMercUtils.BoolToColorString(me.Gem(songSpell.Name())() ~= nil), duration, threshold, RGMercUtils.BoolToColorString(res))
     return res
+	end
 end
