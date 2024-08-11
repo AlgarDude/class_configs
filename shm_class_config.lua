@@ -651,19 +651,14 @@ local _ClassConfig = {
 		--TODO: Refactors, p.sure there is some redundant code here
 		DotSpellCheck = function(spell)
 			if not spell or not spell() then return false end
+			
 			local targethp = RGMercUtils.GetTargetPctHPs()
-			return (RGMercUtils.GetSetting('NamedStopDOT') and RGMercUtils.IsNamed(mq.TLO.Target) or RGMercUtils.GetSetting('HPStopDOT')) < targethp and RGMercUtils.DetSpellCheck(spell)
-			
+			if RGMercUtils.IsNamed(mq.TLO.Target) then 
+				return RGMercUtils.GetSetting('NamedStopDOT') < targethp and RGMercUtils.DetSpellCheck(spell)
+			else
+				return RGMercUtils.GetSetting('HPStopDOT') < targethp and RGMercUtils.DetSpellCheck(spell)
+			end
 		end,
-		
-		-- DotSpellCheck = function(spell)
-			
-			--if not spell or not spell() then return false end
-			--if RGMercUtils.TargetHasBuff(spell) or not RGMercUtils.SpellStacksOnTarget(spell) then return false end
-			
-			--local targethp = RGMercUtils.GetTargetPctHPs()
-			--return (RGMercUtils.IsNamed(mq.TLO.Target) and targethp < RGMercUtils.GetSetting('NamedStopDOT')) or targethp < RGMercUtils.GetSetting('HPStopDOT')
-		-- end,
 		
         DoRez = function(self, corpseId)
             if not RGMercUtils.PCSpellReady(mq.TLO.Spell("Incarnate Anew")) and

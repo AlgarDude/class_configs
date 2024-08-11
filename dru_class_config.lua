@@ -29,6 +29,9 @@ local _ClassConfig = {
             "Staff of Living Brambles",
             "Staff of Everliving Brambles",
         },
+		['VP2Hammer'] = {
+            "Apothic Dragon Spine Hammer",
+        },
     },
     ['AbilitySets']       = {
         ['Alliance'] = {
@@ -747,6 +750,13 @@ local _ClassConfig = {
                     return RGMercUtils.PCSpellReady(spell)
                 end,
             },
+			{
+                name = "VP2Hammer",
+                type = "Item",
+                cond = function(self)
+                    return mq.TLO.FindItem(itemName).TimerReady() == 0
+                end,
+            },
             {
                 name = "QuickGroupHeal",
                 type = "Spell",
@@ -815,6 +825,7 @@ local _ClassConfig = {
 
         },
         ["MainHealPoint"] = {
+			doFullRotation = true,
             {
                 name = "QuickHeal",
                 type = "Spell",

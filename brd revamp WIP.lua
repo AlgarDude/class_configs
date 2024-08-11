@@ -6,18 +6,15 @@ local RGMercsLogger               = require("utils.rgmercs_logger")
 local Tooltips                    = {
     Epic             = 'Item: Casts Epic Weapon Ability',
     BardRunBuff      = "Song Line: Movement Speed Modifier",
-    UseMelody        =
-    "Enabling Use Melody will cause the bard to stick to a strict rotation similar to MQ2Twist rather than choosing each song dynamically based on current conditions",
-
     MainAriaSong     = "Song Line: Spell Damage Focus Haste v3 Modifier",
     WarMarchSong     = "Song Line: Melee Haste + DS + STR/ATK Increase",
-    SufferingSong    = "Song Line Line: Melee Proc With Agro Reduction",
-    SpitefulSong     = "Song Line: Increase AC Agro Increase Proc",
+    SufferingSong    = "Song Line: Melee Proc With Damage and Agro Reduction",
+    SpitefulSong     = "Song Line: Increase AC, Agro Increase Proc",
     SprySonataSong   = "Song Line: Magic Asorb AC Increase Mitigate Damage Shield Resist Spells",
     PotencySong      = "Song Line: Fire and Magic DoT Modifier",
     CrescendoSong    = "Song Line: Group v2 Increase Hit Points and Mana",
-    ArcaneSong       = "Song Line: Caster Spell Proc",
-    InsultSong       = "Song Line: Single Target DD",
+    ArcaneSong       = "Song Line: Group Melee and Spell Proc",
+    InsultSong       = "Song Line: Single Target DD (Group Spell Proc Effect at higher levels)",
     DichoSong        =
     "Song Line: Triggers Psalm of Empowerment and Psalm of Potential H/M/E Increase Melee and Caster Dam Increase",
     BardDPSAura      = "Aura Line: OverHaste, Melee/Caster DPS",
@@ -58,6 +55,7 @@ local Tooltips                    = {
 }
 
 local function generateSongList()
+	RGMercsLogger.log_info("Bard Gem List being calculated. *** PLEASE NOTE: Click-happy behavior when selecting songs in the configuration may lead to low uptime or songs not being gemmed at all! YOU HAVE BEEN WARNED. ***")
     local songCache = { CollapseGems = true, }
     local songCount = 0
 
@@ -84,7 +82,7 @@ local function generateSongList()
     local function AddCriticalSongs()
         ConditionallyAddSong("UseAEAAMez", "MezAESong")
         ConditionallyAddSong("MezOn", "MezSong")
-        ConditionallyAddSong("DoSlow", "SlowSong")
+        ConditionallyAddSong("DoSTSlow", "SlowSong")
         ConditionallyAddSong("DoAESlow", "AESlowSong")
         if not RGMercUtils.GetSetting('UseAASelo') then
             ConditionallyAddSong("DoRunSpeed", "BardRunBuff")
@@ -98,7 +96,7 @@ local function generateSongList()
         addSong('WarMarchSong')
         addSong('MainAriaSong')
 		ConditionallyAddSong("UseArcane", "ArcaneSong")
-        ConditionallyAddSong('UseProgressive', 'DichoSong', "combo")
+        ConditionallyAddSong('UseDichoSong', 'DichoSong', "combo")
     end
 
     local function AddSelfDPSSongs()
@@ -713,6 +711,12 @@ local _ClassConfig = {
             "Wave of Dreams",
             "Wave of Slumber",
         },
+		['Jonthans'] = {
+			"Jonthan's Mightful Caretaker",
+			"Jonthan's Inspiration",
+			"Jonthan's Provocation",
+			"Jonthan's Whistling Warsong",
+		},			
     },
 	['HelperFunctions']   = {
 		CheckSongStateUse = function(self, config)
@@ -722,7 +726,7 @@ local _ClassConfig = {
 			end
 		end,
 	},
-    ['RotationOrder'] = {
+    ['RotationOrder'] = {  -----TODO: ADD EMERGENCY ROTATION (Hymn of the Last Stand, Fading Memories, Lyrical Prankster, Shield of Notes, Vet AA/ Armor of Experience)
 		{
             name = 'Melody',
 			state = 1,
@@ -741,16 +745,15 @@ local _ClassConfig = {
                 return combat_state == "Downtime" and not (RGMercUtils.Feigning() or mq.TLO.Me.Invis())
             end,
         },
-        -- {
-            -- name = 'Debuff',
-            -- state = 1,
-            -- steps = 1,
-            -- targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
-            -- cond = function(self, combat_state)
-                -- return combat_state == "Combat" and not RGMercUtils.Feigning()
-            -- end,
-        -- },
-		
+        {
+            name = 'Debuff',
+            state = 1,
+            steps = 1,
+            targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
+            cond = function(self, combat_state)
+                return combat_state == "Combat" and not RGMercUtils.Feigning()
+            end,
+        },
 		{
             name = 'DPS',
             state = 1,
@@ -761,7 +764,7 @@ local _ClassConfig = {
             end,
         },
         {
-            name = 'Burn',
+            name = 'Burn', --TODO: Add Vet AA
             state = 1,
             steps = 1,
             targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
@@ -773,22 +776,6 @@ local _ClassConfig = {
     },
     ['Rotations']     = {
         ['Burn'] = {
-            {
-                name = "Epic",
-                type = "Item",
-                cond = function(self)
-                    return RGMercUtils.GetSetting('UseEpic') == 2 and mq.TLO.FindItemCount(itemName)() ~= 0 and mq.TLO.FindItem(itemName).TimerReady() == 0
-                end,
-            },
-            {
-                name = "Fierce Eye",
-                type = "AA",
-                cond = function(self, aaName)
-                    return
-                        RGMercUtils.GetSetting('UseFierceEye') == 2
-                        and RGMercUtils.AAReady(aaName)
-                end,
-            },
             {
                 name = "Quick Time",
                 type = "AA",
@@ -866,14 +853,7 @@ local _ClassConfig = {
                     return RGMercUtils.NPCAAReady(aaName, targetId)
                 end,
             },
-			{
-                name = "Boastful Bellow",
-                type = "AA",
-                cond = function(self, aaName)
-                    return RGMercUtils.GetSetting('UseBellow') and RGMercUtils.NPCAAReady(aaName, targetId) and RGMercUtils.SelfBuffAACheck(aaName)
-						and mq.TLO.Me.PctEndurance() > RGMercUtils.GetSetting('BellowPct')
-                end,
-            },
+			
         },
         ['Debuff'] = {
             {
@@ -905,7 +885,7 @@ local _ClassConfig = {
                 name = "SlowSong",
                 type = "Song",
                 cond = function(self, songSpell)
-                    return RGMercUtils.GetSetting("DoSlow")
+                    return RGMercUtils.GetSetting("DoSTSlow")
                         and RGMercUtils.DetSpellCheck(songSpell)
                         and not mq.TLO.Target.Slowed()
                 end,
@@ -922,9 +902,6 @@ local _ClassConfig = {
         ['Heal'] = {
         },
         ['DPS'] = {
-            -- This makes the full rotation execute each round,
-            --so it'll never pick up and resume wherever it left off the previous cast
-            --doFullRotation = true,
             -- Kludge that addresses bards not attempting to start attacking until after a song completes
             -- Uncomment if you'd like to occasionally start attacking earlier than normal
             --[[{
@@ -937,27 +914,29 @@ local _ClassConfig = {
                     end
                 end,
             },]]
-            -- {
-                -- name = "Dreadstone",
-                -- type = "Item",
-                -- cond = function(self, itemName)
-                    -- -- This item is instant cast for free with almost no CD, just mash it forever when it's available
-                    -- return mq.TLO.FindItemCount(itemName)() ~= 0 and mq.TLO.FindItem(itemName).TimerReady() == 0
-                -- end,
-            -- },
 			{
                 name = "Epic",
                 type = "Item",
                 cond = function(self, itemName)
-                    return RGMercUtils.GetSetting('UseEpic') == 3 and mq.TLO.FindItemCount(itemName)() ~= 0 and mq.TLO.FindItem(itemName).TimerReady() == 0
+                    if RGMercUtils.GetSetting('UseEpic') == 1 then return false end
+					return (RGMercUtils.GetSetting('UseEpic') == 3 or (RGMercUtils.GetSetting('UseEpic') == 2 and RGMercUtils.BurnCheck())) and mq.TLO.FindItemCount(itemName)() ~= 0 and mq.TLO.FindItem(itemName).TimerReady() == 0
                 end,
             },
             {
                 name = "Fierce Eye",
                 type = "AA",
                 cond = function(self, aaName)
-                    return RGMercUtils.GetSetting('UseFierceEye') == 3
-                        and RGMercUtils.AAReady(aaName)
+                    if RGMercUtils.GetSetting('UseFierceEye') == 1 then return false end
+					return (RGMercUtils.GetSetting('UseFierceEye') == 3 or (RGMercUtils.GetSetting('UseFierceEye') == 2 and RGMercUtils.BurnCheck())) and RGMercUtils.PCAAReady(aaName)
+                end,
+            },
+			{
+                name = "Dreadstone",
+                type = "Item",
+                cond = function(self, itemName)
+                    -- This item is instant cast for free with almost no CD, just mash it forever when it's available
+					if not RGMercUtils.GetSetting('UseDreadstone') then return false end
+                    return mq.TLO.FindItemCount(itemName)() ~= 0 and mq.TLO.FindItem(itemName).TimerReady() == 0
                 end,
             },
 			{
@@ -965,26 +944,25 @@ local _ClassConfig = {
                 type = "Disc",
                 tooltip = Tooltips.ReflexStrike,
                 cond = function(self, discSpell)
-					local pct = RGMercUtils.GetSetting('ManaManagePct')
-                    return RGMercUtils.NPCDiscReady(discSpell) and (mq.TLO.Group.LowMana(pct)() or -1) > RGMercUtils.GetSetting('ManaManageCt')
+					local pct = RGMercUtils.GetSetting('GroupManaPct')
+                    return RGMercUtils.NPCDiscReady(discSpell) and (mq.TLO.Group.LowMana(pct)() or -1) > RGMercUtils.GetSetting('GroupManaCt')
                 end,
             },
             {
                 name = "Boastful Bellow",
                 type = "AA",
                 cond = function(self, aaName)
-                    return RGMercUtils.GetSetting('UseBellow')
-                        and not RGMercUtils.SongActiveByName("Boastful Bellow")
-                        and RGMercUtils.AAReady(aaName)
-                        and mq.TLO.Me.PctEndurance() > 40 -- Bellow DEVOURS endurance
+					if RGMercUtils.GetSetting('UseBellow') == 1 then return false end
+					return (RGMercUtils.GetSetting('UseBellow') == 3 or (RGMercUtils.GetSetting('UseBellow') == 2 and RGMercUtils.BurnCheck())) and RGMercUtils.NPCAAReady(aaName, targetId) and RGMercUtils.SelfBuffAACheck(aaName) and mq.TLO.Me.PctEndurance() > RGMercUtils.GetSetting('SelfEndPct')
                 end,
             },
 			{
                 name = "DichoSong",
                 type = "Song",
                 cond = function(self, songSpell)
-                    return RGMercUtils.GetSetting('UseProgressive') and RGMercUtils.SongMemed(songSpell) and mq.TLO.Me.PctEndurance() > 25
-						and RGMercUtils.BuffActiveByID(mq.TLO.Me.AltAbility("Quick Time").Spell.ID()) --and mq.TLO.Me.Song(mq.TLO.Me.AltAbility("Quick Time").Spell.Name)()
+					if RGMercUtils.GetSetting('UseDichoSong') == 1 then return false end
+					return (RGMercUtils.GetSetting('UseDichoSong') == 3 and mq.TLO.Me.PctEndurance() > RGMercUtils.GetSetting('SelfEndPct'))
+						or (RGMercUtils.GetSetting('UseDichoSong') == 2 and RGMercUtils.BuffActiveByID(mq.TLO.Me.AltAbility("Quick Time").Spell.ID()))
                 end,
             },
 			{
@@ -992,23 +970,10 @@ local _ClassConfig = {
                 type = "Song",
                 cond = function(self, songSpell)
                     return RGMercUtils.SongMemed(songSpell) and RGMercUtils.GetSetting('UseInsult')
-                        and mq.TLO.Me.SpellReady(self.ResolvedActionMap['InsultSong'] or "")()
-                        -- If dot is about to wear off, recast
-                        --and getDetSongDuration(songSpell) <= 4
-                        and mq.TLO.Me.PctMana() > 20
+                        and mq.TLO.Me.SpellReady(self.ResolvedActionMap['InsultSong'] or "")() --check if this can use pcspellready
+                        and mq.TLO.Me.PctMana() > RGMercUtils.GetSetting('SelfManaPct')
                 end,
             },
-			-- {
-                -- name = "InsultSong",
-                -- type = "Song",
-                -- cond = function(self, songSpell)
-					-- local gemTimer = mq.TLO.Me.GemTimer(songSpell.RankName.Name())() or 0
-                    -- return RGMercUtils.SongMemed(songSpell) and RGMercUtils.GetSetting('UseInsult')
-                        -- and gemtimer == 0
-               
-                        -- and mq.TLO.Me.PctMana() > 20
-                -- end,
-            -- },
 			{
                 name = "FireDotSong",
                 type = "Song",
@@ -1047,60 +1012,52 @@ local _ClassConfig = {
                         getDetSongDuration(songSpell) <= 3
                 end,
             },
-			-- {
-                -- name = "InsultSong",
-                -- type = "Song",
-                -- cond = function(self, songSpell)
-                    -- return RGMercUtils.SongMemed(songSpell) and RGMercUtils.GetSetting('UseInsult')
-                        -- and mq.TLO.Me.SpellReady(self.ResolvedActionMap['InsultSong'] or "")()
-                        -- -- If dot is about to wear off, recast
-                        -- and getDetSongDuration(songSpell) <= 4
-                        -- and mq.TLO.Me.PctMana() > 20
-                -- end,
-            -- },
         },
-		['Melody'] = { doFullRotation = true,
+		['Melody'] = { doFullRotation = true, --this ensures checks start from the top every rotation to make sure songs are prioritized
 			{
                 name = "MainAriaSong",
                 type = "Song",
-                targetId = function(self) return { mq.TLO.Me.ID(), } end,
-                cond = function(self, songSpell, combat_state)
+                cond = function(self, songSpell)
 				 return RGMercUtils.BuffSong(songSpell)
                 end,
             },
             {
                 name = "WarMarchSong",
                 type = "Song",
-                targetId = function(self) return { mq.TLO.Me.ID(), } end,
-                cond = function(self, songSpell, combat_state)
+                cond = function(self, songSpell)
+				 return RGMercUtils.BuffSong(songSpell)
+                end,
+            },
+			 {
+                name = "Jonthans",
+                type = "Song",
+                cond = function(self, songSpell)
 				 return RGMercUtils.BuffSong(songSpell)
                 end,
             },
 			{
                 name = "ArcaneSong",
                 type = "Song",
-                cond = function(self, songSpell, combat_state)
+                cond = function(self, songSpell)
 				 return RGMercUtils.BuffSong(songSpell)
                 end,
             },
 			{
                 name = "CrescendoSong",
                 type = "Song",
-                targetId = function(self) return { mq.TLO.Me.ID(), } end,
                 cond = function(self, songSpell)
                     local gemTimer = mq.TLO.Me.GemTimer(songSpell.RankName.Name())() or 0
-					local pct = RGMercUtils.GetSetting('ManaManagePct')
+					local pct = RGMercUtils.GetSetting('GroupManaPct')
                     return RGMercUtils.GetSetting('UseCrescendo') and RGMercUtils.SongMemed(songSpell) and gemTimer == 0 and
-						(mq.TLO.Group.LowMana(pct)() or -1) > RGMercUtils.GetSetting('ManaManageCt')
+						(mq.TLO.Group.LowMana(pct)() or -1) > RGMercUtils.GetSetting('GroupManaCt')
                 end,
             },
 			{
                 name = "GroupRegenSong",
                 type = "Song",
-                targetId = function(self) return { mq.TLO.Me.ID(), } end,
-                cond = function(self, songSpell, combat_state)
-					local pct = RGMercUtils.GetSetting('ManaManagePct')
-                    return RGMercUtils.BuffSong(songSpell) and not (mq.TLO.Me.Combat() and (mq.TLO.Group.LowMana(pct)() or -1) < RGMercUtils.GetSetting('ManaManageCt'))
+                cond = function(self, songSpell)
+					local pct = RGMercUtils.GetSetting('GroupManaPct')
+                    return RGMercUtils.BuffSong(songSpell) and not (mq.TLO.Me.Combat() and (mq.TLO.Group.LowMana(pct)() or -1) < RGMercUtils.GetSetting('GroupManaCt'))
                 end,
             },
 			{
@@ -1114,7 +1071,7 @@ local _ClassConfig = {
                 name = "RecklessSong",
                 type = "Song",
                 cond = function(self, songSpell)
-					return self.ClassConfig.HelperFunctions.CheckSongStateUse(self, "RecklessState") and RGMercUtils.BuffSong(songSpell)
+					return self.ClassConfig.HelperFunctions.CheckSongStateUse(self, "UseReckless") and RGMercUtils.BuffSong(songSpell)
 				end,
             },
 		},
@@ -1133,21 +1090,23 @@ local _ClassConfig = {
                    return not RGMercUtils.AuraActiveByName(songSpell.BaseName()) and RGMercUtils.GetSetting('UseAura') == 2
                end,
             },
-            -- {
-                -- name = "SymphonyOfBattle",
-                -- type = "Item",
-                -- targetId = function(self) return { mq.TLO.Me.ID(), } end,
-                -- cond = function(self, _)
-                    -- return RGMercUtils.SelfBuffCheck("Symphony of Battle") and mq.TLO.FindItemCount(itemName)() ~= 0 and mq.TLO.FindItem(itemName).TimerReady() == 0
-                -- end,
-            -- },
 			{
-                name = "Rallying Solo",
+                name = "Rallying Solo", --Call theoretically possible but problematic
                 type = "AA",
                 cond = function(self, aaName)
                     return RGMercUtils.AAReady(aaName) and (mq.TLO.Me.PctEndurance() < 30 or mq.TLO.Me.PctMana() < 30)
                 end,
             },
+            {
+                name = "SymphonyOfBattle",
+                type = "Item",
+                targetId = function(self) return { mq.TLO.Me.ID(), } end,
+                cond = function(self, _)
+					if not RGMercUtils.GetSetting('UseSoBItems') then return false end
+                    return RGMercUtils.SelfBuffCheck("Symphony of Battle") and mq.TLO.FindItemCount(itemName)() ~= 0 and mq.TLO.FindItem(itemName).TimerReady() == 0
+                end,
+            },
+			
             -- {
                 -- name = "AccelerandoSong",
                 -- type = "Song",
@@ -1156,27 +1115,25 @@ local _ClassConfig = {
                     -- return RGMercUtils.BuffSong(songSpell)
                 -- end,
             -- },
-            -- {
-                -- name = "BardRunBuff",
-                -- type = "Song",
-                -- targetId = function(self) return { mq.TLO.Me.ID(), } end,
-                -- cond = function(self, songSpell)
-                    -- return RGMercUtils.BuffSong(songSpell) and
-                        -- not RGMercUtils.GetSetting('UseAASelo') and
-                        -- RGMercUtils.GetSetting('DoRunSpeed')
-                -- end,
-            -- },
-            {
+			{
                 name = "Selo's Sonata",
                 type = "AA",
                 targetId = function(self) return { mq.TLO.Me.ID(), } end,
                 cond = function(self, aaName)
-                    return RGMercUtils.AAReady(aaName) and
-                        not RGMercUtils.SelfBuffCheck("Selo's Accelerato") and
-                        RGMercUtils.GetSetting('UseAASelo') and
-                        RGMercUtils.GetSetting('DoRunSpeed')
+					if not RGMercUtils.GetSetting('UseAASelo') and RGMercUtils.GetSetting('DoRunSpeed') then return false end
+                    return RGMercUtils.AAReady(aaName) and not RGMercUtils.SelfBuffCheck("Selo's Accelerato")
                 end,
             },
+            {
+                name = "BardRunBuff",
+                type = "Song",
+                targetId = function(self) return { mq.TLO.Me.ID(), } end,
+                cond = function(self, songSpell)
+					if RGMercUtils.GetSetting('UseAASelo') or not RGMercUtils.GetSetting('DoRunSpeed') then return false end
+                    return RGMercUtils.BuffSong(songSpell)
+                end,
+            },
+            
            
         },
     },
@@ -1203,64 +1160,68 @@ local _ClassConfig = {
         },
     },
     ['DefaultConfig'] = {
-        ['Mode']             = { DisplayName = "Mode", Category = "Combat", Tooltip = "Select the Combat Mode for this Toon", Type = "Custom", RequiresLoadoutChange = true, Default = 1, Min = 1, Max = 4, },
-        ['UseAASelo']        = { DisplayName = "Use AA Selo", Category = "Buffs", Tooltip = "Do Selo's AAs", Default = true, },
-        ['DoRunSpeed']       = { DisplayName = "Cast Run Speed Buffs", Category = "Buffs", Tooltip = "Use Selos.", RequiresLoadoutChange = true, Default = true, },
-        ['UseEpic']          = { DisplayName = "Use Epic Click", Category = "Burns", Tooltip = "Use Epic 1-Never 2-Burns 3-Always", Type = "Combo", ComboOptions = { 'Never', 'Burns', 'Always', }, Default = 1, Min = 1, Max = 3, },
-        ['UseFierceEye']     = { DisplayName = "Use Fierce Eye", Category = "Burns", Tooltip = "Use FierceEye 1-Never 2-Burns 3-Always", Type = "Combo", ComboOptions = { 'Never', 'Burns', 'Always', }, Default = 1, Min = 1, Max = 3, },
-        ['UseFuneralDirge']  = { DisplayName = "Use Funeral Dirge", Category = "Burns", Tooltip = "Use Funeral Dirge", Default = true, },
-
-        ['UseAlliance']      = { DisplayName = "Use Alliance", Category = "Combat", Tooltip = Tooltips.AllianceSong, RequiresLoadoutChange = true, Default = false, },
-        ['UseBellow']        = { DisplayName = "Use Bellow", Category = "Combat", Tooltip = "Use Boastful Bellow", Default = true, },
-		['BellowPct']   	= { DisplayName = "Bellow Min End%", Category = "Combat", Tooltip = "Minimum End% to use Bellow.", Default = 40, Min = 1, Max = 100, },
-		['UseAura']           = { DisplayName = "Use Bard Aura", Category = "Buffs", Tooltip = "Select the Aura to be used, if any.", Type = "Combo", ComboOptions = { 'DPS', 'Regen', 'None' }, RequiresLoadoutChange = true, Default = 1, Min = 1, Max = 3, },
-        -- Debuffs
-        ['DoSlow']           = { DisplayName = "Cast Slow", Category = "Combat", Tooltip = Tooltips.SlowSong, RequiresLoadoutChange = true, Default = false, },
-        ['DoAESlow']         = { DisplayName = "Cast AE Slow", Category = "Combat", Tooltip = Tooltips.AESlowSong, RequiresLoadoutChange = true, Default = false, },
-        ['DoDispel']         = { DisplayName = "Use Dispel", Category = "Combat", Tooltip = Tooltips.DispelSong, RequiresLoadoutChange = true, Default = false, },
-
-        -- TODO
-        --['DoCharm']       = { DisplayName = "Use Charm", Category = "Songs", Tooltip = Tooltips.CharmSong, RequiresLoadoutChange = true, Default = false },
-        -- in mez config.['DoAEMez']          = { DisplayName = "Do AoE Mez", Category = "Combat", Tooltip = "AEMez", RequiresLoadoutChange = true, Default = false, },
-        ['DoMez']            = { DisplayName = "Do Mez", Category = "Combat", Tooltip = "STMez", RequiresLoadoutChange = true, Default = false, },
-        -- in mez config.['AEMezCount']       = { DisplayName = "AoE Mez Count", Category = "Combat", Tooltip = "Mob count before AE mez casts", RequiresLoadoutChange = true, Default = 3, Min = 1, Max = 12, },
-        --healer
-        ['UseResist']        = { DisplayName = "Use Resists", Category = "Heal Songs", Tooltip = Tooltips.ResistSong, RequiresLoadoutChange = true, Default = false, },
-        ['UseReckless']      = { DisplayName = "Use Reckless", Category = "Heal Songs", Tooltip = Tooltips.RecklessSong, RequiresLoadoutChange = true, Default = false, },
-		['RecklessState']   = { DisplayName = "Use Reckless When", Category = "Heal Songs", Tooltip = Tooltips.SufferingSong, Type = "Combo", ComboOptions = { 'In-Combat Only', 'Always', 'Out-of-Combat Only', }, Default = 3, Min = 1, Max = 3, RequiresLoadoutChange = true,},
-        ['UseCure']          = { DisplayName = "Use Cure", Category = "Heal Songs", Tooltip = Tooltips.CureSong, RequiresLoadoutChange = true, Default = false, },
-        --Regen
-        ['UseAmp']           = { DisplayName = "Use Amp", Category = "Regen Songs", Tooltip = Tooltips.AmpSong, RequiresLoadoutChange = true, Default = false, },
-        
-		
-		['RegenSong']     	= { DisplayName = "Regen Song Choice", Category = "Regen Songs", Tooltip = "Select the Regen Song to be used, if any.", RequiresLoadoutChange = true, Type = "Combo", 		ComboOptions = { 'Group', 'Area', 'None', }, Default = 1, Min = 1, Max = 3, },
-        ['UseCrescendo']     = { DisplayName = "Use Crescendo", Category = "Regen Songs", Tooltip = Tooltips.CrescendoSong, RequiresLoadoutChange = true, Default = true, },
-        ['UseAccelerando']   = { DisplayName = "Use Accelerando", Category = "Regen Songs", Tooltip = Tooltips.AccelerandoSong, RequiresLoadoutChange = true, Default = false, },
-		['ManaManagePct']   = { DisplayName = "Mana Manage %", Category = "Regen Songs", Tooltip = "Mana% to begin managing group mana(Use Crescendoes and Reflexive Strikes, use Regen song in combat).", Default = 80, Min = 1, Max = 100, },
-		['ManaManageCt']   = { DisplayName = "Mana Manage Count", Category = "Regen Songs", Tooltip = "The number of party members (including yourself) that need to be under the mana percentage", Default = 2, Min = 1, Max = 6, },
-		
-        --DPS
-        ['UseInsult']        = { DisplayName = "Use Insult Nuke", Category = "DPS Songs", Tooltip = Tooltips.InsultSong, RequiresLoadoutChange = true, Default = true, },
-        ['UseFireDots']      = { DisplayName = "Use Fire Dots", Category = "DPS Songs", Tooltip = Tooltips.FireDotSong, RequiresLoadoutChange = true, Default = true, },
-        ['UseIceDots']       = { DisplayName = "Use Ice Dots", Category = "DPS Songs", Tooltip = Tooltips.IceDotSong, RequiresLoadoutChange = true, Default = true, },
-        ['UsePoisonDots']    = { DisplayName = "Use Poison Dots", Category = "DPS Songs", Tooltip = Tooltips.PoisonDotSong, RequiresLoadoutChange = true, Default = true, },
-        ['UseDiseaseDots']   = { DisplayName = "Use Disease Dots", Category = "DPS Songs", Tooltip = Tooltips.DiseaseDotSong, RequiresLoadoutChange = true, Default = true, },
-
-        --Tank
-        ['UseSpiteful']      = { DisplayName = "Use Spiteful", Category = "Tank Songs", Tooltip = Tooltips.SpitefulSong, RequiresLoadoutChange = true, Default = false, },
-        ['UseSpry']          = { DisplayName = "Use Spry", Category = "Tank Songs", Tooltip = Tooltips.SprySonataSong, RequiresLoadoutChange = true, Default = false, },
-        --Caster
-        ['UseArcane']        = { DisplayName = "Use Arcane", Category = "Caster Songs", Tooltip = Tooltips.ArcaneSong, RequiresLoadoutChange = true, Default = true, },
-        ['UseFireDDMod']     = { DisplayName = "Use Fire Aria", Category = "Caster Songs", Tooltip = Tooltips.CasterAriaSong, RequiresLoadoutChange = true, Default = false, },
-        ['UsePotency']       = { DisplayName = "Use Potency", Category = "Caster Songs", Tooltip = Tooltips.PotencySong, RequiresLoadoutChange = true, Default = false, },
-        ['UseFate']          = { DisplayName = "Use Fate", Category = "Caster Songs", Tooltip = Tooltips.FateSong, RequiresLoadoutChange = true, Default = false, },
-        -- Melee DPS Only
-		['UseSufferingSong']   = { DisplayName = "Use Suffering Line", Category = "Melee Songs", Tooltip = Tooltips.SufferingSong, Type = "Combo", ComboOptions = { 'Off', 'In-Combat Only', 'Always', 'Out-of-Combat Only', }, Default = 4, Min = 1, Max = 4, RequiresLoadoutChange = true,},
-        ['UseProgressive']   = { DisplayName = "Use Progressive", Category = "Melee Songs", Tooltip = Tooltips.DichoSong, RequiresLoadoutChange = true, Default = true, },
-        ['UseJonthan']       = { DisplayName = "Use Jonthan", Category = "Melee Songs", Tooltip = Tooltips.Jonthans, RequiresLoadoutChange = true, Default = false, },
-		['DoChestClick']   	=  { DisplayName = "Do Chest Click", Category = "Utilities", Tooltip = "Click your chest item", Default = true, },
-
-    },
+        ['Mode']				= { DisplayName = "Mode", Category = "Combat", Tooltip = "Select the Combat Mode for this Toon", Type = "Custom", RequiresLoadoutChange = true, Default = 1, Min = 1, Max = 4, },
+	--Mana/Endurance Sustainment
+		['SelfManaPct']			= { DisplayName = "Self Min Mana %", Category = "Mana/End Sustain", Index = 1, Tooltip = "Minimum Mana% to use Insult.", Default = 20, Min = 1, Max = 100, },
+		['SelfEndPct']			= { DisplayName = "Self Min End%", Category = "Mana/End Sustain", Index = 2, Tooltip = "Minimum End% to use Bellow or Dicho.", Default = 20, Min = 1, Max = 100, },
+		['GroupManaPct']		= { DisplayName = "Group Mana %", Category = "Mana/End Sustain", Index = 3, Tooltip = "Mana% to begin managing group mana by using Crescendoes and Reflexive Strikes. Also governs when you will use Regen songs during combat).", Default = 80, Min = 1, Max = 100, },
+		['GroupManaCt']			= { DisplayName = "Group Mana Count", Category = "Mana/End Sustain", Index = 4, Tooltip = "The number of party members (including yourself) that need to be under the above mana percentage.", Default = 2, Min = 1, Max = 6, },
+	--Debuffs
+		['DoSTSlow']			= { DisplayName = "Use Slow (ST)", Category = "Debuffs", Index = 1, Tooltip = Tooltips.SlowSong, RequiresLoadoutChange = true, Default = false, },
+		['DoAESlow']         	= { DisplayName = "Use Slow (AE)", Category = "Debuffs", Index = 2, Tooltip = Tooltips.AESlowSong, RequiresLoadoutChange = true, Default = false, },
+		['DoDispel']         	= { DisplayName = "Use Dispel", Category = "Debuffs", Index = 3, Tooltip = Tooltips.DispelSong, RequiresLoadoutChange = true, Default = false, },
+	--Healing and Regen
+		['RegenSong']			= { DisplayName = "Regen Song Choice:", Category = "Healing and Regen", Index = 1, Tooltip = "Select the Regen Song to be used, if any. Always used out of combat if selected. Use in-combat is determined by sustain settings.", RequiresLoadoutChange = true, Type = "Combo", ComboOptions = { 'Group', 'Area', 'None', }, Default = 1, Min = 1, Max = 3, },
+		['UseCrescendo']		= { DisplayName = "Crescendo Delayed Heal", Category = "Healing and Regen", Index = 2, Tooltip = Tooltips.CrescendoSong, RequiresLoadoutChange = true, Default = true, },
+		['UseCure']				= { DisplayName = "Cure Ailments", Category = "Healing and Regen", Index = 5, Tooltip = Tooltips.CureSong, RequiresLoadoutChange = true, Default = false, },
+	--Personal DPS
+		['UseBellow']			= { DisplayName = "Use Bellow:", Category = "Personal DPS", Index = 1, Tooltip = "Use Boastful Bellow", Type = "Combo" ComboOptions = { 'Never', 'Burns Only', 'All Combat', }, Default = 3, Min = 1, Max = 3, },},
+		['UseInsult']			= { DisplayName = "Use Insult Nuke", Category = "Personal DPS", Index = 2, Tooltip = Tooltips.InsultSong, RequiresLoadoutChange = true, Default = true, },
+		['UseFireDots']			= { DisplayName = "Use Fire Dots", Category = "Personal DPS", Index = 3, Tooltip = Tooltips.FireDotSong, RequiresLoadoutChange = true, Default = true, },
+		['UseIceDots']			= { DisplayName = "Use Ice Dots", Category = "Personal DPS", Index = 4, Tooltip = Tooltips.IceDotSong, RequiresLoadoutChange = true, Default = true, }
+		['UsePoisonDots']		= { DisplayName = "Use Poison Dots", Category = "Personal DPS", Index = 5, Tooltip = Tooltips.PoisonDotSong, RequiresLoadoutChange = true, Default = true, },
+		['UseDiseaseDots']		= { DisplayName = "Use Disease Dots", Category = "Personal DPS", Index = 6, Tooltip = Tooltips.DiseaseDotSong, RequiresLoadoutChange = true, Default = true, },
+		['UseJonthan']			= { DisplayName = "Use Jonthan", Category = "Personal DPS", Index = 7, Tooltip = Tooltips.Jonthans, RequiresLoadoutChange = true, Default = false, },
+	--Group DPS
+		['UseFierceEye']		= { DisplayName = "Fierce Eye Use:", Category = "Group DPS", Index = 2, Tooltip = "When to use the Fierce Eye AA.", Type = "Combo", ComboOptions = { 'Never', 'Burns Only', 'All Combat', }, Default = 3, Min = 1, Max = 3, },
+		['UseArcane']			= { DisplayName = "Use Arcane Line", Category = "Group DPS", Index = 2, Tooltip = Tooltips.Arcane, Type = "Combo", ComboOptions = { 'Never', 'In-Combat Only', 'Always', 'Out-of-Combat Only', }, Default = 3, Min = 1, Max = 4, RequiresLoadoutChange = true,},
+		['UseDichoSong']		= { DisplayName = "Psalm (Dicho) Use:", Category = "Group DPS", Index = 2, Tooltip = Tooltips.DichoSong, Type = "Combo", ComboOptions = { 'Never', 'During QuickTime', 'All Combat', }, Default = 2, Min = 1, Max = 3, RequiresLoadoutChange = true, },
+		['UseSufferingSong']	= { DisplayName = "Use Suffering Line", Category = "Group DPS", Index = 2, Tooltip = Tooltips.SufferingSong, Type = "Combo", ComboOptions = { 'Never', 'In-Combat Only', 'Always', 'Out-of-Combat Only', }, Default = 4, Min = 1, Max = 4, RequiresLoadoutChange = true,},
+		['UseFireDDMod']		= { DisplayName = "Use FireDD Aria", Category = "Group DPS", Index = 2, Tooltip = Tooltips.CasterAriaSong, Type = "Combo", ComboOptions = { 'Never', 'In-Combat Only', 'Always', 'Out-of-Combat Only', }, Default = 1, Min = 1, Max = 4, RequiresLoadoutChange = true,},
+        ['UsePotency']			= { DisplayName = "Use DoT Potency", Category = "Group DPS", Tooltip = Tooltips.PotencySong, Type = "Combo", ComboOptions = { 'Never', 'In-Combat Only', 'Always', 'Out-of-Combat Only', }, Default = 4, Min = 1, Max = 4, RequiresLoadoutChange = true,},
+        ['UseFate']				= { DisplayName = "Use ColdDD Fatesong", Category = "Group DPS", Tooltip = Tooltips.FateSong, Type = "Combo", ComboOptions = { 'Never', 'In-Combat Only', 'Always', 'Out-of-Combat Only', }, Default = 4, Min = 1, Max = 4, RequiresLoadoutChange = true,},
+		['UseAlliance']			= { DisplayName = "Use Alliance", Category = "Group DPS", Index = 2, Tooltip = Tooltips.AllianceSong, RequiresLoadoutChange = true, Default = false, },
+		--Why is this optional? I can't think of a situation that it should be false, keeping it here until I find out.
+		--['UseFuneralDirge']		= { DisplayName = "Funeral Dirge (Burn)", Category = "Group DPS", Index = 2, Tooltip = "Use Funeral Dirge during Burns", Default = true, },
+	--Buffs and Defenses
+		['UseAura']				= { DisplayName = "Use Bard Aura", Category = "Buffs and Defenses", Index = 1, Tooltip = "Select the Aura to be used, if any.", Type = "Combo", ComboOptions = { 'DPS', 'Regen', 'None' }, RequiresLoadoutChange = true, Default = 1, Min = 1, Max = 3, },
+		['UseAmp']				= { DisplayName = "Use Amp", Category = "Buffs and Defenses", Index = 2, Tooltip = Tooltips.AmpSong, Type = "Combo", ComboOptions = { 'Never', 'In-Combat Only', 'Always', 'Out-of-Combat Only', }, Default = 1, Min = 1, Max = 4, RequiresLoadoutChange = true,},
+		['UseSpiteful']			= { DisplayName = "Use Spiteful", Category = "Buffs and Defenses", Index = 3, Tooltip = Tooltips.SpitefulSong, Type = "Combo", ComboOptions = { 'Never', 'In-Combat Only', 'Always', 'Out-of-Combat Only', }, Default = 1, Min = 1, Max = 4, RequiresLoadoutChange = true,},
+        ['UseSpry']				= { DisplayName = "Use Spry", Category = "Buffs and Defenses", Index = 4, Tooltip = Tooltips.SprySonataSong, Type = "Combo", ComboOptions = { 'Never', 'In-Combat Only', 'Always', 'Out-of-Combat Only', }, Default = 1, Min = 1, Max = 4, RequiresLoadoutChange = true,},
+		['UseResist']			= { DisplayName = "Use DS/Resist Psalm", Category = "Buffs and Defenses", Index = 5, Tooltip = Tooltips.ResistSong, Type = "Combo", ComboOptions = { 'Never', 'In-Combat Only', 'Always', 'Out-of-Combat Only', }, Default = 1, Min = 1, Max = 4, RequiresLoadoutChange = true,},
+		['UseReckless']		= { DisplayName = "Use Reckless", Category = "Buffs and Defenses", Index = 6, Tooltip = Tooltips.RecklessSong, Type = "Combo", ComboOptions = { 'Never', 'In-Combat Only', 'Always', 'Out-of-Combat Only', }, Default = 4, Min = 1, Max = 4, RequiresLoadoutChange = true,},
+		['UseAccelerando']		= { DisplayName = "Use Accelerando", Category = "Buffs and Defenses", Index = 7, Tooltip = Tooltips.AccelerandoSong, Type = "Combo", ComboOptions = { 'Never', 'In-Combat Only', 'Always', 'Out-of-Combat Only', }, Default = 1, Min = 1, Max = 4, RequiresLoadoutChange = true,},
+	--Utility and Items
+		['UseEpic']				= { DisplayName = "Epic Use", Category = "Burns", Tooltip = "Use Epic 1-Never 2-Burns 3-Always", Type = "Combo", ComboOptions = { 'Never', 'Burns Only', 'All Combat', }, Default = 1, Min = 1, Max = 3, },
+		['DoChestClick']		=  { DisplayName = "Chest Click", Category = "Utilities", Tooltip = "Click your equipped chest item.", Default = true, },
+		['UseSoBItems']			=  { DisplayName = "Do Sym. of Battle", Category = "Utilities", Tooltip = "Click your Symphony of Battle items.", Default = true, },
+		['UseDreadstone']		=  { DisplayName = "Dreadstone", Category = "Utilities", Tooltip = "Use your Dreadstone when able.", Default = true, },
+		['DoRunSpeed']			= { DisplayName = "Cast Run Speed Buffs", Category = "Buffs", Tooltip = "Use Selos.", RequiresLoadoutChange = true, Default = true, },
+		['UseAASelo']			= { DisplayName = "Use AA Selo", Category = "Buffs", Tooltip = "Do Selo's AAs", Default = true, },
+	 },
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
     ['Spells']        = { getSpellCallback = generateSongList, },
 }
 return _ClassConfig

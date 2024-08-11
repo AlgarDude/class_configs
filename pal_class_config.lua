@@ -463,7 +463,7 @@ local _ClassConfig = {
             "Armor of Steadfast Grace",   -- Level 113
             "Armor of Unyielding Grace",  -- Level 118
         },
-        ["Righteousstrike"] = {
+        ["RighteousStrike"] = {
             --- Righteous Strikes Line
             "Righteous Antipathy",
             "Righteous Fury",
@@ -983,9 +983,9 @@ local _ClassConfig = {
                 end,
             },
 			{
-                name = "HealWard",
+                name = "HealWard",					--requires a target, using NPCSpellReady to force a target if needed
                 type = "Spell",
-                cond = function(self, spell) return RGMercUtils.PCSpellReady(spell) and RGMercUtils.SpellStacksOnMe(spell) and RGMercUtils.IsModeActive("Tank") and (mq.TLO.Me.Song(spell).Duration.TotalSeconds() or 0) < 15
+                cond = function(self, spell) return RGMercUtils.NPCSpellReady(spell) and RGMercUtils.SpellStacksOnMe(spell) and RGMercUtils.IsModeActive("Tank") and (mq.TLO.Me.Song(spell).Duration.TotalSeconds() or 0) < 15
 				end,
             },
             {
@@ -1325,10 +1325,10 @@ local _ClassConfig = {
                 cond = function(self, aaName) return RGMercUtils.AAReady(aaName) and RGMercUtils.MedBurn() end,
             },
             {
-                name = "Righteousstrike",
+                name = "RighteousStrike",
                 type = "Disc",
                 cond = function(self, discSpell)
-                    return not mq.TLO.Me.ActiveDisc.ID() and RGMercUtils.NPCDiscReady(discSpell) and RGMercUtils.MedBurn()
+                    return RGMercUtils.NPCDiscReady(discSpell) and RGMercUtils.MedBurn()
                 end,
             },
            {

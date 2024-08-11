@@ -753,15 +753,15 @@ local _ClassConfig = {
                 return combat_state == "Downtime" and not (RGMercUtils.Feigning() or mq.TLO.Me.Invis())
             end,
         },
-        -- {
-            -- name = 'Debuff',
-            -- state = 1,
-            -- steps = 1,
-            -- targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
-            -- cond = function(self, combat_state)
-                -- return combat_state == "Combat" and not RGMercUtils.Feigning()
-            -- end,
-        -- },
+        {
+            name = 'Debuff',
+            state = 1,
+            steps = 1,
+            targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
+            cond = function(self, combat_state)
+                return combat_state == "Combat" and not RGMercUtils.Feigning()
+            end,
+        },
 		
 		{
             name = 'DPS',
@@ -903,32 +903,32 @@ local _ClassConfig = {
                     return res
                 end,
             },
-            {
-                name = "AESlowSong",
-                type = "Song",
-                cond = function(self, songSpell)
-                    return RGMercUtils.GetSetting("DoAESlow")
-                        and RGMercUtils.DetSpellCheck(songSpell)
-                        and RGMercUtils.GetXTHaterCount() > 2
-                        and not mq.TLO.Target.Slowed()
-                end,
-            },
-            {
-                name = "SlowSong",
-                type = "Song",
-                cond = function(self, songSpell)
-                    return RGMercUtils.GetSetting("DoSlow")
-                        and RGMercUtils.DetSpellCheck(songSpell)
-                        and not mq.TLO.Target.Slowed()
-                end,
-            },
-            {
-                name = "DispelSong",
-                type = "Song",
-                cond = function(self, songSpell)
-                    return RGMercUtils.GetSetting('DoDispel') and mq.TLO.Target.Beneficial()
-                end,
-            },
+            -- {
+                -- name = "AESlowSong",
+                -- type = "Song",
+                -- cond = function(self, songSpell)
+                    -- return RGMercUtils.GetSetting("DoAESlow")
+                        -- and RGMercUtils.DetSpellCheck(songSpell)
+                        -- and RGMercUtils.GetXTHaterCount() > 2
+                        -- and not mq.TLO.Target.Slowed()
+                -- end,
+            -- },
+            -- {
+                -- name = "SlowSong",
+                -- type = "Song",
+                -- cond = function(self, songSpell)
+                    -- return RGMercUtils.GetSetting("DoSlow")
+                        -- and RGMercUtils.DetSpellCheck(songSpell)
+                        -- and not mq.TLO.Target.Slowed()
+                -- end,
+            -- },
+            -- {
+                -- name = "DispelSong",
+                -- type = "Song",
+                -- cond = function(self, songSpell)
+                    -- return RGMercUtils.GetSetting('DoDispel') and mq.TLO.Target.Beneficial()
+                -- end,
+            -- },
 
         },
         ['Heal'] = {
@@ -1227,9 +1227,9 @@ local _ClassConfig = {
 		['BellowPct']   	= { DisplayName = "Bellow Min End%", Category = "Combat", Tooltip = "Minimum End% to use Bellow.", Default = 40, Min = 1, Max = 100, },
 		['UseAura']           = { DisplayName = "Use Bard Aura", Category = "Buffs", Tooltip = "Select the Aura to be used, if any.", Type = "Combo", ComboOptions = { 'DPS', 'Regen', 'None' }, RequiresLoadoutChange = true, Default = 1, Min = 1, Max = 3, },
         -- Debuffs
-        ['DoSlow']           = { DisplayName = "Cast Slow", Category = "Combat", Tooltip = Tooltips.SlowSong, RequiresLoadoutChange = true, Default = false, },
-        ['DoAESlow']         = { DisplayName = "Cast AE Slow", Category = "Combat", Tooltip = Tooltips.AESlowSong, RequiresLoadoutChange = true, Default = false, },
-        ['DoDispel']         = { DisplayName = "Use Dispel", Category = "Combat", Tooltip = Tooltips.DispelSong, RequiresLoadoutChange = true, Default = false, },
+        ['DoSlow']           = { DisplayName = "Cast Slow", Category = "Combat", Index = 1, Tooltip = Tooltips.SlowSong, RequiresLoadoutChange = true, Default = false, },
+        ['DoAESlow']         = { DisplayName = "Cast AE Slow", Category = "Combat", Index = 2, Tooltip = Tooltips.AESlowSong, RequiresLoadoutChange = true, Default = false, },
+        ['DoDispel']         = { DisplayName = "Use Dispel", Category = "Combat", Index = 3, Tooltip = Tooltips.DispelSong, RequiresLoadoutChange = true, Default = false, },
 
         -- TODO
         --['DoCharm']       = { DisplayName = "Use Charm", Category = "Songs", Tooltip = Tooltips.CharmSong, RequiresLoadoutChange = true, Default = false },
