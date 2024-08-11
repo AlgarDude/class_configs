@@ -1183,7 +1183,6 @@ local _ClassConfig = {
             {
                 name = "Intensity of the Resolute",
                 type = "AA",
-                tooltip = Tooltips.ThoughtLeech,
                 cond = function(self, aaName)
                     return RGMercUtils.AAReady(aaName) and RGMercUtils.GetSetting('DoVetAA')
                     and RGMercUtils.BigBurn()
@@ -1220,7 +1219,7 @@ local _ClassConfig = {
                 type = "AA",
                 tooltip = Tooltips.ChatteringBones,
                 cond = function(self, aaName)
-					return RGMercUtils.AAReady(aaName) and RGMercUtils.SmallBurn()
+					return RGMercUtils.NPCAAReady(aaName) and RGMercUtils.SmallBurn()
 				end,
 			},
 			{
@@ -1228,7 +1227,7 @@ local _ClassConfig = {
                 type = "AA",
                 tooltip = Tooltips.Tvyls,
                 cond = function(self, aaName)
-					return RGMercUtils.AAReady(aaName) and RGMercUtils.SmallBurn()
+					return RGMercUtils.NPCAAReady(aaName) and RGMercUtils.SmallBurn()
 				end,
             },
 			      -- not sure about this one yet, more homework
@@ -1334,7 +1333,13 @@ local _ClassConfig = {
                         not mq.TLO.Me.ActiveDisc.ID()
                 end,
             },
-
+			{
+                name = "Purity of Death",
+                type = "AA",
+                tooltip = Tooltips.PurityofDeath,
+                cond = function(self, aaName)
+					return mq.TLO.Me.TotalCounters() > 0 and RGMercUtils.AAReady(aaName)
+			},
         },
         ['LifeTaps'] = {
 			-- This makes the full rotation execute each round, so it'll never pick up and resume wherever it left off the previous cast. Stolen from brd config.
