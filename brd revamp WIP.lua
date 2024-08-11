@@ -26,7 +26,7 @@ local Tooltips                    = {
     AESlowSong       = "Song Line: PBAE Melee Attack Slow",
     AccelerandoSong  = "Song Line: Reduce Cast Time (Beneficial Only) Agro Reduction Modifier",
     RecklessSong     = "Song Line: Increase Crit Heal and Crit HoT",
-    FateSong         = "Song Line: Cold DD Damage Increae + Effiency",
+    ColdBuffSong         = "Song Line: Cold DD Damage Increae + Effiency",
     -- Splitting DoT lines into individual dots because it is often useful to drop 1-2 dots for some other song on raids
     FireDotSong      = "Song Line: Fire Dots",
     DiseaseDotSong   = "Song Line: Disease Dots",
@@ -84,8 +84,8 @@ local function generateSongList()
         ConditionallyAddSong("MezOn", "MezSong")
         ConditionallyAddSong("DoSTSlow", "SlowSong")
         ConditionallyAddSong("DoAESlow", "AESlowSong")
-        if not RGMercUtils.GetSetting('UseAASelo') then
-            ConditionallyAddSong("DoRunSpeed", "BardRunBuff")
+        if RGMercUtils.GetSetting('UseRunBuff') == 2 then addSong("LongRunBuff")
+        elseif RGMercUtils.GetSetting('UseRunBuff') == 3 then addSong("ShortRunBuff")
         end
         -- TODO maybe someday
         --ConditionallyAddSong("DoCharm", "CharmSong")
@@ -124,7 +124,7 @@ local function generateSongList()
 
     local function AddCasterDPSSongs()
         ConditionallyAddSong("UseFireBuff", "FireBuffSong", "combo")
-        ConditionallyAddSong("UseFate", "FateSong", "combo")
+        ConditionallyAddSong("UseColdBuff", "ColdBuffSong", "combo")
         ConditionallyAddSong("UseDotBuff", "DotBuffSong", "combo")
     end
 
@@ -229,13 +229,16 @@ local _ClassConfig = {
         },
     },
     ['AbilitySets']   = {
-        ['BardRunBuff'] = {
-            -- Bard RunSpeed
+		['ShortRunBuff'] = {
             "Selo's Accelerato",
-            -- Song of travel has been removed due to causing Bugs with Invis and rotation.
-            -- [] = ["Selo's Song of Travel"],
-            "Selo's Accelerating Chorus",
             "Selo's Accelerando",
+        },
+        ['LongRunBuff'] = {
+            --Removed due to causing Bugs with Invis and rotation.
+			-- "Selo's Accelerating Canto",
+            -- "Selo's Song of Travel",
+            "Selo's Accelerating Chorus",
+			"Selo's Accelerando", --hoping this does not cause conflicts
         },
         ['MainAriaSong'] = {
             -- MainAriaSong - Level Ranges 45 - 111
@@ -494,18 +497,18 @@ local _ClassConfig = {
             "Ruaabri's Reckless Renewal",
             "Ryken's Reckless Renewal",
         },
-        ['FateSong'] = {
-            -- Fatesong - Level Range 77 - 112 **
-            "Fatesong of Zoraxmen", -- 125
-            "Fatesong of Lucca",
-            "Fatesong of Radiwol",
-            "Fatesong of Dekloaz",
-            "Fatesong of Jocelyn",
-            "Fatesong of Protan",
-            "Fatesong of Illdaera",
-            "Fatesong of Fergar",
-            "Fatesong of the Gelidran",
-            "Garadell's Fatesong",
+        ['ColdBuffSong'] = {
+            -- ColdBuffSong - Level Range 77 - 112 **
+            "ColdBuffSong of Zoraxmen", -- 125
+            "ColdBuffSong of Lucca",
+            "ColdBuffSong of Radiwol",
+            "ColdBuffSong of Dekloaz",
+            "ColdBuffSong of Jocelyn",
+            "ColdBuffSong of Protan",
+            "ColdBuffSong of Illdaera",
+            "ColdBuffSong of Fergar",
+            "ColdBuffSong of the Gelidran",
+            "Garadell's ColdBuffSong",
         },
 
         ['DotBuffSong'] = {
@@ -1006,7 +1009,6 @@ local _ClassConfig = {
                     return RGMercUtils.SongMemed(songSpell) and RGMercUtils.GetSetting('UseFireDots') and
 						-- If dot is about to wear off, recast
                         getDetSongDuration(songSpell) <= 3
-                        --RGMercUtils.DetSpellCheck(songSpell)
                 end,
             },
             {
@@ -1016,7 +1018,6 @@ local _ClassConfig = {
                     return RGMercUtils.SongMemed(songSpell) and RGMercUtils.GetSetting('UseIceDots') and
 					-- If dot is about to wear off, recast
                         getDetSongDuration(songSpell) <= 3
-                        --RGMercUtils.DetSpellCheck(songSpell)
                 end,
             },
             {
@@ -1035,6 +1036,13 @@ local _ClassConfig = {
                     return RGMercUtils.SongMemed(songSpell) and RGMercUtils.GetSetting('UseDiseaseDots') and
                         -- If dot is about to wear off, recast
                         getDetSongDuration(songSpell) <= 3
+                end,
+            },
+			{
+                name = "AllianceSong",
+                type = "Song",
+                cond = function(self, songSpell)
+                    return RGMercUtils.SongMemed(songSpell) and RGMercUtils.GetSetting('UseAlliance') and RGMercUtils.DetSpellCheck(songSpell)
                 end,
             },
         },
@@ -1096,11 +1104,43 @@ local _ClassConfig = {
                 end,
             },
 			{
+                name = "AmpSong",
+                type = "Song",
+                cond = function(self, songSpell)
+					if RGMercUtils.GetSetting('UseAmp') == 1 then return false end
+					return self.ClassConfig.HelperFunctions.CheckSongStateUse(self, "UseAmp") and RGMercUtils.BuffSong(songSpell)
+                end,
+            },
+			{
                 name = "SufferingSong",
                 type = "Song",
                 cond = function(self, songSpell)
 					if RGMercUtils.GetSetting('UseSuffering') == 1 then return false end
 					return self.ClassConfig.HelperFunctions.CheckSongStateUse(self, "UseSuffering") and RGMercUtils.BuffSong(songSpell)
+				end,
+            },
+			{
+                name = "SpitefulSong",
+                type = "Song",
+                cond = function(self, songSpell)
+					if RGMercUtils.GetSetting('UseSpiteful') == 1 then return false end
+					return self.ClassConfig.HelperFunctions.CheckSongStateUse(self, "UseSpiteful") and RGMercUtils.BuffSong(songSpell)
+				end,
+            },
+			{
+                name = "SprySonataSong",
+                type = "Song",
+                cond = function(self, songSpell)
+					if RGMercUtils.GetSetting('UseSpry') == 1 then return false end
+					return self.ClassConfig.HelperFunctions.CheckSongStateUse(self, "UseSpry") and RGMercUtils.BuffSong(songSpell)
+				end,
+            },
+			{
+                name = "ResistSong",
+                type = "Song",
+                cond = function(self, songSpell)
+					if RGMercUtils.GetSetting('UseResist') == 1 then return false end
+					return self.ClassConfig.HelperFunctions.CheckSongStateUse(self, "UseResist") and RGMercUtils.BuffSong(songSpell)
 				end,
             },
 			{
@@ -1112,15 +1152,31 @@ local _ClassConfig = {
 				end,
             },
 			{
+                name = "AccelerandoSong",
+                type = "Song",
+                cond = function(self, songSpell)
+					if RGMercUtils.GetSetting('UseAccelerando') == 1 then return false end
+					return self.ClassConfig.HelperFunctions.CheckSongStateUse(self, "UseAccelerando") and RGMercUtils.BuffSong(songSpell)
+				end,
+            },
+			{
                 name = "FireBuffSong",
                 type = "Song",
                 cond = function(self, songSpell)
-					if RGMercUtils.GetSetting('FireBuff') == 1 then return false end
-					return self.ClassConfig.HelperFunctions.CheckSongStateUse(self, "FireBuff") and RGMercUtils.BuffSong(songSpell)
+					if RGMercUtils.GetSetting('UseFireBuff') == 1 then return false end
+					return self.ClassConfig.HelperFunctions.CheckSongStateUse(self, "UseFireBuff") and RGMercUtils.BuffSong(songSpell)
                 end,
             },
 			{
-                name = "Potency Song",
+                name = "ColdBuffSong",
+                type = "Song",
+                cond = function(self, songSpell)
+					if RGMercUtils.GetSetting('UseColdBuff') == 1 then return false end
+					return self.ClassConfig.HelperFunctions.CheckSongStateUse(self, "UseColdBuff") and RGMercUtils.BuffSong(songSpell)
+                end,
+            },
+			{
+                name = "DotBuffSong",
                 type = "Song",
                 cond = function(self, songSpell)
 					if RGMercUtils.GetSetting('UseDotBuff') == 1 then return false end
@@ -1144,7 +1200,7 @@ local _ClassConfig = {
                end,
             },
 			{
-                name = "Rallying Solo", --Call theoretically possible but problematic
+                name = "Rallying Solo", --Rallying Call theoretically possible but problematic
                 type = "AA",
                 cond = function(self, aaName)
                     return RGMercUtils.AAReady(aaName) and (mq.TLO.Me.PctEndurance() < 30 or mq.TLO.Me.PctMana() < 30)
@@ -1164,16 +1220,25 @@ local _ClassConfig = {
                 type = "AA",
                 targetId = function(self) return { mq.TLO.Me.ID(), } end,
                 cond = function(self, aaName)
-					if not RGMercUtils.GetSetting('UseAASelo') and RGMercUtils.GetSetting('DoRunSpeed') then return false end
+					if RGMercUtils.GetSetting('UseRunBuff') ~= 1 then return false end
                     return RGMercUtils.AAReady(aaName) and not RGMercUtils.SelfBuffCheck("Selo's Accelerato")
                 end,
             },
             {
-                name = "BardRunBuff",
+                name = "LongRunBuff",
                 type = "Song",
                 targetId = function(self) return { mq.TLO.Me.ID(), } end,
                 cond = function(self, songSpell)
-					if RGMercUtils.GetSetting('UseAASelo') or not RGMercUtils.GetSetting('DoRunSpeed') then return false end
+					if RGMercUtils.GetSetting('UseRunBuff') ~= 2 then return false end
+                    return RGMercUtils.BuffSong(songSpell)
+                end,
+            },
+			{
+                name = "ShortRunBuff",
+                type = "Song",
+                targetId = function(self) return { mq.TLO.Me.ID(), } end,
+                cond = function(self, songSpell)
+					if RGMercUtils.GetSetting('UseRunBuff') ~= 3 then return false end
                     return RGMercUtils.BuffSong(songSpell)
                 end,
             },
@@ -1266,11 +1331,11 @@ local _ClassConfig = {
 	--Group DPS
 		['UseFierceEye']		= { DisplayName = "Fierce Eye Use:", Category = "Group DPS", Index = 2, Tooltip = "When to use the Fierce Eye AA.", Type = "Combo", ComboOptions = { 'Never', 'Burns Only', 'All Combat', }, Default = 3, Min = 1, Max = 3, },
 		['UseArcane']			= { DisplayName = "Use Arcane Line", Category = "Group DPS", Index = 2, Tooltip = Tooltips.Arcane, Type = "Combo", ComboOptions = { 'Never', 'In-Combat Only', 'Always', 'Out-of-Combat Only', }, Default = 3, Min = 1, Max = 4, RequiresLoadoutChange = true,},
-		['UseDicho']		= { DisplayName = "Psalm (Dicho) Use:", Category = "Group DPS", Index = 2, Tooltip = Tooltips.DichoSong, Type = "Combo", ComboOptions = { 'Never', 'During QuickTime', 'All Combat', }, Default = 2, Min = 1, Max = 3, RequiresLoadoutChange = true, },
-		['UseSuffering']	= { DisplayName = "Use Suffering Line", Category = "Group DPS", Index = 2, Tooltip = Tooltips.SufferingSong, Type = "Combo", ComboOptions = { 'Never', 'In-Combat Only', 'Always', 'Out-of-Combat Only', }, Default = 4, Min = 1, Max = 4, RequiresLoadoutChange = true,},
-		['UseFireBuff']		= { DisplayName = "Use Fire Buff", Category = "Group DPS", Index = 2, Tooltip = Tooltips.FireBuffSong, Type = "Combo", ComboOptions = { 'Never', 'In-Combat Only', 'Always', 'Out-of-Combat Only', }, Default = 1, Min = 1, Max = 4, RequiresLoadoutChange = true,},
+		['UseDicho']			= { DisplayName = "Psalm (Dicho) Use:", Category = "Group DPS", Index = 2, Tooltip = Tooltips.DichoSong, Type = "Combo", ComboOptions = { 'Never', 'During QuickTime', 'All Combat', }, Default = 2, Min = 1, Max = 3, RequiresLoadoutChange = true, },
+		['UseSuffering']		= { DisplayName = "Use Suffering Line", Category = "Group DPS", Index = 2, Tooltip = Tooltips.SufferingSong, Type = "Combo", ComboOptions = { 'Never', 'In-Combat Only', 'Always', 'Out-of-Combat Only', }, Default = 4, Min = 1, Max = 4, RequiresLoadoutChange = true,},
+		['UseFireBuff']			= { DisplayName = "Use Fire Buff", Category = "Group DPS", Index = 2, Tooltip = Tooltips.FireBuffSong, Type = "Combo", ComboOptions = { 'Never', 'In-Combat Only', 'Always', 'Out-of-Combat Only', }, Default = 1, Min = 1, Max = 4, RequiresLoadoutChange = true,},
+		['UseColdBuff']			= { DisplayName = "Use ColdDD ColdBuffSong", Category = "Group DPS", Index = 2, Tooltip = Tooltips.ColdBuffSong, Type = "Combo", ComboOptions = { 'Never', 'In-Combat Only', 'Always', 'Out-of-Combat Only', }, Default = 4, Min = 1, Max = 4, RequiresLoadoutChange = true,},
         ['UseDotBuff']			= { DisplayName = "Use DoT Potency", Category = "Group DPS", Tooltip = Tooltips.DotBuffSong, Type = "Combo", ComboOptions = { 'Never', 'In-Combat Only', 'Always', 'Out-of-Combat Only', }, Default = 4, Min = 1, Max = 4, RequiresLoadoutChange = true,},
-        ['UseFate']				= { DisplayName = "Use ColdDD Fatesong", Category = "Group DPS", Tooltip = Tooltips.FateSong, Type = "Combo", ComboOptions = { 'Never', 'In-Combat Only', 'Always', 'Out-of-Combat Only', }, Default = 4, Min = 1, Max = 4, RequiresLoadoutChange = true,},
 		['UseAlliance']			= { DisplayName = "Use Alliance", Category = "Group DPS", Index = 2, Tooltip = Tooltips.AllianceSong, RequiresLoadoutChange = true, Default = false, },
 		--Why is this optional? I can't think of a situation that it should be false, keeping it here until I find out.
 		--['UseFuneralDirge']		= { DisplayName = "Funeral Dirge (Burn)", Category = "Group DPS", Index = 2, Tooltip = "Use Funeral Dirge during Burns", Default = true, },
@@ -1287,8 +1352,7 @@ local _ClassConfig = {
 		['DoChestClick']		= { DisplayName = "Chest Click", Category = "Utility/Items/Misc", Index = 2, Tooltip = "Click your equipped chest item.", Default = true, },
 		['UseSoBItems']			= { DisplayName = "Do Sym. of Battle", Category = "Utility/Items/Misc", Index = 3, Tooltip = "Click your Symphony of Battle items.", Default = true, },
 		['UseDreadstone']		= { DisplayName = "Dreadstone", Category = "Utility/Items/Misc", Index = 4, Tooltip = "Use your Dreadstone when able.", Default = true, },
-		['DoRunSpeed']			= { DisplayName = "Cast Run Speed Buffs", Category = "Utility/Items/Misc", Index = 5, Tooltip = "Use Selos.", RequiresLoadoutChange = true, Default = true, },
-		['UseAASelo']			= { DisplayName = "Use AA Selo", Category = "Utility/Items/Misc", Index = 6, Tooltip = "Do Selo's AAs", Default = true, },
+		['UseRunBuff']			= { DisplayName = "Runspeed Buff:", Category = "Utility/Items/Misc", Index = 5, Tooltip = "Select Runspeed Buff to use.", Type = "Combo", ComboOptions = { 'AA', 'Song (Long Duration Only)', 'Song (Fastest Available)', 'Off', }, Default = 1, Min = 1, Max = 4, RequiresLoadoutChange = true, },
 		['DoVetAA']         	= { DisplayName = "Use Vet AA", Category = "Utility/Items/Misc", Index = 7, Tooltip = "Use Veteran AA's in emergencies or during BigBurn", Default = true, },
 		['UseFading']         	= { DisplayName = "Use Combat Escape ", Category = "Utility/Items/Misc", Index = 8, Tooltip = "Use Fading Memories when you have aggro and you aren't the Main Assist.", Default = true, },
 	 },
