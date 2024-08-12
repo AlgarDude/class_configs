@@ -1015,9 +1015,8 @@ local _ClassConfig = {
                 name = "InsultSong",
                 type = "Song",
                 cond = function(self, songSpell)
-                    return RGMercUtils.SongMemed(songSpell) and RGMercUtils.GetSetting('UseInsult')
-                        and mq.TLO.Me.SpellReady(self.ResolvedActionMap['InsultSong'] or "")() --check if this can use pcspellready
-                        and mq.TLO.Me.PctMana() > RGMercUtils.GetSetting('SelfManaPct')
+					if not RGMercUtils.GetSetting('UseInsult') then return false end
+					return (mq.TLO.Me.GemTimer(songSpell.RankName.Name())() or -1) == 0 and  mq.TLO.Me.PctMana() > RGMercUtils.GetSetting('SelfManaPct')	
                 end,
             },
 			{
@@ -1099,10 +1098,9 @@ local _ClassConfig = {
                 name = "CrescendoSong",
                 type = "Song",
                 cond = function(self, songSpell)
-                    local gemTimer = mq.TLO.Me.GemTimer(songSpell.RankName.Name())() or 0
+					if not RGMercUtils.GetSetting('UseCrescendo') then return false end
 					local pct = RGMercUtils.GetSetting('GroupManaPct')
-                    return RGMercUtils.GetSetting('UseCrescendo') and RGMercUtils.SongMemed(songSpell) and gemTimer == 0 and
-						(mq.TLO.Group.LowMana(pct)() or -1) > RGMercUtils.GetSetting('GroupManaCt')
+                    return (mq.TLO.Me.GemTimer(songSpell.RankName.Name())() or -1) == 0 and (mq.TLO.Group.LowMana(pct)() or -1) > RGMercUtils.GetSetting('GroupManaCt')
                 end,
             },
 			{
