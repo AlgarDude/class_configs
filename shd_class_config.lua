@@ -1339,6 +1339,7 @@ local _ClassConfig = {
                 tooltip = Tooltips.PurityofDeath,
                 cond = function(self, aaName)
 					return mq.TLO.Me.TotalCounters() > 0 and RGMercUtils.AAReady(aaName)
+				end,
 			},
         },
         ['LifeTaps'] = {
