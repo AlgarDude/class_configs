@@ -13,9 +13,11 @@ If I've asked you to test a specific config, the below warnings likely don't app
 
 If not:
 These configs are in a constant state of flux, edits and testing. There may occasionally be some minor broken functionality, but they will all work overall. I use them every day and I am constantly playtesting my changes.
+
 These configs are based around a single-group 6-box setup on a live server and may not be suitable for TLPs, Raids, etc.
 
 THESE CONFIGS ARE NOT FOR THOSE WHO WISH A TRUE PLUG-AND-PLAY EXPERIENCE. YOU MAY NEED TO TWEAK TO YOUR TASTE. 
+
 Some of them have custom gem setups, and some of them are very close to their current default counterparts (as they were either a base for editing or I've PRed some of my changes).
 If you aren't comfortable editing some gem setups or commenting/uncommenting some entries, consider sticking to the targeted revamp testing.
 I've put particular work into SHD, PLD and BRD, and I've done a number on a healing DRU and SHM as well.
@@ -23,5 +25,7 @@ I've put particular work into SHD, PLD and BRD, and I've done a number on a heal
 Some spells and abilities are configured by the user in the main RGMercs module and may differ slightly from my own. Things like heal percentages, etc, may make these play for me and you slightly differently.
 
 For those of you who are curious, my current setups I use for playtesting:
+
 Level 120 SK/SHM/BRD/BST/MAG/NEC (Gold, no expansions)
+
 Level ~110 PAL/DRU/BRD/ENC/MAG/WIZ (Gold, no expansions)
