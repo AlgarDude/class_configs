@@ -9,7 +9,7 @@ Make no mistake, while I am a regular contributor, none of this is officially en
 To use these: place them in (VV install)\config\rgmercs\class_configs
 
 THANK YOU FOR TESTING:
-If I've asked you to test a specific config, the below warnings likely don't apply! (Dont be skerd yo)
+If I've asked you to help me test a specific config, the below warnings likely don't apply! (Dont be skerd yo)
 
 If not:
 These configs are in a constant state of flux, edits and testing. There may occasionally be some minor broken functionality, but they will all work overall. I use them every day and I am constantly playtesting my changes.
