@@ -1281,7 +1281,7 @@ local _ClassConfig = {
                 type = "AA",
 				cond = function(self, aaName)
 					if not RGMercUtils.GetSetting('UseFading') then return false end
-                    return not RGMercUtils.IAmMA() and ((mq.TLO.Me.XTAggroCount() or 999) < (RGMercUtils.GetXTHaterCount() or 0)) and RGMercUtils.AAReady(aaName)
+                    return not RGMercUtils.IAmMA() and ((mq.TLO.Me.XTAggroCount(100) or 999) < (RGMercUtils.GetXTHaterCount() or 0)) and RGMercUtils.AAReady(aaName)
                 end,
             },
 			{
