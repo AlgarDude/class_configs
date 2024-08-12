@@ -16,7 +16,7 @@ These configs are in a constant state of flux, edits and testing. There may occa
 
 These configs are based around a single-group 6-box setup on a live server and may not be suitable for TLPs, Raids, etc.
 
-THESE CONFIGS ARE NOT FOR THOSE WHO WISH A TRUE PLUG-AND-PLAY EXPERIENCE. YOU MAY NEED TO TWEAK TO YOUR TASTE. 
+THESE CONFIGS ARE NOT FOR THOSE WHO WISH A TRUE TURN-IT-ON-AND-GO EXPERIENCE. I've tweaked them to my taste, and you may need to do so to yours.
 
 Some of them have custom gem setups, and some of them are very close to their current default counterparts (as they were either a base for editing or I've PRed some of my changes).
 If you aren't comfortable editing some gem setups or commenting/uncommenting some entries, consider sticking to the targeted revamp testing.
