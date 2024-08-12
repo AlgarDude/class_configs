@@ -1282,7 +1282,7 @@ local _ClassConfig = {
                 type = "AA",
 				cond = function(self, aaName)
 					if not RGMercUtils.GetSetting('UseFading') then return false end
-					return mq.TLO.Me.PctAggro() > 99 and RGMercUtils.PCAAReady(aaName)
+					return mq.TLO.Me.PctAggro() > 99 and not RGMercUtils.IAmMA() and RGMercUtils.PCAAReady(aaName)
 					--something buggy with XTAggroCount, will test later, the above will work on our combat target for now at least. Unfortunately most bard aggro occurs before we have that targeted and I'm not writing a loop for this unless I have to (bard death/aggro on pull has been a complaint/issue in the past for some)
                     --return not RGMercUtils.IAmMA() and ((mq.TLO.Me.XTAggroCount(100) or 999) < (RGMercUtils.GetXTHaterCount() or 0)) and RGMercUtils.AAReady(aaName)
                 end,
