@@ -1,6 +1,8 @@
 # myconfigs
 My custom RGMercs - Lua Edition! class configs. Use at your own risk!
+
 ALL OF THIS COMES FROM https://github.com/DerpleMQ2/rgmercs ORIGINALLY.
+
 I am just a dude who is learning to code a little bit. I like to tweak shit and I like helping other dudes have good shit when I tweak it.
 Make no mistake, while I am a regular contributor, none of this is officially endorsed by RGMercs - Lua Edition! developers.
 
