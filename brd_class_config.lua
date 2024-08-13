@@ -58,7 +58,7 @@ local function generateSongList()
 	RGMercsLogger.log_info("Bard Gem List being calculated. *** PLEASE NOTE: Click-happy behavior when selecting songs in the configuration may lead to low uptime or songs not being gemmed at all! YOU HAVE BEEN WARNED. ***")
     local songCache = { CollapseGems = true, }
     local songCount = 0
-
+	local myLevel = mq.TLO.Me.Level()
     --------------------------------------------------------------------------------------
 	local function addSong(songToAdd)
 		if songCount >= mq.TLO.Me.NumGems() then return end
@@ -71,9 +71,9 @@ local function generateSongList()
         })
     end
 	
-	--TODO: Consider adding a 4th variable (level) so we don't hold slots for songs we have selected but are too low level to use (or consider alternate solution)
-	local function ConditionallyAddSong(settingToCheck, songToAdd, configtype)
-		if configtype == "combo" then 
+	local function ConditionallyAddSong(settingToCheck, songToAdd, minLevel, configType)
+		if myLevel < minLevel then return false end
+		if configType == "combo" then 
 			if RGMercUtils.GetSetting(settingToCheck) > 1 then addSong(songToAdd) end
 		else --if a third category is ever needed this can become "toggle" or somesuch
 			if RGMercUtils.GetSetting(settingToCheck) then addSong(songToAdd) end
@@ -81,61 +81,63 @@ local function generateSongList()
     end
 
     local function AddCriticalSongs()
-        ConditionallyAddSong("UseAEAAMez", "MezAESong")
-        ConditionallyAddSong("MezOn", "MezSong")
-        ConditionallyAddSong("DoSTSlow", "SlowSong")
-        ConditionallyAddSong("DoAESlow", "AESlowSong")
+        ConditionallyAddSong("UseAEAAMez", "MezAESong", 85)
+        ConditionallyAddSong("MezOn", "MezSong", 15)
+        ConditionallyAddSong("DoSTSlow", "SlowSong", 23)
+        ConditionallyAddSong("DoAESlow", "AESlowSong", 20)
         if RGMercUtils.GetSetting('UseRunBuff') == 2 then addSong("LongRunBuff")
         elseif RGMercUtils.GetSetting('UseRunBuff') == 3 then addSong("ShortRunBuff")
         end
         -- TODO maybe someday
         --ConditionallyAddSong("DoCharm", "CharmSong")
-        ConditionallyAddSong("DoDispel", "DispelSong")
+        ConditionallyAddSong("DoDispel", "DispelSong", 40)
     end
 
     local function AddMainGroupDPSSongs()
-        addSong('WarMarchSong')
-        addSong('MainAriaSong')
-		ConditionallyAddSong("UseArcane", "ArcaneSong", "combo")
-        ConditionallyAddSong('UseDicho', 'DichoSong', "combo")
+        if myLevel >= 10 then addSong('WarMarchSong') end
+        if myLevel >= 45 then addSong('MainAriaSong') end
+		ConditionallyAddSong("UseArcane", "ArcaneSong", 70, "combo")
+        ConditionallyAddSong('UseDicho', 'DichoSong', 101, "combo")
     end
 
     local function AddSelfDPSSongs()
-        ConditionallyAddSong("UseAlliance", "AllianceSong")
-        ConditionallyAddSong("UseInsult", 'InsultSong')
-        ConditionallyAddSong("UseFireDots", "FireDotSong")
-        ConditionallyAddSong("UseIceDots", "IceDotSong")
-        ConditionallyAddSong("UseDiseaseDots", "DiseaseDotSong")
-        ConditionallyAddSong("UsePoisonDots", "PoisonDotSong")
-		ConditionallyAddSong("UseJonthan", "Jonthan", "combo")
+        ConditionallyAddSong("UseAlliance", "AllianceSong", 102)
+        ConditionallyAddSong("UseInsult", 'InsultSong', 12)
+        ConditionallyAddSong("UseFireDots", "FireDotSong", 30)
+        ConditionallyAddSong("UseIceDots", "IceDotSong", 30)
+        ConditionallyAddSong("UseDiseaseDots", "DiseaseDotSong", 30)
+        ConditionallyAddSong("UsePoisonDots", "PoisonDotSong", 30)
+		ConditionallyAddSong("UseJonthan", "Jonthan", 7, "combo")
     end
 
     local function AddMeleeDPSSongs()
-		ConditionallyAddSong("UseSuffering", "SufferingSong", "combo")
+		ConditionallyAddSong("UseSuffering", "SufferingSong", 89, "combo")
     end
 
     local function AddTankSongs()
-        ConditionallyAddSong("UseSpiteful", "SpitefulSong", "combo")
-        ConditionallyAddSong("UseSpry", "SprySonataSong", "combo")
-        ConditionallyAddSong("UseResist", "ResistSong", "combo")
+        ConditionallyAddSong("UseSpiteful", "SpitefulSong", 90, "combo")
+        ConditionallyAddSong("UseSpry", "SprySonataSong", 77, "combo")
+        ConditionallyAddSong("UseResist", "ResistSong", 33, "combo")
     end
 
     local function AddHealerSongs()
-        ConditionallyAddSong("UseReckless", "RecklessSong", "combo")
+        ConditionallyAddSong("UseReckless", "RecklessSong", 93, "combo")
     end
 
     local function AddCasterDPSSongs()
-        ConditionallyAddSong("UseFireBuff", "FireBuffSong", "combo")
-        ConditionallyAddSong("UseColdBuff", "ColdBuffSong", "combo")
-        ConditionallyAddSong("UseDotBuff", "DotBuffSong", "combo")
+        ConditionallyAddSong("UseFireBuff", "FireBuffSong", 78, "combo")
+        ConditionallyAddSong("UseColdBuff", "ColdBuffSong", 72, "combo")
+        ConditionallyAddSong("UseDotBuff", "DotBuffSong", 78, "combo")
     end
 
     local function AddRegenSongs()
-        if RGMercUtils.GetSetting('RegenSong') == 2 then addSong("GroupRegenSong")
-        elseif RGMercUtils.GetSetting('RegenSong') == 3 then addSong("AreaRegenSong")
+        if RGMercUtils.GetSetting('RegenSong') == 2 
+			then addSong("GroupRegenSong")
+        elseif RGMercUtils.GetSetting('RegenSong') == 3 and myLevel >= 58
+			then addSong("AreaRegenSong")
         end
-		ConditionallyAddSong("UseCrescendo", "CrescendoSong")
-		ConditionallyAddSong("UseAmp", "AmpSong", "combo")
+		ConditionallyAddSong("UseCrescendo", "CrescendoSong", 75)
+		ConditionallyAddSong("UseAmp", "AmpSong", 30, "combo")
     end
     -- local function AddEnduringBreathSongs()
         -- ConditionallyAddSong("UseEnduringBreath", "EnduringBreathSong")
@@ -378,7 +380,7 @@ local _ClassConfig = {
             "Aura of Rodcet",
         },
         ['GroupRegenSong'] = {
-			--Note level 77 pulse only offers a heal% buff
+			--Note level 77 pulse only offers a heal% buff and is not included here.
             "Pulse of August", -- 125
             "Pulse of Nikolas",
             "Pulse of Vhal`Sera",
@@ -386,7 +388,7 @@ local _ClassConfig = {
             "Pulse of Sionachie",
             "Pulse of Salarra",
             "Pulse of Lunanyn",
-            "Pulse of Renewal", 		--86 start hp/mana/endurance
+            "Pulse of Renewal", 		-- 86 start hp/mana/endurance
 			"Cantata of Rodcet",        -- 81
             "Cantata of Restoration",   -- 76
             "Erollisi's Cantata",       -- 71
@@ -440,7 +442,7 @@ local _ClassConfig = {
 
 
         },
-        ['CasterAriaSong'] = {
+        ['FireBuffSong'] = {
             -- CasterAriaSong - Level Range 72 - 113
             "Flariton's Aria", -- 125
             "Constance's Aria",
@@ -452,11 +454,13 @@ local _ClassConfig = {
             "Sotor's Aria",
             "Talendor's Aria",
             "Performer's Explosive Aria",
-            "Weshlu's Chillsong Aria",
+            
         },
         ['SlowSong'] = {
-            -- SlowSong - We only get 1 single target slow
             "Requiem of Time",
+			"Angstlich's Assonance", --snare/slow
+			"Largo's Assonant Binding", --snare/slow
+			"Selo's Consonant Chain", --snare/slow
         },
         ['AESlowSong'] = {
             -- AESlowSong - Level Range 20 - 114 (Single target works better)
@@ -499,17 +503,18 @@ local _ClassConfig = {
             "Ryken's Reckless Renewal",
         },
         ['ColdBuffSong'] = {
-            -- ColdBuffSong - Level Range 77 - 112 **
-            "ColdBuffSong of Zoraxmen", -- 125
-            "ColdBuffSong of Lucca",
-            "ColdBuffSong of Radiwol",
-            "ColdBuffSong of Dekloaz",
-            "ColdBuffSong of Jocelyn",
-            "ColdBuffSong of Protan",
-            "ColdBuffSong of Illdaera",
-            "ColdBuffSong of Fergar",
-            "ColdBuffSong of the Gelidran",
-            "Garadell's ColdBuffSong",
+            -- ColdBuffSong - Level Range 72 - 112 **
+            "Fatesong of Zoraxmen", -- 125
+            "Fatesong of Lucca",
+            "Fatesong of Radiwol",
+            "Fatesong of Dekloaz",
+            "Fatesong of Jocelyn",
+            "Fatesong of Protan",
+            "Fatesong of Illdaera",
+            "Fatesong of Fergar",
+            "Fatesong of the Gelidran",
+            "Garadell's Fatesong",
+			"Weshlu's Chillsong Aria",
         },
 
         ['DotBuffSong'] = {
@@ -1008,7 +1013,7 @@ local _ClassConfig = {
                 type = "AA",
                 cond = function(self, aaName)
 					if RGMercUtils.GetSetting('UseBellow') == 1 then return false end
-					return (RGMercUtils.GetSetting('UseBellow') == 3 or (RGMercUtils.GetSetting('UseBellow') == 2 and RGMercUtils.BurnCheck())) and RGMercUtils.NPCAAReady(aaName, targetId) and RGMercUtils.SelfBuffAACheck(aaName) and mq.TLO.Me.PctEndurance() > RGMercUtils.GetSetting('SelfEndPct')
+					return mq.TLO.Me.PctEndurance() > RGMercUtils.GetSetting('SelfEndPct') and (RGMercUtils.GetSetting('UseBellow') == 3 or (RGMercUtils.GetSetting('UseBellow') == 2 and RGMercUtils.BurnCheck())) and RGMercUtils.DetSpellCheck(mq.TLO.AltAbility(aaName).Spell) and RGMercUtils.NPCAAReady(aaName, targetId)
                 end,
             },
 			{
