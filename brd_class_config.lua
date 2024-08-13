@@ -791,7 +791,7 @@ local _ClassConfig = {
 			doFullRotation = true,
             targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
             cond = function(self, combat_state)
-                return combat_state == "Combat" and not RGMercUtils.Feigning() and (mq.TLO.Me.PctHPs() <= 60 or self.ClassConfig.HelperFunctions.XTAggroCheck(self))
+                return RGMercUtils.GetXTHaterCount() > 0 and not RGMercUtils.Feigning() and (mq.TLO.Me.PctHPs() <= 60 or self.ClassConfig.HelperFunctions.XTAggroCheck(self))
             end,
         },
         {
