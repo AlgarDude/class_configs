@@ -756,12 +756,20 @@ local _ClassConfig = {
 				RGMercUtils.BoolToColorString(res))
 			return res
 		end,
+		XTAggroCheck = function(self)
+			local xtCount        = mq.TLO.Me.XTarget()
+			for i = 1, xtCount do
+				local xtSpawn = mq.TLO.Me.XTarget(i)
+				if xtSpawn.PctAggro() > 99 and not RGMercUtils.IsTanking() and not RGMercUtils.IamMA() then return true end
+			end
+		end,
 	},
-    ['RotationOrder'] = {  -----TODO: ADD EMERGENCY ROTATION (Hymn of the Last Stand, Fading Memories, Lyrical Prankster, Shield of Notes, Vet AA/ Armor of Experience)
+    ['RotationOrder'] = {
 		{
             name = 'Melody',
 			state = 1,
             steps = 1,
+			doFullRotation = true,
             targetId = function(self) return { mq.TLO.Me.ID(), } end,
             cond = function(self, combat_state)
 				return not RGMercUtils.Feigning() and not (combat_state == "Downtime" and mq.TLO.Me.Invis())
@@ -776,17 +784,18 @@ local _ClassConfig = {
                 return combat_state == "Downtime" and not (RGMercUtils.Feigning() or mq.TLO.Me.Invis())
             end,
         },
-        {
-            name = 'Debuff',
+		{
+            name = 'Emergency',
             state = 1,
             steps = 1,
+			doFullRotation = true,
             targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
             cond = function(self, combat_state)
-                return combat_state == "Combat" and not RGMercUtils.Feigning()
+                return combat_state == "Combat" and not RGMercUtils.Feigning() and (mq.TLO.Me.PctHPs() <= 60 or self.ClassConfig.HelperFunctions.XTAggroCheck(self))
             end,
         },
-		{
-            name = 'DPS',
+        {
+            name = 'Debuff',
             state = 1,
             steps = 1,
             targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
@@ -805,12 +814,12 @@ local _ClassConfig = {
             end,
         },
 		{
-            name = 'Emergency',
+            name = 'DPS',
             state = 1,
             steps = 1,
             targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
             cond = function(self, combat_state)
-                return combat_state == "Combat" and not RGMercUtils.Feigning() and (mq.TLO.Me.PctHPs() <= 60 or ((mq.TLO.Me.XTAggroCount() or 999) < (RGMercUtils.GetXTHaterCount() or 0)))
+                return combat_state == "Combat" and not RGMercUtils.Feigning()
             end,
         },
     },
@@ -1063,7 +1072,7 @@ local _ClassConfig = {
                 end,
             },
         },
-		['Melody'] = { doFullRotation = true, --this ensures checks start from the top every rotation to make sure songs are prioritized
+		['Melody'] = {
 			{
                 name = "MainAriaSong",
                 type = "Song",
@@ -1100,23 +1109,25 @@ local _ClassConfig = {
                 cond = function(self, songSpell)
 					if not RGMercUtils.GetSetting('UseCrescendo') then return false end
 					local pct = RGMercUtils.GetSetting('GroupManaPct')
-                    return (mq.TLO.Me.GemTimer(songSpell.RankName.Name())() or -1) == 0 and (mq.TLO.Group.LowMana(pct)() or -1) > RGMercUtils.GetSetting('GroupManaCt')
+                    return (mq.TLO.Me.GemTimer(songSpell.RankName.Name())() or -1) == 0 and (mq.TLO.Group.LowMana(pct)() or -1) >= RGMercUtils.GetSetting('GroupManaCt')
                 end,
             },
 			{
                 name = "GroupRegenSong",
                 type = "Song",
                 cond = function(self, songSpell)
+					if RGMercUtils.GetSetting('RegenSong') ~= 2 then return false end
 					local pct = RGMercUtils.GetSetting('GroupManaPct')
-                    return self.ClassConfig.HelperFunctions.RefreshBuffSong(songSpell) and not (mq.TLO.Me.Combat() and (mq.TLO.Group.LowMana(pct)() or -1) < RGMercUtils.GetSetting('GroupManaCt'))
+                    return self.ClassConfig.HelperFunctions.RefreshBuffSong(songSpell) and not (mq.TLO.Me.Combat() and (mq.TLO.Group.LowMana(pct)() or 999) < RGMercUtils.GetSetting('GroupManaCt'))
                 end,
             },
 			{
                 name = "AreaRegenSong",
                 type = "Song",
                 cond = function(self, songSpell)
+					if RGMercUtils.GetSetting('RegenSong') ~= 3 then return false end
 					local pct = RGMercUtils.GetSetting('GroupManaPct')
-                    return self.ClassConfig.HelperFunctions.RefreshBuffSong(songSpell) and not (mq.TLO.Me.Combat() and (mq.TLO.Group.LowMana(pct)() or -1) < RGMercUtils.GetSetting('GroupManaCt'))
+                    return self.ClassConfig.HelperFunctions.RefreshBuffSong(songSpell) and not (mq.TLO.Me.Combat() and (mq.TLO.Group.LowMana(pct)() or 999) < RGMercUtils.GetSetting('GroupManaCt'))
                 end,
             },
 			{
@@ -1259,7 +1270,7 @@ local _ClassConfig = {
                 end,
             },
         },
-		['Emergency'] = { doFullRotation = true,
+		['Emergency'] = {
 			{
                 name = "Armor of Experience",
                 type = "AA",
@@ -1280,9 +1291,8 @@ local _ClassConfig = {
                 type = "AA",
 				cond = function(self, aaName)
 					if not RGMercUtils.GetSetting('UseFading') then return false end
-					return mq.TLO.Me.PctAggro() > 99 and not RGMercUtils.IAmMA() and RGMercUtils.PCAAReady(aaName)
-					--something buggy with XTAggroCount, will test later, the above will work on our combat target for now at least. Unfortunately most bard aggro occurs before we have that targeted and I'm not writing a loop for this unless I have to (bard death/aggro on pull has been a complaint/issue in the past for some)
-                    --return not RGMercUtils.IAmMA() and ((mq.TLO.Me.XTAggroCount(100) or 999) < (RGMercUtils.GetXTHaterCount() or 0)) and RGMercUtils.AAReady(aaName)
+					return RGMercUtils.PCAAReady(aaName) and self.ClassConfig.HelperFunctions.XTAggroCheck(self)
+					--I wanted to use XTAggroCount here but it doesn't include your current target in the number it returns and I don't see a good workaround. For Loop it is.
                 end,
             },
 			{
