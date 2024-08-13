@@ -760,7 +760,7 @@ local _ClassConfig = {
 			local xtCount        = mq.TLO.Me.XTarget()
 			for i = 1, xtCount do
 				local xtSpawn = mq.TLO.Me.XTarget(i)
-				if xtSpawn.PctAggro() > 99 and not RGMercUtils.IsTanking() and not RGMercUtils.IamMA() then return true end
+				if xtSpawn.PctAggro() > 99 and not RGMercUtils.IsTanking() and not RGMercUtils.IAmMA() then return true end
 			end
 		end,
 	},
