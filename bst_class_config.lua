@@ -690,6 +690,8 @@ return {
         },
         {
             name = 'FocusedParagon',
+			state = 1,
+            steps = 1,
             targetId = function(self)
                 return { RGMercUtils.FindWorstHurtManaGroupMember(RGMercUtils.GetSetting('ParagonPct')),
                     RGMercUtils.FindWorstHurtManaXT(RGMercUtils.GetSetting('ParagonPct')), }
