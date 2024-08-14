@@ -1103,6 +1103,15 @@ local _ClassConfig = {
                     return mq.TLO.Me.PctMana() > RGMercUtils.GetSetting('DOTMinMana') and self.ClassConfig.HelperFunctions.DotSpellCheck(spell)
                 end,
             },
+			{
+                name = "Cannibalization",
+                type = "AA",
+                cond = function(self, aaName)
+                    return RGMercUtils.GetSetting('DoAACanni') and RGMercUtils.AAReady(aaName) and
+                        mq.TLO.Me.PctMana() < RGMercUtils.GetSetting('AACanniCombatPct') and
+                        mq.TLO.Me.PctHPs() >= RGMercUtils.GetSetting('AACanniMinHP')
+                end,
+            },
             {
                 name = "GroupRenewalHoT",
                 type = "Spell",
@@ -1505,7 +1514,8 @@ local _ClassConfig = {
         ['DoDieaseSlow']      = { DisplayName = "Cast Diease Slows", Category = "Spells and Abilities", Tooltip = "Use Diease Slow Spells", Default = true, },
         ['DoMagicDot']        = { DisplayName = "Cast Magic DOT", Category = "Spells and Abilities", Tooltip = "Use Magic DOTs", Default = true, },
         ['DoAACanni']         = { DisplayName = "Use AA Canni", Category = "Spells and Abilities", Tooltip = "Use Canni AA during downtime", Default = true, },
-        ['AACanniManaPct']    = { DisplayName = "AA Canni Mana %", Category = "Spells and Abilities", Tooltip = "Use Canni AA Under [X]% mana", Default = 70, Min = 1, Max = 100, },
+		['AACanniCombatPct']  = { DisplayName = "AA Canni Combat %", Category = "Spells and Abilities", Tooltip = "Use Canni AA Under [X]% mana", Default = 40, Min = 1, Max = 100, },
+        ['AACanniManaPct']    = { DisplayName = "AA Canni Downtime %", Category = "Spells and Abilities", Tooltip = "Use Canni AA Under [X]% mana", Default = 70, Min = 1, Max = 100, },
         ['AACanniMinHP']      = { DisplayName = "AA Canni HP %", Category = "Spells and Abilities", Tooltip = "Dont Use Canni AA Under [X]% HP", Default = 70, Min = 1, Max = 100, },
         ['DoSpellCanni']      = { DisplayName = "Use Spell Canni", Category = "Spells and Abilities", Tooltip = "Use Canni Spell during downtime", Default = true, },
         ['SpellCanniManaPct'] = { DisplayName = "Spell Canni Mana %", Category = "Spells and Abilities", Tooltip = "Use Canni Spell Under [X]% mana", Default = 70, Min = 1, Max = 100, },

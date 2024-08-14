@@ -762,6 +762,7 @@ local _ClassConfig = {
 			return res
 		end,
 		XTAggroCheck = function(self)
+			if RGMercUtils.GetXTHaterCount() == 0 then return false end
 			local xtCount        = mq.TLO.Me.XTarget()
 			for i = 1, xtCount do
 				local xtSpawn = mq.TLO.Me.XTarget(i)
@@ -1030,7 +1031,7 @@ local _ClassConfig = {
                 type = "Song",
                 cond = function(self, songSpell)
 					if not RGMercUtils.GetSetting('UseInsult') then return false end
-					return (mq.TLO.Me.GemTimer(songSpell.RankName.Name())() or -1) == 0 and  mq.TLO.Me.PctMana() > RGMercUtils.GetSetting('SelfManaPct')	
+					return (mq.TLO.Me.GemTimer(songSpell.RankName.Name())() or -1) == 0 and mq.TLO.Me.PctMana() > RGMercUtils.GetSetting('SelfManaPct')
                 end,
             },
 			{
@@ -1073,7 +1074,7 @@ local _ClassConfig = {
                 name = "AllianceSong",
                 type = "Song",
                 cond = function(self, songSpell)
-                    return RGMercUtils.SongMemed(songSpell) and RGMercUtils.GetSetting('UseAlliance') and RGMercUtils.DetSpellCheck(songSpell)
+                    return RGMercUtils.SongMemed(songSpell) and RGMercUtils.GetSetting('UseAlliance') and mq.TLO.Me.PctMana() > RGMercUtils.GetSetting('SelfManaPct') and RGMercUtils.DetSpellCheck(songSpell)
                 end,
             },
         },
@@ -1341,7 +1342,7 @@ local _ClassConfig = {
     ['DefaultConfig'] = {
         ['Mode']				= { DisplayName = "Mode", Category = "Combat", Tooltip = "Select the Combat Mode for this Toon", Type = "Custom", RequiresLoadoutChange = true, Default = 1, Min = 1, Max = 4, },
 	--Mana/Endurance Sustainment
-		['SelfManaPct']			= { DisplayName = "Self Min Mana %", Category = "Mana/End Sustain", Index = 1, Tooltip = "Minimum Mana% to use Insult.", Default = 20, Min = 1, Max = 100, },
+		['SelfManaPct']			= { DisplayName = "Self Min Mana %", Category = "Mana/End Sustain", Index = 1, Tooltip = "Minimum Mana% to use Insult and Alliance.", Default = 20, Min = 1, Max = 100, },
 		['SelfEndPct']			= { DisplayName = "Self Min End%", Category = "Mana/End Sustain", Index = 2, Tooltip = "Minimum End% to use Bellow or Dicho.", Default = 20, Min = 1, Max = 100, },
 		['GroupManaPct']		= { DisplayName = "Group Mana %", Category = "Mana/End Sustain", Index = 3, Tooltip = "Mana% to begin managing group mana by using Crescendoes and Reflexive Strikes. Also governs when you will use Regen songs during combat).", Default = 80, Min = 1, Max = 100, },
 		['GroupManaCt']			= { DisplayName = "Group Mana Count", Category = "Mana/End Sustain", Index = 4, Tooltip = "The number of party members (including yourself) that need to be under the above mana percentage.", Default = 2, Min = 1, Max = 6, },
