@@ -970,15 +970,15 @@ return {
                     return RGMercUtils.ManaCheck() or RGMercUtils.BurnCheck()
                 end,
             },
-            {
-                name = "PoiBite",
+			{
+                name = "FrozenPoi",
                 type = "Spell",
                 cond = function(self, spell, target)
                     return RGMercUtils.ManaCheck() or RGMercUtils.BurnCheck()
                 end,
             },
             {
-                name = "FrozenPoi",
+                name = "PoiBite",
                 type = "Spell",
                 cond = function(self, spell, target)
                     return RGMercUtils.ManaCheck() or RGMercUtils.BurnCheck()
