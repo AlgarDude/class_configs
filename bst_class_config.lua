@@ -941,7 +941,7 @@ return {
                     if not RGMercUtils.GetSetting('DoFeralgia') then return false end
 					--This checks to see if the Growl portion is up on the pet (or about to expire) before using this, those who prefer the swarm pets can use the actual swarm pet spell in conjunction with this for mana savings.
                     --There are some instances where the Growl isn't needed, but that is a giant TODO and of minor benefit.
-                    return (mq.TLO.Pet.BuffDuration(mq.TLO.Spell(spell).RankName.Trigger(2)).TotalSeconds() or 0) < 10
+                    return (mq.TLO.Pet.BuffDuration(spell.RankName.Trigger(2)).TotalSeconds() or 0) < 10
                 end,
             },
             {
