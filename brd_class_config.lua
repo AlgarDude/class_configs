@@ -761,12 +761,12 @@ local _ClassConfig = {
 				RGMercUtils.BoolToColorString(res))
 			return res
 		end,
-		XTAggroCheck = function(self)
-			if RGMercUtils.GetXTHaterCount() == 0 then return false end
+		UnwantedAggroCheck = function(self) --add isTanking to this if you ever make a mode for bardtanks!
+			if RGMercUtils.GetXTHaterCount() == 0 or RGMercUtils.IAmMA() or mq.TLO.Group.Puller.ID() == mq.TLO.Me.ID() then return false end
 			local xtCount        = mq.TLO.Me.XTarget()
 			for i = 1, xtCount do
 				local xtSpawn = mq.TLO.Me.XTarget(i)
-				if xtSpawn.PctAggro() > 99 and not RGMercUtils.IsTanking() and not RGMercUtils.IAmMA() then return true end
+				if xtSpawn.PctAggro() > 99 then return true end
 			end
 		end,
 	},
@@ -797,7 +797,7 @@ local _ClassConfig = {
 			doFullRotation = true,
             targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
             cond = function(self, combat_state)
-                return RGMercUtils.GetXTHaterCount() > 0 and not RGMercUtils.Feigning() and (mq.TLO.Me.PctHPs() <= 60 or self.ClassConfig.HelperFunctions.XTAggroCheck(self))
+                return RGMercUtils.GetXTHaterCount() > 0 and not RGMercUtils.Feigning() and (mq.TLO.Me.PctHPs() <= 60 or self.ClassConfig.HelperFunctions.UnwantedAggroCheck(self))
             end,
         },
         {
@@ -1297,7 +1297,7 @@ local _ClassConfig = {
                 type = "AA",
 				cond = function(self, aaName)
 					if not RGMercUtils.GetSetting('UseFading') then return false end
-					return RGMercUtils.PCAAReady(aaName) and self.ClassConfig.HelperFunctions.XTAggroCheck(self)
+					return RGMercUtils.PCAAReady(aaName) and self.ClassConfig.HelperFunctions.UnwantedAggroCheck(self)
 					--I wanted to use XTAggroCount here but it doesn't include your current target in the number it returns and I don't see a good workaround. For Loop it is.
                 end,
             },

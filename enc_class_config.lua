@@ -1324,21 +1324,20 @@ local _ClassConfig = {
         },
         ['Tash'] = {
 			{
+                name = "TashSpell",
+                type = "Spell",
+                cond = function(self, spell)
+                    return RGMercUtils.GetSetting('DoTash') and RGMercUtils.DetSpellCheck(spell) and not mq.TLO.Target.Tashed()
+                end,
+            },
+			{
                 name = "Bite of Tashani",
                 type = "AA",
                 cond = function(self, aaName)
                     if mq.TLO.Target.ID() <= 0 then return false end
-                    return RGMercUtils.GetSetting('DoTash') and RGMercUtils.DetAACheck(mq.TLO.Me.AltAbility(aaName).ID()) and not mq.TLO.Target.Tashed()
+                    return RGMercUtils.GetSetting('DoTash') and RGMercUtils.DetAACheck(mq.TLO.Me.AltAbility(aaName).ID()) and not mq.TLO.Target.Tashed() and RGMercUtils.GetXTHaterCount() > 1
                 end,
 
-            },
-            {
-                name = "TashSpell",
-                type = "Spell",
-                cond = function(self, spell)
-                    return RGMercUtils.GetSetting('DoTash') and RGMercUtils.DetSpellCheck(spell) and not mq.TLO.Target.Tashed() and
-                        mq.TLO.Me.PctMana() >= RGMercUtils.GetSetting('ManaToDebuff')
-                end,
             },
             -- {
                 -- name = "StripBuffSpell",
