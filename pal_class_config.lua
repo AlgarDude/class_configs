@@ -124,6 +124,7 @@ local _ClassConfig = {
             "Crush of E'Ci",         -- Level 110
             "Crush of Restless Ice", -- Level 115
             "Crush of the Umbra",    -- Level 120
+            "Crush of the Heroic",   -- Level 124
         },
         ["CrushTimer5"] = {
             -- Timer 5 - Crush
@@ -135,19 +136,21 @@ local _ClassConfig = {
             "Crush of the Timorous Deep", -- Level 107
             "Crush of the Grotto",        -- Level 112
             "Crush of the Twilight Sea",  -- Level 117
+            "Crush of the Wayunder",      -- Level 122
         },
         ["HealNuke"] = {
             -- Timer 7 - HealNuke
-            "Glorious Vindication",  -- Level 85
-            "Glorious Exoneration",  -- Level 90
-            "Glorious Exculpation",  -- Level 95
-            "Glorious Expurgation",  -- Level 100
-            "Brilliant Vindication", -- Level 105
-            "Brilliant Exoneration", -- Level 110
-            "Brilliant Exculpation", -- Level 115
-            "Brilliant Acquittal",   -- Level 120
+            "Glorious Vindication",     -- Level 85
+            "Glorious Exoneration",     -- Level 90
+            "Glorious Exculpation",     -- Level 95
+            "Glorious Expurgation",     -- Level 100
+            "Brilliant Vindication",    -- Level 105
+            "Brilliant Exoneration",    -- Level 110
+            "Brilliant Exculpation",    -- Level 115
+            "Brilliant Acquittal",      -- Level 120
+            "Brilliant Denouncement",   -- Level 125
         },
-        ["TempHP"] = {
+         ["TempHP"] = {
             "Steely Stance",
             "Stubborn Stance",
             "Stoic Stance",
@@ -156,6 +159,7 @@ local _ClassConfig = {
             "Defiant Stance",
             "Stormwall Stance",
             "Adamant Stance",
+            "Unwavering Stance",
         },
         ["Preservation"] = {
             -- Timer 12 - Preservation
@@ -168,6 +172,7 @@ local _ClassConfig = {
             "Preservation of Rodcet",       -- Level 110
             "Preservation of the Grotto",   -- Level 115
             "Preservation of the Basilica", -- Level 120
+            "Preservation of the Fern",     -- Level 125
         },
         ["Lowaggronuke"] = {
             --- Nuke Heal Target - Censure
@@ -178,6 +183,7 @@ local _ClassConfig = {
             "Censure",
             "Remonstrate",
             "Upbraid",
+            "Chastise",
         },
         ["Incoming"] = {
             -- Harmonius Blessing - Empires of Kunark spell
@@ -199,9 +205,11 @@ local _ClassConfig = {
             "Remembrance",  -- Level 106
             "Requiem",      -- Level 111
             "Hymnal",       -- Level 116
+            "Revelation",   -- Level 121
         },
         ["Healproc"] = {
             --- Proc Buff Heal target of Target => LVL 97
+            "Restoring Steel",
             "Regenerating Steel",
             "Rejuvenating Steel",
             "Reinvigorating Steel",
@@ -209,7 +217,8 @@ local _ClassConfig = {
             "Renewing Steel",
         },
         ["FuryProc"] = {
-            -- - Fury Proc Strike  67 - 115
+            -- - Fury Proc Strike  67+
+            "Avowed Fury",
             "Wrathful Fury",
             "Silvered Fury",
             "Pious Fury",
@@ -231,6 +240,7 @@ local _ClassConfig = {
             "Aurora of Dayspring",
             "Aurora of Morninglight",
             "Aurora of Wakening",
+            "Aurora of Realizing",
         },
         ["StunTimer5"] = {
             -- Timer 5 - Hate Stun
@@ -249,6 +259,7 @@ local _ClassConfig = {
             "Force of the Timorous Deep", -- Level 110
             "Force of the Grotto",        -- Level 115
             "Force of the Umbra",         -- Level 120
+            "Force of the Wayunder",      -- Level 125
         },
         ["StunTimer4"] = {
             -- Timer 4 - Hate Stun
@@ -265,9 +276,11 @@ local _ClassConfig = {
             "Merciful Force",  -- Level 106
             "Sincere Force",   -- Level 111
             "Pious Force",     -- Level 116
+            "Avowed Force",    -- Level 121
         },
         ["HealStun"] = {
             --- Heal Stuns T3 12s recast
+            "Force of the Avowed", --Level 124
             "Force of Generosity",
             "Force of Reverence",
             "Force of Ardency",
@@ -276,6 +289,7 @@ local _ClassConfig = {
         },
         ["HealWard"] = {
             --- Healing ward Heals Target of target and wards self. Divination based heal/ward
+            "Protective Acceptance",
             "Protective Revelation",
             "Protective Confession",
             "Protective Devotion",
@@ -307,6 +321,8 @@ local _ClassConfig = {
             "Hand of the Stormwall Keeper",  -- Level 115 - Group
             "Shadewell Keeper",              -- Level 117
             "Hand of the Dreaming Keeper",   -- Level 120 - Group
+            "Fernshade Keeper",              -- Level 122
+            "Hand of the Fernshade Keeper",  -- Level 125 - Group
         },
         ["Brells"] = {
             "Brell's Tenacious Barrier",
@@ -323,9 +339,11 @@ local _ClassConfig = {
             "Brell's Stalwart Shield",
             "Brell's Mountainous Barrier",
             "Brell's Steadfast Aegis",
+            "Brell's Unbreakable Palisade",
         },
         ["Splashcure"] = {
             ---, Spells
+            "Splash of Heroism",
             "Splash of Repentance",
             "Splash of Sanctification",
             "Splash of Purification",
@@ -344,12 +362,13 @@ local _ClassConfig = {
         },
         ["Affirmation"] = {
             --- Improved Super Taunt - Gets you Aggro for X seconds and reduces other Haters generation.
+            "Unconditional Affirmation",
+            "Unending Affirmation",
             "Unrelenting Affirmation",
             "Undivided Affirmation",
             "Unbroken Affirmation",
             "Unflinching Affirmation",
             "Unyielding Affirmation",
-            "Unending Affirmation",
         },
         ["Doctrine"] = {
             --- Undead DD
@@ -357,9 +376,11 @@ local _ClassConfig = {
             "Doctrine of Rescission",
             "Doctrine of Exculpation",
             "Doctrine of Abolishment",
+            "Doctrine of Repudiation",
         },
         ["WaveHeal"] = {
-            --- Group Wave heal 39-115
+            --- Group Wave heal 39-124
+            "Wave of Regret",
             "Wave of Bereavement",
             "Wave of Propitiation",
             "Wave of Expiation",
@@ -401,9 +422,10 @@ local _ClassConfig = {
             "Contrition",
             "Sorrow",
             "Grief",
-            "Expiation",
+            "Exaltation",
             "Propitiation",
             "Culpability",
+            "Angst",
         },
         ["Reverseds"] = {
             --- Reverse DS
@@ -417,6 +439,7 @@ local _ClassConfig = {
             "Mark of the Commander",
             "Mark of the Jade Cohort",
             "Mark of the Eclipsed Cohort",
+            "Mark of the Forgotten Hero",
         },
         ["Cleansehot"] = {
             --- Pally Hot
@@ -434,6 +457,7 @@ local _ClassConfig = {
             "Merciful Cleansing",   -- Level 108
             "Sincere Cleansing",    -- Level 113
             "Forthright Cleansing", -- Level 118
+            "Avowed Cleansing",     -- Level 123
         },
         ["BurstHeal"] = {
             --- Burst Heal - heals target or Target of target 73-115
@@ -447,6 +471,7 @@ local _ClassConfig = {
             "Burst of Morninglight",
             "Burst of Wakening",
             "Burst of Dawnbreak",
+            "Burst of Sunspring",
         },
         ["ArmorSelfBuff"] = {
             --- Self Buff Armor Line Ac/Hp/Mana regen
@@ -462,6 +487,7 @@ local _ClassConfig = {
             "Armor of Steadfast Faith",   -- Level 108
             "Armor of Steadfast Grace",   -- Level 113
             "Armor of Unyielding Grace",  -- Level 118
+            "Armor of Heroic Faith",      -- Level 118
         },
         ["RighteousStrike"] = {
             --- Righteous Strikes Line
@@ -472,6 +498,8 @@ local _ClassConfig = {
             "Righteous Umbrage",
             "Righteous Condemnation",
             "Righteous Antipathy",
+            "Righteous Censure",
+            "Righteous Disdain",
         },
         ["Symbol"] = {
             "Symbol of Liako",
@@ -489,6 +517,8 @@ local _ClassConfig = {
             "Symbol of Pinzarn",
             "Symbol of Ryltan",
             "Symbol of Transal",
+            "Symbol of Sevalak",
+            "Symbol of Thormir",
         },
         ["LessonStun"] = {
             --- Lesson Stun - Timer 6
@@ -505,14 +535,16 @@ local _ClassConfig = {
             "Lesson of Expiation",            -- Level 107
             "Lesson of Propitiation",         -- Level 112
             "Lesson of Guilt",                -- Level 117
+            "Lesson of Remembrance",          -- Level 117
         },
         ["Audacity"] = {
             -- Hate magic Debuff Over time
-            "Ardent,",
-            "Fervent,",
-            "Sanctimonious,",
-            "Devout,",
-            "Righteous,",
+            "Fanatical Audacity",
+            "Ardent Audacity,",
+            "Fervent Audacity,",
+            "Sanctimonious Audacity,",
+            "Devout Audacity,",
+            "Righteous Audacity,",
         },
         ["LightHeal"] = {
             -- Target Light Heal
@@ -539,8 +571,10 @@ local _ClassConfig = {
             "Merciful Light",  -- Level 107
             "Sincere Light",   -- Level 112
             "Raptured Light",  -- Level 117
+            "Avowed Light",    -- Level 122
         },
         ["Pacify"] = {
+            "Assuring Words",
             "Placating Words",
             "Tranquil Words",
             "Propitiate",
@@ -566,6 +600,7 @@ local _ClassConfig = {
             "Merciful Touch",
             "Sincere Touch",
             "Soothing Touch",
+            "Avowed Touch",
         },
         ["Dicho"] = {
             --- Dissident Stun
@@ -596,6 +631,7 @@ local _ClassConfig = {
             "Refute for Honor",
             "Protest for Honor",
             "Parlay for Honor",
+            "Petition for Honor",
         },
         ["Piety"] = {
             -- One Off Buffs
@@ -668,16 +704,17 @@ local _ClassConfig = {
             "Spurn",
             "Thwart",
             "Repudiate",
+			"Gird",
         },
         ["Armor"] = {
             --- Armor Timer 11
+            "Armor of Avowal",
             "Armor of the Forthright",
             "Armor of Sincerity",
             "Armor of Mercy",
             "Armor of Ardency",
             "Armor of Reverence",
             "Armor of Zeal",
-			"Armor of Courage",
         },
         ["Undeadburn"] = {
             "Holyforge Discipline",
@@ -703,7 +740,7 @@ local _ClassConfig = {
             "Armor of Decorum",
             "Armor of Righteousness",
         },
-        ["Holyguard"] = {
+        ["HolyGuard"] = {
             -- Holy Guardian Discipline
             "Revered Guardian Discipline",
             "Blessed Guardian Discipline",
@@ -1472,10 +1509,17 @@ local _ClassConfig = {
                 tooltip = Tooltips.CurseGuard,
                 cond = function(self, discSpell)
                     return RGMercUtils.PCDiscReady(discSpell) and RGMercUtils.IsTanking() and
-                        (RGMercUtils.IsNamed(mq.TLO.Target) or mq.TLO.SpawnCount("NPC radius 30 zradius 50")() > RGMercUtils.GetSetting('CurseGuardCount')) and
+                        (RGMercUtils.IsNamed(mq.TLO.Target) or mq.TLO.SpawnCount("NPC radius 30 zradius 50")() > RGMercUtils.GetSetting('HolyGuardCount')) and
                         not mq.TLO.Me.ActiveDisc.ID()
                 end,
             },
+			{
+                name = "Purification",
+                type = "AA",
+                cond = function(self, aaName)
+					return mq.TLO.Me.TotalCounters() > 0 and RGMercUtils.AAReady(aaName)
+				end,
+			},
             -- {
                 -- name = "UnholyAura",
                 -- type = "Disc",
@@ -1955,7 +1999,7 @@ local _ClassConfig = {
         ['AeTauntCnt']      = { DisplayName = "AE Taunt Count", Category = "Hate Tools", Tooltip = "Minimum number of haters before using AE Taunt.", Default = 2, Min = 1, Max = 10, },
         ['SafeAeTaunt']      = { DisplayName = "AE Taunt Safety Check", Category = "Hate Tools", Tooltip = "Limit unintended pulls with AE Taunts. May result in non-use due to false positives.", Default = false, },
 
-        --Defensees
+        --Defenses
         ['EmergencyStart']  = { DisplayName = "Emergency Start", Category = "Defenses", Tooltip = "Your HP % before we begin to use Emergency Rotations.", Default = 50, Min = 1, Max = 100, },
         ['EmergencyLockout'] = { DisplayName = "Emergency Only", Category = "Defenses", Tooltip = "Your HP % before DPS is cut in favor of Emergency Rotations.", Default = 35, Min = 1, Max = 100, },
         ['MantleCount']     = { DisplayName = "Mantle Count", Category = "Defenses", Tooltip = "Number of mobs around you before you use Mantle Disc.", Default = 4, Min = 1, Max = 10, },

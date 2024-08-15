@@ -295,6 +295,14 @@ return {
             "Lesser Shielding",
             "Minor Shielding",
         },
+		['SelfSpellShield1'] = {
+            "Shield of Inescapability",
+            "Shield of Inevitability",
+            "Shield of Destiny",
+            "Shield of Order",
+            "Shield of Consequence",
+            "Shield of Fate",
+        },
         ['FamiliarBuff'] = {
             "Greater Familiar",
             "Familiar",
@@ -722,14 +730,14 @@ return {
                 name = "Improved Twincast",
                 type = "AA",
                 cond = function(self)
-                    return not RGMercUtils.BuffActiveByName("Twincast")
+                    return not RGMercUtils.BuffActive(mq.TLO.Spell("Twincast").RankName.Name())
                 end,
             },
             {
                 name = "Mana Burn",
                 type = "AA",
                 cond = function(self)
-                    return not RGMercUtils.TargetHasBuffByName("Mana Burn") and RGMercUtils.GetSetting('DoManaBurn')
+                    return not RGMercUtils.TargetHasBuffByName("Mana Burn") and RGMercUtils.GetSetting('DoManaBurn') and RGMercUtils.ManaCheck()
                 end,
             },
             {
@@ -845,106 +853,115 @@ return {
         },
         ['Gift of Mana'] = {
             {
-                name = "FuseNuke",
-                type = "Spell",
-                cond = function(self, spell)
-                    return true
-                end,
-            },
-            {
-                name = "FireEtherealNuke",
-                type = "Spell",
-                cond = function(self, spell)
-                    return true
-                end,
-            },
-            {
-                name = "IceEtherealNuke",
-                type = "Spell",
-                cond = function(self, spell)
-                    return true
-                end,
-            },
-            {
                 name = "DichoSpell",
                 type = "Spell",
-                cond = function(self, spell)
-                    return true
+                cond = function(self, spell, target)
+                    return RGMercUtils.NPCSpellReady(spell)
                 end,
             },
         },
         ['DPS'] = {
-            {
+			{
                 name = "CloudburstNuke",
                 type = "Spell",
                 cond = function(self, spell)
-                    return RGMercUtils.DetGambitCheck() or ((mq.TLO.Me.Song("Evoker's Synergy I").ID() or 0) > 0)
-                end,
-            },
-            {
-                name = "WildNuke",
-                type = "Spell",
-                cond = function(self, spell)
-                    return RGMercUtils.DetGambitCheck()
-                end,
-            },
-            {
-                name = "ChaosNuke",
-                type = "Spell",
-                cond = function(self, spell)
-                    return RGMercUtils.DetGambitCheck()
-                end,
-            },
-            {
-                name = "TwincastSpell",
-                type = "Spell",
-                cond = function(self, spell)
-                    return mq.TLO.Me.Buff("Twincast").ID() == 0
+                    return (RGMercUtils.DetGambitCheck() or ((mq.TLO.Me.Song("Evoker's Synergy I").ID() or 0) > 0)) and RGMercUtils.NPCSpellReady(spell)
                 end,
             },
             {
                 name = "VortexNuke",
                 type = "Spell",
                 cond = function(self, spell)
-                    return not RGMercUtils.TargetHasBuff(spell)
+                    return not RGMercUtils.TargetHasBuff(spell) and RGMercUtils.NPCSpellReady(spell)
                 end,
             },
-            {
-                name = "DichoSpell",
-                type = "Spell",
-                cond = function(self, spell)
-                    return not RGMercUtils.DetGambitCheck() and mq.TLO.Me.Buff("Twincast").ID() == 0 and not RGMercUtils.BuffActiveByName("Improved Twincast")
-                end,
-            },
-            {
-                name = "FireClaw",
-                type = "Spell",
-                cond = function(self, spell)
-                    return RGMercUtils.ManaCheck()
-                end,
-            },
-            {
+			{
                 name = "FuseNuke",
                 type = "Spell",
                 cond = function(self, spell)
-                    local fireClaw = RGMercModules:ExecModule("Class", "GetResolvedActionMapItem", "FireClaw")
-                    return not RGMercUtils.DetGambitCheck() and ((not fireClaw or not fireClaw()) or not mq.TLO.Me.SpellReady(fireClaw.RankName()))
+                    return RGMercUtils.NPCSpellReady(spell)
                 end,
             },
-            {
-                name = "FireNuke",
+			{
+                name = "FireClaw",
                 type = "Spell",
                 cond = function(self, spell)
-                    return RGMercUtils.ManaCheck() and not RGMercUtils.DetGambitCheck()
+                    return not RGMercUtils.BuffActiveByID(mq.TLO.Me.AltAbility("Improved Twincast").Spell.ID()) and RGMercUtils.NPCSpellReady(spell)
                 end,
             },
-            {
-                name = "IceNuke",
+			{
+                name = "FireEtherealNuke",
                 type = "Spell",
                 cond = function(self, spell)
-                    return RGMercUtils.ManaCheck() and not RGMercUtils.DetGambitCheck()
+                    return RGMercUtils.NPCSpellReady(spell)
                 end,
             },
+			{
+                name = "IceEtherealNuke",
+                type = "Spell",
+                cond = function(self, spell)
+                    return RGMercUtils.NPCSpellReady(spell)
+                end,
+            },
+			{
+                name = "TwincastSpell",
+                type = "Spell",
+                cond = function(self, spell)
+                    return RGMercUtils.PCSpellReady(spell) and not RGMercUtils.BuffActiveByID(mq.TLO.Me.AltAbility("Improved Twincast").Spell.ID())
+                end,
+            },
+			{
+                name = "FireClaw",
+                type = "Spell",
+                cond = function(self, spell)
+                    return RGMercUtils.BuffActiveByID(mq.TLO.Spell("Twincast").RankName.ID()) and RGMercUtils.NPCSpellReady(spell)
+                end,
+            },
+			{
+                name = "WildNuke",
+                type = "Spell",
+                cond = function(self, spell)
+                    return RGMercUtils.DetGambitCheck() and RGMercUtils.NPCSpellReady(spell)
+                end,
+            },
+			
+		
+            -- {
+                -- name = "WildNuke",
+                -- type = "Spell",
+                -- cond = function(self, spell)
+                    -- return RGMercUtils.DetGambitCheck()
+                -- end,
+            -- },
+            -- {
+                -- name = "DichoSpell",
+                -- type = "Spell",
+                -- cond = function(self, spell)
+                    -- return not RGMercUtils.DetGambitCheck() and mq.TLO.Me.Buff("Twincast").ID() == 0 and not RGMercUtils.BuffActiveByName("Improved Twincast")
+                -- end,
+            -- },
+            -- {
+                -- name = "FuseNuke",
+                -- type = "Spell",
+                -- cond = function(self, spell)
+                    -- local fireClaw = RGMercModules:ExecModule("Class", "GetResolvedActionMapItem", "FireClaw")
+                    -- return not RGMercUtils.DetGambitCheck() and ((not fireClaw or not fireClaw()) or not mq.TLO.Me.SpellReady(fireClaw.RankName()))
+                -- end,
+            -- },
+            -- {
+                -- name = "FireNuke",
+                -- type = "Spell",
+                -- cond = function(self, spell)
+                    -- return RGMercUtils.ManaCheck() and not RGMercUtils.DetGambitCheck()
+                -- end,
+            -- },
+            -- {
+                -- name = "IceNuke",
+                -- type = "Spell",
+                -- cond = function(self, spell)
+                    -- return RGMercUtils.ManaCheck() and not RGMercUtils.DetGambitCheck()
+                -- end,
+            -- },
             -- {
                 -- name = "MagicNuke",
                 -- type = "Spell",
@@ -980,34 +997,34 @@ return {
                     -- return RGMercUtils.ManaCheck()
                 -- end,
             -- },
-            {
-                name = "FuseNuke",
-                type = "Spell",
-                cond = function(self, spell)
-                    return RGMercUtils.ManaCheck()
-                end,
-            },
-            {
-                name = "FireEtherealNuke",
-                type = "Spell",
-                cond = function(self, spell)
-                    return RGMercUtils.ManaCheck()
-                end,
-            },
-            {
-                name = "IceEtherealNuke",
-                type = "Spell",
-                cond = function(self, spell)
-                    return RGMercUtils.ManaCheck()
-                end,
-            },
-            {
-                name = "DichoSpell",
-                type = "Spell",
-                cond = function(self, spell)
-                    return RGMercUtils.ManaCheck()
-                end,
-            },
+            -- {
+                -- name = "FuseNuke",
+                -- type = "Spell",
+                -- cond = function(self, spell)
+                    -- return RGMercUtils.ManaCheck()
+                -- end,
+            -- },
+            -- {
+                -- name = "FireEtherealNuke",
+                -- type = "Spell",
+                -- cond = function(self, spell)
+                    -- return RGMercUtils.ManaCheck()
+                -- end,
+            -- },
+            -- {
+                -- name = "IceEtherealNuke",
+                -- type = "Spell",
+                -- cond = function(self, spell)
+                    -- return RGMercUtils.ManaCheck()
+                -- end,
+            -- },
+            -- {
+                -- name = "DichoSpell",
+                -- type = "Spell",
+                -- cond = function(self, spell)
+                    -- return RGMercUtils.ManaCheck()
+                -- end,
+            -- },
         },
         ['Downtime'] = {
             {
@@ -1027,6 +1044,12 @@ return {
                     local selfHPBuffLevel = selfHPBuff and selfHPBuff() and selfHPBuff.Level() or 0
                     return (mq.TLO.Me.AltAbility("Etherealist's Unity").Spell.Trigger(1).Level() or 0) > selfHPBuffLevel and RGMercUtils.SelfBuffAACheck(aaName)
                 end,
+            },
+			{
+                name = "SelfSpellShield1",
+                type = "Spell",
+                active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.RankName.ID()) end,
+                cond = function(self, spell) return RGMercUtils.SelfBuffCheck(spell) end,
             },
             {
                 name = "SelfRune1",
@@ -1094,145 +1117,97 @@ return {
         {
             gem = 1,
             spells = {
-                { name_func = function(self) return string.format("%sClaw", self:GetClassModeName()) end, },
-                { name = "IceClaw", },
-                { name = "FireClaw", },
-                { name = "MagicClaw", },
-                { name = "StunSpell", },
+                { name = "VortexNuke", },
             },
         },
         {
             gem = 2,
             spells = {
-                { name_func = function(self) return string.format("%sEtherealNuke", self:GetClassModeName()) end, },
-                { name_func = function(self) return string.format("%sNuke", self:GetClassModeName()) end, },
-                { name = "FireEtherealNuke", },
-                { name = "FireNuke", },
+                { name = "FuseNuke", },
             },
         },
         {
             gem = 3,
             spells = {
-                { name = "DichoSpell", },
-                {
-                    name = "MagicNuke",
-                    cond = function(self)
-                        return RGMercModules:ExecModule("Class", "GetClassModeName") ~= "Magic" -- Magic mode will put this elsewhere so load an ice nuke.
-                    end,
-                },
-                { name = "IceNuke", },
+                { name = "FireClaw", },
             },
         },
         {
             gem = 4,
             spells = {
-                { name = "FuseNuke", },
-                {
-                    name = "FireRainNuke",
-                    active_cond = function(self) return self.settings.DoRain end,
-                    cond = function(self)
-                        return RGMercModules:ExecModule("Class", "GetClassModeName") == "Fire" or RGMercModules:ExecModule("Class", "GetClassModeName") == "Combo"
-                    end,
-                },
-                {
-                    name = "IceRainNuke",
-                    active_cond = function(self) return self.settings.DoRain end,
-                    cond = function(self)
-                        return RGMercModules:ExecModule("Class", "GetClassModeName") == "Ice" or RGMercModules:ExecModule("Class", "GetClassModeName") == "Magic"
-                    end,
-                },
-                {
-                    name = "IceNuke",
-                    cond = function(self)
-                        return RGMercModules:ExecModule("Class", "GetClassModeName") == "Fire" or RGMercModules:ExecModule("Class", "GetClassModeName") == "Combo"
-                    end,
-                },
-                {
-                    name = "FireNuke",
-                    cond = function(self)
-                        return RGMercModules:ExecModule("Class", "GetClassModeName") == "Ice" or RGMercModules:ExecModule("Class", "GetClassModeName") == "Magic"
-                    end,
-                },
-            },
+               { name = "FireEtherealNuke", },
+			},
         },
         {
             gem = 5,
             spells = {
-                { name = "TwincastSpell", },
-                { name = "SnareSpell",    cond = function(self) return self.settings.DoSnare end, },
-                { name = "StunSpell", },
-                { name = "RootSpell", }, },
+               { name = "IceEtherealNuke", },
+			},
         },
-        { gem = 6, spells = { { name = "GambitSpell", }, { name = "HarvestSpell", }, }, },
+        { 	
+			gem = 6, 
+			spells = {
+				{ name = "CloudburstNuke", },
+			},
+		},
         {
             gem = 7,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
-            spells = { { name = "VortexNuke", }, { name = "FastMagicNuke", }, },
+            spells = {
+				{ name = "WildNuke", },
+			},
         },
         {
             gem = 8,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
-            spells = { { name = "JoltSpell", }, },
+            spells = {
+				{ name = "DichoSpell", },
+			},	
         },
         {
             gem = 9,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
-                {
-                    name = "PetSpell",
-                    cond = function(self) return mq.TLO.Me.Level() < 79 end,
-                },
-                {
-                    name = "IceEtherealNuke",
-                    cond = function(self)
-                        return RGMercModules:ExecModule("Class", "GetClassModeName") ~= "Ice" -- Ice will load this elsewhere.
-                    end,
-                },
-                {
-                    name = "MagicEtherealNuke",
-                },
+                { name = "JoltSpell", },
             },
         },
 		{
             gem = 10,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
-            spells = { { name = "CloudburstNuke", }, { name = "FireNuke", }, },
+            spells = {
+                { name = "TwincastSpell", },
+            },
         },
 		{
             gem = 11,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
-            spells = { { name = "ChaosNuke", }, },
+            spells = {
+                { name = "GambitSpell", },
+            },
         },
-        -- {
-            -- gem = 10,
-            -- cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
-            -- spells = { { name = "FireRainLureNuke", }, },
-        -- },
-        -- {
-            -- gem = 11,
-            -- cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
-            -- spells = { { name = "ChaosNuke", }, },
-        -- },
-        -- {
-            -- gem = 12,
-            -- cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
-            -- spells = { { name = "CloudburstNuke", }, { name = "FireNuke", }, },
-        -- },
-        -- {
+		{
+            gem = 12,
+            cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
+            spells = {
+                { name = "SelfRune1", },
+            },
+        },
+		-- {
             -- gem = 13,
             -- cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
-            -- spells = { { name = "FireNuke", }, { name = "IceNuke", }, { name = "MagicNuke", }, { name = "RootSpell", }, },
-        -- },
+            -- spells = {
+                -- --{ name = "", },
+            -- },
     },
     ['DefaultConfig'] = {
         ['Mode']          = { DisplayName = "Mode", Category = "Combat", Tooltip = "Select the Combat Mode for this Toon", Type = "Custom", RequiresLoadoutChange = true, Default = 3, Min = 1, Max = 4, },
-        ['DoChestClick']  = { DisplayName = "Do Chest Click", Category = "Utilities", Tooltip = "Click your chest item", Default = false, },
-        ['JoltAggro']     = { DisplayName = "Jolt Aggro %", Category = "Combat", Tooltip = "Aggro at which to use Jolt", Default = 65, Min = 1, Max = 100, },
+        ['DoChestClick']  = { DisplayName = "Do Chest Click", Category = "Utilities", Tooltip = "Click your chest item", Default = true, },
+        ['JoltAggro']     = { DisplayName = "Jolt Aggro %", Category = "Combat", Tooltip = "Aggro at which to use Jolt", Default = 85, Min = 1, Max = 100, },
         ['WeaveAANukes']  = { DisplayName = "Weave AA Nukes", Category = "Combat", Tooltip = "Weave in AA Nukes", Default = true, },
         ['DoManaBurn']    = { DisplayName = "Use Mana Burn AA", Category = "Combat", Tooltip = "Enable usage of Mana Burn", Default = true, },
-        ['DoSnare']       = { DisplayName = "Use Snare Spells", Category = "Combat", Tooltip = "Enable usage of Snares", Default = true, },
-        ['DoRain']        = { DisplayName = "Use Rain Spells", Category = "Combat", Tooltip = "Enable usage of Rain Spells", Default = true, },
-        ['DoGOMCheck']    = { DisplayName = "Do GOM Check", Category = "Combat", Tooltip = "Check if you have Gift of Mana before casting big nukes.", Default = false, },
+        ['DoSnare']       = { DisplayName = "Use Snare Spells", Category = "Combat", Tooltip = "Enable usage of Snares", Default = false, },
+        ['DoRain']        = { DisplayName = "Use Rain Spells", Category = "Combat", Tooltip = "Enable usage of Rain Spells", Default = false, },
+        ['DoGOMCheck']    = { DisplayName = "Do GOM Check", Category = "Combat", Tooltip = "Check if you have Gift of Mana before casting big nukes.", Default = true, },
         ['HavestManaPct'] = { DisplayName = "Harvest Mana %", Category = "Utilities", Tooltip = "What Mana % to hit before using a harvest spell or aa.", Default = 85, Min = 1, Max = 99, },
     },
 }

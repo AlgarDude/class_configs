@@ -82,7 +82,7 @@ local function generateSongList()
 
     local function AddCriticalSongs()
         ConditionallyAddSong("UseAEAAMez", "MezAESong", 85)
-        ConditionallyAddSong("MezOn", "MezSong", 15)
+        ConditionallyAddSong("UseSingleTgtMez", "MezSong", 15)
         ConditionallyAddSong("DoSTSlow", "SlowSong", 23)
         ConditionallyAddSong("DoAESlow", "AESlowSong", 20)
         if RGMercUtils.GetSetting('UseRunBuff') == 2 then addSong("LongRunBuff")
@@ -233,6 +233,7 @@ local _ClassConfig = {
     },
     ['AbilitySets']   = {
 		['ShortRunBuff'] = {
+			--runbuffs are split to cover the level spread where we have accelerato but not selo's AA, if not, we force the bard into short duration only.
             "Selo's Accelerato",
             "Selo's Accelerando",
         },
@@ -241,7 +242,7 @@ local _ClassConfig = {
 			-- "Selo's Accelerating Canto",
             -- "Selo's Song of Travel",
             "Selo's Accelerating Chorus",
-			"Selo's Accelerando", --hoping this does not cause conflicts
+			"Selo's Accelerando", --hoping this does not cause conflicts, if so, remove this and instruct in tooltips to use short until long is available ig?
         },
         ['MainAriaSong'] = {
             -- MainAriaSong - Level Ranges 45 - 111
@@ -276,19 +277,6 @@ local _ClassConfig = {
             "Noira's Song of Suffering",
         },
         ['SprySonataSong'] = {
-            -- Adding misc songs below level 77 to fill in first spell gem
-            -- [] = 'Psalm of Veeshan",
-            -- [] = "Nillipus' March of the Wee",
-            -- [] = "Verses of Victory",
-            -- [] = "Psalm of Mystic Shielding",
-            -- [] = "Psalm of Cooling",
-            -- [] = "Psalm of Vitality",
-            -- [] = "Psalm of Warmth",
-            -- [] = "Guardian Rhythms",
-            -- [] = Purifying Rhythms",
-            -- [] = "Elemental Rhythms",
-            -- [] = "Jonthan's Whistling Warsong",
-            -- [] = "Chant of Battle",
             -- SprySonataSong - Level Range 77 - 118
             "Dhakka's Spry Sonata",
             "Xetheg's Spry Sonata",
@@ -763,11 +751,7 @@ local _ClassConfig = {
 		end,
 		UnwantedAggroCheck = function(self) --add isTanking to this if you ever make a mode for bardtanks!
 			if RGMercUtils.GetXTHaterCount() == 0 or RGMercUtils.IAmMA() or mq.TLO.Group.Puller.ID() == mq.TLO.Me.ID() then return false end
-			local xtCount        = mq.TLO.Me.XTarget()
-			for i = 1, xtCount do
-				local xtSpawn = mq.TLO.Me.XTarget(i)
-				if xtSpawn.PctAggro() > 99 then return true end
-			end
+			return RGMercUtils.IHaveAggro(100)
 		end,
 	},
     ['RotationOrder'] = {
@@ -856,15 +840,15 @@ local _ClassConfig = {
             {
                 name = "Bladed Song",
                 type = "AA",
-                cond = function(self, aaName)
-                    return RGMercUtils.AAReady(aaName)
+                cond = function(self, aaName, target)
+                    return RGMercUtils.NPCAAReady(aaName, target.ID())
                 end,
             },
             {
                 name = "Thousand Blades",
                 type = "Ability",
                 cond = function(self, abilityName)
-                    return RGMercUtils.AbilityReady(abilityName)
+                    return RGMercUtils.AAReady(aaName)
                 end,
             },
             {
@@ -896,15 +880,15 @@ local _ClassConfig = {
             {
                 name = "Cacophony",
                 type = "AA",
-                cond = function(self, aaName)
-                    return RGMercUtils.NPCAAReady(aaName, targetId)
+                cond = function(self, aaName, target)
+                    return RGMercUtils.NPCAAReady(aaName, target.ID())
                 end,
             },
             {
                 name = "Frenzied Kicks",
                 type = "AA",
-                cond = function(self, aaName)
-                    return RGMercUtils.NPCAAReady(aaName, targetId)
+                cond = function(self, aaName, target)
+                    return RGMercUtils.NPCAAReady(aaName, target.ID())
                 end,
             },
 			{
@@ -1012,9 +996,9 @@ local _ClassConfig = {
             {
                 name = "Boastful Bellow",
                 type = "AA",
-                cond = function(self, aaName)
+                cond = function(self, aaName, target)
 					if RGMercUtils.GetSetting('UseBellow') == 1 then return false end
-					return mq.TLO.Me.PctEndurance() > RGMercUtils.GetSetting('SelfEndPct') and (RGMercUtils.GetSetting('UseBellow') == 3 or (RGMercUtils.GetSetting('UseBellow') == 2 and RGMercUtils.BurnCheck())) and RGMercUtils.DetSpellCheck(mq.TLO.AltAbility(aaName).Spell) and RGMercUtils.NPCAAReady(aaName, targetId)
+					return mq.TLO.Me.PctEndurance() > RGMercUtils.GetSetting('SelfEndPct') and (RGMercUtils.GetSetting('UseBellow') == 3 or (RGMercUtils.GetSetting('UseBellow') == 2 and RGMercUtils.BurnCheck())) and RGMercUtils.DetSpellCheck(mq.TLO.AltAbility(aaName).Spell) and RGMercUtils.NPCAAReady(aaName, target.ID())
                 end,
             },
 			{
@@ -1254,7 +1238,8 @@ local _ClassConfig = {
                 targetId = function(self) return { mq.TLO.Me.ID(), } end,
                 cond = function(self, aaName)
 					if RGMercUtils.GetSetting('UseRunBuff') ~= 1 then return false end
-                    return RGMercUtils.AAReady(aaName) and not RGMercUtils.SelfBuffCheck("Selo's Accelerato")
+					--refreshes slightly before expiry for better uptime
+                    return RGMercUtils.AAReady(aaName) and (mq.TLO.Me.Buff(mq.TLO.AltAbility(aaName).Spell.Trigger(1)).Duration.TotalSeconds() or 0) < 30
                 end,
             },
             {
@@ -1308,11 +1293,12 @@ local _ClassConfig = {
                     return mq.TLO.Me.PctHPs() <= 60 and RGMercUtils.AAReady(aaName)
                 end,
             },
+			--I'm not sure this one is necessary... when we can just Fade, doubtful if this is of benefit. Considering Removal.
 			{
                 name = "Lyrical Prankster",
                 type = "AA",
-                cond = function(self, aaName)
-                    return RGMercUtils.IsNamed(mq.TLO.Target) and mq.TLO.Me.PctAggro() > 99 and not RGMercUtils.AAReady("Fading Memories") and RGMercUtils.NPCAAReady(aaName)
+                cond = function(self, aaName, target)
+                    return RGMercUtils.IsNamed(mq.TLO.Target) and mq.TLO.Me.PctAggro() > 99 and not RGMercUtils.AAReady("Fading Memories") and RGMercUtils.NPCAAReady(aaName, target.ID())
                 end,
             },
 		},
