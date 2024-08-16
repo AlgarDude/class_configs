@@ -629,10 +629,10 @@ return {
             cond = function(self, target) return target.ID() == mq.TLO.Me.Pet.ID() and RGMercUtils.GetSetting('DoPetHeals') end,
         },
         {
-            name  = 'LightHealPoint',
+            name  = 'MainHealPoint',
             state = 1,
             steps = 1,
-            cond  = function(self, target) return RGMercUtils.GetSetting('DoHeals') and (target.PctHPs() or 999) < RGMercUtils.GetSetting('LightHealPoint') end,
+            cond  = function(self, target) return RGMercUtils.GetSetting('DoHeals') and (target.PctHPs() or 999) < RGMercUtils.GetSetting('MainHealPoint') end,
         },
     },
     ['HealRotations']     = {
@@ -640,14 +640,14 @@ return {
             {
                 name = "PetHealSpell",
                 type = "Spell",
-                cond = function(self, spell) return true end,
+                cond = function(self, spell) return PCSpellReady(spell) end,
             },
         },
-        ["LightHealPoint"] = {
+        ["MainHealPoint"] = {
             {
                 name = "HealSpell",
                 type = "Spell",
-                cond = function(self, spell) return mq.TLO.Me.Level() < 112 end,
+                cond = function(self, spell) return PCSpellReady(spell) end,
             },
         },
     },
@@ -872,6 +872,14 @@ return {
                         not RGMercUtils.CanUseAA("Ferociousness"))
                 end,
             },
+			--Force Rejuv Dicho anytime after HHEFuryDisc is finished and Dicho is on CD
+			{
+                name = "Forceful Rejuvenation",
+                type = "AA",
+                cond = function(self, aaName)
+					return not RGMercUtils.PCDiscReady(self.ResolvedActionMap['HHEFuryDisc']) and (mq.TLO.Me.GemTimer(self.ResolvedActionMap['DichoSpell'])() or -1) > 0 and RGMercUtils.AAReady(aaName)
+                end,
+            },
             {
                 name = "Blooddot",
                 type = "Spell",
@@ -931,7 +939,7 @@ return {
                 name = "DichoSpell",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    return true
+                    return not RGMercUtils.BuffActive(spell)
                 end,
             },
             {

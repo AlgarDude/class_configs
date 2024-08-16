@@ -928,7 +928,7 @@ local _ClassConfig = {
                 name = "Leech Touch",
 				type = "AA",
                 tooltip = Tooltips.LeechTouch,
-                cond = function(self, aaName)
+                cond = function(self, aaName, target)
                     return RGMercUtils.NPCAAReady(aaName, target.ID()) and mq.TLO.Me.PctHPs() < 25
                 end,
             },
@@ -1070,7 +1070,7 @@ local _ClassConfig = {
                 name = "Ageless Enmity",
                 type = "AA",
                 tooltip = Tooltips.AgelessEnmity,
-                cond = function(self, aaName)
+                cond = function(self, aaName, target)
                     return RGMercUtils.NPCAAReady(aaName, target.ID()) and RGMercUtils.GetTargetPctHPs() < 90 and mq.TLO.Me.PctAggro() < 100
 					end,
             },
@@ -1088,7 +1088,7 @@ local _ClassConfig = {
                 name = "Veil of Darkness",
                 type = "AA",
                 tooltip = Tooltips.VeilofDarkness,
-                cond = function(self, aaName)
+                cond = function(self, aaName, target)
                     return RGMercUtils.NPCAAReady(aaName, target.ID()) and (mq.TLO.Target.SecondaryPctAggro() or 0) > 70
 					          and RGMercUtils.IsNamed(mq.TLO.Target)
                 end,
@@ -1105,7 +1105,7 @@ local _ClassConfig = {
                 name = "Explosion of Hatred",
                 type = "AA",
                 tooltip = Tooltips.ExplosionOfHatred,
-                cond = function(self, aaName)
+                cond = function(self, aaName, target)
                     return RGMercUtils.NPCAAReady(aaName, target.ID()) and self.ClassConfig.HelperFunctions.AeTauntCheck(self)
                 end,
             },
@@ -1121,7 +1121,7 @@ local _ClassConfig = {
                 name = "Projection of Doom",
                 type = "AA",
                 tooltip = Tooltips.ProjectionofDoom,
-                cond = function(self)
+                cond = function(self, aaName)
                     return RGMercUtils.AAReady(aaName) 
 						and ((mq.TLO.Target.SecondaryPctAggro() or 0) > 80 and RGMercUtils.IsNamed(mq.TLO.Target))
                 end,
@@ -1140,7 +1140,7 @@ local _ClassConfig = {
                 name = "Terror",
                 type = "Spell",
                 tooltip = Tooltips.Terror,
-                cond = function(self)
+                cond = function(self, spell)
 					if not RGMercUtils.SpellLoaded(spell) and RGMercUtils.GetSetting('DoTerror') then return false end
                     return RGMercUtils.NPCSpellReady(spell) and (mq.TLO.Target.SecondaryPctAggro() or 0) > 60
                 end,
@@ -1149,7 +1149,7 @@ local _ClassConfig = {
                 name = "Terror2",
                 type = "Spell",
                 tooltip = Tooltips.Terror,
-                cond = function(self)
+                cond = function(self, spell)
 					if not RGMercUtils.SpellLoaded(spell) and RGMercUtils.GetSetting('DoTerror') then return false end
                     return RGMercUtils.NPCSpellReady(spell) and (mq.TLO.Target.SecondaryPctAggro() or 0) > 60
                 end,
@@ -1193,7 +1193,7 @@ local _ClassConfig = {
                 name = "Harm Touch",
                 type = "AA",
                 tooltip = Tooltips.HarmTouch,
-                cond = function(self, aaName)
+                cond = function(self, aaName, target)
                     return RGMercUtils.NPCAAReady(aaName, target.ID()) and RGMercUtils.MedBurn()
                 end,
             },
@@ -1201,7 +1201,7 @@ local _ClassConfig = {
                 name = "Thought Leech",
                 type = "AA",
                 tooltip = Tooltips.ThoughtLeech,
-                cond = function(self, aaName)
+                cond = function(self, aaName, target)
                     return RGMercUtils.NPCAAReady(aaName, target.ID()) and RGMercUtils.MedBurn()
 				end,
             },
@@ -1218,7 +1218,7 @@ local _ClassConfig = {
                 name = "Chattering Bones",
                 type = "AA",
                 tooltip = Tooltips.ChatteringBones,
-                cond = function(self, aaName)
+                cond = function(self, aaName, target)
 					return RGMercUtils.NPCAAReady(aaName, target.ID()) and RGMercUtils.SmallBurn()
 				end,
 			},
@@ -1226,7 +1226,7 @@ local _ClassConfig = {
                 name = "T`Vyl's Resolve",
                 type = "AA",
                 tooltip = Tooltips.Tvyls,
-                cond = function(self, aaName)
+                cond = function(self, aaName, target)
 					return RGMercUtils.NPCAAReady(aaName, target.ID()) and RGMercUtils.SmallBurn()
 				end,
             },
