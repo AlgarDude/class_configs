@@ -675,15 +675,15 @@ return {
                 return combat_state == "Combat" and RGMercUtils.GetSetting('WeaveAANukes') and mq.TLO.Me.SpellInCooldown()
             end,
         },
-        {
-            name = 'Gift of Mana',
-            state = 1,
-            steps = 1,
-            targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
-            cond = function(self, combat_state)
-                return combat_state == "Combat" and (not RGMercUtils.GetSetting('DoGOMCheck') or RGMercUtils.DetGOMCheck())
-            end,
-        },
+        -- {
+            -- name = 'Gift of Mana',
+            -- state = 1,
+            -- steps = 1,
+            -- targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
+            -- cond = function(self, combat_state)
+                -- return combat_state == "Combat" and (not RGMercUtils.GetSetting('DoGOMCheck') or RGMercUtils.DetGOMCheck())
+            -- end,
+        -- },
         {
             name = 'DPS',
             state = 1,
@@ -852,13 +852,7 @@ return {
             },
         },
         ['Gift of Mana'] = {
-            {
-                name = "DichoSpell",
-                type = "Spell",
-                cond = function(self, spell, target)
-                    return RGMercUtils.NPCSpellReady(spell)
-                end,
-            },
+            
         },
         ['DPS'] = {
 			{
@@ -922,6 +916,13 @@ return {
                 type = "Spell",
                 cond = function(self, spell)
                     return RGMercUtils.DetGambitCheck() and RGMercUtils.NPCSpellReady(spell)
+                end,
+            },
+			{
+                name = "DichoSpell",
+                type = "Spell",
+                cond = function(self, spell, target)
+                    return RGMercUtils.NPCSpellReady(spell)
                 end,
             },
 			

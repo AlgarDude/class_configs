@@ -899,7 +899,7 @@ return {
                 type = "AA",
                 cond = function(self, aaName, target)
                     return RGMercUtils.GetSetting('DoSlow') and not RGMercUtils.TargetHasBuffByName(aaName) and
-                        (mq.TLO.Me.AltAbility(aaName).Spell.SlowPct() or 0) > (RGMercUtils.GetTargetSlowedPct())
+                        (mq.TLO.Me.AltAbility(aaName).Spell.SlowPct() or 0) > (RGMercUtils.GetTargetSlowedPct()) and RGMercUtils.NPCAAReady(aaName, target.ID())
                 end,
             },
         },

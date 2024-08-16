@@ -1328,6 +1328,7 @@ local _ClassConfig = {
                 type = "Spell",
                 cond = function(self, spell)
                     return RGMercUtils.GetSetting('DoTash') and RGMercUtils.DetSpellCheck(spell) and not mq.TLO.Target.Tashed()
+						and RGMercUtils.NPCSpellReady(spell)
                 end,
             },
 			{
@@ -1335,7 +1336,7 @@ local _ClassConfig = {
                 type = "AA",
                 cond = function(self, aaName)
                     if mq.TLO.Target.ID() <= 0 then return false end
-                    return RGMercUtils.GetSetting('DoTash') and RGMercUtils.DetAACheck(mq.TLO.Me.AltAbility(aaName).ID()) and not mq.TLO.Target.Tashed() and RGMercUtils.GetXTHaterCount() > 1
+                    return RGMercUtils.GetSetting('DoTash') and RGMercUtils.DetAACheck(mq.TLO.Me.AltAbility(aaName).ID()) and not mq.TLO.Target.Tashed() and RGMercUtils.GetXTHaterCount() > 1 and RGMercUtils.NPCAAReady(aaName, target.ID())
                 end,
 
             },
@@ -1355,7 +1356,7 @@ local _ClassConfig = {
                     if mq.TLO.Target.ID() <= 0 then return false end
                     return RGMercUtils.GetSetting('DoSlow') and RGMercUtils.DetAACheck(mq.TLO.Me.AltAbility(aaName).ID()) and
                         RGMercUtils.GetXTHaterCount() >= RGMercUtils.GetSetting('SlowCount') and
-                        mq.TLO.Target.Slowed() == nil
+                        mq.TLO.Target.Slowed() == nil and RGMercUtils.NPCAAReady(aaName, target.ID())
                 end,
             },
 			{
@@ -1364,7 +1365,7 @@ local _ClassConfig = {
                 type = "AA",
                 cond = function(self, aaName, target)
                     return RGMercUtils.GetSetting('DoSlow') and not RGMercUtils.TargetHasBuffByName(aaName) and
-                        (mq.TLO.Me.AltAbility(aaName).Spell.SlowPct() or 0) > (RGMercUtils.GetTargetSlowedPct())
+                        (mq.TLO.Me.AltAbility(aaName).Spell.SlowPct() or 0) > (RGMercUtils.GetTargetSlowedPct()) and RGMercUtils.NPCAAReady(aaName, target.ID())
                 end,
             },
             -- {

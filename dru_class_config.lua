@@ -954,21 +954,21 @@ local _ClassConfig = {
                 name = "Nature's Frost",
                 type = "AA",
                 cond = function(self, aaName)
-                    return RGMercUtils.NPCAAReady(aaName) and RGMercUtils.ManaCheck()
+                    return RGMercUtils.NPCAAReady(aaName, target.ID()) and RGMercUtils.ManaCheck()
                 end,
             },
             {
                 name = "Nature's Fire",
                 type = "AA",
                 cond = function(self, aaName)
-                    return RGMercUtils.NPCAAReady(aaName) and RGMercUtils.ManaCheck()
+                    return RGMercUtils.NPCAAReady(aaName, target.ID()) and RGMercUtils.ManaCheck()
                 end,
             },
             {
                 name = "Nature's Bolt",
                 type = "AA",
                 cond = function(self, aaName)
-                    return RGMercUtils.NPCAAReady(aaName) and RGMercUtils.ManaCheck()
+                    return RGMercUtils.NPCAAReady(aaName, target.ID()) and RGMercUtils.ManaCheck()
                 end,
             },
         },
@@ -1076,7 +1076,7 @@ local _ClassConfig = {
                 name = "Blessing of Ro",
                 type = "AA",
                 cond = function(self, aaName, target)
-                    return RGMercUtils.NPCAAReady(aaName) and not RGMercUtils.TargetHasBuff(mq.TLO.Me.AltAbility(aaName).Spell.Trigger(1)) and
+                    return RGMercUtils.NPCAAReady(aaName, target.ID()) and not RGMercUtils.TargetHasBuff(mq.TLO.Me.AltAbility(aaName).Spell.Trigger(1)) and
                         mq.TLO.FindItemCount(mq.TLO.Me.AltAbility("Blessing of Ro").Spell.Trigger(1).NoExpendReagentID(1)())() >
                         0
                 end,
@@ -1085,7 +1085,7 @@ local _ClassConfig = {
                 name = "Season's Wrath",
                 type = "AA",
                 cond = function(self, aaName, target)
-                    return RGMercUtils.NPCAAReady(aaName) and RGMercUtils.DetAACheck(mq.TLO.Me.AltAbility(aaName).ID())
+                    return RGMercUtils.NPCAAReady(aaName, target.ID()) and RGMercUtils.DetAACheck(mq.TLO.Me.AltAbility(aaName).ID())
                 end,
             },
         },

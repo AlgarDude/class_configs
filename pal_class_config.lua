@@ -1261,7 +1261,7 @@ local _ClassConfig = {
                 type = "AA",
                 tooltip = Tooltips.AgelessEnmity,
                 cond = function(self, aaName)
-                    return RGMercUtils.NPCAAReady(aaName) and RGMercUtils.GetTargetPctHPs() < 90 and mq.TLO.Me.PctAggro() < 100
+                    return RGMercUtils.NPCAAReady(aaName, target.ID()) and RGMercUtils.GetTargetPctHPs() < 90 and mq.TLO.Me.PctAggro() < 100
 					end,
             },
           --used to jumpstart hatred on named from the outset and prevent early rips from burns

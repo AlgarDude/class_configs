@@ -1604,7 +1604,7 @@ _ClassConfig      = {
                 name = "Malaise",
                 type = "AA",
                 cond = function(self, aaName)
-                    return RGMercUtils.GetSetting('DoMalo') and RGMercUtils.DetAACheck(aaName) and RGMercUtils.AAReady(aaName) --and self.ClassConfig.HelperFunctions.DebuffConCheck() 
+                    return RGMercUtils.GetSetting('DoMalo') and RGMercUtils.DetAACheck(aaName) and RGMercUtils.NPCAAReady(aaName, target.ID()) --and self.ClassConfig.HelperFunctions.DebuffConCheck() 
                 end,
             },
             -- {
@@ -1618,7 +1618,7 @@ _ClassConfig      = {
                 name = "Wind of Malaise",
                 type = "AA",
                 cond = function(self, aaName)
-                    return RGMercUtils.GetSetting('DoMalo') and RGMercUtils.GetSetting('DoAEMalo') and RGMercUtils.DetAACheck(aaName)
+                    return RGMercUtils.GetSetting('DoMalo') and RGMercUtils.GetSetting('DoAEMalo') and RGMercUtils.DetAACheck(aaName) and RGMercUtils.NPCAAReady(aaName, target.ID())
                 end,
             },
         },

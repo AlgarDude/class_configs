@@ -929,7 +929,7 @@ local _ClassConfig = {
 				type = "AA",
                 tooltip = Tooltips.LeechTouch,
                 cond = function(self, aaName)
-                    return RGMercUtils.NPCAAReady(aaName) and mq.TLO.Me.PctHPs() < 25
+                    return RGMercUtils.NPCAAReady(aaName, target.ID()) and mq.TLO.Me.PctHPs() < 25
                 end,
             },
 			{
@@ -1071,7 +1071,7 @@ local _ClassConfig = {
                 type = "AA",
                 tooltip = Tooltips.AgelessEnmity,
                 cond = function(self, aaName)
-                    return RGMercUtils.NPCAAReady(aaName) and RGMercUtils.GetTargetPctHPs() < 90 and mq.TLO.Me.PctAggro() < 100
+                    return RGMercUtils.NPCAAReady(aaName, target.ID()) and RGMercUtils.GetTargetPctHPs() < 90 and mq.TLO.Me.PctAggro() < 100
 					end,
             },
           --used to jumpstart hatred on named from the outset and prevent early rips from burns
@@ -1089,7 +1089,7 @@ local _ClassConfig = {
                 type = "AA",
                 tooltip = Tooltips.VeilofDarkness,
                 cond = function(self, aaName)
-                    return RGMercUtils.NPCAAReady(aaName) and (mq.TLO.Target.SecondaryPctAggro() or 0) > 70
+                    return RGMercUtils.NPCAAReady(aaName, target.ID()) and (mq.TLO.Target.SecondaryPctAggro() or 0) > 70
 					          and RGMercUtils.IsNamed(mq.TLO.Target)
                 end,
             },
@@ -1106,7 +1106,7 @@ local _ClassConfig = {
                 type = "AA",
                 tooltip = Tooltips.ExplosionOfHatred,
                 cond = function(self, aaName)
-                    return RGMercUtils.NPCAAReady(aaName) and self.ClassConfig.HelperFunctions.AeTauntCheck(self)
+                    return RGMercUtils.NPCAAReady(aaName, target.ID()) and self.ClassConfig.HelperFunctions.AeTauntCheck(self)
                 end,
             },
             {
@@ -1194,7 +1194,7 @@ local _ClassConfig = {
                 type = "AA",
                 tooltip = Tooltips.HarmTouch,
                 cond = function(self, aaName)
-                    return RGMercUtils.NPCAAReady(aaName) and RGMercUtils.MedBurn()
+                    return RGMercUtils.NPCAAReady(aaName, target.ID()) and RGMercUtils.MedBurn()
                 end,
             },
             {
@@ -1202,7 +1202,7 @@ local _ClassConfig = {
                 type = "AA",
                 tooltip = Tooltips.ThoughtLeech,
                 cond = function(self, aaName)
-                    return RGMercUtils.NPCAAReady(aaName) and RGMercUtils.MedBurn()
+                    return RGMercUtils.NPCAAReady(aaName, target.ID()) and RGMercUtils.MedBurn()
 				end,
             },
             --back to lower priority burn stuff
@@ -1219,7 +1219,7 @@ local _ClassConfig = {
                 type = "AA",
                 tooltip = Tooltips.ChatteringBones,
                 cond = function(self, aaName)
-					return RGMercUtils.NPCAAReady(aaName) and RGMercUtils.SmallBurn()
+					return RGMercUtils.NPCAAReady(aaName, target.ID()) and RGMercUtils.SmallBurn()
 				end,
 			},
 			{
@@ -1227,7 +1227,7 @@ local _ClassConfig = {
                 type = "AA",
                 tooltip = Tooltips.Tvyls,
                 cond = function(self, aaName)
-					return RGMercUtils.NPCAAReady(aaName) and RGMercUtils.SmallBurn()
+					return RGMercUtils.NPCAAReady(aaName, target.ID()) and RGMercUtils.SmallBurn()
 				end,
             },
 			      -- not sure about this one yet, more homework
@@ -1404,7 +1404,7 @@ local _ClassConfig = {
                 type = "AA",
                 tooltip = Tooltips.ViciousBiteOfChaos,
                 cond = function(self, aaName)
-                    return RGMercUtils.NPCAAReady(aaName) 
+                    return RGMercUtils.NPCAAReady(aaName, target.ID()) 
 					--and RGMercUtils.GetTargetPctHPs() > 5 and RGMercUtils.GetTargetDistance() < 35 keeping this here because I'm not sure why it was there in the first place
                 end,
             },

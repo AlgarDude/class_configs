@@ -972,7 +972,7 @@ local _ClassConfig = {
                     if not aaSpell or not aaSpell() then return false end
 
                     return RGMercUtils.GetSetting('DoAEMalo') and RGMercUtils.DetSpellCheck(aaSpell) and RGMercUtils.SpellStacksOnTarget(aaSpell)and RGMercUtils.DetAACheck(mq.TLO.Me.AltAbility(aaName).ID()) and
-                    RGMercUtils.GetXTHaterCount() >= RGMercUtils.GetSetting('AEMaloCount')
+                    RGMercUtils.GetXTHaterCount() >= RGMercUtils.GetSetting('AEMaloCount') and RGMercUtils.NPCAAReady(aaName, target.ID())
                 end,
             },
             {
@@ -983,7 +983,7 @@ local _ClassConfig = {
 
                     if not aaSpell or not aaSpell() then return false end
 
-                    return RGMercUtils.GetSetting('DoMalo') and RGMercUtils.DetSpellCheck(aaSpell)
+                    return RGMercUtils.GetSetting('DoMalo') and RGMercUtils.DetSpellCheck(aaSpell) and RGMercUtils.NPCAAReady(aaName, target.ID())
                 end,
             },
             -- {
@@ -1008,7 +1008,7 @@ local _ClassConfig = {
                 type = "AA",
                 cond = function(self, aaName)
                     return RGMercUtils.GetSetting('DoAESlow')and RGMercUtils.DetAACheck(mq.TLO.Me.AltAbility(aaName).ID()) and
-                    RGMercUtils.GetXTHaterCount() >= RGMercUtils.GetSetting('AESlowCount')
+                    RGMercUtils.GetXTHaterCount() >= RGMercUtils.GetSetting('AESlowCount') and RGMercUtils.NPCAAReady(aaName, target.ID())
                 end,
             },
             -- {
@@ -1023,7 +1023,7 @@ local _ClassConfig = {
                 type = "AA",
                 cond = function(self, aaName)
                     return RGMercUtils.GetSetting('DoSlow') and
-                        not RGMercUtils.TargetHasBuffByName(mq.TLO.Spell("Turgur's Swarm").Trigger(1).RankName.Name())
+                        not RGMercUtils.TargetHasBuffByName(mq.TLO.Spell("Turgur's Swarm").Trigger(1).RankName.Name()) and RGMercUtils.NPCAAReady(aaName, target.ID())
                 end,
             },
             -- {
