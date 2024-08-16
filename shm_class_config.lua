@@ -1006,7 +1006,7 @@ local _ClassConfig = {
             {
                 name = "Turgur's Virulent Swarm",
                 type = "AA",
-                cond = function(self, aaName)
+                cond = function(self, aaName, target)
                     return RGMercUtils.GetSetting('DoAESlow')and RGMercUtils.DetAACheck(mq.TLO.Me.AltAbility(aaName).ID()) and
                     RGMercUtils.GetXTHaterCount() >= RGMercUtils.GetSetting('AESlowCount') and RGMercUtils.NPCAAReady(aaName, target.ID())
                 end,
@@ -1021,7 +1021,7 @@ local _ClassConfig = {
             {
                 name = "Turgur's Swarm",
                 type = "AA",
-                cond = function(self, aaName)
+                cond = function(self, aaName, target)
                     return RGMercUtils.GetSetting('DoSlow') and
                         not RGMercUtils.TargetHasBuffByName(mq.TLO.Spell("Turgur's Swarm").Trigger(1).RankName.Name()) and RGMercUtils.NPCAAReady(aaName, target.ID())
                 end,

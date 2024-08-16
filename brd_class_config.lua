@@ -781,7 +781,7 @@ local _ClassConfig = {
 			doFullRotation = true,
             targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
             cond = function(self, combat_state)
-                return RGMercUtils.GetXTHaterCount() > 0 and not RGMercUtils.Feigning() and (mq.TLO.Me.PctHPs() <= 60 or self.ClassConfig.HelperFunctions.UnwantedAggroCheck(self))
+                return RGMercUtils.GetXTHaterCount() > 0 and not RGMercUtils.Feigning() and (mq.TLO.Me.PctHPs() <= RGMercUtils.GetSetting('EmergencyStart') or self.ClassConfig.HelperFunctions.UnwantedAggroCheck(self))
             end,
         },
         {
@@ -1271,13 +1271,6 @@ local _ClassConfig = {
                 end,
             },
 			{
-                name = "Shield of Notes",
-                type = "AA",
-				cond = function(self, aaName)
-                    return mq.TLO.Me.PctHPs() <= 40 and RGMercUtils.AAReady(aaName)
-                end,
-            },
-			{
                 name = "Fading Memories",
                 type = "AA",
 				cond = function(self, aaName)
@@ -1290,7 +1283,14 @@ local _ClassConfig = {
                 name = "Hymn of the Last Stand",
                 type = "AA",
 				cond = function(self, aaName)
-                    return mq.TLO.Me.PctHPs() <= 60 and RGMercUtils.AAReady(aaName)
+                    return mq.TLO.Me.PctHPs() <= RGMercUtils.GetSetting('EmergencyStart') and RGMercUtils.AAReady(aaName)
+                end,
+            },
+			{
+                name = "Shield of Notes",
+                type = "AA",
+				cond = function(self, aaName)
+                    return mq.TLO.Me.PctHPs() <= RGMercUtils.GetSetting('EmergencyStart') and RGMercUtils.AAReady(aaName)
                 end,
             },
 			--I'm not sure this one is necessary... when we can just Fade, doubtful if this is of benefit. Considering Removal.
@@ -1374,7 +1374,8 @@ local _ClassConfig = {
 		['UseDreadstone']		= { DisplayName = "Dreadstone", Category = "Utility/Items/Misc", Index = 4, Tooltip = "Use your Dreadstone when able.", Default = false, ConfigType = "Advanced", },
 		['UseRunBuff']			= { DisplayName = "Runspeed Buff:", Category = "Utility/Items/Misc", Index = 5, Tooltip = "Select Runspeed Buff to use.", Type = "Combo", ComboOptions = { 'AA', 'Song (Long Duration Only)', 'Song (Fastest Available)', 'Off', }, Default = 1, Min = 1, Max = 4, RequiresLoadoutChange = true, ConfigType = "Advanced", },
 		['DoVetAA']         	= { DisplayName = "Use Vet AA", Category = "Utility/Items/Misc", Index = 7, Tooltip = "Use Veteran AA's in emergencies or during BigBurn", Default = true, ConfigType = "Advanced", },
-		['UseFading']         	= { DisplayName = "Use Combat Escape ", Category = "Utility/Items/Misc", Index = 8, Tooltip = "Use Fading Memories when you have aggro and you aren't the Main Assist.", Default = true, ConfigType = "Advanced", },
+		['EmergencyStart']  = { DisplayName = "Emergency HP%",Category = "Utility/Items/Misc", Index = 8, Tooltip = "Your HP % before we begin to use emergency mitigation abilities.", Default = 50, Min = 1, Max = 100, ConfigType = "Advanced", },
+		['UseFading']         	= { DisplayName = "Use Combat Escape ", Category = "Utility/Items/Misc", Index = 9, Tooltip = "Use Fading Memories when you have aggro and you aren't the Main Assist.", Default = true, ConfigType = "Advanced", },
 	 },
     ['Spells']        = { getSpellCallback = generateSongList, },
 }
