@@ -872,12 +872,12 @@ return {
                         not RGMercUtils.CanUseAA("Ferociousness"))
                 end,
             },
-			--Force Rejuv Dicho anytime after HHEFuryDisc is finished and Dicho is on CD
+			--Force Rejuv to refresh Dicho during burns, but not if it is very close to being available anyway
 			{
                 name = "Forceful Rejuvenation",
                 type = "AA",
                 cond = function(self, aaName)
-					return not RGMercUtils.PCDiscReady(self.ResolvedActionMap['HHEFuryDisc']) and (mq.TLO.Me.GemTimer(self.ResolvedActionMap['DichoSpell'])() or -1) > 0 and RGMercUtils.AAReady(aaName)
+					return (mq.TLO.Me.GemTimer(self.ResolvedActionMap['DichoSpell'])() or -1) > 15 and RGMercUtils.AAReady(aaName)
                 end,
             },
             {
