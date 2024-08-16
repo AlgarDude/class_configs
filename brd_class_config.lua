@@ -846,9 +846,9 @@ local _ClassConfig = {
             },
             {
                 name = "Thousand Blades",
-                type = "Ability",
-                cond = function(self, abilityName)
-                    return RGMercUtils.AAReady(aaName)
+                type = "Disc",
+                cond = function(self, discSpell)
+                    return RGMercUtils.PCDiscReady(discSpell)
                 end,
             },
             {

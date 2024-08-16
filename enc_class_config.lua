@@ -1334,7 +1334,7 @@ local _ClassConfig = {
 			{
                 name = "Bite of Tashani",
                 type = "AA",
-                cond = function(self, aaName)
+                cond = function(self, aaName, target)
                     if mq.TLO.Target.ID() <= 0 then return false end
                     return RGMercUtils.GetSetting('DoTash') and RGMercUtils.DetAACheck(mq.TLO.Me.AltAbility(aaName).ID()) and not mq.TLO.Target.Tashed() and RGMercUtils.GetXTHaterCount() > 1 and RGMercUtils.NPCAAReady(aaName, target.ID())
                 end,
@@ -1352,7 +1352,7 @@ local _ClassConfig = {
             {
                 name = "Enveloping Helix",
                 type = "AA",
-                cond = function(self, aaName)
+                cond = function(self, aaName, target)
                     if mq.TLO.Target.ID() <= 0 then return false end
                     return RGMercUtils.GetSetting('DoSlow') and RGMercUtils.DetAACheck(mq.TLO.Me.AltAbility(aaName).ID()) and
                         RGMercUtils.GetXTHaterCount() >= RGMercUtils.GetSetting('SlowCount') and
@@ -1361,7 +1361,6 @@ local _ClassConfig = {
             },
 			{
                 name = "Slowing Helix",
-                type = "AA",
                 type = "AA",
                 cond = function(self, aaName, target)
                     return RGMercUtils.GetSetting('DoSlow') and not RGMercUtils.TargetHasBuffByName(aaName) and

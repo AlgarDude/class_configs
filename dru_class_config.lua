@@ -953,21 +953,21 @@ local _ClassConfig = {
             {
                 name = "Nature's Frost",
                 type = "AA",
-                cond = function(self, aaName)
+                cond = function(self, aaName, target)
                     return RGMercUtils.NPCAAReady(aaName, target.ID()) and RGMercUtils.ManaCheck()
                 end,
             },
             {
                 name = "Nature's Fire",
                 type = "AA",
-                cond = function(self, aaName)
+                cond = function(self, aaName, target)
                     return RGMercUtils.NPCAAReady(aaName, target.ID()) and RGMercUtils.ManaCheck()
                 end,
             },
             {
                 name = "Nature's Bolt",
                 type = "AA",
-                cond = function(self, aaName)
+                cond = function(self, aaName, target)
                     return RGMercUtils.NPCAAReady(aaName, target.ID()) and RGMercUtils.ManaCheck()
                 end,
             },
@@ -1060,7 +1060,7 @@ local _ClassConfig = {
                 name = "TwincastSpell",
                 type = "Spell",
                 cond = function(self, spell)
-                    return RGMercUtils.AAReady(aaName) and mq.TLO.Me.Buff("Twincast").ID() == 0
+                    return RGMercUtils.SpellReady(spell) and mq.TLO.Me.Buff("Twincast").ID() == 0
                 end,
             },
         },

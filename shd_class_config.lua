@@ -1403,7 +1403,7 @@ local _ClassConfig = {
                 name = "Vicious Bite of Chaos",
                 type = "AA",
                 tooltip = Tooltips.ViciousBiteOfChaos,
-                cond = function(self, aaName)
+                cond = function(self, aaName, target)
                     return RGMercUtils.NPCAAReady(aaName, target.ID()) 
 					--and RGMercUtils.GetTargetPctHPs() > 5 and RGMercUtils.GetTargetDistance() < 35 keeping this here because I'm not sure why it was there in the first place
                 end,
