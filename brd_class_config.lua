@@ -6,52 +6,49 @@ local RGMercsLogger               = require("utils.rgmercs_logger")
 local Tooltips                    = {
     Epic             = 'Item: Casts Epic Weapon Ability',
     BardRunBuff      = "Song Line: Movement Speed Modifier",
-    MainAriaSong     = "Song Line: Spell Damage Focus Haste v3 Modifier",
-    WarMarchSong     = "Song Line: Melee Haste + DS + STR/ATK Increase",
+    MainAriaSong     = "Song Line: Spell Damage Focus / Haste v3 Modifier",
+    WarMarchSong     = "Song Line: Melee Haste / DS / STR/ATK Increase",
     SufferingSong    = "Song Line: Melee Proc With Damage and Agro Reduction",
-    SpitefulSong     = "Song Line: Increase AC, Agro Increase Proc",
-    SprySonataSong   = "Song Line: Magic Asorb AC Increase Mitigate Damage Shield Resist Spells",
+    SpitefulSong     = "Song Line: Increase AC / Agro Increase Proc",
+    SprySonataSong   = "Song Line: Magic Asorb / AC Increase / Mitigate Damage Shield / Resist Spells",
     DotBuffSong      = "Song Line: Fire and Magic DoT Modifier",
     CrescendoSong    = "Song Line: Group v2 Increase Hit Points and Mana",
     ArcaneSong       = "Song Line: Group Melee and Spell Proc",
     InsultSong       = "Song Line: Single Target DD (Group Spell Proc Effect at higher levels)",
-    DichoSong        =
-    "Song Line: Triggers Psalm of Empowerment and Psalm of Potential H/M/E Increase Melee and Caster Dam Increase",
-    BardDPSAura      = "Aura Line: OverHaste, Melee/Caster DPS",
+    DichoSong        = "Song Line: HP/Mana/End Increase / Melee and Caster Damage Increase",
+    BardDPSAura      = "Aura Line: OverHaste / Melee and Caster DPS",
     BardRegenAura    = "Aura Line: HP/Mana Regen",
     AreaRegenSong  	 = "Song Line: AE HP/Mana Regen",
     GroupRegenSong 	 = "Song Line: Group HP/Mana Regen",
-    FireBuffSong   	 = "Song Line: Fire DD Spell Damage Increase + Effiency",
-    SlowSong         = "Song Line: Melee Attack Slow",
+    FireBuffSong   	 = "Song Line: Fire DD Spell Damage Increase and Effiency",
+    SlowSong         = "Song Line: ST Melee Attack Slow",
     AESlowSong       = "Song Line: PBAE Melee Attack Slow",
-    AccelerandoSong  = "Song Line: Reduce Cast Time (Beneficial Only) Agro Reduction Modifier",
-    RecklessSong     = "Song Line: Increase Crit Heal and Crit HoT",
-    ColdBuffSong         = "Song Line: Cold DD Damage Increae + Effiency",
-    -- Splitting DoT lines into individual dots because it is often useful to drop 1-2 dots for some other song on raids
-    FireDotSong      = "Song Line: Fire Dots",
-    DiseaseDotSong   = "Song Line: Disease Dots",
-    PoisonDotSong    = "Song Line: Poison Dots",
-    IceDotSong       = "Song Line: Ice Dots",
-
-    CureSong         = "Song Line: Single Target Cure Poison Disease and Corruption",
+    AccelerandoSong  = "Song Line: Reduce Beneficial Spell Casttime / Agro Reduction Modifier",
+    RecklessSong     = "Song Line: Increase Crit Heal and Crit HoT Chance",
+    ColdBuffSong     = "Song Line: Cold DD Damage Increase and Effiency",
+    FireDotSong      = "Song Line: Fire DoT and minor resist debuff",
+    DiseaseDotSong   = "Song Line: Disease DoT and minor resist debuff",
+    PoisonDotSong    = "Song Line: Poison DoT and minor resist debuff",
+    IceDotSong       = "Song Line: Ice DoT and minor resist debuff",
+    EndBreathSong    = "Song Line: Enduring Breath",
+    CureSong         = "Song Line: Single Target Cure: Poison/Disease/Corruption",
     AllianceSong     = "Song Line: Mob Debuff Increase Insult Damage for other Bards",
     CharmSong        = "Song Line: Charm Mob",
     ReflexStrike     = "Disc Line: Attack 4 times to restore Mana to Group",
     ChordsAE         = "Song Line: PBAE Damage if Target isn't moving",
     LowAriaSong      = "Song Line: Warsong and BattleCry prior to combination of effects into Aria",
     AmpSong          = "Song Line: Increase Singing Skill",
-    DispelSong       = "Song Line: Dispell",
-    ResistSong       = "Song Line: Group Resist Increase",
+    DispelSong       = "Song Line: Dispel a Benefical Effect",
+    ResistSong       = "Song Line: Damage Shield / Group Resist Increase",
     MezSong          = "Song Line: Single Target Mez",
     MezAESong        = "Song Line: PBAE Mez",
-    Bellow           = "AA: Stuns Initial DD Damage and Increases Resist Modifier on Mob Concludes with DD",
-    Spire            = "AA: Lowers Incoming Melee Damage and Increases Melee and Spell Damage",
-    FuneralDirge     = "AA: DD and Increases Melee Damage to Target",
-    FierceEye        =
-    "AA: Increases Base Melee Damage and Increase Melee Crit Damage and Increase Proc Rate and Increase Crit Chance on Spells",
-    QuickTime        = "AA: Hundred Hands Effect and Increase Melee Hit and Increase Atk",
+    Bellow           = "AA: DD + Resist Debuff that leads to a much larger DD upon expiry",
+    Spire            = "AA: Lowers Incoming Melee Damage / Increases Melee and Spell Damage",
+    FuneralDirge     = "AA: DD / Increases Melee Damage Taken on Target",
+    FierceEye        = "AA: Increases Base and Crit Melee Damage / Increase Proc Rate / Increase Spell Crit Chance",
+    QuickTime        = "AA: Hundred Hands Effect / Increase Melee Hit / Increase Atk",
     BladedSong       = "AA: Reverse Damage Shield",
-    Jonthan          = "Song Line: Self-only Haste Melee Damage Modifier Melee Min Damage Modifier Proc Modifier",
+    Jonthan          = "Song Line: (Self-only) Haste / Melee Damage Modifier / Melee Min Damage Modifier / Proc Modifier",
 }
 
 local function generateSongList()
@@ -88,13 +85,14 @@ local function generateSongList()
         if RGMercUtils.GetSetting('UseRunBuff') == 2 then addSong("LongRunBuff")
         elseif RGMercUtils.GetSetting('UseRunBuff') == 3 then addSong("ShortRunBuff")
         end
+        ConditionallyAddSong("UseEndBreath", "EndBreathSong", 16)
         -- TODO maybe someday
         --ConditionallyAddSong("DoCharm", "CharmSong")
         ConditionallyAddSong("DoDispel", "DispelSong", 40)
     end
 
     local function AddMainGroupDPSSongs()
-        if myLevel >= 10 then addSong('WarMarchSong') end
+        if myLevel >= 10 then addSong('WarMarchSong') end --leaving this mandatory but may revisit pending feedback
         if myLevel >= 45 then addSong('MainAriaSong') end
 		ConditionallyAddSong("UseArcane", "ArcaneSong", 70, "combo")
         ConditionallyAddSong('UseDicho', 'DichoSong', 101, "combo")
@@ -132,7 +130,7 @@ local function generateSongList()
     end
 
     local function AddRegenSongs()
-        if RGMercUtils.GetSetting('RegenSong') == 2 
+        if RGMercUtils.GetSetting('RegenSong') == 2
 			then addSong("GroupRegenSong")
         elseif RGMercUtils.GetSetting('RegenSong') == 3 and myLevel >= 58
 			then addSong("AreaRegenSong")
@@ -140,13 +138,9 @@ local function generateSongList()
 		ConditionallyAddSong("UseCrescendo", "CrescendoSong", 75)
 		ConditionallyAddSong("UseAmp", "AmpSong", 30, "combo")
     end
-    -- local function AddEnduringBreathSongs()
-        -- ConditionallyAddSong("UseEnduringBreath", "EnduringBreathSong")
-    -- end
     -----------------------------------------------------------------------------------------
 
     AddCriticalSongs()
-   -- AddEnduringBreathSongs()
     if RGMercUtils.IsModeActive("General") then
         AddMainGroupDPSSongs()
 		AddRegenSongs()
@@ -244,6 +238,9 @@ local _ClassConfig = {
             -- "Selo's Song of Travel",
             "Selo's Accelerating Chorus",
 			"Selo's Accelerando", --hoping this does not cause conflicts, if so, remove this and instruct in tooltips to use short until long is available ig?
+        },
+        ['EndBreathSong'] = {
+            "Tarew's Aquatic Ayre", --Level 16
         },
         ['MainAriaSong'] = {
             -- MainAriaSong - Level Ranges 45 - 111
@@ -449,8 +446,6 @@ local _ClassConfig = {
             "McVaxius' Berserker Crescendo",
             "Vilia's Verses of Celerity",
             "Anthem de Arms",
-
-
         },
         ['FireBuffSong'] = {
             -- CasterAriaSong - Level Range 72 - 113
@@ -463,8 +458,7 @@ local _ClassConfig = {
             "Daevan's Aria",
             "Sotor's Aria",
             "Talendor's Aria",
-            "Performer's Explosive Aria",
-            
+            "Performer's Explosive Aria",          
         },
         ['SlowSong'] = {
             "Requiem of Time",
@@ -1093,7 +1087,7 @@ local _ClassConfig = {
             },
         },
 		['Melody'] = {
-			{
+            {
                 name = "MainAriaSong",
                 type = "Song",
                 cond = function(self, songSpell)
@@ -1104,6 +1098,14 @@ local _ClassConfig = {
                 name = "WarMarchSong",
                 type = "Song",
                 cond = function(self, songSpell)
+					return self.ClassConfig.HelperFunctions.RefreshBuffSong(songSpell)
+                end,
+            },
+            {
+                name = "EndBreathSong",
+                type = "Song",
+                cond = function(self, songSpell)
+                    if not RGMercUtils.GetSetting('UseEndBreath') then return false end
 					return self.ClassConfig.HelperFunctions.RefreshBuffSong(songSpell)
                 end,
             },
@@ -1233,6 +1235,41 @@ local _ClassConfig = {
 		},
         ['Downtime'] = {
             {
+                name = "ShortRunBuff",
+                type = "Song",
+                targetId = function(self) return { mq.TLO.Me.ID(), } end,
+                cond = function(self, songSpell)
+					if RGMercUtils.GetSetting('UseRunBuff') ~= 3 then return false end
+                    return self.ClassConfig.HelperFunctions.RefreshBuffSong(songSpell)
+                end,
+            },
+            {
+                name = "LongRunBuff",
+                type = "Song",
+                targetId = function(self) return { mq.TLO.Me.ID(), } end,
+                cond = function(self, songSpell)
+					if RGMercUtils.GetSetting('UseRunBuff') ~= 2 then return false end
+                    return self.ClassConfig.HelperFunctions.RefreshBuffSong(songSpell)
+                end,
+            },
+            {
+                name = "Selo's Sonata",
+                type = "AA",
+                targetId = function(self) return { mq.TLO.Me.ID(), } end,
+                cond = function(self, aaName)
+					if RGMercUtils.GetSetting('UseRunBuff') ~= 1 then return false end
+					--refreshes slightly before expiry for better uptime
+                    return RGMercUtils.AAReady(aaName) and (mq.TLO.Me.Buff(mq.TLO.AltAbility(aaName).Spell.Trigger(1)).Duration.TotalSeconds() or 0) < 30
+                end,
+            },
+            {
+                name = "Rallying Solo", --Rallying Call theoretically possible but problematic, needs own rotation akin to Focused Paragon, etc
+                type = "AA",
+                cond = function(self, aaName)
+                    return RGMercUtils.AAReady(aaName) and (mq.TLO.Me.PctEndurance() < 30 or mq.TLO.Me.PctMana() < 30)
+                end,
+            },
+            {
                name = "BardDPSAura",
                type = "Song",
                cond = function(self, songSpell)
@@ -1246,13 +1283,6 @@ local _ClassConfig = {
                    return not RGMercUtils.AuraActiveByName(songSpell.BaseName()) and RGMercUtils.GetSetting('UseAura') == 2
                end,
             },
-			{
-                name = "Rallying Solo", --Rallying Call theoretically possible but problematic
-                type = "AA",
-                cond = function(self, aaName)
-                    return RGMercUtils.AAReady(aaName) and (mq.TLO.Me.PctEndurance() < 30 or mq.TLO.Me.PctMana() < 30)
-                end,
-            },
             {
                 name = "SymphonyOfBattle",
                 type = "Item",
@@ -1260,34 +1290,6 @@ local _ClassConfig = {
                 cond = function(self, _)
 					if not RGMercUtils.GetSetting('UseSoBItems') then return false end
                     return RGMercUtils.SelfBuffCheck("Symphony of Battle") and mq.TLO.FindItemCount(itemName)() ~= 0 and mq.TLO.FindItem(itemName).TimerReady() == 0
-                end,
-            },
-			{
-                name = "Selo's Sonata",
-                type = "AA",
-                targetId = function(self) return { mq.TLO.Me.ID(), } end,
-                cond = function(self, aaName)
-					if RGMercUtils.GetSetting('UseRunBuff') ~= 1 then return false end
-					--refreshes slightly before expiry for better uptime
-                    return RGMercUtils.AAReady(aaName) and (mq.TLO.Me.Buff(mq.TLO.AltAbility(aaName).Spell.Trigger(1)).Duration.TotalSeconds() or 0) < 30
-                end,
-            },
-            {
-                name = "LongRunBuff",
-                type = "Song",
-                targetId = function(self) return { mq.TLO.Me.ID(), } end,
-                cond = function(self, songSpell)
-					if RGMercUtils.GetSetting('UseRunBuff') ~= 2 then return false end
-                    return self.ClassConfig.HelperFunctions.RefreshBuffSong(songSpell)
-                end,
-            },
-			{
-                name = "ShortRunBuff",
-                type = "Song",
-                targetId = function(self) return { mq.TLO.Me.ID(), } end,
-                cond = function(self, songSpell)
-					if RGMercUtils.GetSetting('UseRunBuff') ~= 3 then return false end
-                    return self.ClassConfig.HelperFunctions.RefreshBuffSong(songSpell)
                 end,
             },
         },
@@ -1328,7 +1330,7 @@ local _ClassConfig = {
                 name = "Lyrical Prankster",
                 type = "AA",
                 cond = function(self, aaName, target)
-                    return RGMercUtils.IsNamed(mq.TLO.Target) and mq.TLO.Me.PctAggro() > 99 and not RGMercUtils.AAReady("Fading Memories") and RGMercUtils.NPCAAReady(aaName, target.ID())
+                    return RGMercUtils.IsNamed(mq.TLO.Target) and mq.TLO.Me.PctAggro() > 99 and not RGMercUtils.PCAAReady("Fading Memories") and RGMercUtils.NPCAAReady(aaName, target.ID())
                 end,
             },
 		},
@@ -1395,7 +1397,7 @@ local _ClassConfig = {
 		['UseSpiteful']			= { DisplayName = "Use Spiteful", Category = "Buffs and Defenses", Index = 3, Tooltip = Tooltips.SpitefulSong, Type = "Combo", ComboOptions = { 'Never', 'In-Combat Only', 'Always', 'Out-of-Combat Only', }, Default = 1, Min = 1, Max = 4, RequiresLoadoutChange = true,},
         ['UseSpry']				= { DisplayName = "Use Spry", Category = "Buffs and Defenses", Index = 4, Tooltip = Tooltips.SprySonataSong, Type = "Combo", ComboOptions = { 'Never', 'In-Combat Only', 'Always', 'Out-of-Combat Only', }, Default = 1, Min = 1, Max = 4, RequiresLoadoutChange = true,},
 		['UseResist']			= { DisplayName = "Use DS/Resist Psalm", Category = "Buffs and Defenses", Index = 5, Tooltip = Tooltips.ResistSong, Type = "Combo", ComboOptions = { 'Never', 'In-Combat Only', 'Always', 'Out-of-Combat Only', }, Default = 1, Min = 1, Max = 4, RequiresLoadoutChange = true,},
-		['UseReckless']		= { DisplayName = "Use Reckless", Category = "Buffs and Defenses", Index = 6, Tooltip = Tooltips.RecklessSong, Type = "Combo", ComboOptions = { 'Never', 'In-Combat Only', 'Always', 'Out-of-Combat Only', }, Default = 1, Min = 1, Max = 4, RequiresLoadoutChange = true,},
+		['UseReckless']		    = { DisplayName = "Use Reckless", Category = "Buffs and Defenses", Index = 6, Tooltip = Tooltips.RecklessSong, Type = "Combo", ComboOptions = { 'Never', 'In-Combat Only', 'Always', 'Out-of-Combat Only', }, Default = 1, Min = 1, Max = 4, RequiresLoadoutChange = true,},
 		['UseAccelerando']		= { DisplayName = "Use Accelerando", Category = "Buffs and Defenses", Index = 7, Tooltip = Tooltips.AccelerandoSong, Type = "Combo", ComboOptions = { 'Never', 'In-Combat Only', 'Always', 'Out-of-Combat Only', }, Default = 1, Min = 1, Max = 4, RequiresLoadoutChange = true,  ConfigType = "Advanced",},
 	--Utility/Items/Misc
 		['UseEpic']				= { DisplayName = "Epic Use:", Category = "Utility/Items/Misc", Index = 1, Tooltip = "Use Epic 1-Never 2-Burns 3-Always", Type = "Combo", ComboOptions = { 'Never', 'Burns Only', 'All Combat', }, Default = 3, Min = 1, Max = 3, ConfigType = "Advanced", },
@@ -1403,8 +1405,9 @@ local _ClassConfig = {
 		['UseSoBItems']			= { DisplayName = "Do Sym. of Battle", Category = "Utility/Items/Misc", Index = 3, Tooltip = "Click your Symphony of Battle items.", Default = false, ConfigType = "Advanced", },
 		['UseDreadstone']		= { DisplayName = "Dreadstone", Category = "Utility/Items/Misc", Index = 4, Tooltip = "Use your Dreadstone when able.", Default = false, ConfigType = "Advanced", },
 		['UseRunBuff']			= { DisplayName = "Runspeed Buff:", Category = "Utility/Items/Misc", Index = 5, Tooltip = "Select Runspeed Buff to use.", Type = "Combo", ComboOptions = { 'AA', 'Song (Long Duration Only)', 'Song (Fastest Available)', 'Off', }, Default = 1, Min = 1, Max = 4, RequiresLoadoutChange = true, ConfigType = "Advanced", },
+        ['UseEndBreath']        = { DisplayName = "Use Enduring Breath", Category = "Utility/Items/Misc", Index = 6, Tooltip = Tooltips.EndBreathSong, Default = false, ConfigType = "Advanced", },
 		['DoVetAA']         	= { DisplayName = "Use Vet AA", Category = "Utility/Items/Misc", Index = 7, Tooltip = "Use Veteran AA's in emergencies or during BigBurn", Default = true, ConfigType = "Advanced", },
-		['EmergencyStart']  = { DisplayName = "Emergency HP%",Category = "Utility/Items/Misc", Index = 8, Tooltip = "Your HP % before we begin to use emergency mitigation abilities.", Default = 50, Min = 1, Max = 100, ConfigType = "Advanced", },
+		['EmergencyStart']      = { DisplayName = "Emergency HP%",Category = "Utility/Items/Misc", Index = 8, Tooltip = "Your HP % before we begin to use emergency mitigation abilities.", Default = 50, Min = 1, Max = 100, ConfigType = "Advanced", },
 		['UseFading']         	= { DisplayName = "Use Combat Escape ", Category = "Utility/Items/Misc", Index = 9, Tooltip = "Use Fading Memories when you have aggro and you aren't the Main Assist.", Default = true, ConfigType = "Advanced", },
 	 },
     ['Spells']        = { getSpellCallback = generateSongList, },
