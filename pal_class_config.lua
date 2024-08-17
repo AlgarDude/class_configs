@@ -1260,7 +1260,7 @@ local _ClassConfig = {
                 name = "Ageless Enmity",
                 type = "AA",
                 tooltip = Tooltips.AgelessEnmity,
-                cond = function(self, aaName)
+                cond = function(self, aaName, target)
                     return RGMercUtils.NPCAAReady(aaName, target.ID()) and RGMercUtils.GetTargetPctHPs() < 90 and mq.TLO.Me.PctAggro() < 100
 					end,
             },
