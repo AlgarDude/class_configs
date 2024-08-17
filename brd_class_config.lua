@@ -102,12 +102,13 @@ local function generateSongList()
 
     local function AddSelfDPSSongs()
         ConditionallyAddSong("UseAlliance", "AllianceSong", 102)
-        ConditionallyAddSong("UseInsult", 'InsultSong', 12)
+        if RGMercUtils.GetSetting('UseInsult') > 1 and myLevel >= 85 then addSong("InsultSong") end
         ConditionallyAddSong("UseFireDots", "FireDotSong", 30)
         ConditionallyAddSong("UseIceDots", "IceDotSong", 30)
         ConditionallyAddSong("UseDiseaseDots", "DiseaseDotSong", 30)
         ConditionallyAddSong("UsePoisonDots", "PoisonDotSong", 30)
 		ConditionallyAddSong("UseJonthan", "Jonthan", 7, "combo")
+        if RGMercUtils.GetSetting('UseInsult') == 3 and myLevel >= 90 then addSong("InsultSong2") end
     end
 
     local function AddMeleeDPSSongs()
@@ -316,23 +317,44 @@ local _ClassConfig = {
             "Arcane Aria",
         },
         ['InsultSong'] = {
-            "Eoreg's Insult", -- 125
-            "Nord's Disdain",
-            "Sogran's Insult",
-            "Yelinak's Insult",
-            "Omorden's Insult",
-            "Sathir's Insult",
-            "Travenro's Insult",
-            "Tsaph's Insult",
-            "Fjilnauk's Insult",
-            "Kaficus' Insult",
-            "Garath's Insult",
-            "Hykast's Insult",
-            "Venimor's Insult",
-            -- Below Level 85 This line turns into "bellow" instead of "Insult"
-            "Bellow of Chaos",
-            "Brusco's Bombastic Bellow",
-            "Brusco's Boastful Bellow",
+            --Bard Timers alternate between 6 and 3 every expansion.
+            --If we have push and nopush from the same tier active this will lead to issues with InsultSong2/timer stacking.
+            --Choosing which to prioritize is problematic, but for now, nopush will be prioritized to potentially help reduce movement in combat.
+            --Do to current F2P expansion limits, the ToL push will be chosen over the NoS nopush, I see no good solution for this.
+            "Eoreg's Insult",       -- 122 push, timer 3, LS
+            --"Nord's Disdain",       -- 118 nopush, timer 6, NoS
+            "Sogran's Insult",      -- 117 push, timer 6, ToL
+            "Yelinak's Insult",     -- 115 nopush, timer 3
+            --"Omorden's Insult",     -- 112 push, timer 3
+            "Sathir's Insult",      -- 110 nopush, timer 6
+            --"Travenro's Insult",    -- 107 push, timer 6
+            "Tsaph's Insult",       -- 105 nopush, timer 3
+            --"Fjilnauk's Insult",    -- 102 push, timer 3
+            --"Kaficus' Insult",      -- 100 push, timer 6 --Note push/nopush levels reversed this expansion compared to later
+            "Garath's Insult",      -- 97 nopush, timer 6
+            "Hykast's Insult",      -- 95 nopush, timer 3
+            "Lyrin's Insult",       -- 90 nopush, timer 6
+            "Venimor's Insult",     -- 85, nopush, timer 3
+            -- Below Level 85 This line turns into "bellow" instead of "Insult" and I don't know of anyone who uses them, but keeping for posterity
+            -- "Bellow of Chaos", --66, interrupt
+            -- "Brusco's Bombastic Bellow", --55, stun
+            -- "Brusco's Boastful Bellow", --12,
+        },
+        ['InsultSong2'] = {
+            "Eoreg's Insult",       -- 122 push, timer 3, LS
+            --"Nord's Disdain",       -- 118 nopush, timer 6, NoS
+            "Sogran's Insult",      -- 117 push, timer 6, ToL
+            "Yelinak's Insult",     -- 115 nopush, timer 3
+            --"Omorden's Insult",     -- 112 push, timer 3
+            "Sathir's Insult",      -- 110 nopush, timer 6
+            --"Travenro's Insult",    -- 107 push, timer 6
+            "Tsaph's Insult",       -- 105 nopush, timer 3
+            --"Fjilnauk's Insult",    -- 102 push, timer 3
+            --"Kaficus' Insult",      -- 100 push, timer 6 --Note push/nopush levels reversed this expansion compared to later
+            "Garath's Insult",      -- 97 nopush, timer 6
+            "Hykast's Insult",      -- 95 nopush, timer 3
+            "Lyrin's Insult",       -- 90 nopush, timer 6
+            "Venimor's Insult",     -- 85, nopush, timer 3
         },
         ['DichoSong'] = {
             -- DichoSong Level Range - 101 - 116
@@ -1054,6 +1076,14 @@ local _ClassConfig = {
                         getDetSongDuration(songSpell) <= 3
                 end,
             },
+            {
+                name = "InsultSong2",
+                type = "Song",
+                cond = function(self, songSpell)
+					if not RGMercUtils.GetSetting('UseInsult') then return false end
+					return (mq.TLO.Me.GemTimer(songSpell.RankName.Name())() or -1) == 0 and mq.TLO.Me.PctMana() > RGMercUtils.GetSetting('SelfManaPct')
+                end,
+            },
 			{
                 name = "AllianceSong",
                 type = "Song",
@@ -1342,7 +1372,7 @@ local _ClassConfig = {
 		['UseCure']				= { DisplayName = "Cure Ailments", Category = "Regen/Healing", Index = 5, Tooltip = Tooltips.CureSong, RequiresLoadoutChange = true, Default = false, },
 	--DPS - Self
 		['UseBellow']			= { DisplayName = "Use Bellow:", Category = "DPS - Self", Index = 1, Tooltip = "Use Boastful Bellow", Type = "Combo", ComboOptions = { 'Never', 'Burns Only', 'All Combat', }, Default = 3, Min = 1, Max = 3, ConfigType = "Advanced", },
-		['UseInsult']			= { DisplayName = "Use Insult Nuke", Category = "DPS - Self", Index = 2, Tooltip = Tooltips.InsultSong, RequiresLoadoutChange = true, Default = true, },
+		['UseInsult']			= { DisplayName = "Insults to Use:", Category = "DPS - Self", Index = 2, Tooltip = Tooltips.InsultSong, Type = "Combo", ComboOptions = { 'None', 'Current Tier', 'Current + Old Tier', }, Default = 2, Min = 1, Max = 3, RequiresLoadoutChange = true,},
 		['UseFireDots']			= { DisplayName = "Use Fire Dots", Category = "DPS - Self", Index = 3, Tooltip = Tooltips.FireDotSong, RequiresLoadoutChange = true, Default = true, },
 		['UseIceDots']			= { DisplayName = "Use Ice Dots", Category = "DPS - Self", Index = 4, Tooltip = Tooltips.IceDotSong, RequiresLoadoutChange = true, Default = true, },
 		['UsePoisonDots']		= { DisplayName = "Use Poison Dots", Category = "DPS - Self", Index = 5, Tooltip = Tooltips.PoisonDotSong, RequiresLoadoutChange = true, Default = true, },
