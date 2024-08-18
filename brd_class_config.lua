@@ -83,7 +83,7 @@ local function generateSongList()
         ConditionallyAddSong("UseSingleTgtMez", "MezSong", 15)
         ConditionallyAddSong("DoSTSlow", "SlowSong", 23)
         ConditionallyAddSong("DoAESlow", "AESlowSong", 20)
-        if RGMercUtils.GetSetting('UseRunBuff') == 2 then
+        if RGMercUtils.GetSetting('UseRunBuff') == 2 and mylevel >= 49 then
             addSong("LongRunBuff")
         elseif RGMercUtils.GetSetting('UseRunBuff') == 3 then
             addSong("ShortRunBuff")
@@ -188,27 +188,19 @@ local function generateSongList()
     end
     return songCache
 end
----TODO: Move this to helper functions with the others
---- Checks target for duration remaining on dot songs
-local function getDetSongDuration(songSpell)
-    local duration = mq.TLO.Target.FindBuff("name " .. songSpell.Name()).Duration.TotalSeconds() or 0
-    RGMercsLogger.log_debug("getDetSongDuration() Current duration for %s : %d", songSpell, duration)
-    --BL.info("Det song duration is: ", duration)
-    return duration
-end
 
 local _ClassConfig = {
-    _version            = "2.0",
+    _version            = "2.0 beta",
     _author             = "Algar, Derple, Tiddliestix, SonicZentropy",
     ['FullConfig']      = true,
-    ['Modes']           = {
+    ['Modes']           = { --simply determine the priority you gem spells in. Perhaps one day this could be configured to save different loadouts/change options.
         'General',
         'Tank',
         'Caster',
         'Healer',
     },
     ['ModeChecks']      = {
-        IsMezzing = function() return true end,
+        IsMezzing = function() return RGMercUtils.GetSetting('UseSingleTgtMez') or RGMercUtils.GetSetting('UseAEAAMez') end,
         IsCuring = function() return RGMercUtils.GetSetting('UseCure') end,
     },
     ['Cures']           = {
@@ -242,7 +234,6 @@ local _ClassConfig = {
             -- "Selo's Accelerating Canto",
             -- "Selo's Song of Travel",
             "Selo's Accelerating Chorus",
-            "Selo's Accelerando", --hoping this does not cause conflicts, if so, remove this and instruct in tooltips to use short until long is available ig?
         },
         ['EndBreathSong'] = {
             "Tarew's Aquatic Ayre", --Level 16
@@ -748,7 +739,7 @@ local _ClassConfig = {
         },
     },
     ['HelperFunctions'] = {
-        CheckSongStateUse = function(self, config)
+        CheckSongStateUse = function(self, config) --determine whether a song should be song by comparing combat state to settings
             local usestate = RGMercUtils.GetSetting(config)
             if RGMercUtils.GetXTHaterCount() == 0 then
                 return usestate > 2
@@ -756,7 +747,7 @@ local _ClassConfig = {
                 return usestate < 4
             end
         end,
-        RefreshBuffSong = function(songSpell)
+        RefreshBuffSong = function(songSpell) --determine how close to a buff's expiration we will resing to maintain full uptime
             if not songSpell or not songSpell() then return false end
             local me = mq.TLO.Me
             local casttime = songSpell.MyCastTime.Seconds()
@@ -765,25 +756,30 @@ local _ClassConfig = {
 
             local res = RGMercUtils.SongMemed(songSpell) and
                 (me.Song(songSpell.Name()).Duration.TotalSeconds() or 0) <= (casttime + threshold)
-            RGMercsLogger.log_verbose("\ayBuffSong(%s) => memed(%s), duration(%0.2f) < reusetime(%0.2f) --> result(%s)",
+            RGMercsLogger.log_verbose("\ayRefreshBuffSong(%s) => memed(%s), duration(%0.2f) < reusetime(%0.2f) --> result(%s)",
                 songSpell.Name(),
                 RGMercUtils.BoolToColorString(me.Gem(songSpell.RankName.Name())() ~= nil),
                 me.Song(songSpell.Name()).Duration.TotalSeconds() or 0, casttime + threshold,
                 RGMercUtils.BoolToColorString(res))
             return res
         end,
-        DotSongCheck = function(songSpell)
+        UnwantedAggroCheck = function(self) --Self-Explanatory. Add isTanking to this if you ever make a mode for bardtanks!
+            if RGMercUtils.GetXTHaterCount() == 0 or RGMercUtils.IAmMA() or mq.TLO.Group.Puller.ID() == mq.TLO.Me.ID() then return false end
+            return RGMercUtils.IHaveAggro(100)
+        end,
+        DotSongCheck = function(songSpell) --Check dot stacking, stop dotting when HP threshold is reached
             if not songSpell or not songSpell() then return false end
-            local stacks = RGMercUtils.SpellStacksOnTarget(songSpell)
             local named = RGMercUtils.IsNamed(mq.TLO.Target)
             local targethp = RGMercUtils.GetTargetPctHPs()
 
-            local ret = stacks and (named and (RGMercUtils.GetSetting('NamedStopDOT') < targethp)) or (not named and RGMercUtils.GetSetting('HPStopDOT') < targethp)
-            return ret
+            return RGMercUtils.SpellStacksOnTarget(songSpell) and ((named and (RGMercUtils.GetSetting('NamedStopDOT') < targethp)) or
+                (not named and RGMercUtils.GetSetting('HPStopDOT') < targethp))
         end,
-        UnwantedAggroCheck = function(self) --add isTanking to this if you ever make a mode for bardtanks!
-            if RGMercUtils.GetXTHaterCount() == 0 or RGMercUtils.IAmMA() or mq.TLO.Group.Puller.ID() == mq.TLO.Me.ID() then return false end
-            return RGMercUtils.IHaveAggro(100)
+        GetDetSongDuration = function(songSpell) -- Checks target for duration remaining on dot songs
+            local duration = mq.TLO.Target.FindBuff("name " .. songSpell.Name()).Duration.TotalSeconds() or 0
+            RGMercsLogger.log_debug("getDetSongDuration() Current duration for %s : %d", songSpell, duration)
+            --BL.info("Det song duration is: ", duration)
+            return duration
         end,
     },
     ['RotationOrder']   = {
@@ -832,14 +828,14 @@ local _ClassConfig = {
             steps = 1,
             targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
             cond = function(self, combat_state)
-                return combat_state == "Combat" and
-                    RGMercUtils.BurnCheck() and not RGMercUtils.Feigning()
+                return combat_state == "Combat" and RGMercUtils.BurnCheck() and not RGMercUtils.Feigning()
             end,
         },
         {
-            name = 'DPS',
+            name = 'Combat',
             state = 1,
             steps = 1,
+            doFullRotation = true,
             targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
             cond = function(self, combat_state)
                 return combat_state == "Combat" and not RGMercUtils.Feigning()
@@ -928,8 +924,8 @@ local _ClassConfig = {
                 name = "Intensity of the Resolute",
                 type = "AA",
                 cond = function(self, aaName)
-                    return RGMercUtils.AAReady(aaName) and RGMercUtils.GetSetting('DoVetAA')
-                        and RGMercUtils.BigBurn()
+                    if not RGMercUtils.GetSetting('DoVetAA') then return false end
+                    return RGMercUtils.AAReady(aaName) and RGMercUtils.BigBurn()
                 end,
             },
         },
@@ -938,34 +934,22 @@ local _ClassConfig = {
                 name = "MezAESong",
                 type = "Song",
                 cond = function(self, songSpell)
-                    local setting = RGMercUtils.GetSetting('UseAEAAMez')
-                    local memmed = RGMercUtils.SongMemed(songSpell)
-                    local spellReady = mq.TLO.Me.SpellReady(songSpell)()
-                    local aeMezCt = RGMercUtils.GetSetting("MezAECount")
-
-                    local res = setting and memmed and spellReady
-                        and RGMercUtils.GetXTHaterCount() >= aeMezCt
-
-                    return res
+                    if not RGMercUtils.GetSetting('UseAEAAMez') and RGMercUtils.SongMemed(songSpell) then return false end
+                    return RGMercUtils.GetXTHaterCount() >= RGMercUtils.GetSetting("MezAECount") and (mq.TLO.Me.GemTimer(songSpell.RankName.Name())() or -1) == 0
                 end,
             },
             {
                 name = "AESlowSong",
                 type = "Song",
                 cond = function(self, songSpell)
-                    return RGMercUtils.GetSetting("DoAESlow")
-                        and RGMercUtils.DetSpellCheck(songSpell)
-                        and RGMercUtils.GetXTHaterCount() > 2
-                        and not mq.TLO.Target.Slowed()
+                    return RGMercUtils.GetSetting("DoAESlow") and RGMercUtils.DetSpellCheck(songSpell) and RGMercUtils.GetXTHaterCount() > 2 and not mq.TLO.Target.Slowed()
                 end,
             },
             {
                 name = "SlowSong",
                 type = "Song",
                 cond = function(self, songSpell)
-                    return RGMercUtils.GetSetting("DoSTSlow")
-                        and RGMercUtils.DetSpellCheck(songSpell)
-                        and not mq.TLO.Target.Slowed()
+                    return RGMercUtils.GetSetting("DoSTSlow") and RGMercUtils.DetSpellCheck(songSpell) and not mq.TLO.Target.Slowed()
                 end,
             },
             {
@@ -975,11 +959,10 @@ local _ClassConfig = {
                     return RGMercUtils.GetSetting('DoDispel') and mq.TLO.Target.Beneficial()
                 end,
             },
-
         },
         ['Heal'] = {
         },
-        ['DPS'] = { --TODO: Port over code to allow DoTs different stop percentages for trash and named.
+        ['Combat'] = {
             -- Kludge that addresses bards not attempting to start attacking until after a song completes
             -- Uncomment if you'd like to occasionally start attacking earlier than normal
             --[[{
@@ -1062,7 +1045,7 @@ local _ClassConfig = {
                     if not RGMercUtils.GetSetting('UseFireDots') and RGMercUtils.SongMemed(songSpell) then return false end
                     return self.ClassConfig.HelperFunctions.DotSongCheck(songSpell) and
                         -- If dot is about to wear off, recast
-                        getDetSongDuration(songSpell) <= 3
+                        self.ClassConfig.HelperFunctions.GetDetSongDuration(songSpell) <= 3
                 end,
             },
             {
@@ -1072,7 +1055,7 @@ local _ClassConfig = {
                     if not RGMercUtils.GetSetting('UseIceDots') and RGMercUtils.SongMemed(songSpell) then return false end
                     return self.ClassConfig.HelperFunctions.DotSongCheck(songSpell) and
                         -- If dot is about to wear off, recast
-                        getDetSongDuration(songSpell) <= 3
+                        self.ClassConfig.HelperFunctions.GetDetSongDuration(songSpell) <= 3
                 end,
             },
             {
@@ -1082,7 +1065,7 @@ local _ClassConfig = {
                     if not RGMercUtils.GetSetting('UsePoisonDots') and RGMercUtils.SongMemed(songSpell) then return false end
                     return self.ClassConfig.HelperFunctions.DotSongCheck(songSpell) and
                         -- If dot is about to wear off, recast
-                        getDetSongDuration(songSpell) <= 3
+                        self.ClassConfig.HelperFunctions.GetDetSongDuration(songSpell) <= 3
                 end,
             },
             {
@@ -1092,7 +1075,7 @@ local _ClassConfig = {
                     if not RGMercUtils.GetSetting('UseDiseaseDots') and RGMercUtils.SongMemed(songSpell) then return false end
                     return self.ClassConfig.HelperFunctions.DotSongCheck(songSpell) and
                         -- If dot is about to wear off, recast
-                        getDetSongDuration(songSpell) <= 3
+                        self.ClassConfig.HelperFunctions.GetDetSongDuration(songSpell) <= 3
                 end,
             },
             {
@@ -1111,7 +1094,7 @@ local _ClassConfig = {
                         RGMercUtils.DetSpellCheck(songSpell)
                 end,
             },
-            --used in combat when we have nothing else to refresh rather than standing there. Testing to ensure this doesn't interfere with Melody.
+            --used in combat when we have nothing else to refresh rather than standing there. Initial testing good, need more to ensure this doesn't interfere with Melody.
             {
                 name = "MainAriaSong",
                 type = "Song",
@@ -1415,7 +1398,7 @@ local _ClassConfig = {
         ['DoDispel']       = { DisplayName = "Use Dispel", Category = "Debuffs", Index = 3, Tooltip = Tooltips.DispelSong, RequiresLoadoutChange = true, Default = false, },
         --Regen/Healing
         ['RegenSong']      = { DisplayName = "Regen Song Choice:", Category = "Regen/Healing", Index = 1, Tooltip = "Select the Regen Song to be used, if any. Always used out of combat if selected. Use in-combat is determined by sustain settings.", RequiresLoadoutChange = true, Type = "Combo", ComboOptions = { 'None', 'Group', 'Area', }, Default = 2, Min = 1, Max = 3, },
-        ['UseRegen']       = { DisplayName = "Regen Song Use:", Category = "Regen/Healing", Index = 2, Tooltip = "When to use the Regen Song selected above.", Type = "Combo", ComboOptions = { 'Under Group Mana % (Advanced Config Setting)', 'In-Combat Only', 'Always', 'Out-of-Combat Only', }, Default = 3, Min = 1, Max = 4, },
+        ['UseRegen']       = { DisplayName = "Regen Song Use:", Category = "Regen/Healing", Index = 2, Tooltip = "When to use the Regen Song selected above.", Type = "Combo", ComboOptions = { 'Under Group Mana % (Advanced Options Setting)', 'In-Combat Only', 'Always', 'Out-of-Combat Only', }, Default = 3, Min = 1, Max = 4, },
         ['UseCrescendo']   = { DisplayName = "Crescendo Delayed Heal", Category = "Regen/Healing", Index = 3, Tooltip = Tooltips.CrescendoSong, RequiresLoadoutChange = true, Default = true, },
         ['UseCure']        = { DisplayName = "Cure Ailments", Category = "Regen/Healing", Index = 4, Tooltip = Tooltips.CureSong, RequiresLoadoutChange = true, Default = false, },
         --DPS - Self
@@ -1437,10 +1420,10 @@ local _ClassConfig = {
         ['UseColdBuff']    = { DisplayName = "Use Cold Spell Buff", Category = "DPS - Group", Index = 5, Tooltip = Tooltips.ColdBuffSong, Type = "Combo", ComboOptions = { 'Never', 'In-Combat Only', 'Always', 'Out-of-Combat Only', }, Default = 1, Min = 1, Max = 4, RequiresLoadoutChange = true, ConfigType = "Advanced", },
         ['UseDotBuff']     = { DisplayName = "Use Fire/Magic DoT Buff", Category = "DPS - Group", Index = 6, Tooltip = Tooltips.DotBuffSong, Type = "Combo", ComboOptions = { 'Never', 'In-Combat Only', 'Always', 'Out-of-Combat Only', }, Default = 1, Min = 1, Max = 4, RequiresLoadoutChange = true, ConfigType = "Advanced", },
         ['UseAlliance']    = { DisplayName = "Use Alliance", Category = "DPS - Group", Index = 8, Tooltip = Tooltips.AllianceSong, RequiresLoadoutChange = true, Default = false, ConfigType = "Advanced", },
-        --Why is this optional? I can't think of a situation that it should be false, keeping it here until I find out.
+        --Why is this optional? I can't think of a situation that it should be false, keeping it here until I find out.Maybe a stacking thing?
         --['UseFuneralDirge']		= { DisplayName = "Funeral Dirge (Burn)", Category = "DPS - Group", Index = 2, Tooltip = "Use Funeral Dirge during Burns", Default = true, },
         --Buffs and Defenses
-        ['UseAura']        = { DisplayName = "Use Bard Aura", Category = "Buffs and Defenses", Index = 1, Tooltip = "Select the Aura to be used, if any.", Type = "Combo", ComboOptions = { 'DPS', 'Regen', 'None', }, RequiresLoadoutChange = true, Default = 1, Min = 1, Max = 3, },
+        ['UseAura']        = { DisplayName = "Use Bard Aura", Category = "Buffs and Defenses", Index = 1, Tooltip = "Select the Aura to be used, if any.", Type = "Combo", ComboOptions = { 'DPS Aura', 'Regen', 'None', }, RequiresLoadoutChange = true, Default = 1, Min = 1, Max = 3, },
         ['UseAmp']         = { DisplayName = "Use Amp", Category = "Buffs and Defenses", Index = 2, Tooltip = Tooltips.AmpSong, Type = "Combo", ComboOptions = { 'Never', 'In-Combat Only', 'Always', 'Out-of-Combat Only', }, Default = 1, Min = 1, Max = 4, RequiresLoadoutChange = true, },
         ['UseSpiteful']    = { DisplayName = "Use Spiteful", Category = "Buffs and Defenses", Index = 3, Tooltip = Tooltips.SpitefulSong, Type = "Combo", ComboOptions = { 'Never', 'In-Combat Only', 'Always', 'Out-of-Combat Only', }, Default = 1, Min = 1, Max = 4, RequiresLoadoutChange = true, },
         ['UseSpry']        = { DisplayName = "Use Spry", Category = "Buffs and Defenses", Index = 4, Tooltip = Tooltips.SprySonataSong, Type = "Combo", ComboOptions = { 'Never', 'In-Combat Only', 'Always', 'Out-of-Combat Only', }, Default = 1, Min = 1, Max = 4, RequiresLoadoutChange = true, },
@@ -1452,7 +1435,7 @@ local _ClassConfig = {
         ['DoChestClick']   = { DisplayName = "Chest Click", Category = "Utility/Items/Misc", Index = 2, Tooltip = "Click your equipped chest item.", Default = true, ConfigType = "Advanced", },
         ['UseSoBItems']    = { DisplayName = "Do Sym. of Battle", Category = "Utility/Items/Misc", Index = 3, Tooltip = "Click your Symphony of Battle items.", Default = false, ConfigType = "Advanced", },
         ['UseDreadstone']  = { DisplayName = "Dreadstone", Category = "Utility/Items/Misc", Index = 4, Tooltip = "Use your Dreadstone when able.", Default = false, ConfigType = "Advanced", },
-        ['UseRunBuff']     = { DisplayName = "Runspeed Buff:", Category = "Utility/Items/Misc", Index = 5, Tooltip = "Select Runspeed Buff to use.", Type = "Combo", ComboOptions = { 'AA', 'Song (Long Duration Only)', 'Song (Fastest Available)', 'Off', }, Default = 1, Min = 1, Max = 4, RequiresLoadoutChange = true, ConfigType = "Advanced", },
+        ['UseRunBuff']     = { DisplayName = "Runspeed Buff:", Category = "Utility/Items/Misc", Index = 5, Tooltip = "Select Runspeed Buff to use. NOTE: This setting may need user adjustment during the early level range!", Type = "Combo", ComboOptions = { 'AA', 'Song (Long Duration Only)', 'Song (Fastest Available)', 'Off', }, Default = 1, Min = 1, Max = 4, RequiresLoadoutChange = true, ConfigType = "Advanced", },
         ['UseEndBreath']   = { DisplayName = "Use Enduring Breath", Category = "Utility/Items/Misc", Index = 6, Tooltip = Tooltips.EndBreathSong, Default = false, ConfigType = "Advanced", },
         ['DoVetAA']        = { DisplayName = "Use Vet AA", Category = "Utility/Items/Misc", Index = 7, Tooltip = "Use Veteran AA's in emergencies or during BigBurn", Default = true, ConfigType = "Advanced", },
         ['EmergencyStart'] = { DisplayName = "Emergency HP%", Category = "Utility/Items/Misc", Index = 8, Tooltip = "Your HP % before we begin to use emergency mitigation abilities.", Default = 50, Min = 1, Max = 100, ConfigType = "Advanced", },

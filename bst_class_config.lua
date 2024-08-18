@@ -385,7 +385,7 @@ return {
         },
         ['RunSpeedBuff'] = {
             "Spirit of wolf",
-            -- Spirit of the Shrew Is Only 30% Speed Flat So Removed it from the List as its To Slow
+            -- Spirit of the Shrew Is Only 30% Speed Flat So Removed it from the List as its too slow
             --   [] = "Spirit of the Shrew"],
             --   [] = "Pack Shrew"].
             "Spirit of Tala'Tak",
