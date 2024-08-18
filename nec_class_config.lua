@@ -14,7 +14,7 @@ local RGMercUtils  = require("utils.rgmercs_utils")
 local _ClassConfig = {
     _version            = "Jank",
     _author             = "Algar",
-	['FullConfig'] = true,
+    ['FullConfig']      = true,
     ['Modes']           = {
         'DPS',
     },
@@ -71,9 +71,9 @@ local _ClassConfig = {
             "Deathwhisper",
             "Soulwhisper",
         },
-		['OoW_Chest'] = {
+        ['OoW_Chest'] = {
             "Blightbringer's Tunic of the Grave",
-			"Deathcaller's Robe",
+            "Deathcaller's Robe",
         },
     },
     ['AbilitySets']     = {
@@ -163,15 +163,15 @@ local _ClassConfig = {
         },
         ['HealthTaps'] = {
             ---HealthTaps >= LVL1
-           
+
             "Extort Essence",
-          
+
             "Maraud Essence",
-            
+
             "Draw Essence",
-           
+
             "Consume Essence",
-          
+
             "Hemorrhage Essence",
             "Plunder Essence",
             "Bleed Essence",
@@ -192,18 +192,18 @@ local _ClassConfig = {
             "Lifespike",
             "Lifetap",
         },
-		['SoulTaps'] = {
+        ['SoulTaps'] = {
             ---HealthTaps >= LVL1
             "Soullash",
-            
+
             "Soulflay",
-          
+
             "Soulgouge",
-            
+
             "Soulsiphon",
-          
+
             "Soulrend",
- 
+
         },
         ['DurationTap'] = {
             ---DurationTap >= LVL29
@@ -430,9 +430,9 @@ local _ClassConfig = {
         },
         ['Disease2'] = {
             ---Grip Line of Disease Spells =LVL1 HAS DEBUFF
-            
+
             "Grip of Quietus",
-           
+
             "Grip of Zorglim",
             "Grip of Kraz",
             "Grip of Jabaum",
@@ -446,14 +446,14 @@ local _ClassConfig = {
             "Heart Flutter",
             "Disease Cloud",
         },
-		['Combo'] = {
+        ['Combo'] = {
             ---Combines Disease1 and Disease2
-			"Fleshrot's Grip of Decay",
+            "Fleshrot's Grip of Decay",
             "Danvid's Grip of Decay",
             "Mourgis' Grip of Decay",
-			"Livianus' Grip of Decay",
-			
-		},	
+            "Livianus' Grip of Decay",
+
+        },
         ['Disease3'] = {
             ---Sickness Life of Disease Spells >=LVL89 QuickDOT
             "Ogna's Swift Sickness",
@@ -640,7 +640,7 @@ local _ClassConfig = {
             "Restless Assassin",
             "Reliving Assassin",
             "Restless Assassin",
-			"Revived Assassin",
+            "Revived Assassin",
             "Unearthed Assassin",
             "Reborn Assassin",
             "Raised Assassin",
@@ -825,79 +825,94 @@ local _ClassConfig = {
                     return RGMercUtils.SelfBuffAACheck(aaName) and mq.TLO.SpawnCount("corpse radius 100")() >= RGMercUtils.GetSetting('WakeDeadCorpseCnt')
                 end,
             },
-			{
+            {
                 name = "FireDot2",
                 type = "Spell",
-                cond = function(self, spell) return (RGMercUtils.IsNamed(mq.TLO.Target) and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('NamedStopDOT'), spell)) or (not RGMercUtils.IsNamed(mq.TLO.Target) and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell)) end,
+                cond = function(self, spell)
+                    return (RGMercUtils.IsNamed(mq.TLO.Target) and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('NamedStopDOT'), spell)) or
+                        (not RGMercUtils.IsNamed(mq.TLO.Target) and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell))
+                end,
             },
-			{
+            {
                 name = "Combo",
                 type = "Spell",
-                cond = function(self, spell) return (RGMercUtils.IsNamed(mq.TLO.Target) and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('NamedStopDOT'), spell)) or (not RGMercUtils.IsNamed(mq.TLO.Target) and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell)) end,
+                cond = function(self, spell)
+                    return (RGMercUtils.IsNamed(mq.TLO.Target) and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('NamedStopDOT'), spell)) or
+                        (not RGMercUtils.IsNamed(mq.TLO.Target) and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell))
+                end,
             },
-			{
+            {
                 name = "Poison2",
                 type = "Spell",
-                cond = function(self, spell) return (RGMercUtils.IsNamed(mq.TLO.Target) and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('NamedStopDOT'), spell)) or (not RGMercUtils.IsNamed(mq.TLO.Target) and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell)) end,
+                cond = function(self, spell)
+                    return (RGMercUtils.IsNamed(mq.TLO.Target) and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('NamedStopDOT'), spell)) or
+                        (not RGMercUtils.IsNamed(mq.TLO.Target) and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell))
+                end,
             },
-			{
+            {
                 name = "Magic2",
                 type = "Spell",
-                cond = function(self, spell) return (RGMercUtils.IsNamed(mq.TLO.Target) and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('NamedStopDOT'), spell)) or (not RGMercUtils.IsNamed(mq.TLO.Target) and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell)) end,
+                cond = function(self, spell)
+                    return (RGMercUtils.IsNamed(mq.TLO.Target) and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('NamedStopDOT'), spell)) or
+                        (not RGMercUtils.IsNamed(mq.TLO.Target) and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell))
+                end,
             },
-			{
+            {
                 name = "GroupLeech",
                 type = "Spell",
-                cond = function(self, spell) return (RGMercUtils.IsNamed(mq.TLO.Target) and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('NamedStopDOT'), spell)) or (not RGMercUtils.IsNamed(mq.TLO.Target) and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell)) end,
+                cond = function(self, spell)
+                    return (RGMercUtils.IsNamed(mq.TLO.Target) and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('NamedStopDOT'), spell)) or
+                        (not RGMercUtils.IsNamed(mq.TLO.Target) and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell))
+                end,
             },
-			{
+            {
                 name = "SwarmPet",
                 type = "Spell",
-                cond = function(self, _) return not RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell) end,
+                cond = function(self, spell) return not RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell) end,
             },
-			{
+            {
                 name = "PoisonNuke2",
                 type = "Spell",
-                cond = function(self, _) return RGMercUtils.ManaCheck() and not RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell) end,
+                cond = function(self, spell) return RGMercUtils.ManaCheck() and not RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell) end,
             },
-			{
+            {
                 name = "Death Bloom",
                 type = "AA",
                 cond = function(self, aaName)
                     return RGMercUtils.SelfBuffAACheck(aaName) and mq.TLO.Me.PctMana() < RGMercUtils.GetSetting('DeathBloomPercent') and mq.TLO.Me.PctHPs() > 50
                 end,
             },
-			{
+            {
                 name = "Dying Grasp",
                 type = "AA",
                 cond = function(self, aaName)
                     return RGMercUtils.SelfBuffAACheck(aaName) and RGMercUtils.IsNamed(mq.TLO.Target) and mq.TLO.Me.PctAggro() <= 50
                 end,
             },
-			{
+            {
                 name = "PoisonNuke1",
                 type = "Spell",
                 cond = function(self, _) return RGMercUtils.GetTargetPctHPs() < 10 and RGMercUtils.ManaCheck() end,
             },
-			-- {--add a condition to this to readd
-                -- name = "DichoSpell",
-                -- type = "Spell",
-                -- cond = function(self, _) return true end,
+            -- {--add a condition to this to readd
+            -- name = "DichoSpell",
+            -- type = "Spell",
+            -- cond = function(self, _) return true end,
             -- },
-			{
+            {
                 name = "SoulTaps",
                 type = "Spell",
                 cond = function(self, spell) return RGMercUtils.ManaCheck() and not RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell) end,
             },
         },
         ['Burn'] = {
-			{
+            {
                 name = "OoW_Chest",
                 type = "Item",
                 cond = function(self, itemName)
                     return mq.TLO.FindItemCount(itemName)() ~= 0
-				end,
-			},
+                end,
+            },
             {
                 name = "Funeral Pyre",
                 type = "AA",
@@ -975,7 +990,7 @@ local _ClassConfig = {
                     return RGMercUtils.SelfBuffAACheck(aaName)
                 end,
             },
-			{
+            {
                 name = mq.TLO.Me.Inventory("Chest").Name(),
                 type = "Item",
                 active_cond = function(self)
@@ -988,10 +1003,10 @@ local _ClassConfig = {
                 end,
             },
             {
-               name = "BestowBuff",
-               type = "Spell",
-               active_cond = function(self, spell) return RGMercUtils.SongActiveByName(spell.RankName()) end,
-               cond = function(self, spell) return not RGMercUtils.SongActiveByName(spell.RankName()) end,
+                name = "BestowBuff",
+                type = "Spell",
+                active_cond = function(self, spell) return RGMercUtils.SongActiveByName(spell.RankName()) end,
+                cond = function(self, spell) return not RGMercUtils.SongActiveByName(spell.RankName()) end,
             },
         },
         ['Downtime'] = {
@@ -1039,10 +1054,10 @@ local _ClassConfig = {
                 cond = function(self, aaName) return RGMercUtils.AAReady(aaName) and mq.TLO.Me.PctMana() < RGMercUtils.GetSetting('DeathBloomPercent') end,
             },
             {
-               name = "BestowBuff",
-               type = "Spell",
-               active_cond = function(self, spell) return RGMercUtils.SongActiveByName(spell.RankName()) end,
-               cond = function(self, spell) return not RGMercUtils.SongActiveByName(spell.RankName()) end,
+                name = "BestowBuff",
+                type = "Spell",
+                active_cond = function(self, spell) return RGMercUtils.SongActiveByName(spell.RankName()) end,
+                cond = function(self, spell) return not RGMercUtils.SongActiveByName(spell.RankName()) end,
             },
             {
                 name = "PetSpellWar",
@@ -1126,13 +1141,13 @@ local _ClassConfig = {
                 end
             end
         end,
-		-- DotNamedCheck = function(self, spell)
-			-- if RGMercUtils.IsNamed(mq.TLO.Target) then RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('NamedStopDOT'), spell)
-			-- else RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell)
-			-- end
-		-- end,
+        -- DotNamedCheck = function(self, spell)
+        -- if RGMercUtils.IsNamed(mq.TLO.Target) then RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('NamedStopDOT'), spell)
+        -- else RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell)
+        -- end
+        -- end,
     },
-	['Spells']          = {
+    ['Spells']          = {
         {
             gem = 1,
             spells = {
@@ -1151,7 +1166,7 @@ local _ClassConfig = {
                 { name = "PoisonNuke1", },
             },
         },
-		{
+        {
             gem = 4,
             spells = {
                 { name = "SwarmPet", },
@@ -1171,7 +1186,7 @@ local _ClassConfig = {
         },
         {
             gem = 7,
-			cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
+            cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
                 { name = "Poison2", },
             },
@@ -1197,18 +1212,18 @@ local _ClassConfig = {
                 { name = "DichoSpell", },
             },
         },
-		{
+        {
             gem = 11,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
-				 { name = "BestowBuff", },
+                { name = "BestowBuff", },
             },
         },
-		 {
+        {
             gem = 12,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
-				 { name = "PetBuff", },
+                { name = "PetBuff", },
             },
         },
         {
@@ -1218,9 +1233,9 @@ local _ClassConfig = {
                 { name = "LichSpell", },
             },
         },
-        
+
     },
-    
+
     ['DefaultConfig']   = {
         ['Mode']              = { DisplayName = "Mode", Category = "Combat", Tooltip = "Select the Combat Mode for this Toon", Type = "Custom", RequiresLoadoutChange = true, Default = 1, Min = 1, Max = 1, },
         ['PetType']           = { DisplayName = "Pet Class", Category = "Combat", Tooltip = "1 = War, 2 = Rog", Type = "Combo", ComboOptions = { 'War', 'Rog', }, Default = 1, Min = 1, Max = 2, },
@@ -1233,13 +1248,13 @@ local _ClassConfig = {
         ['StopFDPct']         = { DisplayName = "Stand Aggro Pct", Category = "Aggro Management", Tooltip = "Aggro % at which to Stand up from FD", Default = 80, Min = 1, Max = 99, },
         ['WakeDeadCorpseCnt'] = { DisplayName = "WtD Corpse Count", Category = "Spells and Abilities", Tooltip = "Number of Corpses before we cast Wake the Dead", Default = 5, Min = 1, Max = 20, },
         ['HPStopDOT']         = { DisplayName = "HP Stop DOTs", Category = "Spells and Abilities", Tooltip = "Stop casting DOTs when the mob hits [x] HP %.", Default = 50, Min = 1, Max = 100, },
-		['NamedStopDOT']         = { DisplayName = "Named HP Stop DOTs", Category = "Spells and Abilities", Tooltip = "Stop casting DOTs when a named mob hits [x] HP %.", Default = 30, Min = 1, Max = 100, },
+        ['NamedStopDOT']      = { DisplayName = "Named HP Stop DOTs", Category = "Spells and Abilities", Tooltip = "Stop casting DOTs when a named mob hits [x] HP %.", Default = 30, Min = 1, Max = 100, },
         ['DoLich']            = { DisplayName = "Cast Lich", Category = "Lich", Tooltip = "Enable casting Lich spells.", RequiresLoadoutChange = true, Default = true, },
-        ['StartLichMana']      = { DisplayName = "Start Lich Mana", Category = "Lich", Tooltip = "Start Lich at Mana Pct [x]", RequiresLoadoutChange = false, Default = 70, Min = 1, Max = 100, },
-		['StopLichHP']        = { DisplayName = "Stop Lich HP", Category = "Lich", Tooltip = "Cancel Lich at HP Pct [x]", RequiresLoadoutChange = false, Default = 25, Min = 1, Max = 99, },
+        ['StartLichMana']     = { DisplayName = "Start Lich Mana", Category = "Lich", Tooltip = "Start Lich at Mana Pct [x]", RequiresLoadoutChange = false, Default = 70, Min = 1, Max = 100, },
+        ['StopLichHP']        = { DisplayName = "Stop Lich HP", Category = "Lich", Tooltip = "Cancel Lich at HP Pct [x]", RequiresLoadoutChange = false, Default = 25, Min = 1, Max = 99, },
         ['StopLichMana']      = { DisplayName = "Stop Lich Mana", Category = "Lich", Tooltip = "Cancel Lich at Mana Pct [x]", RequiresLoadoutChange = false, Default = 90, Min = 1, Max = 100, },
-		['DoChestClick']   = { DisplayName = "Do Chest Click", Category = "Utilities", Tooltip = "Click your chest item", Default = true, },
-		
+        ['DoChestClick']      = { DisplayName = "Do Chest Click", Category = "Utilities", Tooltip = "Click your chest item", Default = true, },
+
     },
 
 }

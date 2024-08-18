@@ -690,7 +690,7 @@ return {
             targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
             cond = function(self, combat_state)
                 return RGMercUtils.GetXTHaterCount() > 0 and not RGMercUtils.Feigning() and
-                (mq.TLO.Me.PctHPs() <= RGMercUtils.GetSetting('EmergencyStart') or (RGMercUtils.IsNamed(mq.TLO.Target) and mq.TLO.Me.PctAggro() > 99))
+                    (mq.TLO.Me.PctHPs() <= RGMercUtils.GetSetting('EmergencyStart') or (RGMercUtils.IsNamed(mq.TLO.Target) and mq.TLO.Me.PctAggro() > 99))
             end,
         },
         {
@@ -848,7 +848,7 @@ return {
                 type = "AA",
                 cond = function(self, aaName)
                     return RGMercUtils.AAReady(aaName) and not self.ClassConfig.HelperFunctions.FlurryActive(self) and
-                    (mq.TLO.Me.GemTimer(self.ResolvedActionMap['DichoSpell'])() or -1) > 15
+                        (mq.TLO.Me.GemTimer(self.ResolvedActionMap['DichoSpell'])() or -1) > 15
                 end,
             },
             {
@@ -1485,7 +1485,7 @@ return {
             end,
         },
     },
-    ['DefaultConfig']     = {   --TODO: Condense pet proc options into a combo box and update entry conditions appropriately
+    ['DefaultConfig']     = { --TODO: Condense pet proc options into a combo box and update entry conditions appropriately
         ['Mode']           = { DisplayName = "Mode", Category = "Combat", Tooltip = "Select the Combat Mode for this Toon", Type = "Custom", RequiresLoadoutChange = true, Default = 1, Min = 1, Max = 1, },
         --Mana Management
         ['DoParagon']      = { DisplayName = "Use Paragon", Category = "Mana Mgmt.", Index = 1, Tooltip = "Use Group or Focused Paragon AAs.", Default = true, ConfigType = "Advanced", },
