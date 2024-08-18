@@ -750,16 +750,16 @@ local _ClassConfig = {
         RefreshBuffSong = function(songSpell) --determine how close to a buff's expiration we will resing to maintain full uptime
             if not songSpell or not songSpell() then return false end
             local me = mq.TLO.Me
-            local casttime = songSpell.MyCastTime.Seconds()
             local threshold = RGMercUtils.GetSetting('RefreshCombat')
+            --an earlier version of this function checked your cast speed to add to this value, but cast speed TLO is always rounded down and is virtually always "2"
             if RGMercUtils.GetXTHaterCount() == 0 then threshold = RGMercUtils.GetSetting('RefreshDT') end
 
             local res = RGMercUtils.SongMemed(songSpell) and
-                (me.Song(songSpell.Name()).Duration.TotalSeconds() or 0) <= (casttime + threshold)
+                (me.Song(songSpell.Name()).Duration.TotalSeconds() or 0) <= threshold
             RGMercsLogger.log_verbose("\ayRefreshBuffSong(%s) => memed(%s), duration(%0.2f) < reusetime(%0.2f) --> result(%s)",
                 songSpell.Name(),
                 RGMercUtils.BoolToColorString(me.Gem(songSpell.RankName.Name())() ~= nil),
-                me.Song(songSpell.Name()).Duration.TotalSeconds() or 0, casttime + threshold,
+                me.Song(songSpell.Name()).Duration.TotalSeconds() or 0, threshold,
                 RGMercUtils.BoolToColorString(res))
             return res
         end,
@@ -1439,8 +1439,8 @@ local _ClassConfig = {
         ['DoVetAA']        = { DisplayName = "Use Vet AA", Category = "Utility/Items/Misc", Index = 7, Tooltip = "Use Veteran AA's in emergencies or during BigBurn", Default = true, ConfigType = "Advanced", },
         ['EmergencyStart'] = { DisplayName = "Emergency HP%", Category = "Utility/Items/Misc", Index = 8, Tooltip = "Your HP % before we begin to use emergency mitigation abilities.", Default = 50, Min = 1, Max = 100, ConfigType = "Advanced", },
         ['UseFading']      = { DisplayName = "Use Combat Escape", Category = "Utility/Items/Misc", Index = 9, Tooltip = "Use Fading Memories when you have aggro and you aren't the Main Assist.", Default = true, ConfigType = "Advanced", },
-        ['RefreshDT']      = { DisplayName = "Downtime Threshold", Category = "Utility/Items/Misc", Index = 10, Tooltip = "The threshold of X plus your current cast time is the duration threshold for refreshing a buff song outside of combat. ***WARNING: Editing this value can drastically alter your ability to maintain buff songs!*** This needs to be carefully tailored towards your song line-up.", Default = 12, Min = 0, Max = 30, ConfigType = "Advanced", },
-        ['RefreshCombat']  = { DisplayName = "Combat Threshold", Category = "Utility/Items/Misc", Index = 11, Tooltip = "The threshold of X plus your current cast time is the duration threshold for refreshing a buff song in combat. ***WARNING: Editing this value can drastically alter your ability to maintain buff songs!*** This needs to be carefully tailored towards your song line-up.", Default = 6, Min = 0, Max = 30, ConfigType = "Advanced", },
+        ['RefreshDT']      = { DisplayName = "Downtime Threshold", Category = "Utility/Items/Misc", Index = 10, Tooltip = "The duration threshold for refreshing a buff song outside of combat. ***WARNING: Editing this value can drastically alter your ability to maintain buff songs!*** This needs to be carefully tailored towards your song line-up.", Default = 12, Min = 0, Max = 30, ConfigType = "Advanced", },
+        ['RefreshCombat']  = { DisplayName = "Combat Threshold", Category = "Utility/Items/Misc", Index = 11, Tooltip = "The duration threshold for refreshing a buff song in combat. ***WARNING: Editing this value can drastically alter your ability to maintain buff songs!*** This needs to be carefully tailored towards your song line-up.", Default = 6, Min = 0, Max = 30, ConfigType = "Advanced", },
     },
     ['Spells']          = { getSpellCallback = generateSongList, },
 }
