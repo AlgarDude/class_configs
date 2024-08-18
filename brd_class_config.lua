@@ -1016,8 +1016,7 @@ local _ClassConfig = {
                 type = "AA",
                 cond = function(self, aaName, target)
                     if RGMercUtils.GetSetting('UseBellow') == 1 then return false end
-                    return mq.TLO.Me.PctEndurance() > RGMercUtils.GetSetting('SelfEndPct') and
-                        (RGMercUtils.GetSetting('UseBellow') == 3 or (RGMercUtils.GetSetting('UseBellow') == 2 and RGMercUtils.BurnCheck())) and
+                    return ((RGMercUtils.GetSetting('UseBellow') == 3 and mq.TLO.Me.PctEndurance() > RGMercUtils.GetSetting('SelfEndPct')) or (RGMercUtils.GetSetting('UseBellow') == 2 and RGMercUtils.BurnCheck())) and
                         RGMercUtils.DetSpellCheck(mq.TLO.AltAbility(aaName).Spell) and RGMercUtils.NPCAAReady(aaName, target.ID())
                 end,
             },
@@ -1026,7 +1025,7 @@ local _ClassConfig = {
                 type = "Song",
                 cond = function(self, songSpell)
                     if RGMercUtils.GetSetting('UseDicho') == 1 then return false end
-                    return (RGMercUtils.GetSetting('UseDicho') == 3 and mq.TLO.Me.PctEndurance() > RGMercUtils.GetSetting('SelfEndPct'))
+                    return (RGMercUtils.GetSetting('UseDicho') == 3 and (mq.TLO.Me.PctEndurance() > RGMercUtils.GetSetting('SelfEndPct') or RGMercUtils.BurnCheck()))
                         or (RGMercUtils.GetSetting('UseDicho') == 2 and RGMercUtils.BuffActiveByID(mq.TLO.Me.AltAbility("Quick Time").Spell.ID()))
                 end,
             },
@@ -1389,7 +1388,7 @@ local _ClassConfig = {
         ['Mode']           = { DisplayName = "Mode", Category = "Combat", Tooltip = "Select the Combat Mode for this Toon", Type = "Custom", RequiresLoadoutChange = true, Default = 1, Min = 1, Max = 4, },
         --Mana/Endurance Sustainment
         ['SelfManaPct']    = { DisplayName = "Self Min Mana %", Category = "Mana/End Sustain", Index = 1, Tooltip = "Minimum Mana% to use Insult and Alliance.", Default = 20, Min = 1, Max = 100, ConfigType = "Advanced", },
-        ['SelfEndPct']     = { DisplayName = "Self Min End%", Category = "Mana/End Sustain", Index = 2, Tooltip = "Minimum End% to use Bellow or Dicho.", Default = 20, Min = 1, Max = 100, ConfigType = "Advanced", },
+        ['SelfEndPct']     = { DisplayName = "Self Min End%", Category = "Mana/End Sustain", Index = 2, Tooltip = "Minimum End% to use Bellow or Dicho outside of burns.", Default = 20, Min = 1, Max = 100, ConfigType = "Advanced", },
         ['GroupManaPct']   = { DisplayName = "Group Mana %", Category = "Mana/End Sustain", Index = 3, Tooltip = "Mana% to begin managing group mana by using Crescendoes and Reflexive Strikes. If configured, also governs when Regen Song will be sung.", Default = 80, Min = 1, Max = 100, ConfigType = "Advanced", },
         ['GroupManaCt']    = { DisplayName = "Group Mana Count", Category = "Mana/End Sustain", Index = 4, Tooltip = "The number of party members (including yourself) that need to be under the above mana percentage.", Default = 2, Min = 1, Max = 6, ConfigType = "Advanced", },
         --Debuffs

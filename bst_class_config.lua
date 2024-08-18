@@ -475,33 +475,13 @@ return {
         ['PetCrippleBite'] = {
             "Dire Bite",
         },
-        ['SingleFocusSpell'] = {
-            -- Focus Spells -
+        ['FocusSpell'] = {
             -- Single target Talismans ( Like Focus)
             "Inner Fire",
             "Talisman of Tnarg",
             "Talisman of Altuna",
             "Talisman of Kragg",
             "Focus of Alladnu",
-        },
-        ['SingleAtkHPBuff'] = {
-            --Atk+HP Buff* - Does Not Stack with Pally brells or Ranger Buff - is Middle ground Buff has HP & Atk
-            "Spiritual Brawn",
-            "Spiritual Strength",
-        },
-        ['SingleAtkBuff'] = {
-            -- ATK Buff
-            -- - Single Ferocity
-            "Savagery",           -- Level 60
-            "Ferocity",           -- Level 65
-            "Ferocity of Irionu", -- Level 70
-            "Ruthless Ferocity",  -- Level 75
-            "Vicious Ferocity",   -- Level 80
-            "Savage Ferocity",    -- Level 85
-            "Callous Ferocity",   -- Level 90
-            "Brutal Ferocity",    -- Level 92
-        },
-        ['GroupFocusSpell'] = {
             -- Group Focus Spells
             "Focus of Amilan",
             "Focus of Zott",
@@ -515,7 +495,7 @@ return {
             "Focus of Jaegir",
             "Focus of Skull Crusher",
         },
-        ['GroupAtkHPBuff'] = {
+        ['AtkHPBuff'] = {
             -- Group Attack+ Hp Buff
             "Spiritual Vigor",
             "Spiritual Vitality",
@@ -530,8 +510,20 @@ return {
             "Spiritual Vehemence",
             "Spiritual Vigor",
             "Spiritual Valiancy",
+            --Single Target Atk+HP Buff* - Does Not Stack with Pally brells or Ranger Buff - is Middle ground Buff has HP & Atk
+            "Spiritual Brawn",
+            "Spiritual Strength",
         },
-        ['GroupAtkBuff'] = {
+        ['AtkBuff'] = {
+            -- - Single Ferocity
+            "Savagery",                  -- Level 60
+            "Ferocity",                  -- Level 65
+            "Ferocity of Irionu",        -- Level 70
+            "Ruthless Ferocity",         -- Level 75
+            "Vicious Ferocity",          -- Level 80
+            "Savage Ferocity",           -- Level 85
+            "Callous Ferocity",          -- Level 90
+            "Brutal Ferocity",           -- Level 92
             -- Group Ferocity
             "Shared Brutal Ferocity",    -- Level 95
             "Shared Merciless Ferocity", -- Level 100
@@ -698,8 +690,8 @@ return {
             state = 1,
             steps = 1,
             targetId = function(self)
-                return { RGMercUtils.FindWorstHurtManaGroupMember(RGMercUtils.GetSetting('ParagonPct')),
-                    RGMercUtils.FindWorstHurtManaXT(RGMercUtils.GetSetting('ParagonPct')), }
+                return { RGMercUtils.FindWorstHurtManaGroupMember(RGMercUtils.GetSetting('FParaPct')),
+                    RGMercUtils.FindWorstHurtManaXT(RGMercUtils.GetSetting('FParaPct')), }
             end,
             cond = function(self, combat_state)
                 return (combat_state == "Combat" or RGMercUtils.GetSetting('DowntimeFP')) and RGMercUtils.GetSetting('DoParagon') and
@@ -755,6 +747,14 @@ return {
             local disc = self.ResolvedActionMap['DmgModDisc']
             return RGMercUtils.SongActiveByName("Bestial Alignment") or (disc and disc() and RGMercUtils.SongActiveByName(disc.Name()))
                 or RGMercUtils.BuffActiveByName("Ferociousness")
+        end,
+        DotSpellCheck = function(spell) --Check dot stacking, stop dotting when a dynamic HP threshold is met(Named vs Trash)
+            if not spell or not spell() then return false end
+            local named = RGMercUtils.IsNamed(mq.TLO.Target)
+            local targethp = RGMercUtils.GetTargetPctHPs()
+
+            return not RGMercUtils.TargetHasBuff(spell) and RGMercUtils.SpellStacksOnTarget(spell) and
+                ((named and (RGMercUtils.GetSetting('NamedStopDOT') < targethp)) or (not named and RGMercUtils.GetSetting('HPStopDOT') < targethp))
         end,
     },
     ['Rotations']         = {
@@ -831,9 +831,9 @@ return {
                 name = "Blooddot",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    local vinDisc = self.ResolvedActionMap['Vindisc']
+                    local vinDisc = self.ResolvedActionMap['VinDisc']
                     if not vinDisc then return false end
-                    return mq.TLO.Me.ActiveDisc.ID() == vinDisc.ID() and RGMercUtils.NPCSpellReady(spell, target.ID())
+                    return RGMercUtils.BuffActive(vinDisc) and RGMercUtils.NPCSpellReady(spell, target.ID())
                 end,
             },
             {
@@ -943,7 +943,7 @@ return {
                 type = "AA",
                 cond = function(self, aaName)
                     if not RGMercUtils.GetSetting('DoParagon') then return false end
-                    return (mq.TLO.Group.LowMana(RGMercUtils.GetSetting('ParagonPct'))() or -1) > 0 and RGMercUtils.AAReady(aaName)
+                    return (mq.TLO.Group.LowMana(RGMercUtils.GetSetting('ParaPct'))() or -1) > 0 and RGMercUtils.AAReady(aaName)
                 end,
             },
             {
@@ -969,9 +969,8 @@ return {
                 type = "Spell",
                 cond = function(self, spell, target)
                     if not RGMercUtils.GetSetting('DoDot') then return false end
-                    return RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell) and
-                        ((mq.TLO.Me.PctMana() >= RGMercUtils.GetSetting('ManaToDot')) or RGMercUtils.BurnCheck())
-                        and RGMercUtils.NPCSpellReady(spell)
+                    return self.ClassConfig.HelperFunctions.DotSpellCheck(spell) and (mq.TLO.Me.PctMana() >= RGMercUtils.GetSetting('ManaToDot') or RGMercUtils.BurnCheck()) and
+                        RGMercUtils.NPCSpellReady(spell)
                 end,
             },
             {
@@ -979,9 +978,8 @@ return {
                 type = "Spell",
                 cond = function(self, spell, target)
                     if not RGMercUtils.GetSetting('DoDot') then return false end
-                    return RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell) and
-                        ((mq.TLO.Me.PctMana() >= RGMercUtils.GetSetting('ManaToDot')) or RGMercUtils.BurnCheck())
-                        and RGMercUtils.NPCSpellReady(spell)
+                    return self.ClassConfig.HelperFunctions.DotSpellCheck(spell) and (mq.TLO.Me.PctMana() >= RGMercUtils.GetSetting('ManaToDot') or RGMercUtils.BurnCheck()) and
+                        RGMercUtils.NPCSpellReady(spell)
                 end,
             },
             {
@@ -989,9 +987,8 @@ return {
                 type = "Spell",
                 cond = function(self, spell, target)
                     if not RGMercUtils.GetSetting('DoDot') then return false end
-                    return RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell) and
-                        ((mq.TLO.Me.PctMana() >= RGMercUtils.GetSetting('ManaToDot')) or RGMercUtils.BurnCheck())
-                        and RGMercUtils.NPCSpellReady(spell)
+                    return self.ClassConfig.HelperFunctions.DotSpellCheck(spell) and (mq.TLO.Me.PctMana() >= RGMercUtils.GetSetting('ManaToDot') or RGMercUtils.BurnCheck()) and
+                        RGMercUtils.NPCSpellReady(spell)
                 end,
             },
             {
@@ -1134,77 +1131,61 @@ return {
                 name = "ManaRegenBuff",
                 type = "Spell",
                 cond = function(self, spell, target)
+                    -- force the target for StacksTarget to work.
                     RGMercUtils.SetTarget(target.ID() or 0)
-                    return RGMercConfig.Constants.RGCasters:contains(target.Class.ShortName()) and not RGMercUtils.TargetHasBuff(spell) and RGMercUtils.SpellStacksOnTarget(spell)
+                    return not RGMercUtils.TargetHasBuff(spell) and RGMercUtils.SpellStacksOnTarget(spell)
                 end,
             },
             {
                 name = "AvatarSpell",
                 type = "Spell",
                 cond = function(self, spell, target)
+                    if not RGMercUtils.GetSetting('DoAvatar') then return false end
+                    -- force the target for StacksTarget to work.
                     RGMercUtils.SetTarget(target.ID() or 0)
-                    return RGMercConfig.Constants.RGMelee:contains(target.Class.ShortName()) and not RGMercUtils.TargetHasBuff(spell) and RGMercUtils.SpellStacksOnTarget(spell) and
-                        RGMercUtils.GetSetting('DoAvatar')
+                    return RGMercConfig.Constants.RGMelee:contains(target.Class.ShortName()) and not RGMercUtils.TargetHasBuff(spell) and RGMercUtils.SpellStacksOnTarget(spell)
                 end,
             },
             {
-                name = "GroupAtkBuff",
+                name = "AtkBuff",
                 type = "Spell",
                 cond = function(self, spell, target)
                     -- force the target for StacksTarget to work.
                     RGMercUtils.SetTarget(target.ID() or 0)
+                    -- Make sure this is gemmed due to long refresh, and only use the single target versions on classes that need it.
+                    if (spell and spell() and ((spell.TargetType() or ""):lower() ~= "group v2")) and (not RGMercUtils.CastReady(spell.RankName)
+                            or not RGMercConfig.Constants.RGMelee:contains(target.Class.ShortName())) then
+                        return false
+                    end
                     return not RGMercUtils.TargetHasBuff(spell) and RGMercUtils.SpellStacksOnTarget(spell)
                 end,
             },
             {
-                name = "SingleAtkHPBuff",
+                name = "AtkHPBuff",
                 type = "Spell",
                 cond = function(self, spell, target)
                     -- force the target for StacksTarget to work.
                     RGMercUtils.SetTarget(target.ID() or 0)
-                    local targetClass = target.Class.ShortName()
-                    return (targetClass == "WAR" or targetClass == "PAL" or targetClass == "SHD") and not RGMercUtils.TargetHasBuff(spell) and
-                        RGMercUtils.SpellStacksOnTarget(spell)
-                end,
-            },
-            {
-                name = "GroupAtkHPBuff",
-                type = "Spell",
-                cond = function(self, spell, target)
-                    -- force the target for StacksTarget to work.
-                    RGMercUtils.SetTarget(target.ID() or 0)
+                    -- Only use the single target versions on classes that need it
+                    if (spell and spell() and ((spell.TargetType() or ""):lower() ~= "group v2"))
+                        and not RGMercConfig.Constants.RGMelee:contains(target.Class.ShortName()) then
+                        return false
+                    end
                     return not RGMercUtils.TargetHasBuff(spell) and RGMercUtils.SpellStacksOnTarget(spell)
                 end,
             },
             {
-                name = "SingleAtkHPBuff",
-                type = "Spell",
-                cond = function(self, spell, target)
-                    local targetClass = target.Class.ShortName()
-                    -- force the target for StacksTarget to work.
-                    RGMercUtils.SetTarget(target.ID() or 0)
-                    return (targetClass == "WAR" or targetClass == "PAL" or targetClass == "SHD") and not RGMercUtils.TargetHasBuff(spell) and
-                        RGMercUtils.SpellStacksOnTarget(spell)
-                end,
-            },
-            {
-                name = "GroupFocusSpell",
+                name = "FocusSpell",
                 type = "Spell",
                 cond = function(self, spell, target)
                     -- force the target for StacksTarget to work.
                     RGMercUtils.SetTarget(target.ID() or 0)
+                    -- Only use the single target versions on classes that need it
+                    if (spell and spell() and ((spell.TargetType() or ""):lower() ~= "group v2"))
+                        and not RGMercConfig.Constants.RGMelee:contains(target.Class.ShortName()) then
+                        return false
+                    end
                     return not RGMercUtils.TargetHasBuff(spell) and RGMercUtils.SpellStacksOnTarget(spell)
-                end,
-            },
-            {
-                name = "SingleFocusSpell",
-                type = "Spell",
-                cond = function(self, spell, target)
-                    local targetClass = target.Class.ShortName()
-                    -- force the target for StacksTarget to work.
-                    RGMercUtils.SetTarget(target.ID() or 0)
-                    return (targetClass == "WAR" or targetClass == "PAL" or targetClass == "SHD") and not RGMercUtils.TargetHasBuff(spell) and
-                        RGMercUtils.SpellStacksOnTarget(spell)
                 end,
             },
         },
@@ -1400,8 +1381,7 @@ return {
         {
             gem = 6,
             spells = {
-                { name = "GroupAtkBuff", },
-                { name = "SingleAtkBuff", },
+                { name = "AtkBuff", },
                 { name = "RunSpeedBuff", },
             },
         },
@@ -1489,10 +1469,12 @@ return {
         ['Mode']           = { DisplayName = "Mode", Category = "Combat", Tooltip = "Select the Combat Mode for this Toon", Type = "Custom", RequiresLoadoutChange = true, Default = 1, Min = 1, Max = 1, },
         --Mana Management
         ['DoParagon']      = { DisplayName = "Use Paragon", Category = "Mana Mgmt.", Index = 1, Tooltip = "Use Group or Focused Paragon AAs.", Default = true, ConfigType = "Advanced", },
-        ['ParagonPct']     = { DisplayName = "Paragon Mana %", Category = "Mana Mgmt.", Index = 2, Tooltip = "Minimum mana % before we use Paragon AAs.", Default = 70, Min = 1, Max = 99, ConfigType = "Advanced", },
-        ['DowntimeFP']     = { DisplayName = "Downtime F.Paragon", Category = "Mana Mgmt.", Index = 3, Tooltip = "Use Focused Paragon outside of Combat.", Default = false, ConfigType = "Advanced", },
-        ['HPStopDOT']      = { DisplayName = "HP Stop DOTs", Category = "Mana Mgmt.", Index = 4, Tooltip = "Stop casting DOTs when the mob hits [x] HP %.", Default = 50, Min = 1, Max = 100, ConfigType = "Advanced", },
+        ['ParaPct']        = { DisplayName = "Paragon %", Category = "Mana Mgmt.", Index = 2, Tooltip = "Minimum mana % before we use Paragon of Spirit.", Default = 80, Min = 1, Max = 99, ConfigType = "Advanced", },
+        ['FParaPct']       = { DisplayName = "F.Paragon %", Category = "Mana Mgmt.", Index = 3, Tooltip = "Minimum mana % before we use Focused Paragon.", Default = 90, Min = 1, Max = 99, ConfigType = "Advanced", },
+        ['DowntimeFP']     = { DisplayName = "Downtime F.Paragon", Category = "Mana Mgmt.", Index = 4, Tooltip = "Use Focused Paragon outside of Combat.", Default = false, ConfigType = "Advanced", },
         ['ManaToDot']      = { DisplayName = "Min Mana to Dot", Category = "Mana Mgmt.", Index = 5, Tooltip = "The minimum Mana % to use DoTs outside of burns.", Default = 50, Min = 1, Max = 100, ConfigType = "Advanced", },
+        ['HPStopDOT']      = { DisplayName = "Stop Dots (Trash):", Category = "Mana Mgmt.", Index = 6, Tooltip = "Stop casting DOTs when trash mobs hit [x] HP %.", Default = 50, Min = 1, Max = 100, ConfigType = "Advanced", },
+        ['NamedStopDOT']   = { DisplayName = "Stop Dots (Named):", Category = "Mana Mgmt.", Index = 76, Tooltip = "Stop casting DOTs when named mobs hit [x] HP %.", Default = 25, Min = 1, Max = 100, ConfigType = "Advanced", },
         --Pets
         ['DoTankPet']      = { DisplayName = "Do Tank Pet", Category = "Pet Mgmt.", Index = 1, Tooltip = "Use abilities designed for your pet to tank.", Default = false, },
         ['DoPetHeals']     = { DisplayName = "Do Pet Heals", Category = "Pet Mgmt.", Index = 2, Tooltip = "Mem and cast your Pet Heal (Salve) spell. AA Pet Heals are always used in emergencies.", Default = true, RequiresLoadoutChange = true, },
