@@ -901,6 +901,18 @@ local _ClassConfig = {
                 end,
             },
             {
+                name = mq.TLO.Me.Inventory("Charm").Name(),
+                type = "Item",
+                active_cond = function(self)
+                    local item = mq.TLO.Me.Inventory("Charm")
+                    return item() and RGMercUtils.TargetHasBuff(item.Spell, mq.TLO.Me)
+                end,
+                cond = function(self)
+                    local item = mq.TLO.Me.Inventory("Charm")
+                    return RGMercUtils.GetSetting('DoCharmClick') and item() and RGMercUtils.SpellStacksOnMe(item.Spell) and item.TimerReady() == 0
+                end,
+            },
+            {
                 name = "PetSpell",
                 type = "Spell",
                 tooltip = Tooltips.PetSpell,
@@ -1422,18 +1434,6 @@ local _ClassConfig = {
                 type = "AA",
                     cond = function(self, aaName)
                     return RGMercUtils.AAReady(aaName) and RGMercUtils.AAReady(aaName)
-                end,
-            },
-            {
-                name = mq.TLO.Me.Inventory("Charm").Name(),
-                type = "Item",
-                active_cond = function(self)
-                    local item = mq.TLO.Me.Inventory("Charm")
-                    return item() and RGMercUtils.TargetHasBuff(item.Spell, mq.TLO.Me)
-                end,
-                cond = function(self)
-                    local item = mq.TLO.Me.Inventory("Charm")
-                    return RGMercUtils.GetSetting('DoCharmClick') and item() and RGMercUtils.SpellStacksOnMe(item.Spell) and item.TimerReady() == 0
                 end,
             },
             {

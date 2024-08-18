@@ -11,7 +11,7 @@ return {
     ['ModeChecks']        = {
         IsHealing = function() return true end,
     },
-    ['ItemSets']          = {
+    ['ItemSets']          = { --TODO: Add Omens Chest
         ['Epic'] = {
             "Savage Lord's Totem",             -- Epic    -- Epic 1.5
             "Spiritcaller Totem of the Feral", -- Epic    -- Epic 2.0
@@ -564,8 +564,8 @@ return {
             --Single target claws*
             "Focused Clamor of Claws",
         },
-        ['BeastialBuffDisc'] = {
-            --Beastial Buff*
+        ['BestialBuffDisc'] = {
+            --Bestial Buff*
             "Bestial Vivisection",
             "Bestial Rending",
             "Bestial Evulsing",
@@ -582,7 +582,7 @@ return {
             "Eruption of Claws",
             "Barrage of Claws",
         },
-        ['HHEFuryDisc'] = {
+        ['FuryDisc'] = {
             --HHE Burn Disc* - Dicho/Dissident Replace this @ 101
             "Nature's Fury",
             "Kolos' Fury",
@@ -601,7 +601,7 @@ return {
             "Reflexive Sundering",
             "Reflexive Riving",
         },
-        ['Vindisc'] = {
+        ['VinDisc'] = {
             -- Vindication Disc
             "Al`ele's Vindication",
             "Venon's Vindication",
@@ -744,153 +744,133 @@ return {
 
     },
     ['HelperFunctions']   = {
-        BeastialAligmentCheck = function(self)
-            local discSpell = self.ResolvedActionMap['HHEFuryDisc']
-            return discSpell and discSpell() and not RGMercUtils.SongActiveByName(discSpell.RankName()) and
-                not RGMercUtils.SongActiveByName('Bestial Alignment') and
-                not RGMercUtils.BuffActiveByName('Ferociousness')
+        FlurryActive = function(self)
+            local fury = self.ResolvedActionMap['FuryDisc']
+			local dicho = self.ResolvedActionMap['DichoSpell']
+            return (dicho and dicho() and RGMercUtils.SongActiveByName(dicho.Name()))
+				or (fury and fury() and RGMercUtils.SongActiveByName(fury.Name()))	
         end,
-        HHEFuryDiscCheckPrimary = function(self)
-            local discSpell = self.ResolvedActionMap['HHEFuryDisc']
-            return discSpell and discSpell() and not RGMercUtils.SongActiveByName(discSpell.RankName()) and
-                not RGMercUtils.SongActiveByName('Bestial Alignment') and
-                not RGMercUtils.BuffActiveByName('Ferociousness') and
-                not RGMercUtils.PCAAReady("Bestial Alignment")
-        end,
-        HHEFuryDiscCheckSecondary = function(self)
-            local discSpell = self.ResolvedActionMap['HHEFuryDisc']
-            return discSpell and discSpell() and not RGMercUtils.SongActiveByName(discSpell.RankName()) and
-                not RGMercUtils.SongActiveByName('Bestial Alignment') and
-                not RGMercUtils.BuffActiveByName('Ferociousness')
-        end,
-        FerociousnessCheck = function(self)
-            local discSpell = self.ResolvedActionMap['HHEFuryDisc']
-            return discSpell and discSpell() and not RGMercUtils.SongActiveByName(discSpell.RankName()) and
-                not RGMercUtils.SongActiveByName('Bestial Alignment')
-        end,
+		DmgModActive = function(self)
+			local disc = self.ResolvedActionMap['DmgModDisc']
+			return RGMercUtils.SongActiveByName("Bestial Alignment") or (disc and disc() and RGMercUtils.SongActiveByName(disc.Name()))
+				or RGMercUtils.BuffActiveByName("Ferociousness")
+		end,
     },
     ['Rotations']         = {
         ['Burn'] = {
-            -- Set 1
-            -- Besial Alignment (65+) when HHEFuryDisc (88+) and Ferociousness (105+) not active
-            {
-                name = "Bestial Alignment",
-                type = "AA",
-                cond = function(self, aaName, target)
-                    return self.ClassConfig.HelperFunctions.BeastialAligmentCheck(self) and RGMercUtils.AAReady(aaName)
-                end,
-            },
-            -- Vindisc (102+) when HHEFuryDisc (88+) and Ferociousness (105+) not active, but Besial Alignment active
-            {
-                name = "Vindisc",
-                type = "Disc",
-                cond = function(self, discSpell, target)
-                    return self.ClassConfig.HelperFunctions.BeastialAligmentCheck(self) and RGMercUtils.PCDiscReady(discSpell)
-                end,
-            },
-            -- Frenzy of Spirit (59+) when HHEFuryDisc (88+) and Ferociousness (105+) not active, but Besial Alignment active
-            {
-                name = "Frenzy of Spirit",
-                type = "AA",
-                cond = function(self, aaName, target)
-                    return self.ClassConfig.HelperFunctions.BeastialAligmentCheck(self) and RGMercUtils.AAReady(aaName)
-                end,
-            },
-            -- Bloodlust (95+) when HHEFuryDisc (88+) and Ferociousness (105+) not active, but Besial Alignment active
-            {
-                name = "Bloodlust",
-                type = "AA",
-                cond = function(self, aaName, target)
-                    return self.ClassConfig.HelperFunctions.BeastialAligmentCheck(self) and RGMercUtils.AAReady(aaName)
-                end,
-            },
-            -- Frenzied Swipes (100+) when HHEFuryDisc (88+) and Ferociousness (105+) not active, but Besial Alignment active
-            {
-                name = "Frenzied Swipes",
-                type = "AA",
-                cond = function(self, aaName, target)
-                    return self.ClassConfig.HelperFunctions.BeastialAligmentCheck(self) and RGMercUtils.AAReady(aaName)
-                end,
-            },
-            -- Set 2
-            -- HHEFuryDisc (88+) when Besial Alignment (65+) down and not active, and Ferociousness (105+) not active
-            {
-                name = "HHEFuryDisc",
-                type = "Disc",
-                cond = function(self, discSpell, target)
-                    return self.ClassConfig.HelperFunctions.HHEFuryDiscCheckPrimary(self) and RGMercUtils.PCDiscReady(discSpell)
-                end,
-            },
-            -- Spire of the Savage Lord (85+) when Besial Alignment (65+) and Ferociousness (105+) not active, but HHEFuryDisc active
-            {
-                name = "Spire of the Savage Lord",
-                type = "AA",
-                cond = function(self, aaName, target)
-                    return self.ClassConfig.HelperFunctions.HHEFuryDiscCheckSecondary(self) and RGMercUtils.AAReady(aaName)
-                end,
-            },
-            -- DmgModDisc (60+) when Besial Alignment (65+) and Ferociousness (105+) not active, but HHEFuryDisc active
-            {
-                name = "DmgModDisc",
-                type = "Disc",
-                cond = function(self, discSpell, target)
-                    return self.ClassConfig.HelperFunctions.HHEFuryDiscCheckSecondary(self) and RGMercUtils.PCDiscReady(discSpell)
-                end,
-            },
-            -- Chest Click when Besial Alignment (65+) and Ferociousness (105+) not active, but HHEFuryDisc active (When we dont have HHEFuryDisc, fire off when available)
-            {
-                name = mq.TLO.Me.Inventory("Chest").Name(),
-                type = "Item",
-                cond = function(self)
-                    local item = mq.TLO.Me.Inventory("Chest")
-                    return self.ClassConfig.HelperFunctions.BeastialAligmentCheck(self) and
-                        RGMercUtils.GetSetting('DoChestClick') and item() and item.Spell.Stacks() and
-                        item.TimerReady() == 0
-                end,
-            },
-            -- Set 3
-            -- Ferociousness (105+) when Besial Alignment (65+) and HHEFuryDisc (88+) down and not active
-            {
-                name = "Ferociousness",
-                type = "AA",
-                cond = function(self, aaName, target)
-                    return self.ClassConfig.HelperFunctions.FerociousnessCheck(self) and not RGMercUtils.BuffActiveByName(aaName)
-                        and not RGMercUtils.PCDiscReady(self.ResolvedActionMap['HHEFuryDisc']) and RGMercUtils.AAReady(aaName)
-                end,
-            },
-            -- Companion's Fury (86+) when Ferociousness (105+) active and HHEFuryDisc (88+) and Besial Alignment (65+) not active (When we dont have Ferociousness, fire off when other conditions met)
-            {
-                name = "Companion's Fury",
-                type = "AA",
-                cond = function(self, aaName, target)
-                    return self.ClassConfig.HelperFunctions.FerociousnessCheck(self) and (not RGMercUtils.BuffActiveByName("Ferociousness") or
-                        not RGMercUtils.CanUseAA("Ferociousness")) and RGMercUtils.AAReady(aaName)
-                end,
-            },
-            -- Group Bestial Alignment (83+) when Ferociousness (105+) active and HHEFuryDisc (88+) and Besial Alignment (65+) not active (When we dont have Ferociousness, fire off when other conditions met)
-            {
+			{
                 name = "Group Bestial Alignment",
                 type = "AA",
-                cond = function(self, aaName, target)
-                    return self.ClassConfig.HelperFunctions.FerociousnessCheck(self) and (not RGMercUtils.BuffActiveByName("Ferociousness") or
-                        not RGMercUtils.CanUseAA("Ferociousness")) and RGMercUtils.AAReady(aaName)
+                cond = function(self, aaName)
+                    return RGMercUtils.AAReady(aaName) and not self.ClassConfig.HelperFunctions.DmgModActive(self)
                 end,
             },
-			--Force Rejuv to refresh Dicho during burns, but not if it is very close to being available anyway
+			{
+                name = "Attack of the Warder",
+                type = "AA",
+                cond = function(self, aaName, target)
+                    return RGMercUtils.NPCAAReady(aaName, target.ID())
+                end,
+            },
+			{
+                name = "Frenzy of Spirit",
+                type = "AA",
+                cond = function(self, aaName)
+                    return RGMercUtils.AAReady(aaName)
+                end,
+            },
+			{
+                name = "Bloodlust",
+                type = "AA",
+                cond = function(self, aaName)
+                    return RGMercUtils.AAReady(aaName)
+                end,
+            },
+			{
+                name = "VinDisc",
+                type = "Disc",
+                cond = function(self, discSpell)
+                    return RGMercUtils.PCDiscReady(discSpell)
+                end,
+            },
+			{
+                name = "Spire of the Savage Lord",
+                type = "AA",
+                cond = function(self, aaName)
+                    return RGMercUtils.AAReady(aaName)
+                end,
+            },
+			{
+                name = "Companion's Fury",
+                type = "AA",
+                cond = function(self, aaName)
+                    return RGMercUtils.AAReady(aaName)
+                end,
+            },
+			{
+                name = mq.TLO.Me.Inventory("Chest").Name(),
+                type = "Item",
+                active_cond = function(self)
+                    local item = mq.TLO.Me.Inventory("Chest")
+                    return item() and RGMercUtils.TargetHasBuff(item.Spell, mq.TLO.Me)
+                end,
+                cond = function(self)
+                    local item = mq.TLO.Me.Inventory("Chest")
+                    return RGMercUtils.GetSetting('DoChestClick') and item() and RGMercUtils.SpellStacksOnMe(item.Spell) and item.TimerReady() == 0
+                end,
+            },
+			{
+                name = "Frenzied Swipes",
+                type = "AA",
+                cond = function(self, aaName)
+                    return RGMercUtils.AAReady(aaName)
+                end,
+            },
+			{
+                name = "Blooddot",
+                type = "Spell",
+                cond = function(self, spell, target)
+                    local vinDisc = self.ResolvedActionMap['Vindisc']
+                    if not vinDisc then return false end
+                    return mq.TLO.Me.ActiveDisc.ID() == vinDisc.ID() and RGMercUtils.NPCSpellReady(spell, target.ID())
+                end,
+            },
+			{
+                name = "FuryDisc",
+                type = "Disc",
+                cond = function(self, discSpell, target)
+                    return RGMercUtils.PCDiscReady(discSpell) and not self.ClassConfig.HelperFunctions.FlurryActive(self)
+                end,
+            },
 			{
                 name = "Forceful Rejuvenation",
                 type = "AA",
                 cond = function(self, aaName)
-					return (mq.TLO.Me.GemTimer(self.ResolvedActionMap['DichoSpell'])() or -1) > 15 and RGMercUtils.AAReady(aaName)
+					return RGMercUtils.AAReady(aaName) and not self.ClassConfig.HelperFunctions.FlurryActive(self) and (mq.TLO.Me.GemTimer(self.ResolvedActionMap['DichoSpell'])() or -1) > 15
                 end,
             },
-            {
-                name = "Blooddot",
-                type = "Spell",
-                cond = function(self, spell, target)
-                    local vindDisc = self.ResolvedActionMap['Vindisc']
-                    if not vindDisc then return false end
-                    return mq.TLO.Me.ActiveDisc.ID() == (vindDisc.ID() or 0) and RGMercUtils.NPCSpellReady(spell)
+			{
+                name = "DmgModDisc",
+                type = "Disc",
+                cond = function(self, discSpell)
+                    return RGMercUtils.PCDiscReady(discSpell) and not self.ClassConfig.HelperFunctions.DmgModActive(self)
+                end,
+            },
+			{
+                name = "Ferociousness",
+                type = "AA",
+                cond = function(self, aaName, target)
+                    return RGMercUtils.AAReady(aaName) and not self.ClassConfig.HelperFunctions.DmgModActive(self)
+                end,
+            },
+			
+			-- omens chest would go here with fero (I think same conditions excepting fero can be active, but more study needed to make sure)
+			
+			{
+                name = "Bestial Alignment",
+                type = "AA",
+                cond = function(self, aaName)
+                    return RGMercUtils.AAReady(aaName) and not self.ClassConfig.HelperFunctions.DmgModActive(self)
                 end,
             },
         },
@@ -968,7 +948,7 @@ return {
                 name = "DichoSpell",
                 type = "Spell",
                 cond = function(self, spell)
-                    return not RGMercUtils.BuffActive(spell) and RGMercUtils.PCSpellReady(spell)
+                    return RGMercUtils.PCSpellReady(spell) and not RGMercUtils.BuffActive(spell) and not self.ClassConfig.HelperFunctions.FlurryActive(self)
                 end,
             },
             {
@@ -1113,7 +1093,7 @@ return {
                 end,
             },
             {
-                name = "BeastialBuffDisc",
+                name = "BestialBuffDisc",
                 type = "Disc",
                 cond = function(self, discSpell, target)
                     return not RGMercUtils.BuffActive(discSpell) and RGMercUtils.PCDiscReady(discSpell)

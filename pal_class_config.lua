@@ -1060,6 +1060,18 @@ local _ClassConfig = {
                     return not self.ClassConfig.HelperFunctions.castDPU(self) and RGMercUtils.PCSpellReady(spell) and RGMercUtils.SelfBuffCheck(spell)
                 end,
             },
+            {
+                name = mq.TLO.Me.Inventory("Charm").Name(),
+                type = "Item",
+                active_cond = function(self)
+                    local item = mq.TLO.Me.Inventory("Charm")
+                    return item() and RGMercUtils.TargetHasBuff(item.Spell, mq.TLO.Me)
+                end,
+                cond = function(self)
+                    local item = mq.TLO.Me.Inventory("Charm")
+                    return RGMercUtils.GetSetting('DoCharmClick') and item() and RGMercUtils.SpellStacksOnMe(item.Spell) and item.TimerReady() == 0
+                end,
+            },
 			-- {
                 -- name = "Huntsman's Ethereal Quiver",
                 -- type = "Item",
@@ -1619,18 +1631,6 @@ local _ClassConfig = {
                 -- end,
             -- },
             {
-                name = mq.TLO.Me.Inventory("Charm").Name(),
-                type = "Item",
-                active_cond = function(self)
-                    local item = mq.TLO.Me.Inventory("Charm")
-                    return item() and RGMercUtils.TargetHasBuff(item.Spell, mq.TLO.Me)
-                end,
-                cond = function(self)
-                    local item = mq.TLO.Me.Inventory("Charm")
-                    return RGMercUtils.GetSetting('DoCharmClick') and item() and RGMercUtils.SpellStacksOnMe(item.Spell) and item.TimerReady() == 0
-                end,
-            },
-            {
                 name = "Bash",
                 type = "Ability",
                 -- tooltip = Tooltips.Bash,
@@ -1674,6 +1674,13 @@ local _ClassConfig = {
                     return RGMercUtils.NPCSpellReady(spell)
                 end,
             },
+            {
+                name = "Force of Disruption",
+                type = "AA",
+                cond = function(self, aaName, target)
+                    return RGMercUtils.NPCAAReady(aaName, target.ID())
+                end,
+            },
 			--below stuff thrown in, not vetted
 			-- {
                 -- name = "Healtaunt",
@@ -1682,15 +1689,14 @@ local _ClassConfig = {
                     -- return RGMercUtils.NPCSpellReady(spell)
                 -- end,
             -- },
-			{
-                name = "Force of Disruption",
-                type = "AA",
-                cond = function(self, aaName)
-                    return (mq.TLO.Me.AltAbility(aaName).Rank() or 0) > 7 and not RGMercUtils.BuffActiveByName("Knight's Yaulp") and
-                        RGMercUtils.GetTargetDistance() < 30 and RGMercUtils.AAReady(aaName)
-                end,
-            },
-			
+			-- {
+            --     name = "Force of Disruption",
+            --     type = "AA",
+            --     cond = function(self, aaName)
+            --         return (mq.TLO.Me.AltAbility(aaName).Rank() or 0) > 7 and not RGMercUtils.BuffActiveByName("Knight's Yaulp") and
+            --             RGMercUtils.GetTargetDistance() < 30 and RGMercUtils.AAReady(aaName)
+            --     end,
+            -- },
             -- {
                 -- name = "StunTimer5",
                 -- type = "Spell",
