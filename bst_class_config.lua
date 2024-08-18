@@ -4,14 +4,14 @@ local RGMercUtils = require("utils.rgmercs_utils")
 return {
     _version              = "1.0",
     _author               = "Derple, Algar",
-    ['FullConfig'] = true,
+    ['FullConfig']        = true,
     ['Modes']             = {
         'DPS',
     },
     ['ModeChecks']        = {
         IsHealing = function() return true end,
     },
-    ['ItemSets']          = { --TODO: Add Omens Chest
+    ['ItemSets']          = {                  --TODO: Add Omens Chest
         ['Epic'] = {
             "Savage Lord's Totem",             -- Epic    -- Epic 1.5
             "Spiritcaller Totem of the Feral", -- Epic    -- Epic 2.0
@@ -20,20 +20,20 @@ return {
     ['AbilitySets']       = { --TODO/Under Consideration: Add AoE Roar line, add rotation entry (tie it to Do AoE setting), swap in instead of lance 2, especially since the last lance2 is level 112
         ['SwarmPet'] = {
             -- Swarm Pet
-            "Bestial Empathy",      -- Level 68
-            "Bark at the Moon",     -- Level 75
-            "Howl at the Moon",     -- Level 80
-            "Yowl at the Moon",     -- Level 85
-            "Shout at the Moon",    -- Level 90
-            "Scream at the Moon",   -- Level 95
-            "Yell at the Moon",     -- Level 100
-            "Cry at the Moon",      -- Level 105
-            "Roar at the Moon",     -- Level 110
-            "Bay at the Moon",      -- Level 115
-            "Bellow at the Moon",   -- Level 120
-            "Shriek at the Moon",   -- Level 125
+            "Bestial Empathy",    -- Level 68
+            "Bark at the Moon",   -- Level 75
+            "Howl at the Moon",   -- Level 80
+            "Yowl at the Moon",   -- Level 85
+            "Shout at the Moon",  -- Level 90
+            "Scream at the Moon", -- Level 95
+            "Yell at the Moon",   -- Level 100
+            "Cry at the Moon",    -- Level 105
+            "Roar at the Moon",   -- Level 110
+            "Bay at the Moon",    -- Level 115
+            "Bellow at the Moon", -- Level 120
+            "Shriek at the Moon", -- Level 125
         },
-		['Feralgia'] = {
+        ['Feralgia'] = {
             -- Swarm Pet and Growl combination
             "Haergen's Feralgia",    -- Level 85
             "Tuzil's Feralgia",      -- Level 90
@@ -686,22 +686,24 @@ return {
             name = 'Emergency',
             state = 1,
             steps = 1,
-			doFullRotation = true,
+            doFullRotation = true,
             targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
             cond = function(self, combat_state)
-                return RGMercUtils.GetXTHaterCount() > 0 and not RGMercUtils.Feigning() and (mq.TLO.Me.PctHPs() <= RGMercUtils.GetSetting('EmergencyStart') or (RGMercUtils.IsNamed(mq.TLO.Target) and mq.TLO.Me.PctAggro() > 99))
+                return RGMercUtils.GetXTHaterCount() > 0 and not RGMercUtils.Feigning() and
+                (mq.TLO.Me.PctHPs() <= RGMercUtils.GetSetting('EmergencyStart') or (RGMercUtils.IsNamed(mq.TLO.Target) and mq.TLO.Me.PctAggro() > 99))
             end,
         },
         {
             name = 'FocusedParagon',
-			state = 1,
+            state = 1,
             steps = 1,
             targetId = function(self)
                 return { RGMercUtils.FindWorstHurtManaGroupMember(RGMercUtils.GetSetting('ParagonPct')),
                     RGMercUtils.FindWorstHurtManaXT(RGMercUtils.GetSetting('ParagonPct')), }
             end,
             cond = function(self, combat_state)
-                return (combat_state == "Combat" or RGMercUtils.GetSetting('DowntimeFP')) and RGMercUtils.GetSetting('DoParagon') and not RGMercUtils.BuffActive(mq.TLO.Me.AltAbility('Paragon of Spirit').Spell) and
+                return (combat_state == "Combat" or RGMercUtils.GetSetting('DowntimeFP')) and RGMercUtils.GetSetting('DoParagon') and
+                    not RGMercUtils.BuffActive(mq.TLO.Me.AltAbility('Paragon of Spirit').Spell) and
                     not RGMercUtils.Feigning()
             end,
         },
@@ -745,68 +747,68 @@ return {
     ['HelperFunctions']   = {
         FlurryActive = function(self)
             local fury = self.ResolvedActionMap['FuryDisc']
-			local dicho = self.ResolvedActionMap['DichoSpell']
+            local dicho = self.ResolvedActionMap['DichoSpell']
             return (dicho and dicho() and RGMercUtils.SongActiveByName(dicho.Name()))
-				or (fury and fury() and RGMercUtils.SongActiveByName(fury.Name()))	
+                or (fury and fury() and RGMercUtils.SongActiveByName(fury.Name()))
         end,
-		DmgModActive = function(self) --Song active by name will check both Bestial Alignments (Self and Group)
-			local disc = self.ResolvedActionMap['DmgModDisc']
-			return RGMercUtils.SongActiveByName("Bestial Alignment") or (disc and disc() and RGMercUtils.SongActiveByName(disc.Name()))
-				or RGMercUtils.BuffActiveByName("Ferociousness")
-		end,
+        DmgModActive = function(self) --Song active by name will check both Bestial Alignments (Self and Group)
+            local disc = self.ResolvedActionMap['DmgModDisc']
+            return RGMercUtils.SongActiveByName("Bestial Alignment") or (disc and disc() and RGMercUtils.SongActiveByName(disc.Name()))
+                or RGMercUtils.BuffActiveByName("Ferociousness")
+        end,
     },
     ['Rotations']         = {
         ['Burn'] = {
-			{
+            {
                 name = "Group Bestial Alignment",
                 type = "AA",
                 cond = function(self, aaName)
                     return RGMercUtils.AAReady(aaName) and not self.ClassConfig.HelperFunctions.DmgModActive(self)
                 end,
             },
-			{
+            {
                 name = "Attack of the Warder",
                 type = "AA",
                 cond = function(self, aaName, target)
                     return RGMercUtils.NPCAAReady(aaName, target.ID())
                 end,
             },
-			{
+            {
                 name = "Frenzy of Spirit",
                 type = "AA",
                 cond = function(self, aaName)
                     return RGMercUtils.AAReady(aaName)
                 end,
             },
-			{
+            {
                 name = "Bloodlust",
                 type = "AA",
                 cond = function(self, aaName)
                     return RGMercUtils.AAReady(aaName)
                 end,
             },
-			{
+            {
                 name = "VinDisc",
                 type = "Disc",
                 cond = function(self, discSpell)
                     return RGMercUtils.PCDiscReady(discSpell)
                 end,
             },
-			{
+            {
                 name = "Spire of the Savage Lord",
                 type = "AA",
                 cond = function(self, aaName)
                     return RGMercUtils.AAReady(aaName)
                 end,
             },
-			{
+            {
                 name = "Companion's Fury",
                 type = "AA",
                 cond = function(self, aaName)
                     return RGMercUtils.AAReady(aaName)
                 end,
             },
-			{
+            {
                 name = mq.TLO.Me.Inventory("Chest").Name(),
                 type = "Item",
                 active_cond = function(self)
@@ -818,14 +820,14 @@ return {
                     return RGMercUtils.GetSetting('DoChestClick') and item() and RGMercUtils.SpellStacksOnMe(item.Spell) and item.TimerReady() == 0
                 end,
             },
-			{
+            {
                 name = "Frenzied Swipes",
                 type = "AA",
                 cond = function(self, aaName)
                     return RGMercUtils.AAReady(aaName)
                 end,
             },
-			{
+            {
                 name = "Blooddot",
                 type = "Spell",
                 cond = function(self, spell, target)
@@ -834,38 +836,39 @@ return {
                     return mq.TLO.Me.ActiveDisc.ID() == vinDisc.ID() and RGMercUtils.NPCSpellReady(spell, target.ID())
                 end,
             },
-			{
+            {
                 name = "FuryDisc",
                 type = "Disc",
                 cond = function(self, discSpell, target)
                     return RGMercUtils.PCDiscReady(discSpell) and not self.ClassConfig.HelperFunctions.FlurryActive(self)
                 end,
             },
-			{
+            {
                 name = "Forceful Rejuvenation",
                 type = "AA",
                 cond = function(self, aaName)
-					return RGMercUtils.AAReady(aaName) and not self.ClassConfig.HelperFunctions.FlurryActive(self) and (mq.TLO.Me.GemTimer(self.ResolvedActionMap['DichoSpell'])() or -1) > 15
+                    return RGMercUtils.AAReady(aaName) and not self.ClassConfig.HelperFunctions.FlurryActive(self) and
+                    (mq.TLO.Me.GemTimer(self.ResolvedActionMap['DichoSpell'])() or -1) > 15
                 end,
             },
-			{
+            {
                 name = "DmgModDisc",
                 type = "Disc",
                 cond = function(self, discSpell)
                     return RGMercUtils.PCDiscReady(discSpell) and not self.ClassConfig.HelperFunctions.DmgModActive(self)
                 end,
             },
-			{
+            {
                 name = "Ferociousness",
                 type = "AA",
                 cond = function(self, aaName, target)
                     return RGMercUtils.AAReady(aaName) and not self.ClassConfig.HelperFunctions.DmgModActive(self)
                 end,
             },
-			
-			-- omens chest would go here with fero (I think same conditions excepting fero can be active, but more study needed to make sure)
-			
-			{
+
+            -- omens chest would go here with fero (I think same conditions excepting fero can be active, but more study needed to make sure)
+
+            {
                 name = "Bestial Alignment",
                 type = "AA",
                 cond = function(self, aaName)
@@ -897,9 +900,9 @@ return {
             {
                 name = "Falsified Death",
                 type = "AA",
-				cond = function(self, aaName)
-					if not RGMercUtils.GetSetting('AggroFeign') then return false end
-					return (mq.TLO.Me.PctHPs() <= 30 and RGMercUtils.IHaveAggro(100)) or (RGMercUtils.IsNamed(mq.TLO.Target) and mq.TLO.Me.PctAggro() > 99)
+                cond = function(self, aaName)
+                    if not RGMercUtils.GetSetting('AggroFeign') then return false end
+                    return (mq.TLO.Me.PctHPs() <= 30 and RGMercUtils.IHaveAggro(100)) or (RGMercUtils.IsNamed(mq.TLO.Target) and mq.TLO.Me.PctAggro() > 99)
                         and RGMercUtils.PCAAReady(aaName) and not RGMercUtils.IAmMA
                 end,
             },
@@ -907,16 +910,16 @@ return {
                 name = "Warder's Gift",
                 type = "AA",
                 cond = function(self, aaName)
-					return mq.TLO.Me.Pet.PctHPs > 50 and RGMercUtils.AAReady(aaName)
-				end,
-			},
+                    return mq.TLO.Me.Pet.PctHPs > 50 and RGMercUtils.AAReady(aaName)
+                end,
+            },
             {
                 name = "Protection of the Warder",
                 type = "AA",
                 cond = function(self, aaName)
-					return RGMercUtils.IHaveAggro(100) and RGMercUtils.AAReady(aaName)
-				end,
-			},
+                    return RGMercUtils.IHaveAggro(100) and RGMercUtils.AAReady(aaName)
+                end,
+            },
         },
         ['FocusedParagon'] = {
             {
@@ -955,7 +958,7 @@ return {
                 type = "Spell",
                 cond = function(self, spell, target)
                     if not RGMercUtils.GetSetting('DoFeralgia') then return false end
-					--This checks to see if the Growl portion is up on the pet (or about to expire) before using this, those who prefer the swarm pets can use the actual swarm pet spell in conjunction with this for mana savings.
+                    --This checks to see if the Growl portion is up on the pet (or about to expire) before using this, those who prefer the swarm pets can use the actual swarm pet spell in conjunction with this for mana savings.
                     --There are some instances where the Growl isn't needed, but that is a giant TODO and of minor benefit.
                     return (mq.TLO.Pet.BuffDuration(spell.RankName.Trigger(2)).TotalSeconds() or 0) < 10 and RGMercUtils.NPCSpellReady(spell)
                         and (mq.TLO.Me.GemTimer(spell.RankName.Name())() or -1) == 0
@@ -966,7 +969,8 @@ return {
                 type = "Spell",
                 cond = function(self, spell, target)
                     if not RGMercUtils.GetSetting('DoDot') then return false end
-                    return RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell) and ((mq.TLO.Me.PctMana() >= RGMercUtils.GetSetting('ManaToDot')) or RGMercUtils.BurnCheck())
+                    return RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell) and
+                        ((mq.TLO.Me.PctMana() >= RGMercUtils.GetSetting('ManaToDot')) or RGMercUtils.BurnCheck())
                         and RGMercUtils.NPCSpellReady(spell)
                 end,
             },
@@ -975,7 +979,8 @@ return {
                 type = "Spell",
                 cond = function(self, spell, target)
                     if not RGMercUtils.GetSetting('DoDot') then return false end
-                    return RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell) and ((mq.TLO.Me.PctMana() >= RGMercUtils.GetSetting('ManaToDot')) or RGMercUtils.BurnCheck())
+                    return RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell) and
+                        ((mq.TLO.Me.PctMana() >= RGMercUtils.GetSetting('ManaToDot')) or RGMercUtils.BurnCheck())
                         and RGMercUtils.NPCSpellReady(spell)
                 end,
             },
@@ -984,7 +989,8 @@ return {
                 type = "Spell",
                 cond = function(self, spell, target)
                     if not RGMercUtils.GetSetting('DoDot') then return false end
-                    return RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell) and ((mq.TLO.Me.PctMana() >= RGMercUtils.GetSetting('ManaToDot')) or RGMercUtils.BurnCheck())
+                    return RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell) and
+                        ((mq.TLO.Me.PctMana() >= RGMercUtils.GetSetting('ManaToDot')) or RGMercUtils.BurnCheck())
                         and RGMercUtils.NPCSpellReady(spell)
                 end,
             },
@@ -995,7 +1001,7 @@ return {
                     return (RGMercUtils.ManaCheck() or RGMercUtils.BurnCheck()) and RGMercUtils.NPCSpellReady(spell)
                 end,
             },
-			{
+            {
                 name = "FrozenPoi",
                 type = "Spell",
                 cond = function(self, spell, target)
@@ -1029,15 +1035,15 @@ return {
                 cond = function(self, spell, target)
                     if not RGMercUtils.GetSetting('DoSwarmPet') then return false end
                     --We will let Feralgia apply swarm pets if our pet currently doesn't have its Growl Effect.
-					local feralgia = self.ResolvedActionMap['Feralgia']
+                    local feralgia = self.ResolvedActionMap['Feralgia']
                     return (feralgia and feralgia() and mq.TLO.Me.PetBuff(mq.TLO.Spell(feralgia).RankName.Trigger(2)()))
                         and (RGMercUtils.ManaCheck() or RGMercUtils.BurnCheck()) and RGMercUtils.NPCSpellReady(spell)
                         and (mq.TLO.Me.GemTimer(spell.RankName.Name())() or -1) == 0
-					end,
+                end,
             },
         },
         ['Weaves'] = {
-			{
+            {
                 name = "Round Kick",
                 type = "Ability",
                 cond = function(self, abilityName, target)
@@ -1051,7 +1057,7 @@ return {
                     return not RGMercUtils.CanUseAA("Feral Swipe") and mq.TLO.Me.AbilityReady(abilityName)() and RGMercUtils.GetTargetDistance() <= (target.MaxRangeTo() or 0)
                 end,
             },
-			{
+            {
                 name = "Enduring Frenzy",
                 type = "AA",
                 cond = function(self, aaName, target)
@@ -1100,10 +1106,10 @@ return {
                     return not RGMercUtils.BuffActive(discSpell) and RGMercUtils.PCDiscReady(discSpell)
                 end,
             },
-			{
+            {
                 name = "Consumption of Spirit",
                 type = "AA",
-                cond = function(self, aaName) 
+                cond = function(self, aaName)
                     return (mq.TLO.Me.PctHPs() > 90 and mq.TLO.Me.PctMana() < 60) and RGMercUtils.PCAAReady(aaName)
                 end,
             },
@@ -1111,8 +1117,8 @@ return {
                 name = "Nature's Salve",
                 type = "AA",
                 cond = function(self, aaName)
-					return mq.TLO.Me.TotalCounters() > 0 and RGMercUtils.AAReady(aaName)
-				end,
+                    return mq.TLO.Me.TotalCounters() > 0 and RGMercUtils.AAReady(aaName)
+                end,
             },
         },
         ['GroupBuff'] = {
@@ -1211,23 +1217,32 @@ return {
                 end,
             },
             {
+                name = "Consumption of Spirit",
+                type = "AA",
+                cond = function(self, aaName)
+                    return (mq.TLO.Me.PctHPs() > 70 and mq.TLO.Me.PctMana() < 80) and RGMercUtils.AAReady(aaName)
+                end,
+            },
+            {
+                name = "Feralist's Unity",
+                type = "AA",
+                cond = function(self, aaName)
+                    return RGMercUtils.SelfBuffAACheck(aaName) and RGMercUtils.PCAAReady(aaName)
+                end,
+            },
+            {
                 name = "KillShotBuff",
                 type = "Spell",
                 cond = function(self, spell)
-                    if not spell or not spell then return false end
-                    return RGMercUtils.SelfBuffCheck(spell) and mq.TLO.Me.FindBuff("id " .. tostring(spell.ID()))() == nil
+                    if RGMercUtils.CanUseAA("Feralist's Unity") then return false end
+                    return RGMercUtils.SelfBuffCheck(spell)
                 end,
             },
             {
                 name = "Pact of The Wurine",
                 type = "AA",
-                cond = function(self, aaName) return RGMercUtils.SelfBuffAACheck(aaName) and (mq.TLO.Me.PctEndurance() < 21) end,
-            },
-            {
-                name = "Consumption of Spirit",
-                type = "AA",
-                cond = function(self, aaName) 
-                    return (mq.TLO.Me.PctHPs() > 70 and mq.TLO.Me.PctMana() < 80) and RGMercUtils.AAReady(aaName)
+                cond = function(self, aaName)
+                    return RGMercUtils.SelfBuffAACheck(aaName) and RGMercUtils.AAReady(aaName)
                 end,
             },
             -- TODO: Does anyone even want this?
@@ -1327,7 +1342,8 @@ return {
                 name = "PetGrowl",
                 type = "Spell",
                 cond = function(self, spell)
-                    return (not RGMercUtils.GetSetting('DoFeralgia')) and not RGMercUtils.SongActiveByName(spell.RankName())
+                    if RGMercUtils.GetSetting('DoFeralgia') then return false end
+                    return not RGMercUtils.SongActiveByName(spell.RankName())
                 end,
             },
             {
@@ -1343,7 +1359,7 @@ return {
         {
             gem = 1,
             spells = {
-                { name = "HealSpell", cond = function(self) return RGMercUtils.GetSetting('DoHeals') end, },
+                { name = "HealSpell",    cond = function(self) return RGMercUtils.GetSetting('DoHeals') end, },
                 { name = "PetHealSpell", cond = function(self) return RGMercUtils.GetSetting('DoPetHeals') end, },
                 { name = "Icelance1", },
 
@@ -1370,14 +1386,14 @@ return {
             spells = {
                 { name = "Icelance2", },
                 { name = "Blooddot", },
-                { name = "Colddot", cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
+                { name = "Colddot",   cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
             },
         },
         {
             gem = 5,
             spells = {
                 { name = "Blooddot", },
-                { name = "Colddot", cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
+                { name = "Colddot",    cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
                 { name = "EndemicDot", cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
             },
         },
@@ -1400,7 +1416,7 @@ return {
         {
             gem = 8,
             spells = {
-                { name = "Feralgia", cond = function(self) return RGMercUtils.GetSetting('DoFeralgia') end, },
+                { name = "Feralgia",   cond = function(self) return RGMercUtils.GetSetting('DoFeralgia') end, },
                 { name = "PetGrowl", },
                 { name = "EndemicDot", cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
             },
@@ -1430,7 +1446,7 @@ return {
             gem = 12,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
-                { name = "Colddot", cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
+                { name = "Colddot",     cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
                 { name = "PetHealProc", },
 
             },
@@ -1440,8 +1456,8 @@ return {
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
                 { name = "PetHealProc", },
-                { name = "EndemicDot", cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
-                { name = "SwarmPet", cond = function(self) return RGMercUtils.GetSetting('DoSwarmPet') end, },
+                { name = "EndemicDot",  cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
+                { name = "SwarmPet",    cond = function(self) return RGMercUtils.GetSetting('DoSwarmPet') end, },
             },
         },
     },
@@ -1469,33 +1485,33 @@ return {
             end,
         },
     },
-    ['DefaultConfig']       = { --TODO: Condense pet proc options into a combo box and update entry conditions appropriately
-        ['Mode']            = { DisplayName = "Mode", Category = "Combat", Tooltip = "Select the Combat Mode for this Toon", Type = "Custom", RequiresLoadoutChange = true, Default = 1, Min = 1, Max = 1, },
+    ['DefaultConfig']     = {   --TODO: Condense pet proc options into a combo box and update entry conditions appropriately
+        ['Mode']           = { DisplayName = "Mode", Category = "Combat", Tooltip = "Select the Combat Mode for this Toon", Type = "Custom", RequiresLoadoutChange = true, Default = 1, Min = 1, Max = 1, },
         --Mana Management
-        ['DoParagon']       = { DisplayName = "Use Paragon", Category = "Mana Mgmt.", Index = 1, Tooltip = "Use Group or Focused Paragon AAs.", Default = true, ConfigType = "Advanced",},
-        ['ParagonPct']      = { DisplayName = "Paragon Mana %", Category = "Mana Mgmt.", Index = 2, Tooltip = "Minimum mana % before we use Paragon AAs.", Default = 70, Min = 1, Max = 99, ConfigType = "Advanced", },
-        ['DowntimeFP']      = { DisplayName = "Downtime F.Paragon", Category = "Mana Mgmt.", Index = 3, Tooltip = "Use Focused Paragon outside of Combat.", Default = false, ConfigType = "Advanced",},
-        ['HPStopDOT']       = { DisplayName = "HP Stop DOTs", Category = "Mana Mgmt.", Index = 4, Tooltip = "Stop casting DOTs when the mob hits [x] HP %.", Default = 50, Min = 1, Max = 100, ConfigType = "Advanced",  },
-        ['ManaToDot']       = { DisplayName = "Min Mana to Dot", Category = "Mana Mgmt.", Index = 5, Tooltip = "The minimum Mana % to use DoTs outside of burns.", Default = 50, Min = 1, Max = 100, ConfigType = "Advanced", }, 
+        ['DoParagon']      = { DisplayName = "Use Paragon", Category = "Mana Mgmt.", Index = 1, Tooltip = "Use Group or Focused Paragon AAs.", Default = true, ConfigType = "Advanced", },
+        ['ParagonPct']     = { DisplayName = "Paragon Mana %", Category = "Mana Mgmt.", Index = 2, Tooltip = "Minimum mana % before we use Paragon AAs.", Default = 70, Min = 1, Max = 99, ConfigType = "Advanced", },
+        ['DowntimeFP']     = { DisplayName = "Downtime F.Paragon", Category = "Mana Mgmt.", Index = 3, Tooltip = "Use Focused Paragon outside of Combat.", Default = false, ConfigType = "Advanced", },
+        ['HPStopDOT']      = { DisplayName = "HP Stop DOTs", Category = "Mana Mgmt.", Index = 4, Tooltip = "Stop casting DOTs when the mob hits [x] HP %.", Default = 50, Min = 1, Max = 100, ConfigType = "Advanced", },
+        ['ManaToDot']      = { DisplayName = "Min Mana to Dot", Category = "Mana Mgmt.", Index = 5, Tooltip = "The minimum Mana % to use DoTs outside of burns.", Default = 50, Min = 1, Max = 100, ConfigType = "Advanced", },
         --Pets
-        ['DoTankPet']       = { DisplayName = "Do Tank Pet", Category = "Pet Mgmt.", Index = 1, Tooltip = "Use abilities designed for your pet to tank.", Default = false, },
-        ['DoPetHeals']      = { DisplayName = "Do Pet Heals", Category = "Pet Mgmt.", Index = 2, Tooltip = "Mem and cast your Pet Heal (Salve) spell. AA Pet Heals are always used in emergencies.", Default = true, RequiresLoadoutChange = true,},
-        ['DoPetSlow']       = { DisplayName = "Pet Slow Proc", Category = "Pet Mgmt.", Index = 3, Tooltip = "Use your Pet Slow Proc Buff (does not stack with Pet Damage or Snare Proc Buff).", Default = false, },
-        ['DoPetSnare']      = { DisplayName = "Pet Snare Proc", Category = "Pet Mgmt.", Index = 4, Tooltip = "Use your Pet Snare Proc Buff (does not stack with Pet Damage or Slow Proc Buff).", Default = false, },
-        ['DoSpellGuard']    = { DisplayName = "Do Spellguard", Category = "Pet Mgmt.", Index = 5, Tooltip = "Do Pet Spell Guard. (Warning! Long refresh time.)", Default = false, ConfigType = "Advanced",},
-        ['DoFeralgia']      = { DisplayName = "Do Feralgia", Category = "Pet Mgmt.", Index = 6, Tooltip = "Use Feralgia for the Growl Effect on your Pet instead of the Growl Spell.", Default = true, RequiresLoadoutChange = true, ConfigType = "Advanced",},
-        ['DoSwarmPet']      = { DisplayName = "Do Swarm Pet", Category = "Pet Mgmt.", Index = 7, Tooltip = "Use your Swarm Pet spell in addition to Feralgia", Default = false, RequiresLoadoutChange = true, ConfigType = "Advanced", },
-        ['DoEpic']          = { DisplayName = "Do Epic", Category = "Pet Mgmt.", Index = 8, Tooltip = "Click your Epic Weapon.", Default = false, },
+        ['DoTankPet']      = { DisplayName = "Do Tank Pet", Category = "Pet Mgmt.", Index = 1, Tooltip = "Use abilities designed for your pet to tank.", Default = false, },
+        ['DoPetHeals']     = { DisplayName = "Do Pet Heals", Category = "Pet Mgmt.", Index = 2, Tooltip = "Mem and cast your Pet Heal (Salve) spell. AA Pet Heals are always used in emergencies.", Default = true, RequiresLoadoutChange = true, },
+        ['DoPetSlow']      = { DisplayName = "Pet Slow Proc", Category = "Pet Mgmt.", Index = 3, Tooltip = "Use your Pet Slow Proc Buff (does not stack with Pet Damage or Snare Proc Buff).", Default = false, },
+        ['DoPetSnare']     = { DisplayName = "Pet Snare Proc", Category = "Pet Mgmt.", Index = 4, Tooltip = "Use your Pet Snare Proc Buff (does not stack with Pet Damage or Slow Proc Buff).", Default = false, },
+        ['DoSpellGuard']   = { DisplayName = "Do Spellguard", Category = "Pet Mgmt.", Index = 5, Tooltip = "Do Pet Spell Guard. (Warning! Long refresh time.)", Default = false, ConfigType = "Advanced", },
+        ['DoFeralgia']     = { DisplayName = "Do Feralgia", Category = "Pet Mgmt.", Index = 6, Tooltip = "Use Feralgia for the Growl Effect on your Pet instead of the Growl Spell.", Default = true, RequiresLoadoutChange = true, ConfigType = "Advanced", },
+        ['DoSwarmPet']     = { DisplayName = "Do Swarm Pet", Category = "Pet Mgmt.", Index = 7, Tooltip = "Use your Swarm Pet spell in addition to Feralgia", Default = false, RequiresLoadoutChange = true, ConfigType = "Advanced", },
+        ['DoEpic']         = { DisplayName = "Do Epic", Category = "Pet Mgmt.", Index = 8, Tooltip = "Click your Epic Weapon.", Default = false, },
         --Spells/Abilities
-        ['DoHeals']         = { DisplayName = "Do Heals", Category = "Spells and Abilities", Index = 1, Tooltip = "Mem and cast your Mending spell.", Default = true, RequiresLoadoutChange = true,},
-        ['DoSlow']          = { DisplayName = "Do Slow", Category = "Spells and Abilities", Index = 2, Tooltip = "Use your slow spell or AA.", Default = true, RequiresLoadoutChange = true,},
-        ['DoDot']           = { DisplayName = "Cast DOTs", Category = "Spells and Abilities", Index = 3, Tooltip = "Enable casting Damage Over Time spells.", Default = true, RequiresLoadoutChange = true,},
-        ['DoAoe']           = { DisplayName = "Do AoE", Category = "Spells and Abilities", Index = 4, Tooltip = "Enable using AoE Claw Ability. --TODO: Add AoE DD Nuke", Default = false, ConfigType = "Advanced",},
-        ['DoRunSpeed']      = { DisplayName = "Do Run Speed", Category = "Spells and Abilities", Index = 5, Tooltip = "Do Run Speed Spells/AAs", Default = true, },
-        ['DoAvatar']        = { DisplayName = "Do Avatar", Category = "Spells and Abilities", Index = 6, Tooltip = "Buff Group/Pet with Avatar", Default = true, },
-        ['DoChestClick']    = { DisplayName = "Do Chest Click", Category = "Spells and Abilities", Index = 7, Tooltip = "Click your chest item during burns.", Default = true, ConfigType = "Advanced",},
-        ['AggroFeign']      = { DisplayName = "Emergency Feign", Category = "Spells and Abilities", Index = 8, Tooltip = "Use your Feign AA when you have aggro at low health or aggro on a RGMercsNamed/SpawnMaster mob.", Default = true, },
-        ['EmergencyStart']  = { DisplayName = "Emergency HP%", Category = "Spells and Abilities", Index = 9, Tooltip = "Your HP % before we begin to use emergency mitigation abilities.", Default = 50, Min = 1, Max = 100, ConfigType = "Advanced", },
-        --['DoCombatFero']    = { DisplayName = "Do Combat Fero", Category = "Combat", Tooltip = "Do Combat Fero", Default = true, }, --commented like the respective entry.   
+        ['DoHeals']        = { DisplayName = "Do Heals", Category = "Spells and Abilities", Index = 1, Tooltip = "Mem and cast your Mending spell.", Default = true, RequiresLoadoutChange = true, },
+        ['DoSlow']         = { DisplayName = "Do Slow", Category = "Spells and Abilities", Index = 2, Tooltip = "Use your slow spell or AA.", Default = true, RequiresLoadoutChange = true, },
+        ['DoDot']          = { DisplayName = "Cast DOTs", Category = "Spells and Abilities", Index = 3, Tooltip = "Enable casting Damage Over Time spells.", Default = true, RequiresLoadoutChange = true, },
+        ['DoAoe']          = { DisplayName = "Do AoE", Category = "Spells and Abilities", Index = 4, Tooltip = "Enable using AoE Claw Ability. --TODO: Add AoE DD Nuke", Default = false, ConfigType = "Advanced", },
+        ['DoRunSpeed']     = { DisplayName = "Do Run Speed", Category = "Spells and Abilities", Index = 5, Tooltip = "Do Run Speed Spells/AAs", Default = true, },
+        ['DoAvatar']       = { DisplayName = "Do Avatar", Category = "Spells and Abilities", Index = 6, Tooltip = "Buff Group/Pet with Avatar", Default = true, },
+        ['DoChestClick']   = { DisplayName = "Do Chest Click", Category = "Spells and Abilities", Index = 7, Tooltip = "Click your chest item during burns.", Default = true, ConfigType = "Advanced", },
+        ['AggroFeign']     = { DisplayName = "Emergency Feign", Category = "Spells and Abilities", Index = 8, Tooltip = "Use your Feign AA when you have aggro at low health or aggro on a RGMercsNamed/SpawnMaster mob.", Default = true, },
+        ['EmergencyStart'] = { DisplayName = "Emergency HP%", Category = "Spells and Abilities", Index = 9, Tooltip = "Your HP % before we begin to use emergency mitigation abilities.", Default = 50, Min = 1, Max = 100, ConfigType = "Advanced", },
+        --['DoCombatFero']    = { DisplayName = "Do Combat Fero", Category = "Combat", Tooltip = "Do Combat Fero", Default = true, }, --commented like the respective entry.
     },
 }
