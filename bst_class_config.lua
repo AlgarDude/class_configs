@@ -701,7 +701,7 @@ return {
                     RGMercUtils.FindWorstHurtManaXT(RGMercUtils.GetSetting('ParagonPct')), }
             end,
             cond = function(self, combat_state)
-                return combat_state == "Combat" and RGMercUtils.GetSetting('DoParagon') and not RGMercUtils.BuffActive(mq.TLO.Me.AltAbility('Paragon of Spirit').Spell) and
+                return (combat_state == "Combat" or RGMercUtils.GetSetting('DowntimeFP')) and RGMercUtils.GetSetting('DoParagon') and not RGMercUtils.BuffActive(mq.TLO.Me.AltAbility('Paragon of Spirit').Spell) and
                     not RGMercUtils.Feigning()
             end,
         },
@@ -1472,10 +1472,11 @@ return {
     ['DefaultConfig']       = { --TODO: Condense pet proc options into a combo box and update entry conditions appropriately
         ['Mode']            = { DisplayName = "Mode", Category = "Combat", Tooltip = "Select the Combat Mode for this Toon", Type = "Custom", RequiresLoadoutChange = true, Default = 1, Min = 1, Max = 1, },
         --Mana Management
-        ['DoParagon']       = { DisplayName = "Do Paragon", Category = "Mana Mgmt.", Index = 1, Tooltip = "Use Group or Focused Paragon AAs.", Default = true, ConfigType = "Advanced",},
-        ['ParagonPct']      = { DisplayName = "Paragon Min Pct", Category = "Mana Mgmt.", Index = 2, Tooltip = "Minimum mana % before we use Focused Paragon on someone", Default = 70, Min = 1, Max = 99, ConfigType = "Advanced", },
-        ['HPStopDOT']       = { DisplayName = "HP Stop DOTs", Category = "Mana Mgmt.", Index = 3, Tooltip = "Stop casting DOTs when the mob hits [x] HP %.", Default = 50, Min = 1, Max = 100, ConfigType = "Advanced",  },
-        ['ManaToDot']       = { DisplayName = "Min Mana to Dot", Category = "Mana Mgmt.", Index = 4, Tooltip = "The minimum Mana % to use DoTs outside of burns.", Default = 50, Min = 1, Max = 100, ConfigType = "Advanced", }, 
+        ['DoParagon']       = { DisplayName = "Use Paragon", Category = "Mana Mgmt.", Index = 1, Tooltip = "Use Group or Focused Paragon AAs.", Default = true, ConfigType = "Advanced",},
+        ['ParagonPct']      = { DisplayName = "Paragon Mana %", Category = "Mana Mgmt.", Index = 2, Tooltip = "Minimum mana % before we use Paragon AAs.", Default = 70, Min = 1, Max = 99, ConfigType = "Advanced", },
+        ['DowntimeFP']      = { DisplayName = "Downtime F.Paragon", Category = "Mana Mgmt.", Index = 3, Tooltip = "Use Focused Paragon outside of Combat.", Default = false, ConfigType = "Advanced",},
+        ['HPStopDOT']       = { DisplayName = "HP Stop DOTs", Category = "Mana Mgmt.", Index = 4, Tooltip = "Stop casting DOTs when the mob hits [x] HP %.", Default = 50, Min = 1, Max = 100, ConfigType = "Advanced",  },
+        ['ManaToDot']       = { DisplayName = "Min Mana to Dot", Category = "Mana Mgmt.", Index = 5, Tooltip = "The minimum Mana % to use DoTs outside of burns.", Default = 50, Min = 1, Max = 100, ConfigType = "Advanced", }, 
         --Pets
         ['DoTankPet']       = { DisplayName = "Do Tank Pet", Category = "Pet Mgmt.", Index = 1, Tooltip = "Use abilities designed for your pet to tank.", Default = false, },
         ['DoPetHeals']      = { DisplayName = "Do Pet Heals", Category = "Pet Mgmt.", Index = 2, Tooltip = "Mem and cast your Pet Heal (Salve) spell. AA Pet Heals are always used in emergencies.", Default = true, RequiresLoadoutChange = true,},
