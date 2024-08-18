@@ -741,7 +741,6 @@ return {
                 return combat_state == "Combat" and not RGMercUtils.Feigning()
             end,
         },
-
     },
     ['HelperFunctions']   = {
         FlurryActive = function(self)
@@ -750,7 +749,7 @@ return {
             return (dicho and dicho() and RGMercUtils.SongActiveByName(dicho.Name()))
 				or (fury and fury() and RGMercUtils.SongActiveByName(fury.Name()))	
         end,
-		DmgModActive = function(self)
+		DmgModActive = function(self) --Song active by name will check both Bestial Alignments (Self and Group)
 			local disc = self.ResolvedActionMap['DmgModDisc']
 			return RGMercUtils.SongActiveByName("Bestial Alignment") or (disc and disc() and RGMercUtils.SongActiveByName(disc.Name()))
 				or RGMercUtils.BuffActiveByName("Ferociousness")
@@ -959,15 +958,7 @@ return {
 					--This checks to see if the Growl portion is up on the pet (or about to expire) before using this, those who prefer the swarm pets can use the actual swarm pet spell in conjunction with this for mana savings.
                     --There are some instances where the Growl isn't needed, but that is a giant TODO and of minor benefit.
                     return (mq.TLO.Pet.BuffDuration(spell.RankName.Trigger(2)).TotalSeconds() or 0) < 10 and RGMercUtils.NPCSpellReady(spell)
-                end,
-            },
-            {
-                name = "Colddot",
-                type = "Spell",
-                cond = function(self, spell, target)
-                    if not RGMercUtils.GetSetting('DoDot') then return false end
-                    return RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell) and (RGMercUtils.ManaCheck() or RGMercUtils.BurnCheck())
-                        and RGMercUtils.NPCSpellReady(spell)
+                        and (mq.TLO.Me.GemTimer(spell.RankName.Name())() or -1) == 0
                 end,
             },
             {
@@ -975,7 +966,16 @@ return {
                 type = "Spell",
                 cond = function(self, spell, target)
                     if not RGMercUtils.GetSetting('DoDot') then return false end
-                    return RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell) and (RGMercUtils.ManaCheck() or RGMercUtils.BurnCheck())
+                    return RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell) and ((mq.TLO.Me.PctMana() >= RGMercUtils.GetSetting('ManaToDot')) or RGMercUtils.BurnCheck())
+                        and RGMercUtils.NPCSpellReady(spell)
+                end,
+            },
+            {
+                name = "Colddot",
+                type = "Spell",
+                cond = function(self, spell, target)
+                    if not RGMercUtils.GetSetting('DoDot') then return false end
+                    return RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell) and ((mq.TLO.Me.PctMana() >= RGMercUtils.GetSetting('ManaToDot')) or RGMercUtils.BurnCheck())
                         and RGMercUtils.NPCSpellReady(spell)
                 end,
             },
@@ -984,7 +984,7 @@ return {
                 type = "Spell",
                 cond = function(self, spell, target)
                     if not RGMercUtils.GetSetting('DoDot') then return false end
-                    return RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell) and (RGMercUtils.ManaCheck() or RGMercUtils.BurnCheck())
+                    return RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell) and ((mq.TLO.Me.PctMana() >= RGMercUtils.GetSetting('ManaToDot')) or RGMercUtils.BurnCheck())
                         and RGMercUtils.NPCSpellReady(spell)
                 end,
             },
@@ -1032,6 +1032,7 @@ return {
 					local feralgia = self.ResolvedActionMap['Feralgia']
                     return (feralgia and feralgia() and mq.TLO.Me.PetBuff(mq.TLO.Spell(feralgia).RankName.Trigger(2)()))
                         and (RGMercUtils.ManaCheck() or RGMercUtils.BurnCheck()) and RGMercUtils.NPCSpellReady(spell)
+                        and (mq.TLO.Me.GemTimer(spell.RankName.Name())() or -1) == 0
 					end,
             },
         },
@@ -1255,7 +1256,7 @@ return {
                 type = "AA",
                 cond = function(self, aaName, target)
                     local slowProc = self.ResolvedActionMap['PetSlowProc']
-                    return RGMercUtils.GetSetting('DoSnare') and (slowProc and slowProc() and mq.TLO.Me.PetBuff(slowProc.RankName()) == nil) and
+                    return RGMercUtils.GetSetting('DoPetSnare') and (slowProc and slowProc() and mq.TLO.Me.PetBuff(slowProc.RankName()) == nil) and
                         mq.TLO.Me.PetBuff(mq.TLO.Me.AltAbility(aaName).Spell.RankName.Name())() == nil
                 end,
             },
@@ -1468,28 +1469,32 @@ return {
             end,
         },
     },
-    ['DefaultConfig']       = {
+    ['DefaultConfig']       = { --TODO: Condense pet proc options into a combo box and update entry conditions appropriately
         ['Mode']            = { DisplayName = "Mode", Category = "Combat", Tooltip = "Select the Combat Mode for this Toon", Type = "Custom", RequiresLoadoutChange = true, Default = 1, Min = 1, Max = 1, },
-        ['DoCombatFero']    = { DisplayName = "Do Combat Fero", Category = "Combat", Tooltip = "Do Combat Fero", Default = true, },
-        ['DoParagon']       = { DisplayName = "Do Paragon", Category = "Combat", Tooltip = "Cast Paragon on lowest mana in Group / XT", Default = true, },
-        ['ParagonPct']      = { DisplayName = "Paragon Min Pct", Category = "Combat", Tooltip = "Minimum mana % before we cast Paragon on someone", Default = 60, Min = 1, Max = 99, ConfigType = "Advanced", },
-        ['DoEpic']          = { DisplayName = "Do Epic", Category = "Abilities", Tooltip = "Enable using your epic clicky", Default = true, },
-        ['DoSnare']         = { DisplayName = "Cast Snares", Category = "Spells and Abilities", Tooltip = "Enable casting Snare spells.", Default = true, },
-        ['DoRunSpeed']      = { DisplayName = "Do Run Speed", Category = "Buffs", Tooltip = "Do Run Speed Spells/AAs", Default = true, },
-        ['DoTankPet']       = { DisplayName = "Do Tank Pet", Category = "Buffs", Tooltip = "DoTankPet", Default = false, },
-        ['DoPetSlow']       = { DisplayName = "Do Pet Slow", Category = "Buffs", Tooltip = "DoPetSlow", Default = false, },
-        ['DoSpellGuard']    = { DisplayName = "Do Spellguard", Category = "Buffs", Tooltip = "Do Pet Spell Guard (long refresh time)", Default = false, },
-        ['DoSlow']          = { DisplayName = "Do Slow", Category = "Buffs", Tooltip = "DoSlow", Default = true, RequiresLoadoutChange = true,},
-        ['DoSwarmPet']      = { DisplayName = "Do Swarm Pet", Category = "Spells and Abilities", Tooltip = "Use your Swarm Pet spell in addition to Feralgia", Default = false, RequiresLoadoutChange = true, ConfigType = "Advanced", },
-        ['DoFeralgia']      = { DisplayName = "Do Feralgia", Category = "Buffs", Tooltip = "Use Feralgia instead of Growl for Growl Effect on Pet", Default = true, RequiresLoadoutChange = true,},
-        ['DoChestClick']    = { DisplayName = "Do Chest Click", Category = "Utilities", Tooltip = "Click your chest item", Default = true, },
-        ['DoAoe']           = { DisplayName = "Do AoE", Category = "Abilities", Tooltip = "Enable using AoE Abilities", Default = true, },
-        ['DoDot']           = { DisplayName = "Cast DOTs", Category = "Spells and Abilities", Tooltip = "Enable casting Damage Over Time spells.", Default = true, RequiresLoadoutChange = true,},
-        ['HPStopDOT']       = { DisplayName = "HP Stop DOTs", Category = "Spells and Abilities", Tooltip = "Stop casting DOTs when the mob hits [x] HP %.", Default = 30, Min = 1, Max = 100, },
-        ['DoAvatar']        = { DisplayName = "Do Avatar", Category = "Buffs", Tooltip = "Buff Group/Pet with Avatar", Default = true, },
-        ['DoHeals']         = { DisplayName = "Do Heals", Category = "Spells and Abilities", Tooltip = "Mem and cast your Mending spell.", Default = true, RequiresLoadoutChange = true,},
-        ['DoPetHeals']      = { DisplayName = "Do Pet Heals", Category = "Spells and Abilities", Tooltip = "Mem and cast your Pet Heal (Salve) spell. AA Pet Heals are always used in emergencies.", Default = true, RequiresLoadoutChange = true,},
-        ['EmergencyStart']  = { DisplayName = "Emergency HP%",Category = "Combat", Tooltip = "Your HP % before we begin to use emergency mitigation abilities.", Default = 50, Min = 1, Max = 100, ConfigType = "Advanced", },
-        ['AggroFeign']      = { DisplayName = "Emergency Feign", Category = "Combat", Tooltip = "Use your Feign AA when you have aggro at low health or aggro on a RGMercsNamed/SpawnMaster mob.", Default = true, },
+        --Mana Management
+        ['DoParagon']       = { DisplayName = "Do Paragon", Category = "Mana Mgmt.", Index = 1, Tooltip = "Use Group or Focused Paragon AAs.", Default = true, ConfigType = "Advanced",},
+        ['ParagonPct']      = { DisplayName = "Paragon Min Pct", Category = "Mana Mgmt.", Index = 2, Tooltip = "Minimum mana % before we use Focused Paragon on someone", Default = 70, Min = 1, Max = 99, ConfigType = "Advanced", },
+        ['HPStopDOT']       = { DisplayName = "HP Stop DOTs", Category = "Mana Mgmt.", Index = 3, Tooltip = "Stop casting DOTs when the mob hits [x] HP %.", Default = 50, Min = 1, Max = 100, ConfigType = "Advanced",  },
+        ['ManaToDot']       = { DisplayName = "Min Mana to Dot", Category = "Mana Mgmt.", Index = 4, Tooltip = "The minimum Mana % to use DoTs outside of burns.", Default = 50, Min = 1, Max = 100, ConfigType = "Advanced", }, 
+        --Pets
+        ['DoTankPet']       = { DisplayName = "Do Tank Pet", Category = "Pet Mgmt.", Index = 1, Tooltip = "Use abilities designed for your pet to tank.", Default = false, },
+        ['DoPetHeals']      = { DisplayName = "Do Pet Heals", Category = "Pet Mgmt.", Index = 2, Tooltip = "Mem and cast your Pet Heal (Salve) spell. AA Pet Heals are always used in emergencies.", Default = true, RequiresLoadoutChange = true,},
+        ['DoPetSlow']       = { DisplayName = "Pet Slow Proc", Category = "Pet Mgmt.", Index = 3, Tooltip = "Use your Pet Slow Proc Buff (does not stack with Pet Damage or Snare Proc Buff).", Default = false, },
+        ['DoPetSnare']      = { DisplayName = "Pet Snare Proc", Category = "Pet Mgmt.", Index = 4, Tooltip = "Use your Pet Snare Proc Buff (does not stack with Pet Damage or Slow Proc Buff).", Default = false, },
+        ['DoSpellGuard']    = { DisplayName = "Do Spellguard", Category = "Pet Mgmt.", Index = 5, Tooltip = "Do Pet Spell Guard. (Warning! Long refresh time.)", Default = false, ConfigType = "Advanced",},
+        ['DoFeralgia']      = { DisplayName = "Do Feralgia", Category = "Pet Mgmt.", Index = 6, Tooltip = "Use Feralgia for the Growl Effect on your Pet instead of the Growl Spell.", Default = true, RequiresLoadoutChange = true, ConfigType = "Advanced",},
+        ['DoSwarmPet']      = { DisplayName = "Do Swarm Pet", Category = "Pet Mgmt.", Index = 7, Tooltip = "Use your Swarm Pet spell in addition to Feralgia", Default = false, RequiresLoadoutChange = true, ConfigType = "Advanced", },
+        ['DoEpic']          = { DisplayName = "Do Epic", Category = "Pet Mgmt.", Index = 8, Tooltip = "Click your Epic Weapon.", Default = false, },
+        --Spells/Abilities
+        ['DoHeals']         = { DisplayName = "Do Heals", Category = "Spells and Abilities", Index = 1, Tooltip = "Mem and cast your Mending spell.", Default = true, RequiresLoadoutChange = true,},
+        ['DoSlow']          = { DisplayName = "Do Slow", Category = "Spells and Abilities", Index = 2, Tooltip = "Use your slow spell or AA.", Default = true, RequiresLoadoutChange = true,},
+        ['DoDot']           = { DisplayName = "Cast DOTs", Category = "Spells and Abilities", Index = 3, Tooltip = "Enable casting Damage Over Time spells.", Default = true, RequiresLoadoutChange = true,},
+        ['DoAoe']           = { DisplayName = "Do AoE", Category = "Spells and Abilities", Index = 4, Tooltip = "Enable using AoE Claw Ability. --TODO: Add AoE DD Nuke", Default = false, ConfigType = "Advanced",},
+        ['DoRunSpeed']      = { DisplayName = "Do Run Speed", Category = "Spells and Abilities", Index = 5, Tooltip = "Do Run Speed Spells/AAs", Default = true, },
+        ['DoAvatar']        = { DisplayName = "Do Avatar", Category = "Spells and Abilities", Index = 6, Tooltip = "Buff Group/Pet with Avatar", Default = true, },
+        ['DoChestClick']    = { DisplayName = "Do Chest Click", Category = "Spells and Abilities", Index = 7, Tooltip = "Click your chest item during burns.", Default = true, ConfigType = "Advanced",},
+        ['AggroFeign']      = { DisplayName = "Emergency Feign", Category = "Spells and Abilities", Index = 8, Tooltip = "Use your Feign AA when you have aggro at low health or aggro on a RGMercsNamed/SpawnMaster mob.", Default = true, },
+        ['EmergencyStart']  = { DisplayName = "Emergency HP%", Category = "Spells and Abilities", Index = 9, Tooltip = "Your HP % before we begin to use emergency mitigation abilities.", Default = 50, Min = 1, Max = 100, ConfigType = "Advanced", },
+        --['DoCombatFero']    = { DisplayName = "Do Combat Fero", Category = "Combat", Tooltip = "Do Combat Fero", Default = true, }, --commented like the respective entry.   
     },
 }
