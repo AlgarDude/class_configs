@@ -1123,6 +1123,7 @@ return {
                 name = "RunSpeedBuff",
                 type = "Spell",
                 cond = function(self, spell, target)
+                    -- force the target for StacksTarget to work.
                     RGMercUtils.SetTarget(target.ID() or 0)
                     return RGMercUtils.GetSetting('DoRunSpeed') and not RGMercUtils.TargetHasBuff(spell) and RGMercUtils.SpellStacksOnTarget(spell)
                 end,
