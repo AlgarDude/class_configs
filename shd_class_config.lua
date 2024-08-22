@@ -15,7 +15,7 @@ local RGMercUtils  = require("utils.rgmercs_utils")
 local Tooltips     = {
     Mantle              = "Spell Line: Melee Absorb Proc",
     Carapace            = "Spell Line: Melee Absorb Proc",
-	CombatEndRegen      = "Discipline Line: Endurance Regen (In-Combat Useable)",
+    CombatEndRegen      = "Discipline Line: Endurance Regen (In-Combat Useable)",
     EndRegen            = "Discipline Line: Endurance Regen (Out of Combat)",
     Blade               = "Ability Line: Double 2HS Attack w/ Accuracy Mod",
     Crimson             = "Disicpline Line: Triple Attack w/ Accuracy Mod",
@@ -76,7 +76,7 @@ local Tooltips     = {
 local _ClassConfig = {
     _version            = "1.2",
     _author             = "Algar (based on RGMercs 1.0beta by Derple)",
-	['FullConfig'] = true,
+    ['FullConfig']      = true,
     ['ModeChecks']      = {
         IsTanking = function() return RGMercUtils.IsModeActive("Tank") end,
     },
@@ -141,7 +141,7 @@ local _ClassConfig = {
             "Kanghammer's Carapace",
         },
         ['EndRegen'] = {
-			--Timer 13, can't be used in combat
+            --Timer 13, can't be used in combat
             "Second Wind",
             "Third Wind",
             "Fourth Wind",
@@ -150,9 +150,9 @@ local _ClassConfig = {
             "Rest",
             "Breather", --Level 101
         },
-		['CombatEndRegen'] = {
-			--Timer 13, can be used in combat.
-			"Hiatus", --Level 106
+        ['CombatEndRegen'] = {
+            --Timer 13, can be used in combat.
+            "Hiatus", --Level 106
             "Relax",
             "Night's Calming",
             "Convalesce",
@@ -191,9 +191,9 @@ local _ClassConfig = {
         ['UnholyAura'] = { 'Unholy Aura Discipline', },
 
         ['CurseGuard'] = {
-			"Corrupted Guardian Discipline",
-			"Cursed Guardian Discipline",
-		},
+            "Corrupted Guardian Discipline",
+            "Cursed Guardian Discipline",
+        },
 
         ['PetSpell'] = {
             "Leering Corpse",
@@ -359,7 +359,7 @@ local _ClassConfig = {
             "Blood of Tearc",
             "Blood of Shoru",
         },
-		['CorruptionDot'] = {
+        ['CorruptionDot'] = {
             "Vitriolic Blight",
             "Unscrupulous Blight",
             "Nefarious Blight",
@@ -412,37 +412,43 @@ local _ClassConfig = {
             "Dire Censure",
             "Dire Rebuke",
         },
-      --todo: re-add low level taps (previous had some lines crossed iirc)
+        --todo: re-add low level taps (previous had some lines crossed iirc)
         ['LifeTap'] = {
             "Touch of Flariton",
             "Touch of Txiki",
             "Touch of Drendar",
             "Touch of T`Vem",
-			      "Touch of Lutzen",
-			      "Touch of Falsin",
-			      "Touch of Urash",
-			      "Touch of Falsin",
-			      "Touch of Dyalgem",
-			      "Touch of Tharoff",
-			      "Touch of Kildrukaun",
-			      "Touch of Severan",
-			      "Touch of the Devourer",
+            "Touch of Lutzen",
+            "Touch of Falsin",
+            "Touch of Urash",
+            "Touch of Falsin",
+            "Touch of Dyalgem",
+            "Touch of Tharoff",
+            "Touch of Kildrukaun",
+            "Touch of Severan",
+            "Touch of the Devourer",
+
+            "Lifespike",
+            "Lifetap",
         },
-      --todo: re-add low level taps (previous had some lines crossediirc )
+        --todo: re-add low level taps (previous had some lines crossediirc )
         ['LifeTap2'] = {
             "Touch of Flariton",
             "Touch of Txiki",
             "Touch of Drendar",
             "Touch of T`Vem",
-			      "Touch of Lutzen",
-			      "Touch of Falsin",
-			      "Touch of Urash",
-			      "Touch of Falsin",
-			      "Touch of Dyalgem",
-			      "Touch of Tharoff",
-			      "Touch of Kildrukaun",
-			      "Touch of Severan",
-			      "Touch of the Devourer",
+            "Touch of Lutzen",
+            "Touch of Falsin",
+            "Touch of Urash",
+            "Touch of Falsin",
+            "Touch of Dyalgem",
+            "Touch of Tharoff",
+            "Touch of Kildrukaun",
+            "Touch of Severan",
+            "Touch of the Devourer",
+
+            "Lifespike",
+            "Lifetap",
         },
         ['BuffTap'] = {
             "Touch of Mortimus",
@@ -626,7 +632,7 @@ local _ClassConfig = {
     },
     ['HelperFunctions'] = {
         -- helper function for advanced logic to see if we want to use Dark Lord's Unity
-		-- TODO: Consider making a toggle for Azia vs Beza
+        -- TODO: Consider making a toggle for Azia vs Beza
         castDLU = function(self)
             local shroudAction = RGMercModules:ExecModule("Class", "GetResolvedActionMapItem", "Shroud")
             if not shroudAction then return false end
@@ -644,39 +650,41 @@ local _ClassConfig = {
 
             return res
         end,
-		--Handles all AE taunt checks rather than repetetive hardcoded conditions in the UI loop
-		AeTauntCheck = function(self)
-			--check to see if we are the tank in the first place just in case something CRAAAAAZY happens
-			if not RGMercUtils.IsTanking() then return false end
-	
-			-- check that there are sufficient targets to AE taunt and that it is (optionally) safe to do so
-			local mobs = mq.TLO.SpawnCount("NPC radius 50 zradius 50")()
-			if (RGMercUtils.GetSetting('SafeAeTaunt') and mobs > RGMercUtils.GetXTHaterCount()) or RGMercUtils.GetXTHaterCount() < RGMercUtils.GetSetting('AeTauntCnt') then return false end
+        --Handles all AE taunt checks rather than repetetive hardcoded conditions in the UI loop
+        AeTauntCheck = function(self)
+            --check to see if we are the tank in the first place just in case something CRAAAAAZY happens
+            if not RGMercUtils.IsTanking() then return false end
 
-			--check to make sure the above targets need to be tanked
-			local xtCount = mq.TLO.Me.XTarget()
-			for i = 1, xtCount do
-				local xtSpawn = mq.TLO.Me.XTarget(i)
-				--ensure we only check hostiles, the hostile is in range, that we aren't already tanking it, and that the other xtargets aren't out of range of an AE taunt
-				if xtSpawn() and (xtSpawn.ID() or 0) > 0 and (xtSpawn.TargetType() or ""):lower() == "auto hater" 
-					and (xtSpawn.Distance() or 999) <= 50 and xtSpawn.PctAggro() < 100 and mobs > 1 then return true end
-			end
-			
-			return false
-		end,
-		--function to space out Epic and Omens Chest with Mortal Coil old-school swarm style. Epic has an override condition to fire anyway on named.
-   		LeechCheck = function(self)
-			local LeechEffects = { "Leechcurse Discipline", "Mortal Coil", "Lich Sting Recourse", "Leeching Embrace", "Reaper Strike Recourse", }
-			for _, buffName in ipairs(LeechEffects) do
-				if RGMercUtils.BuffActiveByName(buffName) then return false end
-			end
-			return true
-		end,
+            -- check that there are sufficient targets to AE taunt and that it is (optionally) safe to do so
+            local mobs = mq.TLO.SpawnCount("NPC radius 50 zradius 50")()
+            if (RGMercUtils.GetSetting('SafeAeTaunt') and mobs > RGMercUtils.GetXTHaterCount()) or RGMercUtils.GetXTHaterCount() < RGMercUtils.GetSetting('AeTauntCnt') then return false end
+
+            --check to make sure the above targets need to be tanked
+            local xtCount = mq.TLO.Me.XTarget()
+            for i = 1, xtCount do
+                local xtSpawn = mq.TLO.Me.XTarget(i)
+                --ensure we only check hostiles, the hostile is in range, that we aren't already tanking it, and that the other xtargets aren't out of range of an AE taunt
+                if xtSpawn() and (xtSpawn.ID() or 0) > 0 and (xtSpawn.TargetType() or ""):lower() == "auto hater"
+                    and (xtSpawn.Distance() or 999) <= 50 and xtSpawn.PctAggro() < 100 and mobs > 1 then
+                    return true
+                end
+            end
+
+            return false
+        end,
+        --function to space out Epic and Omens Chest with Mortal Coil old-school swarm style. Epic has an override condition to fire anyway on named.
+        LeechCheck = function(self)
+            local LeechEffects = { "Leechcurse Discipline", "Mortal Coil", "Lich Sting Recourse", "Leeching Embrace", "Reaper Strike Recourse", }
+            for _, buffName in ipairs(LeechEffects) do
+                if RGMercUtils.BuffActiveByName(buffName) then return false end
+            end
+            return true
+        end,
     },
     ['RotationOrder']   = {
-	
-	---TODO: CONSIDER COMBINING/REARRANGING LIFETAP VS EMERGENCY HEALING ROTATION... but it works for now!
-	
+
+        ---TODO: CONSIDER COMBINING/REARRANGING LIFETAP VS EMERGENCY HEALING ROTATION... but it works for now!
+
         -- Downtime doesn't have state because we run the whole rotation at once.
         -- Rebuffs and non-combat actions
         {
@@ -707,7 +715,7 @@ local _ClassConfig = {
                 return combat_state == "Combat" and mq.TLO.Me.PctHPs() <= RGMercUtils.GetSetting('EmergencyStart')
             end,
         },
-      --Actions that establish or maintain hatred
+        --Actions that establish or maintain hatred
         {
             name = 'HateTools',
             state = 1,
@@ -739,7 +747,7 @@ local _ClassConfig = {
                     RGMercUtils.BurnCheck() and not RGMercUtils.Feigning() and mq.TLO.Me.PctHPs() > RGMercUtils.GetSetting('EmergencyLockout')
             end,
         },
-      --Prioritized in their own rotation to help keep HP topped to the desired level
+        --Prioritized in their own rotation to help keep HP topped to the desired level
         {
             name = 'LifeTaps',
             state = 1,
@@ -747,12 +755,12 @@ local _ClassConfig = {
             targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
             cond = function(self, combat_state)
                 --using SpellInCooldown() sounds good in theory but want to test if necessary... leaning towards no
-                return combat_state == "Combat" and mq.TLO.Me.PctHPs() > RGMercUtils.GetSetting('EmergencyLockout')-- and not mq.TLO.Me.SpellInCooldown()
+                return combat_state == "Combat" and mq.TLO.Me.PctHPs() > RGMercUtils.GetSetting('EmergencyLockout') -- and not mq.TLO.Me.SpellInCooldown()
             end,
         },
-      --Non-spell actions that can be used during/between casts
-	  --Debating merits of moving this back into the Combat rotation
-		{
+        --Non-spell actions that can be used during/between casts
+        --Debating merits of moving this back into the Combat rotation
+        {
             name = 'CombatWeave',
             state = 1,
             steps = 1,
@@ -761,32 +769,32 @@ local _ClassConfig = {
                 return combat_state == "Combat" and mq.TLO.Me.PctHPs() > RGMercUtils.GetSetting('EmergencyLockout')
             end,
         },
-      --DPS Spells, includes recourse/gift maintenance
-		{
+        --DPS Spells, includes recourse/gift maintenance
+        {
             name = 'Combat',
             state = 1,
             steps = 1,
             targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
             cond = function(self, combat_state)
-                return combat_state == "Combat" and mq.TLO.Me.PctHPs() > RGMercUtils.GetSetting('EmergencyLockout') --and not mq.TLO.Me.SpellInCooldown() 
+                return combat_state == "Combat" and mq.TLO.Me.PctHPs() > RGMercUtils.GetSetting('EmergencyLockout') --and not mq.TLO.Me.SpellInCooldown()
             end,
         },
     },
     ['Rotations']       = {
         ['Downtime'] = {
-			{
+            {
                 name = "EndRegen",
                 type = "Disc",
-				tooltip = Tooltips.EndRegen,
+                tooltip = Tooltips.EndRegen,
                 cond = function(self, discSpell)
                     return RGMercUtils.PCDiscReady(discSpell) and mq.TLO.Me.Level() < 106 and mq.TLO.Me.PctEndurance() < 15
                 end,
             },
-			--If these tables were combined, errors could occur... there is no other good way I can think of to ensure a timer 13 ability that can be used in combat is scribed.
-			{
+            --If these tables were combined, errors could occur... there is no other good way I can think of to ensure a timer 13 ability that can be used in combat is scribed.
+            {
                 name = "CombatEndRegen",
                 type = "Disc",
-				tooltip = Tooltips.CombatEndRegen,
+                tooltip = Tooltips.CombatEndRegen,
                 cond = function(self, discSpell)
                     return RGMercUtils.PCDiscReady(discSpell) and mq.TLO.Me.Level() > 105 and mq.TLO.Me.PctEndurance() < 15
                 end,
@@ -864,32 +872,35 @@ local _ClassConfig = {
                     return not self.ClassConfig.HelperFunctions.castDLU(self) and RGMercUtils.SelfBuffCheck(spell)
                 end,
             },
-			--You'll notice my use of TotalSeconds, this is to keep as close to 100% uptime as possible on these buffs, rebuffing early to decrease the chance of them falling off in combat
-			--I considered creating a function (helper or utils) to govern this as I use it on multiple classes but the difference between buff window/song window/aa/spell etc makes it unwieldy
-			-- if using duration checks, dont use SelfBuffCheck() (as it will return false when the effect is still on)
-			{
+            --You'll notice my use of TotalSeconds, this is to keep as close to 100% uptime as possible on these buffs, rebuffing early to decrease the chance of them falling off in combat
+            --I considered creating a function (helper or utils) to govern this as I use it on multiple classes but the difference between buff window/song window/aa/spell etc makes it unwieldy
+            -- if using duration checks, dont use SelfBuffCheck() (as it will return false when the effect is still on)
+            {
                 name = "Skin",
                 type = "Spell",
                 tooltip = Tooltips.Skin,
-				active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.RankName.ID()) end,
-                cond = function(self, spell) return RGMercUtils.PCSpellReady(spell) and RGMercUtils.SpellStacksOnMe(spell) and (mq.TLO.Me.Buff(spell).Duration.TotalSeconds() or 0) < 60
-				end,
+                active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.RankName.ID()) end,
+                cond = function(self, spell)
+                    return RGMercUtils.PCSpellReady(spell) and RGMercUtils.SpellStacksOnMe(spell) and (mq.TLO.Me.Buff(spell).Duration.TotalSeconds() or 0) < 60
+                end,
             },
             {
                 name = "TempHP",
                 type = "Spell",
                 tooltip = Tooltips.TempHP,
                 active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.RankName.ID()) end,
-                cond = function(self, spell) return RGMercUtils.PCSpellReady(spell) and RGMercUtils.SpellStacksOnMe(spell) and (mq.TLO.Me.Buff(spell).Duration.TotalSeconds() or 0) < 45
-				end,
+                cond = function(self, spell)
+                    return RGMercUtils.PCSpellReady(spell) and RGMercUtils.SpellStacksOnMe(spell) and (mq.TLO.Me.Buff(spell).Duration.TotalSeconds() or 0) < 45
+                end,
             },
             {
                 name = "HealBurn",
                 type = "Spell",
                 tooltip = Tooltips.HealBurn,
                 active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.RankName.ID()) end,
-                cond = function(self, spell) return RGMercUtils.PCSpellReady(spell) and RGMercUtils.SpellStacksOnMe(spell) and (mq.TLO.Me.Buff(spell).Duration.TotalSeconds() or 0) < 30
-				end,
+                cond = function(self, spell)
+                    return RGMercUtils.PCSpellReady(spell) and RGMercUtils.SpellStacksOnMe(spell) and (mq.TLO.Me.Buff(spell).Duration.TotalSeconds() or 0) < 30
+                end,
             },
             {
                 name = "Voice of Thule",
@@ -919,7 +930,7 @@ local _ClassConfig = {
                 active_cond = function(self, spell) return mq.TLO.Me.Pet.ID() > 0 end,
                 cond = function(
                     self, spell)
-					if mq.TLO.Me.Pet.ID() ~= 0 or not RGMercUtils.GetSetting('DoPet') then return false end
+                    if mq.TLO.Me.Pet.ID() ~= 0 or not RGMercUtils.GetSetting('DoPet') then return false end
                     return RGMercUtils.PCSpellReady(spell) and RGMercUtils.ReagentCheck(spell)
                 end,
             },
@@ -933,18 +944,18 @@ local _ClassConfig = {
                 end,
             },
         },
-		['EmergencyHealing'] = {
-			--doFullRotation checks from the top of the list each time so we don't use Lifetap2 in an emergency when Dicho is available, for instance.
-			doFullRotation = true,
-		    {
+        ['EmergencyHealing'] = {
+            --doFullRotation checks from the top of the list each time so we don't use Lifetap2 in an emergency when Dicho is available, for instance.
+            doFullRotation = true,
+            {
                 name = "Leech Touch",
-				type = "AA",
+                type = "AA",
                 tooltip = Tooltips.LeechTouch,
                 cond = function(self, aaName, target)
                     return RGMercUtils.NPCAAReady(aaName, target.ID()) and mq.TLO.Me.PctHPs() < 25
                 end,
             },
-			{
+            {
                 name = "Dicho",
                 type = "Spell",
                 tooltip = Tooltips.Dicho,
@@ -952,7 +963,7 @@ local _ClassConfig = {
                     return RGMercUtils.SpellLoaded(spell) and RGMercUtils.NPCSpellReady(spell)
                 end,
             },
-			{
+            {
                 name = "DireTap",
                 type = "Spell",
                 tooltip = Tooltips.DireTap,
@@ -968,7 +979,7 @@ local _ClassConfig = {
                     return RGMercUtils.NPCSpellReady(spell)
                 end,
             },
-			{
+            {
                 name = "LifeTap2",
                 type = "Spell",
                 tooltip = Tooltips.LifeTap,
@@ -976,7 +987,7 @@ local _ClassConfig = {
                     return RGMercUtils.SpellLoaded(spell) and RGMercUtils.NPCSpellReady(spell)
                 end,
             },
-			{
+            {
                 name = "ReflexStrike",
                 type = "Disc",
                 tooltip = Tooltips.ReflexStrike,
@@ -985,34 +996,34 @@ local _ClassConfig = {
                 end,
             },
             --Staunch Recovery placed as low priority as it has a long(ish) cast time. Also often used manually after a combat rez.
-			--Considering dropping this and removing the dofullrotation flag
+            --Considering dropping this and removing the dofullrotation flag
             {
                 name = "Staunch Recovery",
                 type = "AA",
                 tooltip = Tooltips.StaunchRecovery,
-				cond = function(self, aaName)
+                cond = function(self, aaName)
                     return RGMercUtils.AAReady(aaName) and mq.TLO.Me.PctHPs() < 20
-                    and RGMercUtils.GetSetting('DoVetAA')
+                        and RGMercUtils.GetSetting('DoVetAA')
                 end,
             },
-            
+
         },
-		['EmergencyDefenses'] = {
-		  --Note that in Tank Mode, defensive discs are preemptively cycled on named in the (non-emergency) Defenses rotation
-		  --Abilities should be placed in order of lowest to highest triggered HP thresholds
-		  --Side Note: I reserve Bargain for manual use while driving, the omission is intentional.
-          --Some conditionals are commented out while I tweak percentages (or determine if they are necessary)
-			doFullRotation = true,
+        ['EmergencyDefenses'] = {
+            --Note that in Tank Mode, defensive discs are preemptively cycled on named in the (non-emergency) Defenses rotation
+            --Abilities should be placed in order of lowest to highest triggered HP thresholds
+            --Side Note: I reserve Bargain for manual use while driving, the omission is intentional.
+            --Some conditionals are commented out while I tweak percentages (or determine if they are necessary)
+            doFullRotation = true,
             {
                 name = "Armor of Experience",
                 type = "AA",
                 tooltip = Tooltips.ArmorofExperience,
-				cond = function(self, aaName)
+                cond = function(self, aaName)
                     return RGMercUtils.AAReady(aaName) and mq.TLO.Me.PctHPs() < 25
-                    and RGMercUtils.GetSetting('DoVetAA')
+                        and RGMercUtils.GetSetting('DoVetAA')
                 end,
             },
-          --Note that on named we may already have a mantle/carapace running already
+            --Note that on named we may already have a mantle/carapace running already
             {
                 name = "Deflection",
                 type = "Disc",
@@ -1034,10 +1045,10 @@ local _ClassConfig = {
                 type = "AA",
                 tooltip = Tooltips.ShieldFlash,
                 cond = function(self, aaName)
-					return RGMercUtils.AAReady(aaName)
+                    return RGMercUtils.AAReady(aaName)
                 end,
             },
-          --Influence is in an odd place with Carapace. Usage is very subjective and may be more nuanced than automation can support. Placed here as an alternative to Carapace in low health situations to get you topped back off again for tanks. Should be used in burn for non-tanks (adding non-tank stuff is TODO)
+            --Influence is in an odd place with Carapace. Usage is very subjective and may be more nuanced than automation can support. Placed here as an alternative to Carapace in low health situations to get you topped back off again for tanks. Should be used in burn for non-tanks (adding non-tank stuff is TODO)
             {
                 name = "InfluenceDisc",
                 type = "Disc",
@@ -1058,7 +1069,7 @@ local _ClassConfig = {
                     return RGMercUtils.GetSetting('DoChestClick') and item() and RGMercUtils.SpellStacksOnMe(item.Spell) and item.TimerReady() == 0
                 end,
             },
-			{
+            {
                 name = "Carapace",
                 type = "Disc",
                 tooltip = Tooltips.Carapace,
@@ -1066,28 +1077,28 @@ local _ClassConfig = {
                     return RGMercUtils.PCDiscReady(discSpell) and not mq.TLO.Me.ActiveDisc.ID()
                 end,
             },
-			--if we made it this far let's reset our dicho/dire and hope for the best!
-			{
+            --if we made it this far let's reset our dicho/dire and hope for the best!
+            {
                 name = "Forceful Rejuvenation",
                 type = "AA",
                 tooltip = Tooltips.ForcefulRejuv,
                 cond = function(self, aaName)
-					return RGMercUtils.AAReady(aaName)
+                    return RGMercUtils.AAReady(aaName)
                 end,
             },
-          },
-		['HateTools'] = {
+        },
+        ['HateTools'] = {
             --used when we've lost hatred after it is initially established
-			{
+            {
                 name = "Ageless Enmity",
                 type = "AA",
                 tooltip = Tooltips.AgelessEnmity,
                 cond = function(self, aaName, target)
                     return RGMercUtils.NPCAAReady(aaName, target.ID()) and RGMercUtils.GetTargetPctHPs() < 90 and mq.TLO.Me.PctAggro() < 100
-					end,
+                end,
             },
-          --used to jumpstart hatred on named from the outset and prevent early rips from burns
-			{
+            --used to jumpstart hatred on named from the outset and prevent early rips from burns
+            {
                 name = "Acrimony",
                 type = "Disc",
                 tooltip = Tooltips.Acrimony,
@@ -1095,17 +1106,17 @@ local _ClassConfig = {
                     return RGMercUtils.NPCDiscReady(discSpell) and RGMercUtils.IsNamed(mq.TLO.Target)
                 end,
             },
-          --used to reinforce hatred on named
-			{
+            --used to reinforce hatred on named
+            {
                 name = "Veil of Darkness",
                 type = "AA",
                 tooltip = Tooltips.VeilofDarkness,
                 cond = function(self, aaName, target)
                     return RGMercUtils.NPCAAReady(aaName, target.ID()) and (mq.TLO.Target.SecondaryPctAggro() or 0) > 70
-					          and RGMercUtils.IsNamed(mq.TLO.Target)
+                        and RGMercUtils.IsNamed(mq.TLO.Target)
                 end,
             },
-			{
+            {
                 name = "AeTaunt",
                 type = "Spell",
                 tooltip = Tooltips.AeTaunt,
@@ -1129,13 +1140,13 @@ local _ClassConfig = {
                     return RGMercUtils.AAReady(aaName) and self.ClassConfig.HelperFunctions.AeTauntCheck(self)
                 end,
             },
-			{
+            {
                 name = "Projection of Doom",
                 type = "AA",
                 tooltip = Tooltips.ProjectionofDoom,
                 cond = function(self, aaName)
-                    return RGMercUtils.AAReady(aaName) 
-						and ((mq.TLO.Target.SecondaryPctAggro() or 0) > 80 and RGMercUtils.IsNamed(mq.TLO.Target))
+                    return RGMercUtils.AAReady(aaName)
+                        and ((mq.TLO.Target.SecondaryPctAggro() or 0) > 80 and RGMercUtils.IsNamed(mq.TLO.Target))
                 end,
             },
             {
@@ -1153,7 +1164,7 @@ local _ClassConfig = {
                 type = "Spell",
                 tooltip = Tooltips.Terror,
                 cond = function(self, spell)
-					if not RGMercUtils.SpellLoaded(spell) and RGMercUtils.GetSetting('DoTerror') then return false end
+                    if not RGMercUtils.SpellLoaded(spell) and RGMercUtils.GetSetting('DoTerror') then return false end
                     return RGMercUtils.NPCSpellReady(spell) and (mq.TLO.Target.SecondaryPctAggro() or 0) > 60
                 end,
             },
@@ -1162,7 +1173,7 @@ local _ClassConfig = {
                 type = "Spell",
                 tooltip = Tooltips.Terror,
                 cond = function(self, spell)
-					if not RGMercUtils.SpellLoaded(spell) and RGMercUtils.GetSetting('DoTerror') then return false end
+                    if not RGMercUtils.SpellLoaded(spell) and RGMercUtils.GetSetting('DoTerror') then return false end
                     return RGMercUtils.NPCSpellReady(spell) and (mq.TLO.Target.SecondaryPctAggro() or 0) > 60
                 end,
             },
@@ -1176,7 +1187,7 @@ local _ClassConfig = {
             },
         },
         ['Burn'] = {
-          --I'm seeing burnauto settings checks in conditions for existing entries, wondering if they are actually required... shouldn't burn checking in the rotation phase cover this? Whatever, will apply brainpower later, likely a reason.
+            --I'm seeing burnauto settings checks in conditions for existing entries, wondering if they are actually required... shouldn't burn checking in the rotation phase cover this? Whatever, will apply brainpower later, likely a reason.
             -- return (RGMercUtils.GetSetting('BurnAuto') and RGMercUtils.IsNamed(mq.TLO.Target)) or RGMercUtils.MedBurn()
             {
                 name = "Visage of Death",
@@ -1189,7 +1200,7 @@ local _ClassConfig = {
                 tooltip = Tooltips.Crimson,
                 cond = function(self, discSpell)
                     return RGMercUtils.NPCDiscReady(discSpell) and RGMercUtils.MedBurn()
-					--and RGMercUtils.GetTargetPctHPs() > 5 and RGMercUtils.GetTargetDistance() < 35 keeping these around as I don't know why they were there in the first place
+                    --and RGMercUtils.GetTargetPctHPs() > 5 and RGMercUtils.GetTargetDistance() < 35 keeping these around as I don't know why they were there in the first place
                 end,
             },
             {
@@ -1197,10 +1208,10 @@ local _ClassConfig = {
                 type = "AA",
                 cond = function(self, aaName)
                     return RGMercUtils.AAReady(aaName) and RGMercUtils.GetSetting('DoVetAA')
-                    and RGMercUtils.BigBurn()
-				end,
+                        and RGMercUtils.BigBurn()
+                end,
             },
-          --the  next two entries are lower because we want a chance for the above to be up before we HT
+            --the  next two entries are lower because we want a chance for the above to be up before we HT
             {
                 name = "Harm Touch",
                 type = "AA",
@@ -1215,7 +1226,7 @@ local _ClassConfig = {
                 tooltip = Tooltips.ThoughtLeech,
                 cond = function(self, aaName, target)
                     return RGMercUtils.NPCAAReady(aaName, target.ID()) and RGMercUtils.MedBurn()
-				end,
+                end,
             },
             --back to lower priority burn stuff
             {
@@ -1223,63 +1234,63 @@ local _ClassConfig = {
                 type = "AA",
                 tooltip = Tooltips.SpireoftheReavers,
                 cond = function(self, aaName)
-					return RGMercUtils.AAReady(aaName) and RGMercUtils.SmallBurn()
-				end,
-			},
-			{
+                    return RGMercUtils.AAReady(aaName) and RGMercUtils.SmallBurn()
+                end,
+            },
+            {
                 name = "Chattering Bones",
                 type = "AA",
                 tooltip = Tooltips.ChatteringBones,
                 cond = function(self, aaName, target)
-					return RGMercUtils.NPCAAReady(aaName, target.ID()) and RGMercUtils.SmallBurn()
-				end,
-			},
-			{
+                    return RGMercUtils.NPCAAReady(aaName, target.ID()) and RGMercUtils.SmallBurn()
+                end,
+            },
+            {
                 name = "T`Vyl's Resolve",
                 type = "AA",
                 tooltip = Tooltips.Tvyls,
                 cond = function(self, aaName, target)
-					return RGMercUtils.NPCAAReady(aaName, target.ID()) and RGMercUtils.SmallBurn()
-				end,
+                    return RGMercUtils.NPCAAReady(aaName, target.ID()) and RGMercUtils.SmallBurn()
+                end,
             },
-			      -- not sure about this one yet, more homework
+            -- not sure about this one yet, more homework
             -- {
-                -- name = "SpiteStrike",
-                -- type = "Disc",
-                -- tooltip = Tooltips.SpikeStrike,
-                -- cond = function(self)
-                    -- return RGMercUtils.IsNamed(mq.TLO.Target)
-                -- end,
+            -- name = "SpiteStrike",
+            -- type = "Disc",
+            -- tooltip = Tooltips.SpikeStrike,
+            -- cond = function(self)
+            -- return RGMercUtils.IsNamed(mq.TLO.Target)
+            -- end,
             -- },
         },
         ['Debuff'] = {},
         ['Defenses'] = {
             -- {
-                -- name = "ActivateShield",
-                -- type = "CustomFunc",
-                -- tooltip = Tooltips.ActivateShield,
-                -- cond = function(self)
-                    -- return RGMercUtils.GetSetting('DoBandolier') and not mq.TLO.Me.Bandolier("Shield").Active() and
-                        -- mq.TLO.Me.Bandolier("Shield").Index() and RGMercUtils.IsTanking()
-                -- end,
-                -- custom_func = function(_)
-                    -- RGMercUtils.DoCmd("/bandolier activate Shield")
-                    -- return true
-                -- end,
+            -- name = "ActivateShield",
+            -- type = "CustomFunc",
+            -- tooltip = Tooltips.ActivateShield,
+            -- cond = function(self)
+            -- return RGMercUtils.GetSetting('DoBandolier') and not mq.TLO.Me.Bandolier("Shield").Active() and
+            -- mq.TLO.Me.Bandolier("Shield").Index() and RGMercUtils.IsTanking()
+            -- end,
+            -- custom_func = function(_)
+            -- RGMercUtils.DoCmd("/bandolier activate Shield")
+            -- return true
+            -- end,
 
             -- },
             -- {
-                -- name = "Activate2HS",
-                -- type = "CustomFunc",
-                -- tooltip = Tooltips.Activate2HS,
-                -- cond = function(self)
-                    -- return RGMercUtils.GetSetting('DoBandolier') and not mq.TLO.Me.Bandolier("2HS").Active() and
-                        -- mq.TLO.Me.Bandolier("2HS").Index() and not RGMercUtils.IsTanking()
-                -- end,
-                -- custom_func = function(_)
-                    -- RGMercUtils.DoCmd("/bandolier activate 2HS")
-                    -- return true
-                -- end,
+            -- name = "Activate2HS",
+            -- type = "CustomFunc",
+            -- tooltip = Tooltips.Activate2HS,
+            -- cond = function(self)
+            -- return RGMercUtils.GetSetting('DoBandolier') and not mq.TLO.Me.Bandolier("2HS").Active() and
+            -- mq.TLO.Me.Bandolier("2HS").Index() and not RGMercUtils.IsTanking()
+            -- end,
+            -- custom_func = function(_)
+            -- RGMercUtils.DoCmd("/bandolier activate 2HS")
+            -- return true
+            -- end,
             -- },
             {
                 name = "MeleeMit",
@@ -1289,13 +1300,14 @@ local _ClassConfig = {
                     return RGMercUtils.PCDiscReady(discSpell) and RGMercUtils.IsTanking()
                 end,
             },
-          --todo: fully test leechbuff function, but initial testing seems positive
+            --todo: fully test leechbuff function, but initial testing seems positive
             {
-				name = "Epic",
+                name = "Epic",
                 type = "Item",
                 tooltip = Tooltips.Epic,
                 cond = function(self, itemName)
-                    return mq.TLO.FindItemCount(itemName)() ~= 0 and mq.TLO.FindItem(itemName).TimerReady() == 0 and (self.ClassConfig.HelperFunctions.LeechCheck(self) or RGMercUtils.IsNamed(mq.TLO.Target))
+                    return mq.TLO.FindItemCount(itemName)() ~= 0 and mq.TLO.FindItem(itemName).TimerReady() == 0 and
+                        (self.ClassConfig.HelperFunctions.LeechCheck(self) or RGMercUtils.IsNamed(mq.TLO.Target))
                 end,
             },
             {
@@ -1341,25 +1353,26 @@ local _ClassConfig = {
                 type = "Disc",
                 tooltip = Tooltips.UnholyAura,
                 cond = function(self, discSpell)
-                    return RGMercUtils.PCDiscReady(discSpell) and (RGMercUtils.IsNamed(mq.TLO.Target) or mq.TLO.SpawnCount("NPC radius 30 zradius 50")() >= RGMercUtils.GetSetting('UnholyCount')) and
+                    return RGMercUtils.PCDiscReady(discSpell) and
+                        (RGMercUtils.IsNamed(mq.TLO.Target) or mq.TLO.SpawnCount("NPC radius 30 zradius 50")() >= RGMercUtils.GetSetting('UnholyCount')) and
                         not mq.TLO.Me.ActiveDisc.ID()
                 end,
             },
-			{
+            {
                 name = "Purity of Death",
                 type = "AA",
                 tooltip = Tooltips.PurityofDeath,
                 cond = function(self, aaName)
-					return mq.TLO.Me.TotalCounters() > 0 and RGMercUtils.AAReady(aaName)
-				end,
-			},
+                    return mq.TLO.Me.TotalCounters() > 0 and RGMercUtils.AAReady(aaName)
+                end,
+            },
         },
         ['LifeTaps'] = {
-			-- This makes the full rotation execute each round, so it'll never pick up and resume wherever it left off the previous cast. Stolen from brd config.
-			-- We don't want LifeTap2 being used if Dicho is needed, for example.
+            -- This makes the full rotation execute each round, so it'll never pick up and resume wherever it left off the previous cast. Stolen from brd config.
+            -- We don't want LifeTap2 being used if Dicho is needed, for example.
             doFullRotation = true,
-		
-		--the trick with the next two is to find a sweet spot between using discs and long term CD abilities (we want these to trigger so those don't need to) and using them needlessly (which isn't much of a damage increase). Trying to get it dialed in for a good default value.
+
+            --the trick with the next two is to find a sweet spot between using discs and long term CD abilities (we want these to trigger so those don't need to) and using them needlessly (which isn't much of a damage increase). Trying to get it dialed in for a good default value.
             {
                 name = "Dicho",
                 type = "Spell",
@@ -1368,7 +1381,7 @@ local _ClassConfig = {
                     return RGMercUtils.SpellLoaded(spell) and RGMercUtils.PCSpellReady(spell) and mq.TLO.Me.PctHPs() <= RGMercUtils.GetSetting('StartDicho')
                 end,
             },
-			{
+            {
                 name = "DireTap",
                 type = "Spell",
                 tooltip = Tooltips.DireTap,
@@ -1389,13 +1402,14 @@ local _ClassConfig = {
                 type = "Spell",
                 tooltip = Tooltips.LifeTap,
                 cond = function(self, spell)
-                    return RGMercUtils.SpellLoaded(spell) and RGMercUtils.PCSpellReady(spell) and mq.TLO.Me.PctHPs() <= RGMercUtils.GetSetting('StartLifeTap')
+                    return RGMercUtils.SpellLoaded(spell) and RGMercUtils.PCSpellReady(spell) and mq.TLO.Me.PctHPs() <= RGMercUtils.GetSetting('StartLifeTap') and
+                        (RGMercUtils.ManaCheck() or RGMercUtils.BurnCheck())
                 end,
             },
-          },
+        },
         ['CombatWeave'] = {
-          --Used if the group could benefit from the heal, adjust to taste
-			{
+            --Used if the group could benefit from the heal, adjust to taste
+            {
                 name = "ReflexStrike",
                 type = "Disc",
                 tooltip = Tooltips.ReflexStrike,
@@ -1403,10 +1417,10 @@ local _ClassConfig = {
                     return RGMercUtils.NPCDiscReady(discSpell) and (mq.TLO.Group.Injured(80)() or 0) > 2
                 end,
             },
-			{
+            {
                 name = "CombatEndRegen",
                 type = "Disc",
-				tooltip = Tooltips.CombatEndRegen,
+                tooltip = Tooltips.CombatEndRegen,
                 cond = function(self, discSpell)
                     return RGMercUtils.PCDiscReady(discSpell) and mq.TLO.Me.PctEndurance() < 15
                 end,
@@ -1416,8 +1430,8 @@ local _ClassConfig = {
                 type = "AA",
                 tooltip = Tooltips.ViciousBiteOfChaos,
                 cond = function(self, aaName, target)
-                    return RGMercUtils.NPCAAReady(aaName, target.ID()) 
-					--and RGMercUtils.GetTargetPctHPs() > 5 and RGMercUtils.GetTargetDistance() < 35 keeping this here because I'm not sure why it was there in the first place
+                    return RGMercUtils.NPCAAReady(aaName, target.ID())
+                    --and RGMercUtils.GetTargetPctHPs() > 5 and RGMercUtils.GetTargetDistance() < 35 keeping this here because I'm not sure why it was there in the first place
                 end,
             },
             {
@@ -1425,14 +1439,14 @@ local _ClassConfig = {
                 type = "Disc",
                 tooltip = Tooltips.Blade,
                 cond = function(self, discSpell)
-                    return RGMercUtils.NPCDiscReady(discSpell) 
-					--and RGMercUtils.GetTargetPctHPs() > 5 and RGMercUtils.GetTargetDistance() < 35 --and ((mq.TLO.Me.Inventory("mainhand").Type() or ""):find("2H"))
+                    return RGMercUtils.NPCDiscReady(discSpell)
+                    --and RGMercUtils.GetTargetPctHPs() > 5 and RGMercUtils.GetTargetDistance() < 35 --and ((mq.TLO.Me.Inventory("mainhand").Type() or ""):find("2H"))
                 end,
             },
             {
                 name = "Gift of the Quick Spear",
                 type = "AA",
-                    cond = function(self, aaName)
+                cond = function(self, aaName)
                     return RGMercUtils.AAReady(aaName) and RGMercUtils.AAReady(aaName)
                 end,
             },
@@ -1440,35 +1454,35 @@ local _ClassConfig = {
                 name = "Bash",
                 type = "Ability",
                 tooltip = Tooltips.Bash,
-                cond = function(self)
-                    return mq.TLO.Me.AbilityReady("Bash")() and RGMercUtils.GetTargetDistance() < 30
+                cond = function(self, abilityName, target)
+                    return mq.TLO.Me.AbilityReady(abilityName)() and RGMercUtils.GetTargetDistance() <= (target.MaxRangeTo() or 0)
                 end,
             },
             {
                 name = "Slam",
                 type = "Ability",
                 tooltip = Tooltips.Slam,
-                cond = function(self)
-                    return mq.TLO.Me.AbilityReady("Slam")() and RGMercUtils.GetTargetDistance() < 30
+                cond = function(self, abilityName, target)
+                    return mq.TLO.Me.AbilityReady(abilityName)() and RGMercUtils.GetTargetDistance() <= (target.MaxRangeTo() or 0)
                 end,
             },
-          },
+        },
         ['Combat'] = {
             -- {
-                -- name = "Encroaching Darkness",
-                -- tooltip = Tooltips.EncroachingDarkness,
-                -- type = "AA",
-                -- cond = function(self)
-                    -- return RGMercUtils.GetSetting('DoSnare') and RGMercUtils.DetAACheck(826)
-                -- end,
+            -- name = "Encroaching Darkness",
+            -- tooltip = Tooltips.EncroachingDarkness,
+            -- type = "AA",
+            -- cond = function(self)
+            -- return RGMercUtils.GetSetting('DoSnare') and RGMercUtils.DetAACheck(826)
+            -- end,
             -- },
             -- {
-                -- name = "SnareDOT",
-                -- type = "Spell",
-                -- tooltip = Tooltips.SnareDOT,
-                -- cond = function(self, spell)
-                    -- return RGMercUtils.GetSetting('DoSnare') and RGMercUtils.SpellLoaded(spell) and RGMercUtils.DetSpellCheck(spell) and not mq.TLO.Me.AltAbility(826)()
-                -- end,
+            -- name = "SnareDOT",
+            -- type = "Spell",
+            -- tooltip = Tooltips.SnareDOT,
+            -- cond = function(self, spell)
+            -- return RGMercUtils.GetSetting('DoSnare') and RGMercUtils.SpellLoaded(spell) and RGMercUtils.DetSpellCheck(spell) and not mq.TLO.Me.AltAbility(826)()
+            -- end,
             -- },
             {
                 name = "BondTap",
@@ -1478,31 +1492,33 @@ local _ClassConfig = {
                     return RGMercUtils.SpellLoaded(spell) and RGMercUtils.NPCSpellReady(spell)
                 end,
             },
-			{
+            {
                 name = "Spearnuke",
                 type = "Spell",
                 tooltip = Tooltips.Spearnuke,
                 cond = function(self, spell)
-                    return RGMercUtils.SpellLoaded(spell) and RGMercUtils.NPCSpellReady(spell) and RGMercUtils.ManaCheck()
+                    return RGMercUtils.SpellLoaded(spell) and RGMercUtils.NPCSpellReady(spell) and (RGMercUtils.ManaCheck() or RGMercUtils.BurnCheck())
                 end,
             },
-			{
+            {
                 name = "PoisonDot",
                 type = "Spell",
                 tooltip = Tooltips.PoisonDot,
                 cond = function(self, spell)
-                    return RGMercUtils.SpellLoaded(spell) and RGMercUtils.NPCSpellReady(spell) and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell)
+                    return RGMercUtils.SpellLoaded(spell) and RGMercUtils.NPCSpellReady(spell) and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell) and
+                        (RGMercUtils.ManaCheck() or RGMercUtils.BurnCheck())
                 end,
             },
-			{
+            {
                 name = "CorruptionDot",
                 type = "Spell",
                 tooltip = Tooltips.PoisonDot,
                 cond = function(self, spell)
-                    return RGMercUtils.SpellLoaded(spell) and RGMercUtils.NPCSpellReady(spell) and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell)
+                    return RGMercUtils.SpellLoaded(spell) and RGMercUtils.NPCSpellReady(spell) and
+                        RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell)(RGMercUtils.ManaCheck() or RGMercUtils.BurnCheck())
                 end,
             },
-			{
+            {
                 name = "BiteTap",
                 type = "Spell",
                 tooltip = Tooltips.BiteTap,
@@ -1510,39 +1526,40 @@ local _ClassConfig = {
                     return RGMercUtils.SpellLoaded(spell) and RGMercUtils.NPCSpellReady(spell) and mq.TLO.Me.PctHPs() <= RGMercUtils.GetSetting('StartLifeTap')
                 end,
             },
-			-- {
-                -- name = "BuffTap",
-                -- type = "Spell",
-                -- tooltip = Tooltips.BuffTap,
-                -- cond = function(self, spell)
-				--TODO: Cleanup and test (I'm not using anyway)
-                    -- return RGMercUtils.SpellLoaded(spell) 
-					            -- and not RGMercUtils.BuffActive(spell.RankName.Name.Trigger())
-                      -- and RGMercUtils.SpellStacksOnMe(spell.RankName.Name.Trigger())
-                -- end,
+            -- {
+            -- name = "BuffTap",
+            -- type = "Spell",
+            -- tooltip = Tooltips.BuffTap,
+            -- cond = function(self, spell)
+            --TODO: Cleanup and test (I'm not using anyway)
+            -- return RGMercUtils.SpellLoaded(spell)
+            -- and not RGMercUtils.BuffActive(spell.RankName.Name.Trigger())
+            -- and RGMercUtils.SpellStacksOnMe(spell.RankName.Name.Trigger())
+            -- end,
             -- },
             -- {
-                -- name = "DireDot",
-                -- type = "Spell",
-                -- tooltip = Tooltips.DireDot,
-                -- cond = function(self, spell)
-                    -- return RGMercUtils.SpellLoaded(spell) and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell)
-                -- end,
+            -- name = "DireDot",
+            -- type = "Spell",
+            -- tooltip = Tooltips.DireDot,
+            -- cond = function(self, spell)
+            -- return RGMercUtils.SpellLoaded(spell) and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell)
+            -- end,
             -- },
             {
                 name = "Torrent",
                 type = "Spell",
                 tooltip = Tooltips.Torrent,
                 cond = function(self, spell)
-                    return RGMercUtils.SpellLoaded(spell) and not RGMercUtils.BuffActiveByName(spell.Name() .. " Recourse") and RGMercUtils.PCSpellReady(spell) and RGMercUtils.GetSetting('DoTorrent')
+                    return RGMercUtils.SpellLoaded(spell) and not RGMercUtils.BuffActiveByName(spell.Name() .. " Recourse") and RGMercUtils.PCSpellReady(spell) and
+                        RGMercUtils.GetSetting('DoTorrent')
                 end,
             },
-		},
+        },
     },
     ['Spells']          = {
 
-      --Use "--" in front of an entry and the spell won't be checked in that slot, bloated to handle most usecases for those who won't edit this.
-      --The function involved will choose the first spell it is able to for a particular gem.
+        --Use "--" in front of an entry and the spell won't be checked in that slot, bloated to handle most usecases for those who won't edit this.
+        --The function involved will choose the first spell it is able to for a particular gem.
         {
             gem = 1,
             spells = {
@@ -1553,19 +1570,19 @@ local _ClassConfig = {
             gem = 2,
             spells = {
                 { name = "Spearnuke", },
-                { name = "SnareDOT", cond = function(self) return mq.TLO.Me.AltAbility("Encroaching Darkness")() == nil and RGMercUtils.GetSetting('DoSnare') end, },
+                { name = "SnareDOT",  cond = function(self) return mq.TLO.Me.AltAbility("Encroaching Darkness")() == nil and RGMercUtils.GetSetting('DoSnare') end, },
                 { name = "PoisonDot", cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
-                { name = "DireDot", cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
+                { name = "DireDot",   cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
                 { name = "LifeTap2", },
             },
         },
         {
             gem = 3,
             spells = {
-                { name = "DireTap", cond = function(self) return RGMercUtils.GetSetting('DoDireTap') end, },
-                { name = "SnareDOT", cond = function(self) return mq.TLO.Me.AltAbility("Encroaching Darkness")() == nil and RGMercUtils.GetSetting('DoSnare') end, },
+                { name = "DireTap",   cond = function(self) return RGMercUtils.GetSetting('DoDireTap') end, },
+                { name = "SnareDOT",  cond = function(self) return mq.TLO.Me.AltAbility("Encroaching Darkness")() == nil and RGMercUtils.GetSetting('DoSnare') end, },
                 { name = "PoisonDot", cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
-                { name = "DireDot", cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
+                { name = "DireDot",   cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
                 { name = "LifeTap2", },
             },
         },
@@ -1573,9 +1590,9 @@ local _ClassConfig = {
             gem = 4,
             spells = {
                 { name = "Dicho", },
-                { name = "SnareDOT", cond = function(self) return mq.TLO.Me.AltAbility("Encroaching Darkness")() == nil and RGMercUtils.GetSetting('DoSnare') end, },
+                { name = "SnareDOT",  cond = function(self) return mq.TLO.Me.AltAbility("Encroaching Darkness")() == nil and RGMercUtils.GetSetting('DoSnare') end, },
                 { name = "PoisonDot", cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
-                { name = "DireDot", cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
+                { name = "DireDot",   cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
                 { name = "LifeTap2", },
             },
         },
@@ -1583,9 +1600,9 @@ local _ClassConfig = {
             gem = 5,
             spells = {
                 { name = "BondTap", },
-                { name = "SnareDOT", cond = function(self) return mq.TLO.Me.AltAbility("Encroaching Darkness")() == nil and RGMercUtils.GetSetting('DoSnare') end, },
+                { name = "SnareDOT",  cond = function(self) return mq.TLO.Me.AltAbility("Encroaching Darkness")() == nil and RGMercUtils.GetSetting('DoSnare') end, },
                 { name = "PoisonDot", cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
-                { name = "DireDot", cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
+                { name = "DireDot",   cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
                 { name = "LifeTap2", },
             },
         },
@@ -1593,7 +1610,7 @@ local _ClassConfig = {
             gem = 6,
             spells = {
                 { name = "PoisonDot", cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
-				-- { name = "BiteTap", },
+                -- { name = "BiteTap", },
                 -- { name = "SnareDOT", cond = function(self) return mq.TLO.Me.AltAbility("Encroaching Darkness")() == nil and RGMercUtils.GetSetting('DoSnare') end, },
                 -- { name = "PoisonDot", cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
                 -- { name = "DireDot", cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
@@ -1603,7 +1620,7 @@ local _ClassConfig = {
         {
             gem = 7,
             spells = {
-				{ name = "CorruptionDot", cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
+                { name = "CorruptionDot", cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
                 -- { name = "BuffTap", }, --Keeping this scribed is likely better than me trying to write a convoluted helper function to handle maintaining the buff.
                 -- { name = "SnareDOT", cond = function(self) return mq.TLO.Me.AltAbility("Encroaching Darkness")() == nil and RGMercUtils.GetSetting('DoSnare') end, },
                 -- { name = "PoisonDot", cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
@@ -1616,24 +1633,24 @@ local _ClassConfig = {
             gem = 8,
             spells = {
                 { name = "ForPower", },
-                { name = "AeTaunt",  cond = function(self) return RGMercUtils.GetSetting('DoAE') and mq.TLO.Me.AltAbility("Explosion of Hatred")() == nil end, },
-                { name = "Terror", cond = function(self) return RGMercUtils.GetSetting('DoTerror') end, },
-                { name = "SnareDOT", cond = function(self) return mq.TLO.Me.AltAbility("Encroaching Darkness")() == nil and RGMercUtils.GetSetting('DoSnare') end, },
+                { name = "AeTaunt",   cond = function(self) return RGMercUtils.GetSetting('DoAE') and mq.TLO.Me.AltAbility("Explosion of Hatred")() == nil end, },
+                { name = "Terror",    cond = function(self) return RGMercUtils.GetSetting('DoTerror') end, },
+                { name = "SnareDOT",  cond = function(self) return mq.TLO.Me.AltAbility("Encroaching Darkness")() == nil and RGMercUtils.GetSetting('DoSnare') end, },
                 { name = "PoisonDot", cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
-                { name = "DireDot", cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
-                { name = "Terror", cond = function(self) return RGMercUtils.GetSetting('DoTerror') end, },
+                { name = "DireDot",   cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
+                { name = "Terror",    cond = function(self) return RGMercUtils.GetSetting('DoTerror') end, },
                 { name = "LifeTap2", },
-                { name = "Terror2", cond = function(self) return RGMercUtils.GetSetting('DoTerror') end, },
+                { name = "Terror2",   cond = function(self) return RGMercUtils.GetSetting('DoTerror') end, },
             },
         },
         {
             gem = 9,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
-                { name = "Torrent", cond = function(self) return RGMercUtils.GetSetting('DoTorrent') end, },
-                { name = "Terror", cond = function(self) return RGMercUtils.GetSetting('DoTerror') end, },
-                { name = "Terror2", cond = function(self) return RGMercUtils.GetSetting('DoTerror') end, },
-				{ name = "PoisonDot", cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
+                { name = "Torrent",   cond = function(self) return RGMercUtils.GetSetting('DoTorrent') end, },
+                { name = "Terror",    cond = function(self) return RGMercUtils.GetSetting('DoTerror') end, },
+                { name = "Terror2",   cond = function(self) return RGMercUtils.GetSetting('DoTerror') end, },
+                { name = "PoisonDot", cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
                 { name = "LifeTap2", },
             },
         },
@@ -1641,7 +1658,7 @@ local _ClassConfig = {
             gem = 10,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
-				{ name = "BiteTap", },
+                { name = "BiteTap", },
                 -- { name = "Terror", cond = function(self) return RGMercUtils.GetSetting('DoTerror') end, },
                 -- { name = "Terror2", cond = function(self) return RGMercUtils.GetSetting('DoTerror') end, },
                 -- { name = "LifeTap2", },
@@ -1652,7 +1669,7 @@ local _ClassConfig = {
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
                 { name = "TempHP", }, --this spell starts in a long recast so I prefer to keep it on the bar. Replace/comment out as needed.
-                { name = "Terror", cond = function(self) return RGMercUtils.GetSetting('DoTerror') end, },
+                { name = "Terror",  cond = function(self) return RGMercUtils.GetSetting('DoTerror') end, },
                 { name = "Terror2", cond = function(self) return RGMercUtils.GetSetting('DoTerror') end, },
             },
         },
@@ -1661,7 +1678,7 @@ local _ClassConfig = {
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
                 { name = "Skin", }, --while not as bad as the TempHP line, also starts in a recast, Replace/comment out as needed. Re-memorizing every time the slot is used for something else before level 106 is likely still a time-saver for typical scenarios.
-                { name = "Terror", cond = function(self) return RGMercUtils.GetSetting('DoTerror') end, },
+                { name = "Terror",  cond = function(self) return RGMercUtils.GetSetting('DoTerror') end, },
                 { name = "Terror2", cond = function(self) return RGMercUtils.GetSetting('DoTerror') end, },
             },
         },
@@ -1701,53 +1718,53 @@ local _ClassConfig = {
     },
     ['DefaultConfig']   = {
         --Mode
-        ['Mode']            = { DisplayName = "Mode", Category = "Mode", Tooltip = "Select the active Combat Mode for this PC.", Type = "Custom", RequiresLoadoutChange = true, Default = 1, Min = 1, Max = 2, },
-        
+        ['Mode']             = { DisplayName = "Mode", Category = "Mode", Tooltip = "Select the active Combat Mode for this PC.", Type = "Custom", RequiresLoadoutChange = true, Default = 1, Min = 1, Max = 2, },
+
         --Spells and Abilities
-        ['DoSnare']         = { DisplayName = "Cast Snares", Category = "Spells and Abilities", Tooltip = "Enable casting Snare spells.", Default = true, },
-        ['DoDot']           = { DisplayName = "Cast DoTs", Category = "Spells and Abilities", Tooltip = "Enable casting Damage Over Time spells.", Default = false, },
-        ['HPStopDOT']       = { DisplayName = "HP Stop DoTs", Category = "Spells and Abilities", Tooltip = "Stop casting DOTs when the mob hits [x] HP %.", Default = 50, Min = 1, Max = 100, },
-        ['DoTorrent']       = {
+        ['DoSnare']          = { DisplayName = "Cast Snares", Category = "Spells and Abilities", Tooltip = "Enable casting Snare spells.", Default = true, },
+        ['DoDot']            = { DisplayName = "Cast DoTs", Category = "Spells and Abilities", Tooltip = "Enable casting Damage Over Time spells.", Default = false, },
+        ['HPStopDOT']        = { DisplayName = "HP Stop DoTs", Category = "Spells and Abilities", Tooltip = "Stop casting DOTs when the mob hits [x] HP %.", Default = 50, Min = 1, Max = 100, },
+        ['DoTorrent']        = {
             DisplayName = "Cast Torrents",
             Category = "Spells and Abilities",
             Tooltip = function() return RGMercUtils.GetDynamicTooltipForSpell("Torrent") end,
             RequiresLoadoutChange = true,
             Default = false,
         },
-        ['DoVetAA']         = { DisplayName = "Use Vet AA", Category = "Spells and Abilities", Tooltip = "Use Veteran AA's in emergencies or during BigBurn", Default = true, },
-		
+        ['DoVetAA']          = { DisplayName = "Use Vet AA", Category = "Spells and Abilities", Tooltip = "Use Veteran AA's in emergencies or during BigBurn", Default = true, },
+
         --LifeTaps
-        ['StartLifeTap']    = { DisplayName = "Use Life Taps", Category = "LifeTaps", Tooltip = "Your HP % before we use Life Taps.", Default = 100, Min = 1, Max = 100, },
-        ['DoDireTap']       = { DisplayName = "Cast Dire Taps", Category = "LifeTaps", Tooltip = "Enable casting Dire Tap spells.", RequiresLoadoutChange = true, Default = true, },
-        ['StartDireTap']    = { DisplayName = "Use Dire Taps", Category = "LifeTaps", Tooltip = "Your HP % before we use Dire taps in non-emergencies.", Default = 85, Min = 1, Max = 100, },
-        ['DoDicho']         = { DisplayName = "Cast Dicho Taps", Category = "LifeTaps", Tooltip = "Enable casting Dicho-line tap spells.", RequiresLoadoutChange = true, Default = true, },
-        ['StartDicho']      = { DisplayName = "Use Dicho Taps", Category = "LifeTaps", Tooltip = "Your HP % before we use Dicho in non-emergencies.", Default = 70, Min = 1, Max = 100, },
-        
+        ['StartLifeTap']     = { DisplayName = "Use Life Taps", Category = "LifeTaps", Tooltip = "Your HP % before we use Life Taps.", Default = 100, Min = 1, Max = 100, },
+        ['DoDireTap']        = { DisplayName = "Cast Dire Taps", Category = "LifeTaps", Tooltip = "Enable casting Dire Tap spells.", RequiresLoadoutChange = true, Default = true, },
+        ['StartDireTap']     = { DisplayName = "Use Dire Taps", Category = "LifeTaps", Tooltip = "Your HP % before we use Dire taps in non-emergencies.", Default = 85, Min = 1, Max = 100, },
+        ['DoDicho']          = { DisplayName = "Cast Dicho Taps", Category = "LifeTaps", Tooltip = "Enable casting Dicho-line tap spells.", RequiresLoadoutChange = true, Default = true, },
+        ['StartDicho']       = { DisplayName = "Use Dicho Taps", Category = "LifeTaps", Tooltip = "Your HP % before we use Dicho in non-emergencies.", Default = 70, Min = 1, Max = 100, },
+
         --Hate Tools
-        ['UseVoT']          = { DisplayName = "Use Voice of Thule", Category = "Hate Tools", Tooltip = "Cast Voice of Thule", Default = true, },
-        ['DoTerror']        = {
+        ['UseVoT']           = { DisplayName = "Use Voice of Thule", Category = "Hate Tools", Tooltip = "Cast Voice of Thule", Default = true, },
+        ['DoTerror']         = {
             DisplayName = "Cast Terrors",
             Category = "Hate Tools",
             Tooltip = function() return RGMercUtils.GetDynamicTooltipForSpell("Terror") end,
             RequiresLoadoutChange = true,
             Default = false,
         },
-        ['DoAE']            = { DisplayName = "Use AE Taunts", Category = "Hate Tools", Tooltip = "Enable casting AE Taunt spells.", Default = true, },
-        ['AeTauntCnt']      = { DisplayName = "AE Taunt Count", Category = "Hate Tools", Tooltip = "Minimum number of haters before using AE Taunt.", Default = 2, Min = 1, Max = 10, },
-        ['SafeAeTaunt']     = { DisplayName = "AE Taunt Safety Check", Category = "Hate Tools", Tooltip = "Limit unintended pulls with AE Taunts. May result in non-use due to false positives.", Default = false, },
+        ['DoAE']             = { DisplayName = "Use AE Taunts", Category = "Hate Tools", Tooltip = "Enable casting AE Taunt spells.", Default = true, },
+        ['AeTauntCnt']       = { DisplayName = "AE Taunt Count", Category = "Hate Tools", Tooltip = "Minimum number of haters before using AE Taunt.", Default = 2, Min = 1, Max = 10, },
+        ['SafeAeTaunt']      = { DisplayName = "AE Taunt Safety Check", Category = "Hate Tools", Tooltip = "Limit unintended pulls with AE Taunts. May result in non-use due to false positives.", Default = false, },
 
         --Defensees
-        ['EmergencyStart']  = { DisplayName = "Emergency Start", Category = "Defenses", Tooltip = "Your HP % before we begin to use Emergency Rotations.", Default = 55, Min = 1, Max = 100, },
-        ['EmergencyLockout']= { DisplayName = "Emergency Only", Category = "Defenses", Tooltip = "Your HP % before DPS rotations are cut in favor of Emergency Rotations.", Default = 35, Min = 1, Max = 100, },
-        ['MantleCount']     = { DisplayName = "Mantle Count", Category = "Defenses", Tooltip = "Number of mobs around you before you use Mantle Disc.", Default = 4, Min = 1, Max = 10, },
-        ['CarapaceCount']   = { DisplayName = "Carapace Count", Category = "Defenses", Tooltip = "Number of mobs around you before you use Carapace Disc.", Default = 3, Min = 1, Max = 10, },
-        ['CurseGuardCount'] = { DisplayName = "Curse Guard Count", Category = "Defenses", Tooltip = "Number of mobs around you before you use Curse Guard Disc.", Default = 4, Min = 1, Max = 10, },
-        ['UnholyCount']     = { DisplayName = "Unholy Count", Category = "Defenses", Tooltip = "Number of mobs around you before you use Unholy Disc.", Default = 4, Min = 1, Max = 10, },
+        ['EmergencyStart']   = { DisplayName = "Emergency Start", Category = "Defenses", Tooltip = "Your HP % before we begin to use Emergency Rotations.", Default = 55, Min = 1, Max = 100, },
+        ['EmergencyLockout'] = { DisplayName = "Emergency Only", Category = "Defenses", Tooltip = "Your HP % before DPS rotations are cut in favor of Emergency Rotations.", Default = 35, Min = 1, Max = 100, },
+        ['MantleCount']      = { DisplayName = "Mantle Count", Category = "Defenses", Tooltip = "Number of mobs around you before you use Mantle Disc.", Default = 4, Min = 1, Max = 10, },
+        ['CarapaceCount']    = { DisplayName = "Carapace Count", Category = "Defenses", Tooltip = "Number of mobs around you before you use Carapace Disc.", Default = 3, Min = 1, Max = 10, },
+        ['CurseGuardCount']  = { DisplayName = "Curse Guard Count", Category = "Defenses", Tooltip = "Number of mobs around you before you use Curse Guard Disc.", Default = 4, Min = 1, Max = 10, },
+        ['UnholyCount']      = { DisplayName = "Unholy Count", Category = "Defenses", Tooltip = "Number of mobs around you before you use Unholy Disc.", Default = 4, Min = 1, Max = 10, },
 
         --Equipment
-        ['DoBandolier']     = { DisplayName = "Use Bandolier", Category = "Equipment", Tooltip = "Enable Swapping of items using the bandolier.", Default = false, },
-        ['DoChestClick']    = { DisplayName = "Do Chest Click", Category = "Equipment", Tooltip = "Click your equipped chest.", Default = true, },
-        ['DoCharmClick']    = { DisplayName = "Do Charm Click", Category = "Equipment", Tooltip = "Click your charm for Geomantra.", Default = true, },
+        ['DoBandolier']      = { DisplayName = "Use Bandolier", Category = "Equipment", Tooltip = "Enable Swapping of items using the bandolier.", Default = false, },
+        ['DoChestClick']     = { DisplayName = "Do Chest Click", Category = "Equipment", Tooltip = "Click your equipped chest.", Default = true, },
+        ['DoCharmClick']     = { DisplayName = "Do Charm Click", Category = "Equipment", Tooltip = "Click your charm for Geomantra.", Default = true, },
 
         --This was for Shield Flash and never implemented (edit: I implemented it in default). Currently covered by emergency rotations.
         --['FlashHP']         = { DisplayName = "Flash HP", Category = "Combat", Tooltip = "TODO: No Idea", Default = 35, Min = 1, Max = 100, },

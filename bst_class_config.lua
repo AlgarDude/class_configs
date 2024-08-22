@@ -575,7 +575,7 @@ return {
             "Barrage of Claws",
         },
         ['FuryDisc'] = {
-            --HHE Burn Disc* - Dicho/Dissident Replace this @ 101
+            --HHE Burn Disc* - Dicho/Dissident Replace this @ 101 outside of burns
             "Nature's Fury",
             "Kolos' Fury",
             "Ruaabri's Fury",
@@ -902,7 +902,7 @@ return {
                 type = "AA",
                 cond = function(self, aaName)
                     if not RGMercUtils.GetSetting('AggroFeign') then return false end
-                    return (mq.TLO.Me.PctHPs() <= 30 and RGMercUtils.IHaveAggro(100)) or (RGMercUtils.IsNamed(mq.TLO.Target) and mq.TLO.Me.PctAggro() > 99)
+                    return (mq.TLO.Me.PctHPs() <= 40 and RGMercUtils.IHaveAggro(100)) or (RGMercUtils.IsNamed(mq.TLO.Target) and mq.TLO.Me.PctAggro() > 99)
                         and RGMercUtils.PCAAReady(aaName) and not RGMercUtils.IAmMA
                 end,
             },
@@ -950,7 +950,7 @@ return {
                 name = "DichoSpell",
                 type = "Spell",
                 cond = function(self, spell)
-                    return RGMercUtils.PCSpellReady(spell) and not RGMercUtils.BuffActive(spell) and not self.ClassConfig.HelperFunctions.FlurryActive(self)
+                    return RGMercUtils.PCSpellReady(spell) and not self.ClassConfig.HelperFunctions.FlurryActive(self)
                 end,
             },
             {
@@ -1055,6 +1055,13 @@ return {
                 end,
             },
             {
+                name = "Tiger Claw",
+                type = "Ability",
+                cond = function(self, abilityName, target)
+                    return mq.TLO.Me.AbilityReady(abilityName)() and RGMercUtils.GetTargetDistance() <= (target.MaxRangeTo() or 0)
+                end,
+            },
+            {
                 name = "Enduring Frenzy",
                 type = "AA",
                 cond = function(self, aaName, target)
@@ -1065,7 +1072,7 @@ return {
                 name = "EndRegenProcDisc",
                 type = "Disc",
                 cond = function(self, discSpell, target)
-                    return mq.TLO.Me.PctEndurance() < 10 and RGMercUtils.PCDiscReady(discSpell)
+                    return mq.TLO.Me.PctEndurance() < RGMercUtils.GetSetting('ParaPct') and RGMercUtils.NPCDiscReady(discSpell)
                 end,
             },
             {
@@ -1473,7 +1480,7 @@ return {
         ['ParaPct']        = { DisplayName = "Paragon %", Category = "Mana Mgmt.", Index = 2, Tooltip = "Minimum mana % before we use Paragon of Spirit.", Default = 80, Min = 1, Max = 99, ConfigType = "Advanced", },
         ['FParaPct']       = { DisplayName = "F.Paragon %", Category = "Mana Mgmt.", Index = 3, Tooltip = "Minimum mana % before we use Focused Paragon.", Default = 90, Min = 1, Max = 99, ConfigType = "Advanced", },
         ['DowntimeFP']     = { DisplayName = "Downtime F.Paragon", Category = "Mana Mgmt.", Index = 4, Tooltip = "Use Focused Paragon outside of Combat.", Default = false, ConfigType = "Advanced", },
-        ['ManaToDot']      = { DisplayName = "Min Mana to Dot", Category = "Mana Mgmt.", Index = 5, Tooltip = "The minimum Mana % to use DoTs outside of burns.", Default = 50, Min = 1, Max = 100, ConfigType = "Advanced", },
+        ['ManaToDot']      = { DisplayName = "Min Mana to Dot", Category = "Mana Mgmt.", Index = 5, Tooltip = "The minimum Mana % to use DoTs outside of burns.", Default = 40, Min = 1, Max = 100, ConfigType = "Advanced", },
         ['HPStopDOT']      = { DisplayName = "Stop Dots (Trash):", Category = "Mana Mgmt.", Index = 6, Tooltip = "Stop casting DOTs when trash mobs hit [x] HP %.", Default = 50, Min = 1, Max = 100, ConfigType = "Advanced", },
         ['NamedStopDOT']   = { DisplayName = "Stop Dots (Named):", Category = "Mana Mgmt.", Index = 76, Tooltip = "Stop casting DOTs when named mobs hit [x] HP %.", Default = 25, Min = 1, Max = 100, ConfigType = "Advanced", },
         --Pets
