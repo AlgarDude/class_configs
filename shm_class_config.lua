@@ -304,9 +304,9 @@ local _ClassConfig = {
             "Shadow of Renewal",
             "Shade of Renewal",
             "Specter of Renewal",
-            "Ghost of Renewal",
-            "Spiritual Serenity",
-            "Breath of Trushar",
+            --"Ghost of Renewal", --group but short duration, expensive, need to amend this. try again in 5 levels
+            --"Spiritual Serenity", --single target
+            --"Breath of Trushar", --single target
         },
         ["CanniSpell"] = {
             -- Convert Health to Mana - Level  23 - 113
