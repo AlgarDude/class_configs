@@ -1,6 +1,7 @@
-local mq          = require('mq')
-local RGMercUtils = require("utils.rgmercs_utils")
-local Set         = require('mq.Set')
+local mq           = require('mq')
+local RGMercUtils  = require("utils.rgmercs_utils")
+local Set          = require('mq.Set')
+local AlgarInclude = require("utils.algar_include")
 
 local function LoadAlgarInclude()
     local include = string.format("%s/rgmercs/class_configs/algar_include.lua", mq.configDir)

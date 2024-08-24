@@ -3,15 +3,9 @@
 -- into your: MacroQuest/configs/rgmercs/class_configs/ directory
 -- so it is not patched over.
 
-local mq          = require('mq')
-local RGMercUtils = require("utils.rgmercs_utils")
-
-local function LoadAlgarInclude()
-    local include = string.format("%s/rgmercs/class_configs/algar_include.lua", mq.configDir)
-    loadfile(include)
-    RGMercsLogger.log_info("Loading Custom Utils: %s", include)
-end
-LoadAlgarInclude()
+local mq           = require('mq')
+local RGMercUtils  = require("utils.rgmercs_utils")
+local AlgarInclude = require("utils.algar_include")
 
 return {
     _version         = "Jank",

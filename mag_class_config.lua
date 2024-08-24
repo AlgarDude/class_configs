@@ -1,14 +1,8 @@
-local mq          = require('mq')
-local RGMercUtils = require("utils.rgmercs_utils")
+local mq           = require('mq')
+local RGMercUtils  = require("utils.rgmercs_utils")
+local AlgarInclude = require("utils.algar_include")
 
-local function LoadAlgarInclude()
-    local include = string.format("%s/rgmercs/class_configs/algar_include.lua", mq.configDir)
-    loadfile(include)
-    RGMercsLogger.log_info("Loading Custom Utils: %s", include)
-end
-LoadAlgarInclude()
-
-_ClassConfig = {
+_ClassConfig       = {
     _version              = "0.2B Modified",
     _author               = "Algar, Derple, Morisato",
     ['FullConfig']        = true,

@@ -1,5 +1,5 @@
-local AlgarInclude   = { _version = '1.0', _name = "AlgarInclude", _author = 'Algar', }
-AlgarInclude.__index = AlgarInclude
+AlgarInclude = { _version = '1.0', _name = "AlgarInclude", _author = 'Algar', }
+--AlgarInclude.__index = AlgarInclude
 
 function AlgarInclude.GroupBuffCheck(spell, targetId, targetName)
 	if not spell or not spell() then return false end
@@ -55,8 +55,7 @@ function AlgarInclude.GroupBuffCheck(spell, targetId, targetName)
 			RGMercsLogger.log_verbose("GroupBuffCheck() %s(ID:%d) does not stack on %s, moving on.", spellName, spellID, targetName)
 		end
 	else
-		--check the group manually for a mercenary or on the offchance dannet doesn't report (although if dannet crashed or somesuch RGL would as well anyway)
-		--devnote 8/7/2024: Not sure this is required or when it would actually function, consider whether it should be removed
+		--check the group manually for a mercenary or um... other weird thing?
 		RGMercUtils.SetTarget(targetId)
 		mq.delay("2s", function() return mq.TLO.Target.BuffsPopulated() end)
 		return not RGMercUtils.TargetHasBuff(spell) and RGMercUtils.SpellStacksOnTarget(spell)
