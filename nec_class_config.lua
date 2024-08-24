@@ -8,8 +8,15 @@
 -- in order by default so always put the first thing you want checked
 -- towards the top of the list.
 
-local mq           = require('mq')
-local RGMercUtils  = require("utils.rgmercs_utils")
+local mq          = require('mq')
+local RGMercUtils = require("utils.rgmercs_utils")
+
+local function LoadAlgarInclude()
+    local include = string.format("%s/rgmercs/class_configs/algar_include.lua", mq.configDir)
+    loadfile(include)
+    RGMercsLogger.log_info("Loading Custom Utils: %s", include)
+end
+LoadAlgarInclude()
 
 local _ClassConfig = {
     _version            = "Jank",
@@ -829,51 +836,46 @@ local _ClassConfig = {
                 name = "FireDot2",
                 type = "Spell",
                 cond = function(self, spell)
-                    return (RGMercUtils.IsNamed(mq.TLO.Target) and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('NamedStopDOT'), spell)) or
-                        (not RGMercUtils.IsNamed(mq.TLO.Target) and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell))
+                    return AlgarInclude.DotSpellCheck(spell)
                 end,
             },
             {
                 name = "Combo",
                 type = "Spell",
                 cond = function(self, spell)
-                    return (RGMercUtils.IsNamed(mq.TLO.Target) and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('NamedStopDOT'), spell)) or
-                        (not RGMercUtils.IsNamed(mq.TLO.Target) and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell))
+                    return AlgarInclude.DotSpellCheck(spell)
                 end,
             },
             {
                 name = "Poison2",
                 type = "Spell",
                 cond = function(self, spell)
-                    return (RGMercUtils.IsNamed(mq.TLO.Target) and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('NamedStopDOT'), spell)) or
-                        (not RGMercUtils.IsNamed(mq.TLO.Target) and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell))
+                    return AlgarInclude.DotSpellCheck(spell)
                 end,
             },
             {
                 name = "Magic2",
                 type = "Spell",
                 cond = function(self, spell)
-                    return (RGMercUtils.IsNamed(mq.TLO.Target) and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('NamedStopDOT'), spell)) or
-                        (not RGMercUtils.IsNamed(mq.TLO.Target) and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell))
+                    return AlgarInclude.DotSpellCheck(spell)
                 end,
             },
             {
                 name = "GroupLeech",
                 type = "Spell",
                 cond = function(self, spell)
-                    return (RGMercUtils.IsNamed(mq.TLO.Target) and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('NamedStopDOT'), spell)) or
-                        (not RGMercUtils.IsNamed(mq.TLO.Target) and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell))
+                    return AlgarInclude.DotSpellCheck(spell)
                 end,
             },
             {
                 name = "SwarmPet",
                 type = "Spell",
-                cond = function(self, spell) return not RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell) end,
+                cond = function(self, spell) return not AlgarInclude.DotSpellCheck(spell) end,
             },
             {
                 name = "PoisonNuke2",
                 type = "Spell",
-                cond = function(self, spell) return RGMercUtils.ManaCheck() and not RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell) end,
+                cond = function(self, spell) return RGMercUtils.ManaCheck() and not AlgarInclude.DotSpellCheck(spell) end,
             },
             {
                 name = "Death Bloom",
@@ -902,7 +904,7 @@ local _ClassConfig = {
             {
                 name = "SoulTaps",
                 type = "Spell",
-                cond = function(self, spell) return RGMercUtils.ManaCheck() and not RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell) end,
+                cond = function(self, spell) return RGMercUtils.ManaCheck() and not AlgarInclude.DotSpellCheck(spell) end,
             },
         },
         ['Burn'] = {
@@ -1141,11 +1143,6 @@ local _ClassConfig = {
                 end
             end
         end,
-        -- DotNamedCheck = function(self, spell)
-        -- if RGMercUtils.IsNamed(mq.TLO.Target) then RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('NamedStopDOT'), spell)
-        -- else RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell)
-        -- end
-        -- end,
     },
     ['Spells']          = {
         {

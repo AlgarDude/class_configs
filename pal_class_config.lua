@@ -8,8 +8,15 @@
 -- in order by default so always put the first thing you want checked
 -- towards the top of the list.
 
-local mq           = require('mq')
-local RGMercUtils  = require("utils.rgmercs_utils")
+local mq          = require('mq')
+local RGMercUtils = require("utils.rgmercs_utils")
+
+local function LoadAlgarInclude()
+    local include = string.format("%s/rgmercs/class_configs/algar_include.lua", mq.configDir)
+    loadfile(include)
+    RGMercsLogger.log_info("Loading Custom Utils: %s", include)
+end
+LoadAlgarInclude()
 
 local Tooltips     = {
     Mantle              = "Spell Line: Melee Absorb Proc",

@@ -8,8 +8,15 @@
 -- in order by default so always put the first thing you want checked
 -- towards the top of the list.
 
-local mq           = require('mq')
-local RGMercUtils  = require("utils.rgmercs_utils")
+local mq          = require('mq')
+local RGMercUtils = require("utils.rgmercs_utils")
+
+local function LoadAlgarInclude()
+    local include = string.format("%s/rgmercs/class_configs/algar_include.lua", mq.configDir)
+    loadfile(include)
+    RGMercsLogger.log_info("Loading Custom Utils: %s", include)
+end
+LoadAlgarInclude()
 
 --todo: add a LOT of tooltips or scrap them entirely. Hopefully the former.
 local Tooltips     = {
@@ -1515,7 +1522,7 @@ local _ClassConfig = {
                 type = "Spell",
                 tooltip = Tooltips.PoisonDot,
                 cond = function(self, spell)
-                    return RGMercUtils.SpellLoaded(spell) and RGMercUtils.NPCSpellReady(spell) and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell) and
+                    return RGMercUtils.SpellLoaded(spell) and RGMercUtils.NPCSpellReady(spell) and AlgarInclude.DotSpellCheck(spell) and
                         (RGMercUtils.ManaCheck() or RGMercUtils.BurnCheck())
                 end,
             },
@@ -1525,7 +1532,7 @@ local _ClassConfig = {
                 tooltip = Tooltips.PoisonDot,
                 cond = function(self, spell)
                     return RGMercUtils.SpellLoaded(spell) and RGMercUtils.NPCSpellReady(spell) and
-                        RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell)(RGMercUtils.ManaCheck() or RGMercUtils.BurnCheck())
+                        AlgarInclude.DotSpellCheck(spell) and (RGMercUtils.ManaCheck() or RGMercUtils.BurnCheck())
                 end,
             },
             {
@@ -1552,7 +1559,7 @@ local _ClassConfig = {
             -- type = "Spell",
             -- tooltip = Tooltips.DireDot,
             -- cond = function(self, spell)
-            -- return RGMercUtils.SpellLoaded(spell) and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell)
+            -- return RGMercUtils.SpellLoaded(spell) and AlgarInclude.DotSpellCheck(spell)
             -- end,
             -- },
             {
@@ -1744,8 +1751,6 @@ local _ClassConfig = {
 
         --Spells and Abilities
         ['DoSnare']          = { DisplayName = "Cast Snares", Category = "Spells and Abilities", Tooltip = "Enable casting Snare spells.", Default = true, },
-        ['DoDot']            = { DisplayName = "Cast DoTs", Category = "Spells and Abilities", Tooltip = "Enable casting Damage Over Time spells.", Default = false, },
-        ['HPStopDOT']        = { DisplayName = "HP Stop DoTs", Category = "Spells and Abilities", Tooltip = "Stop casting DOTs when the mob hits [x] HP %.", Default = 50, Min = 1, Max = 100, },
         ['DoTorrent']        = {
             DisplayName = "Cast Torrents",
             Category = "Spells and Abilities",
@@ -1754,6 +1759,9 @@ local _ClassConfig = {
             Default = false,
         },
         ['DoVetAA']          = { DisplayName = "Use Vet AA", Category = "Spells and Abilities", Tooltip = "Use Veteran AA's in emergencies or during BigBurn", Default = true, },
+        ['DoDot']            = { DisplayName = "Cast DoTs", Category = "Spells and Abilities", Tooltip = "Enable casting Damage Over Time spells.", Default = false, },
+        ['HPStopDOT']        = { DisplayName = "HP Stop DoTs", Category = "Spells and Abilities", Tooltip = "Stop casting DOTs when the mob hits [x] HP %.", Default = 50, Min = 1, Max = 100, },
+        ['NamedStopDOT']     = { DisplayName = "Named HP Stop DOTs", Category = "Spells and Abilities", Tooltip = "Stop casting DOTs when a named mob hits [x] HP %.", Default = 30, Min = 1, Max = 100, },
 
         --LifeTaps
         ['StartLifeTap']     = { DisplayName = "Use Life Taps", Category = "LifeTaps", Tooltip = "Your HP % before we use Life Taps.", Default = 100, Min = 1, Max = 100, },

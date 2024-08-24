@@ -1,5 +1,12 @@
-local mq           = require('mq')
-local RGMercUtils  = require("utils.rgmercs_utils")
+local mq          = require('mq')
+local RGMercUtils = require("utils.rgmercs_utils")
+
+local function LoadAlgarInclude()
+    local include = string.format("%s/rgmercs/class_configs/algar_include.lua", mq.configDir)
+    loadfile(include)
+    RGMercsLogger.log_info("Loading Custom Utils: %s", include)
+end
+LoadAlgarInclude()
 
 local _ClassConfig = {
     _version              = "Healdps",
@@ -576,26 +583,6 @@ local _ClassConfig = {
         },
     },
     ['HelperFunctions']   = {
-        DebuffConCheck = function(target)
-            local conLevel = RGMercConfig.Constants.ConColorsNameToId[mq.TLO.Target.ConColor()]
-            if conLevel >= RGMercUtils.GetSetting('DebuffMinCon') or (RGMercUtils.IsNamed(mq.TLO.Target) and RGMercUtils.GetSetting('DebuffNamedAlways')) then return true end
-            return false
-        end,
-
-
-        --customizing the dotspellcheck to add support for stopping DoT at a different HP% on named and trash
-        --TODO: Refactors, p.sure there is some redundant code here
-        DotSpellCheck = function(spell)
-            if not spell or not spell() then return false end
-
-            local targethp = RGMercUtils.GetTargetPctHPs()
-            if RGMercUtils.IsNamed(mq.TLO.Target) then
-                return RGMercUtils.GetSetting('NamedStopDOT') < targethp and RGMercUtils.DetSpellCheck(spell)
-            else
-                return RGMercUtils.GetSetting('HPStopDOT') < targethp and RGMercUtils.DetSpellCheck(spell)
-            end
-        end,
-
         DoRez = function(self, corpseId)
             if not RGMercUtils.PCSpellReady(mq.TLO.Spell("Incarnate Anew")) and
                 not mq.TLO.FindItem("Staff of Forbidden Rites")() and
@@ -693,7 +680,7 @@ local _ClassConfig = {
                 cond = function(self, spell, target)
                     -- force the target for StacksTarget to work.
                     RGMercUtils.SetTarget(target.ID() or 0)
-                    return RGMercUtils.GetSetting('DoHOT') and RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())
+                    return RGMercUtils.GetSetting('DoHOT') and AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
                 end,
             },
         },
@@ -732,7 +719,7 @@ local _ClassConfig = {
                 name = "RecourseHeal",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())
+                    return AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
                 end,
             },
             {
@@ -827,7 +814,7 @@ local _ClassConfig = {
             steps = 1,
             targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
             cond = function(self, combat_state)
-                return combat_state == "Combat" and not RGMercUtils.Feigning() and RGMercUtils.DoCombatActions() and self.ClassConfig.HelperFunctions.DebuffConCheck() and
+                return combat_state == "Combat" and not RGMercUtils.Feigning() and RGMercUtils.DoCombatActions() and AlgarInclude.DebuffConCheck() and
                     (not RGMercUtils.IsModeActive('Heal') or RGMercUtils.GetMainAssistPctHPs() >= RGMercUtils.GetSetting('MainHealPoint'))
             end,
         },
@@ -837,7 +824,7 @@ local _ClassConfig = {
             steps = 1,
             targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
             cond = function(self, combat_state)
-                return combat_state == "Combat" and not RGMercUtils.Feigning() and RGMercUtils.DoCombatActions() and self.ClassConfig.HelperFunctions.DebuffConCheck() and
+                return combat_state == "Combat" and not RGMercUtils.Feigning() and RGMercUtils.DoCombatActions() and AlgarInclude.DebuffConCheck() and
                     (not RGMercUtils.IsModeActive('Heal') or RGMercUtils.GetMainAssistPctHPs() >= RGMercUtils.GetSetting('MainHealPoint'))
             end,
         },
@@ -1010,21 +997,21 @@ local _ClassConfig = {
                 name = "ChaoticDoT",
                 type = "Spell",
                 cond = function(self, spell)
-                    return mq.TLO.Me.PctMana() > RGMercUtils.GetSetting('DOTMinMana') and self.ClassConfig.HelperFunctions.DotSpellCheck(spell)
+                    return mq.TLO.Me.PctMana() > RGMercUtils.GetSetting('DOTMinMana') and AlgarInclude.DotSpellCheck(spell)
                 end,
             },
             {
                 name = "CurseDoT2",
                 type = "Spell",
                 cond = function(self, spell)
-                    return mq.TLO.Me.PctMana() > RGMercUtils.GetSetting('DOTMinMana') and self.ClassConfig.HelperFunctions.DotSpellCheck(spell)
+                    return mq.TLO.Me.PctMana() > RGMercUtils.GetSetting('DOTMinMana') and AlgarInclude.DotSpellCheck(spell)
                 end,
             },
             {
                 name = "PandemicDot",
                 type = "Spell",
                 cond = function(self, spell)
-                    return mq.TLO.Me.PctMana() > RGMercUtils.GetSetting('DOTMinMana') and self.ClassConfig.HelperFunctions.DotSpellCheck(spell)
+                    return mq.TLO.Me.PctMana() > RGMercUtils.GetSetting('DOTMinMana') and AlgarInclude.DotSpellCheck(spell)
                 end,
             },
             {
@@ -1040,7 +1027,7 @@ local _ClassConfig = {
                 name = "GroupRenewalHoT",
                 type = "Spell",
                 cond = function(self, spell)
-                    return not self.ClassConfig.HelperFunctions.DotSpellCheck(spell) and RGMercUtils.SpellStacksOnMe(spell)
+                    return not AlgarInclude.DotSpellCheck(spell) and RGMercUtils.SpellStacksOnMe(spell)
                         and (mq.TLO.Me.Song(spell).Duration.TotalSeconds() or 0) < 30
                 end,
             },
@@ -1191,7 +1178,7 @@ local _ClassConfig = {
                 name = "SlowProcBuff",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    return RGMercUtils.TargetClassIs({ "WAR", "PAL", "SHD", }, target) and RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())
+                    return RGMercUtils.TargetClassIs({ "WAR", "PAL", "SHD", }, target) and AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
                 end,
             },
             {
@@ -1202,14 +1189,14 @@ local _ClassConfig = {
                     RGMercUtils.SetTarget(target.ID() or 0)
                     return mq.TLO.Me.Level() <= 85 and (spell.Level() or 0) >= 71 and
                         RGMercUtils.TargetClassIs({ "WAR", "PAL", "SHD", "ROG", "MNK", "BER", "RNG", "BST", }, target) and RGMercUtils.GetSetting('DoStatBuff') and
-                        RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())
+                        AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
                 end,
             },
             {
                 name = "FocusSpell",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())
+                    return AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
                 end,
             },
             {
@@ -1223,7 +1210,7 @@ local _ClassConfig = {
                     local speedSpell = mq.TLO.Me.AltAbility(aaName).Spell.Trigger(1)
                     if not speedSpell or not speedSpell() then return false end
 
-                    return RGMercUtils.GetSetting('DoRunSpeed') and RGMercUtils.CanUseAA(aaName) and RGMercUtils.CheckPCNeedsBuff(speedSpell, target.ID(), target.CleanName())
+                    return RGMercUtils.GetSetting('DoRunSpeed') and RGMercUtils.CanUseAA(aaName) and AlgarInclude.GroupBuffCheck(speedSpell, target.ID(), target.CleanName())
                 end,
             },
         },

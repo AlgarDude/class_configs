@@ -6,10 +6,17 @@
 local mq          = require('mq')
 local RGMercUtils = require("utils.rgmercs_utils")
 
+local function LoadAlgarInclude()
+    local include = string.format("%s/rgmercs/class_configs/algar_include.lua", mq.configDir)
+    loadfile(include)
+    RGMercsLogger.log_info("Loading Custom Utils: %s", include)
+end
+LoadAlgarInclude()
+
 return {
     _version         = "Jank",
     _author          = "Algar",
-	['FullConfig'] = true,
+    ['FullConfig']   = true,
     ['Modes']        = {
         'Combo',
         'Fire',
@@ -295,7 +302,7 @@ return {
             "Lesser Shielding",
             "Minor Shielding",
         },
-		['SelfSpellShield1'] = {
+        ['SelfSpellShield1'] = {
             "Shield of Inescapability",
             "Shield of Inevitability",
             "Shield of Destiny",
@@ -676,13 +683,13 @@ return {
             end,
         },
         -- {
-            -- name = 'Gift of Mana',
-            -- state = 1,
-            -- steps = 1,
-            -- targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
-            -- cond = function(self, combat_state)
-                -- return combat_state == "Combat" and (not RGMercUtils.GetSetting('DoGOMCheck') or RGMercUtils.DetGOMCheck())
-            -- end,
+        -- name = 'Gift of Mana',
+        -- state = 1,
+        -- steps = 1,
+        -- targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
+        -- cond = function(self, combat_state)
+        -- return combat_state == "Combat" and (not RGMercUtils.GetSetting('DoGOMCheck') or RGMercUtils.DetGOMCheck())
+        -- end,
         -- },
         {
             name = 'DPS',
@@ -852,10 +859,10 @@ return {
             },
         },
         ['Gift of Mana'] = {
-            
+
         },
         ['DPS'] = {
-			{
+            {
                 name = "CloudburstNuke",
                 type = "Spell",
                 cond = function(self, spell)
@@ -869,162 +876,162 @@ return {
                     return not RGMercUtils.TargetHasBuff(spell) and RGMercUtils.NPCSpellReady(spell)
                 end,
             },
-			{
+            {
                 name = "FuseNuke",
                 type = "Spell",
                 cond = function(self, spell)
                     return RGMercUtils.NPCSpellReady(spell)
                 end,
             },
-			{
+            {
                 name = "FireClaw",
                 type = "Spell",
                 cond = function(self, spell)
                     return not RGMercUtils.BuffActiveByID(mq.TLO.Me.AltAbility("Improved Twincast").Spell.ID()) and RGMercUtils.NPCSpellReady(spell)
                 end,
             },
-			{
+            {
                 name = "FireEtherealNuke",
                 type = "Spell",
                 cond = function(self, spell)
                     return RGMercUtils.NPCSpellReady(spell)
                 end,
             },
-			{
+            {
                 name = "IceEtherealNuke",
                 type = "Spell",
                 cond = function(self, spell)
                     return RGMercUtils.NPCSpellReady(spell)
                 end,
             },
-			{
+            {
                 name = "TwincastSpell",
                 type = "Spell",
                 cond = function(self, spell)
                     return RGMercUtils.PCSpellReady(spell) and not RGMercUtils.BuffActiveByID(mq.TLO.Me.AltAbility("Improved Twincast").Spell.ID())
                 end,
             },
-			{
+            {
                 name = "FireClaw",
                 type = "Spell",
                 cond = function(self, spell)
                     return RGMercUtils.BuffActiveByID(mq.TLO.Spell("Twincast").RankName.ID()) and RGMercUtils.NPCSpellReady(spell)
                 end,
             },
-			{
+            {
                 name = "WildNuke",
                 type = "Spell",
                 cond = function(self, spell)
                     return RGMercUtils.DetGambitCheck() and RGMercUtils.NPCSpellReady(spell)
                 end,
             },
-			{
+            {
                 name = "DichoSpell",
                 type = "Spell",
                 cond = function(self, spell, target)
                     return RGMercUtils.NPCSpellReady(spell)
                 end,
             },
-			
-		
+
+
             -- {
-                -- name = "WildNuke",
-                -- type = "Spell",
-                -- cond = function(self, spell)
-                    -- return RGMercUtils.DetGambitCheck()
-                -- end,
+            -- name = "WildNuke",
+            -- type = "Spell",
+            -- cond = function(self, spell)
+            -- return RGMercUtils.DetGambitCheck()
+            -- end,
             -- },
             -- {
-                -- name = "DichoSpell",
-                -- type = "Spell",
-                -- cond = function(self, spell)
-                    -- return not RGMercUtils.DetGambitCheck() and mq.TLO.Me.Buff("Twincast").ID() == 0 and not RGMercUtils.BuffActiveByName("Improved Twincast")
-                -- end,
+            -- name = "DichoSpell",
+            -- type = "Spell",
+            -- cond = function(self, spell)
+            -- return not RGMercUtils.DetGambitCheck() and mq.TLO.Me.Buff("Twincast").ID() == 0 and not RGMercUtils.BuffActiveByName("Improved Twincast")
+            -- end,
             -- },
             -- {
-                -- name = "FuseNuke",
-                -- type = "Spell",
-                -- cond = function(self, spell)
-                    -- local fireClaw = RGMercModules:ExecModule("Class", "GetResolvedActionMapItem", "FireClaw")
-                    -- return not RGMercUtils.DetGambitCheck() and ((not fireClaw or not fireClaw()) or not mq.TLO.Me.SpellReady(fireClaw.RankName()))
-                -- end,
+            -- name = "FuseNuke",
+            -- type = "Spell",
+            -- cond = function(self, spell)
+            -- local fireClaw = RGMercModules:ExecModule("Class", "GetResolvedActionMapItem", "FireClaw")
+            -- return not RGMercUtils.DetGambitCheck() and ((not fireClaw or not fireClaw()) or not mq.TLO.Me.SpellReady(fireClaw.RankName()))
+            -- end,
             -- },
             -- {
-                -- name = "FireNuke",
-                -- type = "Spell",
-                -- cond = function(self, spell)
-                    -- return RGMercUtils.ManaCheck() and not RGMercUtils.DetGambitCheck()
-                -- end,
+            -- name = "FireNuke",
+            -- type = "Spell",
+            -- cond = function(self, spell)
+            -- return RGMercUtils.ManaCheck() and not RGMercUtils.DetGambitCheck()
+            -- end,
             -- },
             -- {
-                -- name = "IceNuke",
-                -- type = "Spell",
-                -- cond = function(self, spell)
-                    -- return RGMercUtils.ManaCheck() and not RGMercUtils.DetGambitCheck()
-                -- end,
+            -- name = "IceNuke",
+            -- type = "Spell",
+            -- cond = function(self, spell)
+            -- return RGMercUtils.ManaCheck() and not RGMercUtils.DetGambitCheck()
+            -- end,
             -- },
             -- {
-                -- name = "MagicNuke",
-                -- type = "Spell",
-                -- cond = function(self, spell)
-                    -- return RGMercUtils.ManaCheck() and not RGMercUtils.DetGambitCheck()
-                -- end,
+            -- name = "MagicNuke",
+            -- type = "Spell",
+            -- cond = function(self, spell)
+            -- return RGMercUtils.ManaCheck() and not RGMercUtils.DetGambitCheck()
+            -- end,
             -- },
             -- {
-                -- name = "FireRainNuke",
-                -- type = "Spell",
-                -- cond = function(self, spell)
-                    -- return RGMercUtils.ManaCheck() and not RGMercUtils.DetGambitCheck() and RGMercUtils.GetXTHaterCount() > 2 and RGMercUtils.GetTargetDistance() > 30
-                -- end,
+            -- name = "FireRainNuke",
+            -- type = "Spell",
+            -- cond = function(self, spell)
+            -- return RGMercUtils.ManaCheck() and not RGMercUtils.DetGambitCheck() and RGMercUtils.GetXTHaterCount() > 2 and RGMercUtils.GetTargetDistance() > 30
+            -- end,
             -- },
             -- {
-                -- name = "IceRainNuke",
-                -- type = "Spell",
-                -- cond = function(self, spell)
-                    -- return RGMercUtils.ManaCheck() and not RGMercUtils.DetGambitCheck() and RGMercUtils.GetXTHaterCount() > 2 and RGMercUtils.GetTargetDistance() > 30
-                -- end,
+            -- name = "IceRainNuke",
+            -- type = "Spell",
+            -- cond = function(self, spell)
+            -- return RGMercUtils.ManaCheck() and not RGMercUtils.DetGambitCheck() and RGMercUtils.GetXTHaterCount() > 2 and RGMercUtils.GetTargetDistance() > 30
+            -- end,
             -- },
             -- {
-                -- name = "SnareSpell",
-                -- type = "Spell",
-                -- cond = function(self, spell)
-                    -- return RGMercUtils.ManaCheck() and RGMercUtils.GetTargetDistance() > 30 and self.settings.DoSnare
-                -- end,
+            -- name = "SnareSpell",
+            -- type = "Spell",
+            -- cond = function(self, spell)
+            -- return RGMercUtils.ManaCheck() and RGMercUtils.GetTargetDistance() > 30 and self.settings.DoSnare
+            -- end,
             -- },
             -- {
-                -- name = "FastMagicNuke",
-                -- type = "Spell",
-                -- cond = function(self, spell)
-                    -- return RGMercUtils.ManaCheck()
-                -- end,
+            -- name = "FastMagicNuke",
+            -- type = "Spell",
+            -- cond = function(self, spell)
+            -- return RGMercUtils.ManaCheck()
+            -- end,
             -- },
             -- {
-                -- name = "FuseNuke",
-                -- type = "Spell",
-                -- cond = function(self, spell)
-                    -- return RGMercUtils.ManaCheck()
-                -- end,
+            -- name = "FuseNuke",
+            -- type = "Spell",
+            -- cond = function(self, spell)
+            -- return RGMercUtils.ManaCheck()
+            -- end,
             -- },
             -- {
-                -- name = "FireEtherealNuke",
-                -- type = "Spell",
-                -- cond = function(self, spell)
-                    -- return RGMercUtils.ManaCheck()
-                -- end,
+            -- name = "FireEtherealNuke",
+            -- type = "Spell",
+            -- cond = function(self, spell)
+            -- return RGMercUtils.ManaCheck()
+            -- end,
             -- },
             -- {
-                -- name = "IceEtherealNuke",
-                -- type = "Spell",
-                -- cond = function(self, spell)
-                    -- return RGMercUtils.ManaCheck()
-                -- end,
+            -- name = "IceEtherealNuke",
+            -- type = "Spell",
+            -- cond = function(self, spell)
+            -- return RGMercUtils.ManaCheck()
+            -- end,
             -- },
             -- {
-                -- name = "DichoSpell",
-                -- type = "Spell",
-                -- cond = function(self, spell)
-                    -- return RGMercUtils.ManaCheck()
-                -- end,
+            -- name = "DichoSpell",
+            -- type = "Spell",
+            -- cond = function(self, spell)
+            -- return RGMercUtils.ManaCheck()
+            -- end,
             -- },
         },
         ['Downtime'] = {
@@ -1046,7 +1053,7 @@ return {
                     return (mq.TLO.Me.AltAbility("Etherealist's Unity").Spell.Trigger(1).Level() or 0) > selfHPBuffLevel and RGMercUtils.SelfBuffAACheck(aaName)
                 end,
             },
-			{
+            {
                 name = "SelfSpellShield1",
                 type = "Spell",
                 active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.RankName.ID()) end,
@@ -1136,34 +1143,34 @@ return {
         {
             gem = 4,
             spells = {
-               { name = "FireEtherealNuke", },
-			},
+                { name = "FireEtherealNuke", },
+            },
         },
         {
             gem = 5,
             spells = {
-               { name = "IceEtherealNuke", },
-			},
+                { name = "IceEtherealNuke", },
+            },
         },
-        { 	
-			gem = 6, 
-			spells = {
-				{ name = "CloudburstNuke", },
-			},
-		},
+        {
+            gem = 6,
+            spells = {
+                { name = "CloudburstNuke", },
+            },
+        },
         {
             gem = 7,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
-				{ name = "WildNuke", },
-			},
+                { name = "WildNuke", },
+            },
         },
         {
             gem = 8,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
-				{ name = "DichoSpell", },
-			},	
+                { name = "DichoSpell", },
+            },
         },
         {
             gem = 9,
@@ -1172,33 +1179,33 @@ return {
                 { name = "JoltSpell", },
             },
         },
-		{
+        {
             gem = 10,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
                 { name = "TwincastSpell", },
             },
         },
-		{
+        {
             gem = 11,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
                 { name = "GambitSpell", },
             },
         },
-		{
+        {
             gem = 12,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
                 { name = "SelfRune1", },
             },
         },
-		-- {
-            -- gem = 13,
-            -- cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
-            -- spells = {
-                -- --{ name = "", },
-            -- },
+        -- {
+        -- gem = 13,
+        -- cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
+        -- spells = {
+        -- --{ name = "", },
+        -- },
     },
     ['DefaultConfig'] = {
         ['Mode']          = { DisplayName = "Mode", Category = "Combat", Tooltip = "Select the Combat Mode for this Toon", Type = "Custom", RequiresLoadoutChange = true, Default = 3, Min = 1, Max = 4, },

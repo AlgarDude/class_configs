@@ -1,11 +1,18 @@
-local mq           = require('mq')
-local RGMercUtils  = require("utils.rgmercs_utils")
-local Set          = require('mq.Set')
+local mq          = require('mq')
+local RGMercUtils = require("utils.rgmercs_utils")
+local Set         = require('mq.Set')
+
+local function LoadAlgarInclude()
+    local include = string.format("%s/rgmercs/class_configs/algar_include.lua", mq.configDir)
+    loadfile(include)
+    RGMercsLogger.log_info("Loading Custom Utils: %s", include)
+end
+LoadAlgarInclude()
 
 local _ClassConfig = {
     _version              = "1.1 Custom",
     _author               = "Algar (based on default by Derple)",
-	['FullConfig'] = true,
+    ['FullConfig']        = true,
     ['ModeChecks']        = {
         IsHealing = function() return true end,
         IsCuring = function() return RGMercUtils.IsModeActive("Heal") end,
@@ -29,7 +36,7 @@ local _ClassConfig = {
             "Staff of Living Brambles",
             "Staff of Everliving Brambles",
         },
-		['VP2Hammer'] = {
+        ['VP2Hammer'] = {
             "Apothic Dragon Spine Hammer",
         },
     },
@@ -481,7 +488,7 @@ local _ClassConfig = {
             "Snare",
             "Tangling Weeds",
         },
-		['TwincastSpell'] = {
+        ['TwincastSpell'] = {
             "Twincast",
         },
         ['TwinHealNuke'] = {
@@ -750,7 +757,7 @@ local _ClassConfig = {
                     return RGMercUtils.PCSpellReady(spell)
                 end,
             },
-			{
+            {
                 name = "VP2Hammer",
                 type = "Item",
                 cond = function(self)
@@ -825,7 +832,7 @@ local _ClassConfig = {
 
         },
         ["MainHealPoint"] = {
-			doFullRotation = true,
+            doFullRotation = true,
             {
                 name = "QuickHeal",
                 type = "Spell",
@@ -877,7 +884,8 @@ local _ClassConfig = {
             steps = 2,
             targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
             cond = function(self, combat_state)
-                return combat_state == "Combat" and not RGMercUtils.Feigning() and not (RGMercUtils.IsModeActive("Heal") and RGMercUtils.GetMainAssistPctHPs() <= RGMercUtils.GetSetting('MainHealPoint'))
+                return combat_state == "Combat" and not RGMercUtils.Feigning() and
+                    not (RGMercUtils.IsModeActive("Heal") and RGMercUtils.GetMainAssistPctHPs() <= RGMercUtils.GetSetting('MainHealPoint'))
             end,
         },
         {
@@ -913,19 +921,19 @@ local _ClassConfig = {
     },
     ['Rotations']         = {
         ['HealDPS'] = {
-			{
+            {
                 name = "NaturesWrathDOT",
                 type = "Spell",
                 cond = function(self, spell)
-					if not RGMercUtils.DetGOMCheck() or RGMercUtils.IsNamed(mq.TLO.Target) then return false end
+                    if not RGMercUtils.DetGOMCheck() or RGMercUtils.IsNamed(mq.TLO.Target) then return false end
                     return RGMercUtils.NPCSpellReady(spell)
                 end,
             },
-			{
+            {
                 name = "HordeDOT",
                 type = "Spell",
                 cond = function(self, spell)
-					if not RGMercUtils.DetGOMCheck() or RGMercUtils.IsNamed(mq.TLO.Target) then return false end
+                    if not RGMercUtils.DetGOMCheck() or RGMercUtils.IsNamed(mq.TLO.Target) then return false end
                     return RGMercUtils.NPCSpellReady(spell) and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell)
                 end,
             },
@@ -949,7 +957,7 @@ local _ClassConfig = {
                 cond = function(self, spell)
                     return RGMercUtils.NPCSpellReady(spell) and (mq.TLO.Me.TargetOfTarget.PctHPs() or 0) <= RGMercUtils.GetSetting('LightHealPoint')
                 end,
-            },         
+            },
             {
                 name = "Nature's Frost",
                 type = "AA",
@@ -973,7 +981,7 @@ local _ClassConfig = {
             },
         },
         ['HealBurn'] = {
-			{
+            {
                 name = mq.TLO.Me.Inventory("Chest").Name(),
                 type = "Item",
                 cond = function(self)
@@ -986,17 +994,17 @@ local _ClassConfig = {
                 name = "Distant Conflagration",
                 type = "AA",
                 cond = function(self, aaName)
-                     return RGMercUtils.AAReady(aaName) and mq.TLO.Me.Buff("Twincast").ID() == 0
+                    return RGMercUtils.AAReady(aaName) and mq.TLO.Me.Buff("Twincast").ID() == 0
                 end,
             },
-			{
+            {
                 name = "Improved Twincast",
                 type = "AA",
                 cond = function(self, aaName)
-                     return RGMercUtils.AAReady(aaName) and not RGMercUtils.BuffActiveByName("Twincast")
+                    return RGMercUtils.AAReady(aaName) and not RGMercUtils.BuffActiveByName("Twincast")
                 end,
             },
-			{
+            {
                 name = "Group Spirit of the Great Wolf",
                 type = "AA",
                 active_cond = function(self, aaName)
@@ -1007,7 +1015,7 @@ local _ClassConfig = {
                     return RGMercUtils.SelfBuffAACheck(aaName)
                 end,
             },
-			{
+            {
                 name = "Destructive Vortex",
                 type = "AA",
                 cond = function(self, aaName)
@@ -1020,7 +1028,7 @@ local _ClassConfig = {
                 cond = function(self, aaName)
                     return RGMercUtils.AAReady(aaName)
                 end,
-            },          
+            },
             {
                 name = "Spirit of the Wood",
                 type = "AA",
@@ -1028,7 +1036,7 @@ local _ClassConfig = {
                     return RGMercUtils.AAReady(aaName)
                 end,
             },
-			{
+            {
                 name = "Nature's Boon",
                 type = "AA",
                 cond = function(self, aaName)
@@ -1049,14 +1057,14 @@ local _ClassConfig = {
                     return RGMercUtils.AAReady(aaName)
                 end,
             },
-			{
+            {
                 name = "Spire of Nature",
                 type = "AA",
                 cond = function(self, aaName)
                     return RGMercUtils.AAReady(aaName)
                 end,
             },
-			{
+            {
                 name = "TwincastSpell",
                 type = "Spell",
                 cond = function(self, spell)
@@ -1081,7 +1089,7 @@ local _ClassConfig = {
                         0
                 end,
             },
-			{
+            {
                 name = "Season's Wrath",
                 type = "AA",
                 cond = function(self, aaName, target)
@@ -1090,11 +1098,11 @@ local _ClassConfig = {
             },
         },
         ['GroupBuff'] = {
-			{
+            {
                 name = "Swarm of Fireflies",
                 type = "AA",
                 cond = function(self, aaName, target)
-					if target.ID() ~= RGMercUtils.GetMainAssistId() then return false end
+                    if target.ID() ~= RGMercUtils.GetMainAssistId() then return false end
                     return RGMercUtils.AAReady(aaName)
                 end,
             },
@@ -1102,57 +1110,57 @@ local _ClassConfig = {
                 name = "GroupDmgShield",
                 type = "Spell",
                 active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
-                cond = function(self, spell, target) return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName()) end,
+                cond = function(self, spell, target) return AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName()) end,
             },
             -- {
-                -- name = "MoveSpells",
-                -- type = "Spell",
-                -- active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
-                -- cond = function(self, spell, target)
-                    -- return RGMercUtils.GetSetting("DoRunSpeed") and RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())
-                -- end,
+            -- name = "MoveSpells",
+            -- type = "Spell",
+            -- active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
+            -- cond = function(self, spell, target)
+            -- return RGMercUtils.GetSetting("DoRunSpeed") and AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
+            -- end,
             -- },
             {
                 name = "AtkBuff",
                 type = "Spell",
                 active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
                 cond = function(self, spell, target)
-					if not RGMercConfig.Constants.RGMelee:contains(target.Class.ShortName()) then return false end
-                    return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())               
+                    if not RGMercConfig.Constants.RGMelee:contains(target.Class.ShortName()) then return false end
+                    return AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
                 end,
             },
             -- {
-                -- name = "TempHPBuff",
-                -- type = "Spell",
-                -- active_cond = function(self, spell) return true end,
-                -- cond = function(self, spell, target)
-					--if not RGMercConfig.Constants.RGTank:contains(target.Class.ShortName()) then return false end
-                    -- return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())
-                -- end,
+            -- name = "TempHPBuff",
+            -- type = "Spell",
+            -- active_cond = function(self, spell) return true end,
+            -- cond = function(self, spell, target)
+            --if not RGMercConfig.Constants.RGTank:contains(target.Class.ShortName()) then return false end
+            -- return AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
+            -- end,
             -- },
             {
                 name = "HPTypeOneGroup",
                 type = "Spell",
                 active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
                 cond = function(self, spell, target)
-                    return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())
+                    return AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
                 end,
             },
             -- {
-                -- name = "ReptileCombatInnate",
-                -- type = "Spell",
-                -- active_cond = function(self, spell) return true end,
-                -- cond = function(self, spell, target)
-					--if not Set.new({ "SHD", "WAR", }):contains(target.Class.ShortName()) then return false end
-                    -- return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())
-                -- end,
+            -- name = "ReptileCombatInnate",
+            -- type = "Spell",
+            -- active_cond = function(self, spell) return true end,
+            -- cond = function(self, spell, target)
+            --if not Set.new({ "SHD", "WAR", }):contains(target.Class.ShortName()) then return false end
+            -- return AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
+            -- end,
             -- },
             {
                 name = "GroupRegenBuff",
                 type = "Spell",
                 active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
                 cond = function(self, spell, target)
-                    return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())
+                    return AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
                 end,
             },
             {
@@ -1200,7 +1208,7 @@ local _ClassConfig = {
                     return RGMercUtils.SelfBuffAACheck(aaName) and mq.TLO.Me.AltAbility(aaName).Spell.RankName.Stacks()
                 end,
             },
-			{
+            {
                 name = "SelfShield",
                 type = "Spell",
                 active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
@@ -1252,14 +1260,14 @@ local _ClassConfig = {
             gem = 4,
             spells = {
 
-                { name = "QuickHeal",       cond = function(self) return mq.TLO.Me.Level() >= 90 end, },
+                { name = "QuickHeal", cond = function(self) return mq.TLO.Me.Level() >= 90 end, },
 
             },
         },
         {
             gem = 5,
             spells = {
-  
+
                 { name = "LongGroupHeal", cond = function(self) return mq.TLO.Me.Level() >= 70 end, },
 
             },
@@ -1280,33 +1288,33 @@ local _ClassConfig = {
                         return mq.TLO.Me.Level() >= 83 and not RGMercUtils.GetSetting('DoFire')
                     end,
                 },
-                
+
             },
         },
         {
             gem = 7,
             spells = {
-                
-                { name = "FrostDebuff",         cond = function(self) return mq.TLO.Me.Level() >= 74 and not RGMercUtils.GetSetting('DoFire') end, },
-                { name = "HordeDOT", 			cond = function(self) return RGMercUtils.CanUseAA("Blessing of Ro") end, },
-                { name = "RoDebuff",            cond = function(self) return true end, },
+
+                { name = "FrostDebuff", cond = function(self) return mq.TLO.Me.Level() >= 74 and not RGMercUtils.GetSetting('DoFire') end, },
+                { name = "HordeDOT",    cond = function(self) return RGMercUtils.CanUseAA("Blessing of Ro") end, },
+                { name = "RoDebuff",    cond = function(self) return true end, },
 
             },
         },
         {
             gem = 8,
             spells = {
- 
-                { name = "TwinHealNuke", cond = function(self) return RGMercUtils.GetSetting("DoTwinHeal") end, },
-				{ name = "ReptileCombatInnate", cond = function(self) return true end, },
-                { name = "GroupCure", cond = function(self) return true end, },
+
+                { name = "TwinHealNuke",        cond = function(self) return RGMercUtils.GetSetting("DoTwinHeal") end, },
+                { name = "ReptileCombatInnate", cond = function(self) return true end, },
+                { name = "GroupCure",           cond = function(self) return true end, },
             },
         },
         {
             gem = 9,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
-               
+
                 { name = "SunDOT",          cond = function(self) return RGMercUtils.GetSetting("DoFire") end, },
                 { name = "IceBreathDebuff", cond = function(self) return true end, },
             },
@@ -1323,7 +1331,7 @@ local _ClassConfig = {
             gem = 11,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
-               
+
                 { name = "DichoSpell",          cond = function(self) return mq.TLO.Me.Level() >= 101 end, },
                 { name = "GroupCure",           cond = function(self) return true end, },
                 { name = "ReptileCombatInnate", cond = function(self) return true end, },
@@ -1333,8 +1341,8 @@ local _ClassConfig = {
             gem = 12,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
-                { name = "TwincastSpell",           cond = function(self) return true end, },
-                { name = "GroupCure", cond = function(self) return true end, },
+                { name = "TwincastSpell",       cond = function(self) return true end, },
+                { name = "GroupCure",           cond = function(self) return true end, },
                 { name = "ReptileCombatInnate", cond = function(self) return true end, },
             },
         },
@@ -1342,7 +1350,7 @@ local _ClassConfig = {
             gem = 13,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
-				{ name = "GroupCure", cond = function(self) return true end, },
+                { name = "GroupCure", cond = function(self) return true end, },
             },
         },
     },
