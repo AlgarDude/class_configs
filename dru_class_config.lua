@@ -3,13 +3,6 @@ local RGMercUtils  = require("utils.rgmercs_utils")
 local Set          = require('mq.Set')
 local AlgarInclude = require("utils.algar_include")
 
-local function LoadAlgarInclude()
-    local include = string.format("%s/rgmercs/class_configs/algar_include.lua", mq.configDir)
-    loadfile(include)
-    RGMercsLogger.log_info("Loading Custom Utils: %s", include)
-end
-LoadAlgarInclude()
-
 local _ClassConfig = {
     _version              = "1.1 Custom",
     _author               = "Algar (based on default by Derple)",
