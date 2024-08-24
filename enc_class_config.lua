@@ -1189,6 +1189,7 @@ local _ClassConfig = {
                 cond = function(self)
                     if not RGMercUtils.CanUseAA("Azure Mind Crystal") then return false end
                     local crystal = mq.TLO.FindItem("Azure Mind Crystal")
+                    ---@diagnostic disable-next-line: param-type-mismatch
                     return crystal and crystal() and mq.TLO.FindItem(crystal).TimerReady() == 0 and mq.TLO.Me.PctMana() <= RGMercUtils.GetSetting('ModRodManaPct')
                 end,
                 custom_func = function(self)
