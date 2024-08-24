@@ -4,7 +4,7 @@ local RGMercUtils = require("utils.rgmercs_utils")
 return {
     _version              = "1.0",
     _author               = "Derple, Algar",
-	['FullConfig']      = true,
+    ['FullConfig']        = true,
     ['Modes']             = {
         'DPS',
     },
@@ -516,7 +516,7 @@ return {
         },
         ['AtkBuff'] = {
             -- - Single Ferocity
-            "Savagery",                  -- Level 60
+            --"Savagery",                  -- Level 60
             "Ferocity",                  -- Level 65
             "Ferocity of Irionu",        -- Level 70
             "Ruthless Ferocity",         -- Level 75
@@ -910,7 +910,7 @@ return {
                 name = "Warder's Gift",
                 type = "AA",
                 cond = function(self, aaName)
-                    return mq.TLO.Me.Pet.PctHPs > 50 and RGMercUtils.AAReady(aaName)
+                    return mq.TLO.Me.Pet.PctHPs() > 50 and RGMercUtils.AAReady(aaName)
                 end,
             },
             {
