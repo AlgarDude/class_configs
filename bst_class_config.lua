@@ -4,7 +4,7 @@ local RGMercUtils = require("utils.rgmercs_utils")
 return {
     _version              = "1.0",
     _author               = "Derple, Algar",
-    ['FullConfig']        = true,
+	['FullConfig']      = true,
     ['Modes']             = {
         'DPS',
     },
@@ -477,11 +477,11 @@ return {
         },
         ['FocusSpell'] = {
             -- Single target Talismans ( Like Focus)
-            "Inner Fire",
-            "Talisman of Tnarg",
-            "Talisman of Altuna",
-            "Talisman of Kragg",
-            "Focus of Alladnu",
+            -- "Inner Fire",
+            -- "Talisman of Tnarg",
+            -- "Talisman of Altuna",
+            -- "Talisman of Kragg",
+            -- "Focus of Alladnu",
             -- Group Focus Spells
             "Focus of Amilan",
             "Focus of Zott",
@@ -960,6 +960,7 @@ return {
                     if not RGMercUtils.GetSetting('DoFeralgia') then return false end
                     --This checks to see if the Growl portion is up on the pet (or about to expire) before using this, those who prefer the swarm pets can use the actual swarm pet spell in conjunction with this for mana savings.
                     --There are some instances where the Growl isn't needed, but that is a giant TODO and of minor benefit.
+                    ---@diagnostic disable-next-line: undefined-field
                     return (mq.TLO.Pet.BuffDuration(spell.RankName.Trigger(2)).TotalSeconds() or 0) < 10 and RGMercUtils.NPCSpellReady(spell)
                         and (mq.TLO.Me.GemTimer(spell.RankName.Name())() or -1) == 0
                 end,
@@ -1033,7 +1034,7 @@ return {
                     if not RGMercUtils.GetSetting('DoSwarmPet') then return false end
                     --We will let Feralgia apply swarm pets if our pet currently doesn't have its Growl Effect.
                     local feralgia = self.ResolvedActionMap['Feralgia']
-                    return (feralgia and feralgia() and mq.TLO.Me.PetBuff(mq.TLO.Spell(feralgia).RankName.Trigger(2)()))
+                    return (feralgia and feralgia() and mq.TLO.Me.PetBuff(mq.TLO.Spell(feralgia).RankName.Trigger(2).ID()))
                         and (RGMercUtils.ManaCheck() or RGMercUtils.BurnCheck()) and RGMercUtils.NPCSpellReady(spell)
                         and (mq.TLO.Me.GemTimer(spell.RankName.Name())() or -1) == 0
                 end,
@@ -1086,14 +1087,14 @@ return {
                 name = "SingleClaws",
                 type = "Disc",
                 cond = function(self, discSpell, target)
-                    return not RGMercUtils.GetSetting('DoAoe') and RGMercUtils.NPCAAReady(aaName, target.ID())
+                    return not RGMercUtils.GetSetting('DoAoe') and RGMercUtils.NPCDiscReady(discSpell, target.ID())
                 end,
             },
             {
                 name = "AEClaws",
                 type = "Disc",
                 cond = function(self, discSpell, target)
-                    return RGMercUtils.GetSetting('DoAoe') and RGMercUtils.NPCAAReady(aaName, target.ID())
+                    return RGMercUtils.GetSetting('DoAoe') and RGMercUtils.NPCDiscReady(discSpell, target.ID())
                 end,
             },
             {
@@ -1121,6 +1122,7 @@ return {
                 name = "Nature's Salve",
                 type = "AA",
                 cond = function(self, aaName)
+                    ---@diagnostic disable-next-line: undefined-field
                     return mq.TLO.Me.TotalCounters() > 0 and RGMercUtils.AAReady(aaName)
                 end,
             },
@@ -1130,18 +1132,14 @@ return {
                 name = "RunSpeedBuff",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    -- force the target for StacksTarget to work.
-                    RGMercUtils.SetTarget(target.ID() or 0)
-                    return RGMercUtils.GetSetting('DoRunSpeed') and not RGMercUtils.TargetHasBuff(spell) and RGMercUtils.SpellStacksOnTarget(spell)
+                    return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())
                 end,
             },
             {
                 name = "ManaRegenBuff",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    -- force the target for StacksTarget to work.
-                    RGMercUtils.SetTarget(target.ID() or 0)
-                    return not RGMercUtils.TargetHasBuff(spell) and RGMercUtils.SpellStacksOnTarget(spell)
+                    return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())
                 end,
             },
             {
@@ -1149,51 +1147,43 @@ return {
                 type = "Spell",
                 cond = function(self, spell, target)
                     if not RGMercUtils.GetSetting('DoAvatar') then return false end
-                    -- force the target for StacksTarget to work.
-                    RGMercUtils.SetTarget(target.ID() or 0)
-                    return RGMercConfig.Constants.RGMelee:contains(target.Class.ShortName()) and not RGMercUtils.TargetHasBuff(spell) and RGMercUtils.SpellStacksOnTarget(spell)
+                    return RGMercConfig.Constants.RGMelee:contains(target.Class.ShortName()) and RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())
                 end,
             },
             {
                 name = "AtkBuff",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    -- force the target for StacksTarget to work.
-                    RGMercUtils.SetTarget(target.ID() or 0)
                     -- Make sure this is gemmed due to long refresh, and only use the single target versions on classes that need it.
                     if (spell and spell() and ((spell.TargetType() or ""):lower() ~= "group v2")) and (not RGMercUtils.CastReady(spell.RankName)
                             or not RGMercConfig.Constants.RGMelee:contains(target.Class.ShortName())) then
                         return false
                     end
-                    return not RGMercUtils.TargetHasBuff(spell) and RGMercUtils.SpellStacksOnTarget(spell)
+                    return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())
                 end,
             },
             {
                 name = "AtkHPBuff",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    -- force the target for StacksTarget to work.
-                    RGMercUtils.SetTarget(target.ID() or 0)
                     -- Only use the single target versions on classes that need it
                     if (spell and spell() and ((spell.TargetType() or ""):lower() ~= "group v2"))
                         and not RGMercConfig.Constants.RGMelee:contains(target.Class.ShortName()) then
                         return false
                     end
-                    return not RGMercUtils.TargetHasBuff(spell) and RGMercUtils.SpellStacksOnTarget(spell)
+                    return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())
                 end,
             },
             {
                 name = "FocusSpell",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    -- force the target for StacksTarget to work.
-                    RGMercUtils.SetTarget(target.ID() or 0)
                     -- Only use the single target versions on classes that need it
                     if (spell and spell() and ((spell.TargetType() or ""):lower() ~= "group v2"))
                         and not RGMercConfig.Constants.RGMelee:contains(target.Class.ShortName()) then
                         return false
                     end
-                    return not RGMercUtils.TargetHasBuff(spell) and RGMercUtils.SpellStacksOnTarget(spell)
+                    return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())
                 end,
             },
         },

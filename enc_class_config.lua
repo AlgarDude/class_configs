@@ -2,23 +2,23 @@ local mq           = require('mq')
 local RGMercUtils  = require("utils.rgmercs_utils")
 
 local _ClassConfig = {
-    _version          = "Jank",
-    _author           = "Algar",
-	['FullConfig'] = true,
-    ['ModeChecks']    = {
+    _version            = "Jank",
+    _author             = "Algar",
+    ['FullConfig']      = true,
+    ['ModeChecks']      = {
         IsMezzing = function() return true end,
         IsCharming = function() return RGMercUtils.IsModeActive("Charm") end,
     },
-    ['Modes']         = {
+    ['Modes']           = {
         'Mez',
     },
-    ['ItemSets']      = {
+    ['ItemSets']        = {
         ['Epic'] = {
             "Staff of Eternal Eloquence",
             "Oculus of Persuasion",
         },
     },
-    ['AbilitySets']   = {
+    ['AbilitySets']     = {
         ['AuraBuff1'] = {
             "Twincast Aura",
         },
@@ -300,8 +300,8 @@ local _ClassConfig = {
             "Transfixer's Auspice",
             "Enticer's Auspice",
         },
-		['GroupProcBuff'] = {
-			"Mana Reproduction",
+        ['GroupProcBuff'] = {
+            "Mana Reproduction",
             "Mana Rebirth",
             "Mana Replication",
             "Mana Repetition",
@@ -311,7 +311,7 @@ local _ClassConfig = {
             "Mana Reiteration",
             "Mana Reiterate",
             "Mana Resurgence",
-		},
+        },
         ['AllianceSpell'] = {
             "Chromatic Conjunction",
             "Chromatic Coalition",
@@ -611,16 +611,16 @@ local _ClassConfig = {
         },
         --Unused table, temporarily removed - was causing conflicts while resolving NukeSpell1 action maps (will revisit nukes later)
         -- ['ChromaNuke'] = {
-            --- Chromatic Lowest Nuke - Normal -- >=LVL73
-            -- "Polycascading Assault",
-            -- "Polyfluorescent Assault",
-            -- "Polyrefractive Assault",
-            -- "Phantasmal Assault",
-            -- "Arcane Assault",
-            -- "Spectral Assault",
-            -- "Polychaotic Assault",
-            -- "Multichromatic Assault",
-            -- "Polychromatic Assault",
+        --- Chromatic Lowest Nuke - Normal -- >=LVL73
+        -- "Polycascading Assault",
+        -- "Polyfluorescent Assault",
+        -- "Polyrefractive Assault",
+        -- "Phantasmal Assault",
+        -- "Arcane Assault",
+        -- "Spectral Assault",
+        -- "Polychaotic Assault",
+        -- "Multichromatic Assault",
+        -- "Polychromatic Assault",
         -- },
         ['CripSlowSpell'] = {
             --- Slow Cripple Combo Spell - Beginning @ Level 88
@@ -719,8 +719,8 @@ local _ClassConfig = {
             "Wonderment",
         },
         ['MezSpell'] = {
-		--need to put twincast mez in here so it is the one that is chosen to be used
-			"Chaotic Deception",
+            --need to put twincast mez in here so it is the one that is chosen to be used
+            "Chaotic Deception",
             "Chaotic Delusion",
             "Chaotic Bewildering",
             "Chaotic Confounding",
@@ -810,14 +810,14 @@ local _ClassConfig = {
             "Root",
         },
     },
-	['HelperFunctions']   = {
-		DebuffConCheck = function(target)
-          local conLevel = RGMercConfig.Constants.ConColorsNameToId[mq.TLO.Target.ConColor()]
-          if conLevel >= RGMercUtils.GetSetting('DebuffMinCon') or (RGMercUtils.IsNamed(mq.TLO.Target) and RGMercUtils.GetSetting('DebuffNamedAlways')) then return true end
-          return false
+    ['HelperFunctions'] = {
+        DebuffConCheck = function(target)
+            local conLevel = RGMercConfig.Constants.ConColorsNameToId[mq.TLO.Target.ConColor()]
+            if conLevel >= RGMercUtils.GetSetting('DebuffMinCon') or (RGMercUtils.IsNamed(mq.TLO.Target) and RGMercUtils.GetSetting('DebuffNamedAlways')) then return true end
+            return false
         end,
-	},
-    ['RotationOrder'] = {
+    },
+    ['RotationOrder']   = {
         {
             name = 'SelfBuff',
             targetId = function(self) return { mq.TLO.Me.ID(), } end,
@@ -854,9 +854,9 @@ local _ClassConfig = {
                     RGMercConfig:GetTimeSinceLastMove() > RGMercUtils.GetSetting('BuffWaitMoveTimer')
             end,
         },
-		{
+        {
             name = 'Slow',
-			--we want these both checked
+            --we want these both checked
             state = 1,
             steps = 1,
             targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
@@ -864,7 +864,7 @@ local _ClassConfig = {
                 return combat_state == "Combat" and self.ClassConfig.HelperFunctions.DebuffConCheck() and not RGMercUtils.Feigning()
             end,
         },
-		{
+        {
             name = 'Tash',
             state = 1,
             steps = 1,
@@ -882,7 +882,7 @@ local _ClassConfig = {
                 return combat_state == "Combat" and RGMercUtils.BurnCheck() and not RGMercUtils.Feigning()
             end,
         },
-		{
+        {
             name = 'CombatSupport',
             state = 1,
             steps = 1,
@@ -902,7 +902,7 @@ local _ClassConfig = {
         },
 
     },
-    ['Rotations']     = {
+    ['Rotations']       = {
         ['PetBuff'] = {
             {
                 name = "PetBuffSpell",
@@ -918,7 +918,7 @@ local _ClassConfig = {
                 active_cond = function(self, _) return mq.TLO.Me.Pet.ID() > 0 end,
                 cond = function(self, spell) return mq.TLO.Me.Pet.ID() == 0 and RGMercUtils.ReagentCheck(spell) end,
             },
-			{
+            {
                 name = "GroupProcBuff",
                 type = "Spell",
                 active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
@@ -972,51 +972,54 @@ local _ClassConfig = {
                 type = "Spell",
                 active_cond = function(self, spell) return RGMercUtils.AuraActiveByName(spell.Name()) end,
                 cond = function(self, spell)
-				    if RGMercUtils.GetSetting('DoLearners') and not RGMercUtils.CanUseAA('Auroria Mastery') then return false end
-				    return RGMercUtils.PCSpellReady(spell) and not RGMercUtils.AuraActiveByName(spell.Name()) end,
+                    if RGMercUtils.GetSetting('DoLearners') and not RGMercUtils.CanUseAA('Auroria Mastery') then return false end
+                    return RGMercUtils.PCSpellReady(spell) and not RGMercUtils.AuraActiveByName(spell.Name())
+                end,
             },
             {
                 name = "AuraBuff2",
                 type = "Spell",
                 active_cond = function(self, spell) return RGMercUtils.AuraActiveByName(spell.Name()) end,
                 cond = function(self, spell)
-                    return RGMercUtils.PCSpellReady(spell) and not RGMercUtils.AuraActiveByName(spell.Name()) and not RGMercUtils.GetSetting('DoLearners') end,
+                    return RGMercUtils.PCSpellReady(spell) and not RGMercUtils.AuraActiveByName(spell.Name()) and not RGMercUtils.GetSetting('DoLearners')
+                end,
             },
             {
                 name = "AuraBuff3",
                 type = "Spell",
                 active_cond = function(self, spell) return RGMercUtils.AuraActiveByName(spell.Name()) end,
                 cond = function(self, spell)
-                    return RGMercUtils.GetSetting('DoLearners') and RGMercUtils.PCSpellReady(spell) and not RGMercUtils.AuraActiveByName(spell.Name()) end,
+                    return RGMercUtils.GetSetting('DoLearners') and RGMercUtils.PCSpellReady(spell) and not RGMercUtils.AuraActiveByName(spell.Name())
+                end,
             },
         },
         ['GroupBuff'] = {
             -- TODO : Macro group buff rotation never was hooked up ask Mori about this later.
-			{
+            {
                 name = "SingleRune",
                 type = "Spell",
                 active_cond = function(self, spell) return mq.TLO.Me.FindBuff("id " .. tostring(spell.ID()))() ~= nil end,
                 cond = function(self, spell, target)
-                   return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName()) end,
+                    return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())
+                end,
             },
             {
                 name = "ManaRegen",
                 type = "Spell",
                 active_cond = function(self, spell) return mq.TLO.Me.FindBuff("id " .. tostring(spell.ID()))() ~= nil end,
                 cond = function(self, spell, target)
-              
-
                     if not RGMercConfig.Constants.RGCasters:contains(target.Class.ShortName()) then return false end
 
-                    return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName()) end,
+                    return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())
+                end,
             },
             {
                 name = "HasteBuff",
                 type = "Spell",
                 active_cond = function(self, spell) return mq.TLO.Me.FindBuff("id " .. tostring(spell.ID()))() ~= nil end,
                 cond = function(self, spell, target)
-
-                    return RGMercConfig.Constants.RGMelee:contains(target.Class.ShortName()) and RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName()) end,
+                    return RGMercConfig.Constants.RGMelee:contains(target.Class.ShortName()) and RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())
+                end,
             },
             {
                 name = "GroupSpellShield",
@@ -1027,14 +1030,14 @@ local _ClassConfig = {
                 end,
             },
             -- {
-                -- name = "GroupDoTShield",
-                -- type = "Spell",
-                -- active_cond = function(self, spell) return mq.TLO.Me.FindBuff("id " .. tostring(spell.ID()))() ~= nil end,
-                -- cond = function(self, spell, target)
-                    -- if not target or not target() then return false end
+            -- name = "GroupDoTShield",
+            -- type = "Spell",
+            -- active_cond = function(self, spell) return mq.TLO.Me.FindBuff("id " .. tostring(spell.ID()))() ~= nil end,
+            -- cond = function(self, spell, target)
+            -- if not target or not target() then return false end
 
-                    -- return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName()) and RGMercUtils.ReagentCheck(spell) and RGMercUtils.SpellStacksOnTarget(spell)
-                -- end,
+            -- return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName()) and RGMercUtils.ReagentCheck(spell) and RGMercUtils.SpellStacksOnTarget(spell)
+            -- end,
             -- },
             {
                 name = "GroupAuspiceBuff",
@@ -1049,12 +1052,14 @@ local _ClassConfig = {
                 type = "Spell",
                 active_cond = function(self, spell) return mq.TLO.Me.FindBuff("id " .. tostring(spell.ID()))() ~= nil end,
                 cond = function(self, spell, target)
-					--NDT will not be cast or memorized if it isn't already on the bar due to a very long refresh time causing pauses in automation
-					if not RGMercUtils.CastReady(spell.RankName) and RGMercUtils.GetSetting('DoNDTBuff') then return false end
-					--Single target versions of the spell will only be used on Melee, group versions will be cast if they are missing from any groupmember
+                    --NDT will not be cast or memorized if it isn't already on the bar due to a very long refresh time causing pauses in automation
+                    if not RGMercUtils.CastReady(spell.RankName) and RGMercUtils.GetSetting('DoNDTBuff') then return false end
+                    --Single target versions of the spell will only be used on Melee, group versions will be cast if they are missing from any groupmember
                     if (spell and spell() and ((spell.TargetType() or ""):lower() ~= "group v2"))
-                        and not RGMercConfig.Constants.RGMelee:contains(target.Class.ShortName()) then return false end
-						
+                        and not RGMercConfig.Constants.RGMelee:contains(target.Class.ShortName()) then
+                        return false
+                    end
+
                     return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())
                 end,
             },
@@ -1064,19 +1069,19 @@ local _ClassConfig = {
                 active_cond = function(self, spell) return mq.TLO.Me.FindBuff("id " .. tostring(spell.ID()))() ~= nil end,
                 cond = function(self, spell, target)
                     if not RGMercUtils.GetSetting('DoGroupAbsorb') or RGMercConfig.Constants.RGCasters:contains(target.Class.ShortName()) then return false end
-                    
+
                     return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName()) and RGMercUtils.ReagentCheck(spell)
                 end,
             },
             -- {
-                -- name = "AggroRune",
-                -- type = "Spell",
-                -- active_cond = function(self, spell) return mq.TLO.Me.FindBuff("id " .. tostring(spell.ID()))() ~= nil end,
-                -- cond = function(self, spell, target)
-                    -- if not RGMercUtils.GetSetting('DoAggroRune') and RGMercConfig.Constants.RGTank:contains(target.Class.ShortName()) then return false end
+            -- name = "AggroRune",
+            -- type = "Spell",
+            -- active_cond = function(self, spell) return mq.TLO.Me.FindBuff("id " .. tostring(spell.ID()))() ~= nil end,
+            -- cond = function(self, spell, target)
+            -- if not RGMercUtils.GetSetting('DoAggroRune') and RGMercConfig.Constants.RGTank:contains(target.Class.ShortName()) then return false end
 
-                    -- return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())
-                -- end,
+            -- return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())
+            -- end,
             -- },
         },
         ['CombatSupport'] = {
@@ -1182,12 +1187,12 @@ local _ClassConfig = {
                 end,
 
             },
-			{
+            {
                 name = "UseAzureMindCrystal",
                 type = "CustomFunc",
                 cond = function(self)
                     if not RGMercUtils.CanUseAA("Azure Mind Crystal") then return false end
-					local crystal = mq.TLO.FindItem("Azure Mind Crystal")
+                    local crystal = mq.TLO.FindItem("Azure Mind Crystal")
                     return crystal and crystal() and mq.TLO.FindItem(crystal).TimerReady() == 0 and mq.TLO.Me.PctMana() <= RGMercUtils.GetSetting('ModRodManaPct')
                 end,
                 custom_func = function(self)
@@ -1195,8 +1200,8 @@ local _ClassConfig = {
                     return RGMercUtils.UseItem(crystal.Name(), mq.TLO.Me.ID())
                 end,
             },
-		},
-		['DPS'] = {
+        },
+        ['DPS'] = {
             {
                 name = "Focus of Arcanum",
                 type = "AA",
@@ -1207,12 +1212,12 @@ local _ClassConfig = {
 
             },
             -- {
-                -- name = "Bite of Tashani",
-                -- type = "AA",
-                -- cond = function(self, aaName)
-                    -- if mq.TLO.Target.ID() <= 0 then return false end
-                    -- return RGMercUtils.GetSetting('DoTash') and RGMercUtils.DetAACheck(mq.TLO.Me.AltAbility(aaName).ID()) and not mq.TLO.Target.Tashed()
-                -- end,
+            -- name = "Bite of Tashani",
+            -- type = "AA",
+            -- cond = function(self, aaName)
+            -- if mq.TLO.Target.ID() <= 0 then return false end
+            -- return RGMercUtils.GetSetting('DoTash') and RGMercUtils.DetAACheck(mq.TLO.Me.AltAbility(aaName).ID()) and not mq.TLO.Target.Tashed()
+            -- end,
             -- },
             {
                 name = "TwinCast",
@@ -1222,21 +1227,21 @@ local _ClassConfig = {
                         not RGMercModules:ExecModule("Mez", "IsMezImmune", mq.TLO.Target.ID())
                 end,
             },
-			{
+            {
                 name = "DichoSpell",
                 type = "Spell",
                 cond = function(self, spell)
                     return RGMercUtils.GetSetting('DoDicho') and RGMercUtils.DetSpellCheck(spell) and mq.TLO.Me.PctMana() >= RGMercUtils.GetSetting('ManaToNuke')
                 end,
             },
-			{
+            {
                 name = "ManaDot",
                 type = "Spell",
                 cond = function(self, spell)
                     return RGMercUtils.IsNamed(mq.TLO.Target) and RGMercUtils.DetSpellCheck(spell) and mq.TLO.Me.PctMana() >= RGMercUtils.GetSetting('ManaToNuke')
                 end,
             },
-			{
+            {
                 name = "NukeSpell1",
                 type = "Spell",
                 cond = function(self, spell)
@@ -1250,8 +1255,8 @@ local _ClassConfig = {
                     return RGMercUtils.GetSetting('DoDot') and RGMercUtils.DetSpellCheck(spell) and mq.TLO.Me.PctMana() >= RGMercUtils.GetSetting('ManaToNuke')
                 end,
             },
-			--This is not an error
-			{
+            --This is not an error
+            {
                 name = "DoTSpell1",
                 type = "Spell",
                 cond = function(self, spell)
@@ -1315,7 +1320,7 @@ local _ClassConfig = {
                     return RGMercUtils.GetSetting('DoChestClick') and item() and item.Spell.Stacks() and item.TimerReady() == 0
                 end,
             },
-			{
+            {
                 name = "Spire of Enchantment",
                 type = "AA",
                 cond = function(self, aaName) return not RGMercUtils.BuffActiveByName("Illusions of Grandeur") end, --check if this is buff or song
@@ -1323,32 +1328,33 @@ local _ClassConfig = {
             },
         },
         ['Tash'] = {
-			{
+            {
                 name = "TashSpell",
                 type = "Spell",
                 cond = function(self, spell)
                     return RGMercUtils.GetSetting('DoTash') and RGMercUtils.DetSpellCheck(spell) and not mq.TLO.Target.Tashed()
-						and RGMercUtils.NPCSpellReady(spell)
+                        and RGMercUtils.NPCSpellReady(spell)
                 end,
             },
-			{
+            {
                 name = "Bite of Tashani",
                 type = "AA",
                 cond = function(self, aaName, target)
                     if mq.TLO.Target.ID() <= 0 then return false end
-                    return RGMercUtils.GetSetting('DoTash') and RGMercUtils.DetAACheck(mq.TLO.Me.AltAbility(aaName).ID()) and not mq.TLO.Target.Tashed() and RGMercUtils.GetXTHaterCount() > 1 and RGMercUtils.NPCAAReady(aaName, target.ID())
+                    return RGMercUtils.GetSetting('DoTash') and RGMercUtils.DetAACheck(mq.TLO.Me.AltAbility(aaName).ID()) and not mq.TLO.Target.Tashed() and
+                    RGMercUtils.GetXTHaterCount() > 1 and RGMercUtils.NPCAAReady(aaName, target.ID())
                 end,
 
             },
             -- {
-                -- name = "StripBuffSpell",
-                -- type = "Spell",
-                -- cond = function(self, spell)
-                    -- return RGMercUtils.GetSetting('DoStripBuff') and mq.TLO.Target.Beneficial() and mq.TLO.Me.PctMana() >= RGMercUtils.GetSetting('ManaToDebuff')
-                -- end,
+            -- name = "StripBuffSpell",
+            -- type = "Spell",
+            -- cond = function(self, spell)
+            -- return RGMercUtils.GetSetting('DoStripBuff') and mq.TLO.Target.Beneficial() and mq.TLO.Me.PctMana() >= RGMercUtils.GetSetting('ManaToDebuff')
+            -- end,
             -- },
-		},
-		['Slow'] = {
+        },
+        ['Slow'] = {
             {
                 name = "Enveloping Helix",
                 type = "AA",
@@ -1359,7 +1365,7 @@ local _ClassConfig = {
                         mq.TLO.Target.Slowed() == nil and RGMercUtils.NPCAAReady(aaName, target.ID())
                 end,
             },
-			{
+            {
                 name = "Slowing Helix",
                 type = "AA",
                 cond = function(self, aaName, target)
@@ -1368,54 +1374,54 @@ local _ClassConfig = {
                 end,
             },
             -- {
-                -- name = "Slowing Helix",
-                -- type = "AA",
-                -- cond = function(self, aaName, _, uiCheck)
-                    -- if mq.TLO.Target.ID() <= 0 then return false end
+            -- name = "Slowing Helix",
+            -- type = "AA",
+            -- cond = function(self, aaName, _, uiCheck)
+            -- if mq.TLO.Target.ID() <= 0 then return false end
 
-                    -- local detAACheck = RGMercUtils.DetAACheck(mq.TLO.Me.AltAbility(aaName).ID())
-                    -- local slowedCheck = mq.TLO.Target.Slowed() == nil or RGMercUtils.GetTargetSlowedPct() < 50
+            -- local detAACheck = RGMercUtils.DetAACheck(mq.TLO.Me.AltAbility(aaName).ID())
+            -- local slowedCheck = mq.TLO.Target.Slowed() == nil or RGMercUtils.GetTargetSlowedPct() < 50
 
-                    -- if not uiCheck then
-                        -- RGMercsLogger.log_verbose("Enc: Slowing Helix: detAA(%s), slowed(%s), slowedPct(%d)", RGMercUtils.BoolToColorString(detAACheck),
-                            -- RGMercUtils.BoolToColorString(slowedCheck), RGMercUtils.GetTargetSlowedPct())
-                    -- end
+            -- if not uiCheck then
+            -- RGMercsLogger.log_verbose("Enc: Slowing Helix: detAA(%s), slowed(%s), slowedPct(%d)", RGMercUtils.BoolToColorString(detAACheck),
+            -- RGMercUtils.BoolToColorString(slowedCheck), RGMercUtils.GetTargetSlowedPct())
+            -- end
 
-                    -- return RGMercUtils.GetSetting('DoSlow') and detAACheck and slowedCheck
-                -- end,
+            -- return RGMercUtils.GetSetting('DoSlow') and detAACheck and slowedCheck
+            -- end,
             -- },
             -- {
-                -- name = "CripSlowSpell",
-                -- type = "Spell",
-                -- cond = function(self, spell)
-                    -- return (RGMercUtils.GetSetting('DoSlow') or RGMercUtils.GetSetting('DoCripple')) and RGMercUtils.DetSpellCheck(spell) and
-                        -- mq.TLO.Me.PctMana() >= RGMercUtils.GetSetting('ManaToDebuff')
-                -- end,
+            -- name = "CripSlowSpell",
+            -- type = "Spell",
+            -- cond = function(self, spell)
+            -- return (RGMercUtils.GetSetting('DoSlow') or RGMercUtils.GetSetting('DoCripple')) and RGMercUtils.DetSpellCheck(spell) and
+            -- mq.TLO.Me.PctMana() >= RGMercUtils.GetSetting('ManaToDebuff')
+            -- end,
             -- },
             -- {
-                -- name = "SlowSpell",
-                -- type = "Spell",
-                -- cond = function(self, spell)
-                    -- return RGMercUtils.GetSetting('DoSlow') and RGMercUtils.DetSpellCheck(spell) and mq.TLO.Me.PctMana() >= RGMercUtils.GetSetting('ManaToDebuff')
-                -- end,
+            -- name = "SlowSpell",
+            -- type = "Spell",
+            -- cond = function(self, spell)
+            -- return RGMercUtils.GetSetting('DoSlow') and RGMercUtils.DetSpellCheck(spell) and mq.TLO.Me.PctMana() >= RGMercUtils.GetSetting('ManaToDebuff')
+            -- end,
             -- },
             -- {
-                -- name = "CrippleSpell",
-                -- type = "Spell",
-                -- cond = function(self, spell)
-                    -- return RGMercUtils.GetSetting('DoSlow') and RGMercUtils.DetSpellCheck(spell) and mq.TLO.Me.PctMana() >= RGMercUtils.GetSetting('ManaToDebuff')
-                -- end,
+            -- name = "CrippleSpell",
+            -- type = "Spell",
+            -- cond = function(self, spell)
+            -- return RGMercUtils.GetSetting('DoSlow') and RGMercUtils.DetSpellCheck(spell) and mq.TLO.Me.PctMana() >= RGMercUtils.GetSetting('ManaToDebuff')
+            -- end,
             -- },
             -- {
-                -- name = "ManaDrainSpell",
-                -- type = "Spell",
-                -- cond = function(self, spell)
-                    -- return RGMercUtils.DetSpellCheck(spell) and mq.TLO.Target.CurrentMana() > 10 and mq.TLO.Me.PctMana() >= RGMercUtils.GetSetting('ManaToNuke')
-                -- end,
+            -- name = "ManaDrainSpell",
+            -- type = "Spell",
+            -- cond = function(self, spell)
+            -- return RGMercUtils.DetSpellCheck(spell) and mq.TLO.Target.CurrentMana() > 10 and mq.TLO.Me.PctMana() >= RGMercUtils.GetSetting('ManaToNuke')
+            -- end,
             -- },
         },
     },
-    ['Spells']        = {
+    ['Spells']          = {
         {
             gem = 1,
             spells = {
@@ -1437,7 +1443,7 @@ local _ClassConfig = {
         {
             gem = 4,
             spells = {
-				{ name = "DichoSpell", },
+                { name = "DichoSpell", },
             },
         },
         {
@@ -1455,34 +1461,34 @@ local _ClassConfig = {
         {
             gem = 7,
             spells = {
-                { name = "ManaDot", }
+                { name = "ManaDot", },
             },
         },
         {
             gem = 8,
             spells = {
-                { name = "ManaNuke", }
+                { name = "ManaNuke", },
             },
         },
         {
             gem = 9,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
-				{ name = "SingleRune", cond = function(self) return true end, },
+                { name = "SingleRune", cond = function(self) return true end, },
             },
         },
         {
             gem = 10,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
-				{ name = "NdtBuff", cond = function(self) return true end, },
+                { name = "NdtBuff", cond = function(self) return true end, },
             },
         },
         {
             gem = 11,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
-            spells = { 
-				{ name = "GroupProcBuff", cond = function(self) return true end, },
+            spells = {
+                { name = "GroupProcBuff", cond = function(self) return true end, },
             },
         },
         {
@@ -1493,30 +1499,44 @@ local _ClassConfig = {
             },
         },
         -- {
-            -- gem = 13,
-            -- cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
-            -- spells = {
-				-- { name = "GroupAuspiceBuff", cond = function(self) return true end, },
-            -- },
+        -- gem = 13,
+        -- cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
+        -- spells = {
+        -- { name = "GroupAuspiceBuff", cond = function(self) return true end, },
+        -- },
         -- },
     },
-    ['DefaultConfig'] = {
-        ['Mode']          = { DisplayName = "Mode", Category = "Combat", Tooltip = "Select the Combat Mode for this Toon", Type = "Custom", RequiresLoadoutChange = true, Default = 1, Min = 1, Max = 1, },
-        ['DoLearners']    = { DisplayName = "Do Learners", Category = "Spells & Abilities", Tooltip = "Set to use the Learner's Aura instead of the Mana Regen Aura.", Default = false, },
-        ['SlowCount']     = { DisplayName = "Slow Count", Category = "Spells & Abilities", Tooltip = "Number of XT Haters before we start slowing", Min = 1, Default = 3, Max = 10, },
-        ['DoTash']        = { DisplayName = "Do Tash", Category = "Spells & Abilities", Tooltip = "Cast Tash Spells", Default = true, },
-        ['DoTwincastDPS'] = { DisplayName = "Do Twincast DPS", Category = "Spells & Abilities", Tooltip = "Cast Twincast during DPS rotation", Default = true, },
-        ['DoDot']         = { DisplayName = "Cast DOTs", Category = "Spells and Abilities", Tooltip = "Enable casting Damage Over Time spells.", Default = true, },
-        ['DoSlow']        = { DisplayName = "Cast Slow", Category = "Spells and Abilities", Tooltip = "Enable casting Slow spells.", Default = true, },
-        ['DoCripple']     = { DisplayName = "Cast Cripple", Category = "Spells and Abilities", Tooltip = "Enable casting Cripple spells.", Default = true, },
-        ['DoDicho']       = { DisplayName = "Cast Dicho", Category = "Spells and Abilities", Tooltip = "Enable casting Dicho spells.", Default = true, },
-        ['DoNDTBuff']     = { DisplayName = "Cast NDT", Category = "Spells and Abilities", Tooltip = "Enable casting use Melee Proc Buff (Night's Dark Terror Line).", Default = true, },
-        ['DoGroupAbsorb'] = { DisplayName = "Do Group Absorb", Category = "Spells and Abilities", Tooltip = "Enable casting the Group Absorb line with -Hate Proc.", Default = true, },
-        ['DoAggroRune']   = { DisplayName = "Do Aggro Rune", Category = "Spells and Abilities", Tooltip = "Enable casting the Tank Aggro Rune", Default = true, },
-        ['DoStripBuff']   = { DisplayName = "Do Strip Buffs", Category = "Spells and Abilities", Tooltip = "Enable casting buff canceler spells.", Default = true, },
-        ['DoChestClick']  = { DisplayName = "Do Chest Click", Category = "Utilities", Tooltip = "Click your chest item", Default = true, },
-		['DebuffMinCon']  = { DisplayName = "Debuff Min Con", Category = "Debuffs", Tooltip = "Min Con to use debuffs on", Default = 4, Min = 1, Max = #RGMercConfig.Constants.ConColors, Type = "Combo", ComboOptions = RGMercConfig.Constants.ConColors, },
-		['DebuffNamedAlways'] = { DisplayName = "Always Debuff Named", Category = "Debuffs", Tooltip = "Debuff named regardless of con color", Default = true, },
+    ['PullAbilities']   = {
+        {
+            id = 'TashSpell',
+            Type = "Spell",
+            DisplayName = function() return RGMercUtils.GetResolvedActionMapItem('TashSpell').RankName.Name() or "" end,
+            AbilityName = function() return RGMercUtils.GetResolvedActionMapItem('TashSpell').RankName.Name() or "" end,
+            AbilityRange = 150,
+            cond = function(self)
+                local resolvedSpell = RGMercUtils.GetResolvedActionMapItem('TashSpell')
+                if not resolvedSpell then return false end
+                return mq.TLO.Me.Gem(resolvedSpell.RankName.Name() or "")() ~= nil
+            end,
+        },
+    },
+    ['DefaultConfig']   = {
+        ['Mode']              = { DisplayName = "Mode", Category = "Combat", Tooltip = "Select the Combat Mode for this Toon", Type = "Custom", RequiresLoadoutChange = true, Default = 1, Min = 1, Max = 1, },
+        ['DoLearners']        = { DisplayName = "Do Learners", Category = "Spells & Abilities", Tooltip = "Set to use the Learner's Aura instead of the Mana Regen Aura.", Default = false, },
+        ['SlowCount']         = { DisplayName = "Slow Count", Category = "Spells & Abilities", Tooltip = "Number of XT Haters before we start slowing", Min = 1, Default = 3, Max = 10, },
+        ['DoTash']            = { DisplayName = "Do Tash", Category = "Spells & Abilities", Tooltip = "Cast Tash Spells", Default = true, },
+        ['DoTwincastDPS']     = { DisplayName = "Do Twincast DPS", Category = "Spells & Abilities", Tooltip = "Cast Twincast during DPS rotation", Default = true, },
+        ['DoDot']             = { DisplayName = "Cast DOTs", Category = "Spells and Abilities", Tooltip = "Enable casting Damage Over Time spells.", Default = true, },
+        ['DoSlow']            = { DisplayName = "Cast Slow", Category = "Spells and Abilities", Tooltip = "Enable casting Slow spells.", Default = true, },
+        ['DoCripple']         = { DisplayName = "Cast Cripple", Category = "Spells and Abilities", Tooltip = "Enable casting Cripple spells.", Default = true, },
+        ['DoDicho']           = { DisplayName = "Cast Dicho", Category = "Spells and Abilities", Tooltip = "Enable casting Dicho spells.", Default = true, },
+        ['DoNDTBuff']         = { DisplayName = "Cast NDT", Category = "Spells and Abilities", Tooltip = "Enable casting use Melee Proc Buff (Night's Dark Terror Line).", Default = true, },
+        ['DoGroupAbsorb']     = { DisplayName = "Do Group Absorb", Category = "Spells and Abilities", Tooltip = "Enable casting the Group Absorb line with -Hate Proc.", Default = true, },
+        ['DoAggroRune']       = { DisplayName = "Do Aggro Rune", Category = "Spells and Abilities", Tooltip = "Enable casting the Tank Aggro Rune", Default = true, },
+        ['DoStripBuff']       = { DisplayName = "Do Strip Buffs", Category = "Spells and Abilities", Tooltip = "Enable casting buff canceler spells.", Default = true, },
+        ['DoChestClick']      = { DisplayName = "Do Chest Click", Category = "Utilities", Tooltip = "Click your chest item", Default = true, },
+        ['DebuffMinCon']      = { DisplayName = "Debuff Min Con", Category = "Debuffs", Tooltip = "Min Con to use debuffs on", Default = 4, Min = 1, Max = #RGMercConfig.Constants.ConColors, Type = "Combo", ComboOptions = RGMercConfig.Constants.ConColors, },
+        ['DebuffNamedAlways'] = { DisplayName = "Always Debuff Named", Category = "Debuffs", Tooltip = "Debuff named regardless of con color", Default = true, },
     },
 }
 

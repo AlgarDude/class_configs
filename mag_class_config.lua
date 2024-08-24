@@ -836,7 +836,8 @@ _ClassConfig      = {
             name = 'PetHealPoint',
             state = 1,
             steps = 1,
-            cond = function(self, _) return (mq.TLO.Me.Pet.PctHPs() or 100) < RGMercUtils.GetSetting('PetHealPct') end,
+            targetId = function(self) return { mq.TLO.Me.Pet.ID(), } end,
+            cond = function(self, _) return mq.TLO.Me.Pet.ID() > 0 and (mq.TLO.Me.Pet.PctHPs() or 100) < RGMercUtils.GetSetting('PetHealPct') end,
         },
     },
     ['HealRotations']     = {

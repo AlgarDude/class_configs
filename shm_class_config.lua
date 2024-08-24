@@ -2,7 +2,7 @@ local mq           = require('mq')
 local RGMercUtils  = require("utils.rgmercs_utils")
 
 local _ClassConfig = {
-    _version              = "Jank",
+    _version              = "Healdps",
     _author               = "Algar",
     ['FullConfig']        = true,
     ['ModeChecks']        = {
@@ -38,10 +38,10 @@ local _ClassConfig = {
     ['AbilitySets']       = {
         ["FocusSpell"] = {
             -- Focus Spell - Lower Levels Mix in Single Target, Higher Prefer Group Target
-            "Inner Fire",                 -- Level 1 - Single
-            "Talisman of Tnarg",          -- Level 32 - Single
-            "Talisman of Altuna",         -- Level 40 - Single
-            "Talisman of Kragg",          -- Level 55 - Single
+            -- "Inner Fire",                 -- Level 1 - Single
+            -- "Talisman of Tnarg",          -- Level 32 - Single
+            -- "Talisman of Altuna",         -- Level 40 - Single
+            -- "Talisman of Kragg",          -- Level 55 - Single
             "Khura's Focusing",           -- Level 60 - Group
             "Focus of the Seventh",       -- Level 65 - Group
             "Talisman of Wunshi",         -- Level 70 - Group
@@ -87,72 +87,11 @@ local _ClassConfig = {
             "Untamed Growth",
             "Wild Growth",
         },
-        ["LowLvlStaminaBuff"] = {
-            -- Low Level Stamina Buff --- Use under Level 85
-            "Spirit of Bear",
-            "Spirit of Ox",
-            "Health",
-            "Stamina",
-            "Riotous Health",
-            "Talisman of the Brute",
-            "Endurance of the Boar",
-            "Talisman of the Boar",
-            "Spirit of Fortitude",
-            "Talisman of Fortitude",
-            "Talisman of Persistence",
-            "Talisman of Vehemence",
-            "Spirit of Vehemence",
-        },
         ["LowLvlAttackBuff"] = {
             -- Low Level Attack Buff --- user under level 85
             "Primal Avatar",
             "Ferine Avatar",
             "Champion",
-        },
-        ["LowLvlStrBuff"] = {
-            -- Low Level Strength Buff -- use under evel 85
-            "Talisman of Might",
-            "Spirit of Might",
-            "Talisman of the Diaku",
-            "Strength of the Diaku",
-            "Voice of the Berserker",
-            "Talisman of the Rhino",
-            "Maniacal Strength",
-            "Primal Essence",
-            "Strength",
-            "Rage",
-            "Furious Strength",
-            "Tumultuous Strength",
-            "Fury",
-            "Raging Strength",
-            "Frenzy",
-            "Spirit Strength",
-            "Burst of Strength",
-        },
-        ["LowLvlDexBuff"] = {
-            -- Low Level Dex Buff -- use under level 70
-            "Talisman of the Raptor",
-            "Mortal Deftness",
-            "Dexterity",
-            "Deftness",
-            "Rising Dexterity",
-            "Spirit of Monkey",
-            "Dexterous Aura",
-        },
-        ["LowLvlAgiBuff"] = {
-            --- Low Level AGI Buff -- Use under level 85
-            "Talisman of Foresight",
-            "Preternatural Foresight",
-            "Talisman of Sense",
-            "Spirit of Sense",
-            "Talisman of the Wrulan",
-            "Agility of the Wrulan",
-            "Talisman of the Cat",
-            "Deliriously Nimble",
-            "Agility",
-            "Nimble",
-            "Spirit of Cat",
-            "Feet like Cat",
         },
         ["AEMaloSpell"] = {
             "Wind of Malisene",
@@ -226,10 +165,10 @@ local _ClassConfig = {
             "Talisman of the Cougar",
             "Talisman of the Panther",
             -- Below Level 71 This is a single target buff
-            "Spirit of the Panther",
-            "Spirit of the Leopard",
-            "Spirit of the Jaguar",
-            "Spirit of the Puma",
+            -- "Spirit of the Panther",
+            -- "Spirit of the Leopard",
+            -- "Spirit of the Jaguar",
+            -- "Spirit of the Puma",
         },
         ["SlowProcBuff"] = {
             -- Slow Proc Buff for MA - Level 68 - 122
@@ -367,9 +306,6 @@ local _ClassConfig = {
             "Ghost of Renewal",
             "Spiritual Serenity",
             "Breath of Trushar",
-            "Quiescence",
-            "Torpor",
-            "Stoicism",
         },
         ["CanniSpell"] = {
             -- Convert Health to Mana - Level  23 - 113
@@ -757,8 +693,7 @@ local _ClassConfig = {
                 cond = function(self, spell, target)
                     -- force the target for StacksTarget to work.
                     RGMercUtils.SetTarget(target.ID() or 0)
-                    return RGMercUtils.GetSetting('DoHOT') and RGMercUtils.SpellStacksOnTarget(spell) and
-                        not RGMercUtils.TargetHasBuff(spell)
+                    return RGMercUtils.GetSetting('DoHOT') and RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())
                 end,
             },
         },
@@ -797,9 +732,7 @@ local _ClassConfig = {
                 name = "RecourseHeal",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    -- force the target for StacksTarget to work.
-                    RGMercUtils.SetTarget(target.ID() or 0)
-                    return RGMercUtils.SpellStacksOnTarget(spell) and not RGMercUtils.TargetHasBuff(spell)
+                    return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())
                 end,
             },
             {
@@ -845,16 +778,6 @@ local _ClassConfig = {
                     return mq.TLO.FindItem(itemName).TimerReady() == 0
                 end,
             },
-            -- {
-            -- name = "GroupRenewalHoT",
-            -- type = "Spell",
-            -- cond = function(self, spell, target)
-            -- -- force the target for StacksTarget to work.
-            -- RGMercUtils.SetTarget(target.ID() or 0)
-            -- return RGMercUtils.GetSetting('DoHOT') and RGMercUtils.SpellStacksOnTarget(spell) and
-            -- not RGMercUtils.TargetHasBuff(spell)
-            -- end,
-            -- },
         },
     },
     ['RotationOrder']     = {
@@ -1268,112 +1191,27 @@ local _ClassConfig = {
                 name = "SlowProcBuff",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    -- force the target for StacksTarget to work.
-                    -- RGMercUtils.SetTarget(target.ID() or 0)
-                    return RGMercUtils.TargetClassIs({ "WAR", "PAL", "SHD", }, target) and RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName()) --and
-                    -- not RGMercUtils.TargetHasBuff(spell, target) and RGMercUtils.SpellStacksOnTarget(spell)
+                    return RGMercUtils.TargetClassIs({ "WAR", "PAL", "SHD", }, target) and RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())
                 end,
             },
-            -- {
-            -- name = "LowLvlStaminaBuff",
-            -- type = "Spell",
-            -- cond = function(self, spell, target)
-            -- -- force the target for StacksTarget to work.
-            -- RGMercUtils.SetTarget(target.ID() or 0)
-            -- return mq.TLO.Me.Level() <= 85 and RGMercUtils.TargetClassIs({ "WAR", "PAL", "SHD", }, target) and
-            -- not RGMercUtils.TargetHasBuff(spell, target) and RGMercUtils.GetSetting('DoStatBuff') and
-            -- RGMercUtils.SpellStacksOnTarget(spell)
-            -- end,
-            -- },
-            -- {
-            -- name = "LowLvlAttackBuff",
-            -- type = "Spell",
-            -- cond = function(self, spell, target)
-            -- -- force the target for StacksTarget to work.
-            -- RGMercUtils.SetTarget(target.ID() or 0)
-            -- return mq.TLO.Me.Level() <= 85 and
-            -- RGMercUtils.TargetClassIs({ "WAR", "PAL", "SHD", "ROG", "MNK", "BER", "RNG", "BST", }, target) and
-            -- not RGMercUtils.TargetHasBuff(spell, target) and RGMercUtils.GetSetting('DoStatBuff') and
-            -- RGMercUtils.SpellStacksOnTarget(spell)
-            -- end,
-            -- },
-            -- {
-            -- name = "LowLvlStrBuff",
-            -- type = "Spell",
-            -- cond = function(self, spell, target)
-            -- -- force the target for StacksTarget to work.
-            -- RGMercUtils.SetTarget(target.ID() or 0)
-            -- return mq.TLO.Me.Level() <= 85 and (spell.Level() or 0) >= 71 and
-            -- RGMercUtils.TargetClassIs({ "WAR", "PAL", "SHD", "ROG", "MNK", "BER", "RNG", "BST", }, target) and
-            -- not RGMercUtils.TargetHasBuff(spell, target) and RGMercUtils.GetSetting('DoStatBuff') and
-            -- RGMercUtils.SpellStacksOnTarget(spell)
-            -- end,
-            -- },
-            -- {
-            -- name = "LowLvlAgiBuff",
-            -- type = "Spell",
-            -- cond = function(self, spell, target)
-            -- -- force the target for StacksTarget to work.
-            -- RGMercUtils.SetTarget(target.ID() or 0)
-            -- return mq.TLO.Me.Level() <= 85 and
-            -- RGMercUtils.TargetClassIs({ "WAR", "PAL", "SHD", "ROG", "MNK", "BER", "RNG", "BST", }, target) and
-            -- not RGMercUtils.TargetHasBuff(spell, target) and RGMercUtils.GetSetting('DoStatBuff') and
-            -- RGMercUtils.SpellStacksOnTarget(spell)
-            -- end,
-            -- },
-            -- {
-            -- name = "LowLvlDexBuff",
-            -- type = "Spell",
-            -- cond = function(self, spell, target)
-            -- -- force the target for StacksTarget to work.
-            -- RGMercUtils.SetTarget(target.ID() or 0)
-            -- return mq.TLO.Me.Level() <= 85 and
-            -- RGMercUtils.TargetClassIs({ "WAR", "PAL", "SHD", "ROG", "MNK", "BER", "RNG", "BST", }, target) and
-            -- not RGMercUtils.TargetHasBuff(spell, target) and RGMercUtils.GetSetting('DoStatBuff') and
-            -- RGMercUtils.SpellStacksOnTarget(spell)
-            -- end,
-            -- },
+            {
+                name = "LowLvlStrBuff",
+                type = "Spell",
+                cond = function(self, spell, target)
+                    -- force the target for StacksTarget to work.
+                    RGMercUtils.SetTarget(target.ID() or 0)
+                    return mq.TLO.Me.Level() <= 85 and (spell.Level() or 0) >= 71 and
+                        RGMercUtils.TargetClassIs({ "WAR", "PAL", "SHD", "ROG", "MNK", "BER", "RNG", "BST", }, target) and RGMercUtils.GetSetting('DoStatBuff') and
+                        RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())
+                end,
+            },
             {
                 name = "FocusSpell",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    -- force the target for StacksTarget to work.
-                    --if (spell and spell() and ((spell.TargetType() or ""):lower() ~= "single")) then return false end
-
-                    --RGMercUtils.SetTarget(target.ID() or 0)
                     return RGMercUtils.CheckPCNeedsBuff(spell, target.ID(), target.CleanName())
-                    --return not RGMercUtils.TargetHasBuff(spell, target) and RGMercUtils.SpellStacksOnTarget(spell)
                 end,
             },
-            -- {
-            -- name = "HasteBuff",
-            -- type = "Spell",
-            -- cond = function(self, spell, target)
-            -- if RGMercUtils.CanUseAA("Talisman of Celerity") then return false end
-            -- local focusSpell = self:GetResolvedActionMapItem('FocusSpell')
-
-            -- local focusLevelPass = focusSpell and (focusSpell.Level() or 0) <= 111 or true
-
-            -- -- force the target for StacksTarget to work.
-            -- RGMercUtils.SetTarget(target.ID() or 0)
-
-            -- return focusLevelPass and
-            -- RGMercUtils.TargetClassIs({ "WAR", "PAL", "SHD", "ROG", "MNK", "BER", "RNG", "BST", }, target) and
-            -- not RGMercUtils.TargetHasBuff(spell, target) and RGMercUtils.GetSetting('DoHaste') and
-            -- RGMercUtils.SpellStacksOnTarget(spell)
-            -- end,
-            -- },
-            -- {
-            -- name = "RunSpeedBuff",
-            -- type = "Spell",
-            -- active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
-            -- cond = function(self, spell, target)
-            -- -- force the target for StacksTarget to work.
-            -- -- not uiCheck then RGMercUtils.SetTarget(target.ID() or 0)
-            -- return RGMercUtils.GetSetting('DoRunSpeed') and not RGMercUtils.TargetHasBuff(spell) and RGMercUtils.SpellStacksOnTarget(spell) and
-            -- not RGMercUtils.CanUseAA("Lupine Spirit") and RGMercUtils.TargetIsType("PC", target)
-            -- end,
-            -- },
             {
                 name = "Lupine Spirit",
                 type = "AA",
@@ -1451,8 +1289,8 @@ local _ClassConfig = {
             gem = 10,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
-                { name = "DichoSpell", cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
-                -- { name = "MeleeProcBuff", cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
+                { name = "DichoSpell",    cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
+                { name = "MeleeProcBuff", cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
             },
         },
         {

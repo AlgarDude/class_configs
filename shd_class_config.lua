@@ -78,7 +78,7 @@ local _ClassConfig = {
     _author             = "Algar (based on RGMercs 1.0beta by Derple)",
     ['FullConfig']      = true,
     ['ModeChecks']      = {
-        IsTanking = function() return RGMercUtils.IsModeActive("Tank") end,
+        -- IsTanking = function() return RGMercUtils.IsModeActive("Tank") end,
     },
     ['Modes']           = {
         'Tank',
@@ -695,6 +695,14 @@ local _ClassConfig = {
                     RGMercUtils.DoBuffCheck() and RGMercConfig:GetTimeSinceLastMove() > RGMercUtils.GetSetting('BuffWaitMoveTimer')
             end,
         },
+        {
+            name = 'Pet Downtime',
+            targetId = function(self) return mq.TLO.Me.Pet.ID() > 0 and { mq.TLO.Me.Pet.ID(), } or {} end,
+            cond = function(self, combat_state)
+                return combat_state == "Downtime" and mq.TLO.Me.Pet.ID() > 0 and
+                    RGMercUtils.DoBuffCheck() and RGMercConfig:GetTimeSinceLastMove() > RGMercUtils.GetSetting('BuffWaitMoveTimer')
+            end,
+        },
         --Defensive actions or heals triggered by low HP
         --Note that in Tank Mode, defensive discs are preemptively cycled on named in Defenses
         {
@@ -716,15 +724,15 @@ local _ClassConfig = {
             end,
         },
         --Actions that establish or maintain hatred
-        {
-            name = 'HateTools',
-            state = 1,
-            steps = 1,
-            targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
-            cond = function(self, combat_state)
-                return combat_state == "Combat" and RGMercUtils.IsTanking()
-            end,
-        },
+        -- {
+        --     name = 'HateTools',
+        --     state = 1,
+        --     steps = 1,
+        --     targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
+        --     cond = function(self, combat_state)
+        --         return combat_state == "Combat" and RGMercUtils.IsTanking()
+        --     end,
+        -- },
         --Defensive actions used proactively to prevent emergencies
         {
             name = 'Defenses',
@@ -934,6 +942,8 @@ local _ClassConfig = {
                     return RGMercUtils.PCSpellReady(spell) and RGMercUtils.ReagentCheck(spell)
                 end,
             },
+        },
+        ['Pet Downtime'] = {
             {
                 name = "PetHaste",
                 type = "Spell",
@@ -1711,6 +1721,18 @@ local _ClassConfig = {
             AbilityRange = 200,
             cond = function(self)
                 local resolvedSpell = RGMercUtils.GetResolvedActionMapItem('ForPower')
+                if not resolvedSpell then return false end
+                return mq.TLO.Me.Gem(resolvedSpell.RankName.Name() or "")() ~= nil
+            end,
+        },
+        {
+            id = 'Lifetap2',
+            Type = "Spell",
+            DisplayName = function() return RGMercUtils.GetResolvedActionMapItem('Lifetap2').RankName.Name() or "" end,
+            AbilityName = function() return RGMercUtils.GetResolvedActionMapItem('Lifetap2').RankName.Name() or "" end,
+            AbilityRange = 150,
+            cond = function(self)
+                local resolvedSpell = RGMercUtils.GetResolvedActionMapItem('Lifetap2')
                 if not resolvedSpell then return false end
                 return mq.TLO.Me.Gem(resolvedSpell.RankName.Name() or "")() ~= nil
             end,
