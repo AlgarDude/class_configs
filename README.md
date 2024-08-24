@@ -7,7 +7,8 @@ I am just a dude who is learning to code a little bit. I like to tweak shit and 
 Make no mistake, while I am a regular contributor, none of this is officially endorsed by RGMercs - Lua Edition! developers.
 
 To use these: place them in (VV install)\config\rgmercs\class_configs
-*** "algar_include.lua*** is required to use any of my configs! It contains custom functions used on multiple classes that I may be using privately or testing to eventually edit/replace functions in the main repo.
+
+*** *PLEASE NOTE* *** "algar_include.lua" is required to use any of my configs! It contains custom functions used on multiple classes that I may be using privately or testing to eventually edit/replace functions in the main repo.
 
 THANK YOU FOR TESTING:
 If I've asked you to help me test a specific config, the below warnings likely don't apply! (Dont be skerd yo)
