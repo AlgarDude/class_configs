@@ -854,35 +854,35 @@ local _ClassConfig = {
                 name = "FireDot2",
                 type = "Spell",
                 cond = function(self, spell)
-                    return AlgarInclude.DotSpellCheck(spell)
+                    return AlgarInclude.DotManaCheck() and AlgarInclude.DotSpellCheck(spell) and RGMercUtils.NPCSpellReady(spell, target.ID())
                 end,
             },
             {
                 name = "Combo",
                 type = "Spell",
                 cond = function(self, spell)
-                    return AlgarInclude.DotSpellCheck(spell)
+                    return AlgarInclude.DotManaCheck() and AlgarInclude.DotSpellCheck(spell) and RGMercUtils.NPCSpellReady(spell, target.ID())
                 end,
             },
             {
                 name = "Poison2",
                 type = "Spell",
                 cond = function(self, spell)
-                    return AlgarInclude.DotSpellCheck(spell)
+                    return AlgarInclude.DotManaCheck() and AlgarInclude.DotSpellCheck(spell) and RGMercUtils.NPCSpellReady(spell, target.ID())
                 end,
             },
             {
                 name = "Magic2",
                 type = "Spell",
                 cond = function(self, spell)
-                    return AlgarInclude.DotSpellCheck(spell)
+                    return AlgarInclude.DotManaCheck() and AlgarInclude.DotSpellCheck(spell) and RGMercUtils.NPCSpellReady(spell, target.ID())
                 end,
             },
             {
                 name = "GroupLeech",
                 type = "Spell",
                 cond = function(self, spell)
-                    return AlgarInclude.DotSpellCheck(spell)
+                    return AlgarInclude.DotManaCheck() and AlgarInclude.DotSpellCheck(spell) and RGMercUtils.NPCSpellReady(spell, target.ID())
                 end,
             },
             {
@@ -1279,6 +1279,7 @@ local _ClassConfig = {
         ['StopLichMana']      = { DisplayName = "Stop Lich Mana", Category = "Lich", Tooltip = "Cancel Lich at Mana Pct [x]", RequiresLoadoutChange = false, Default = 90, Min = 1, Max = 100, },
         ['DoChestClick']      = { DisplayName = "Do Chest Click", Category = "Utilities", Tooltip = "Click your chest item", Default = true, },
         ['StartLifeTap']      = { DisplayName = "Use Life Taps", Category = "Spells and Abilities", Tooltip = "Your HP % before we use Life Taps.", Default = 99, Min = 1, Max = 100, },
+        ['ManaToDot']         = { DisplayName = "Min Mana to Dot", Category = "Spells and Abilities", Index = 5, Tooltip = "The minimum Mana % to use DoTs outside of burns.", Default = 20, Min = 1, Max = 100, ConfigType = "Advanced", },
     },
 
 }

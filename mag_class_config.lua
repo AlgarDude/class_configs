@@ -347,7 +347,6 @@ _ClassConfig       = {
             "Molten Skin",
             "Blazing Skin",
             "Torrid Skin",
-            "Brimstoneskin",
             "Searing Skin",
             "Scorching Skin",
             "Ancient: Veil of Pyrilonus",

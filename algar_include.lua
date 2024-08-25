@@ -1,5 +1,7 @@
-AlgarInclude = { _version = '1.0', _name = "AlgarInclude", _author = 'Algar', }
---AlgarInclude.__index = AlgarInclude
+local mq             = require('mq')
+local RGMercUtils    = require("utils.rgmercs_utils")
+local AlgarInclude   = { _version = '1.0', _name = "AlgarInclude", _author = 'Algar', }
+AlgarInclude.__index = AlgarInclude
 
 function AlgarInclude.GroupBuffCheck(spell, targetId, targetName)
 	if not spell or not spell() then return false end
@@ -63,10 +65,11 @@ function AlgarInclude.GroupBuffCheck(spell, targetId, targetName)
 end
 
 --Allow us to ignore debuffing based on con color (and optionally always debuff named)
---TODO: Improve this? Refactor? It may be possible to use a passed target ID for better accuracy (or just check that we have a target), wrote this earlier on. Added nil safety.
+--TODO: Improve this to use a passed target ID for better accuracy, wrote this earlier on.
 function AlgarInclude.DebuffConCheck()
-	local conLevel = (RGMercConfig.Constants.ConColorsNameToId[mq.TLO.Target.ConColor()] or 0)
-	return conLevel >= RGMercUtils.GetSetting('DebuffMinCon') or (RGMercUtils.IsNamed(mq.TLO.Target) and RGMercUtils.GetSetting('DebuffNamedAlways'))
+	local conLevel = RGMercConfig.Constants.ConColorsNameToId[mq.TLO.Target.ConColor()]
+	if conLevel >= RGMercUtils.GetSetting('DebuffMinCon') or (RGMercUtils.IsNamed(mq.TLO.Target) and RGMercUtils.GetSetting('DebuffNamedAlways')) then return true end
+	return false
 end
 
 --this is already present in my BST (which is now default), can likely get this pushed to RGMercUtils
@@ -78,3 +81,9 @@ function AlgarInclude.DotSpellCheck(spell) --Check dot stacking, stop dotting wh
 	return not RGMercUtils.TargetHasBuff(spell) and RGMercUtils.SpellStacksOnTarget(spell) and
 		((named and (RGMercUtils.GetSetting('NamedStopDOT') < targethp)) or (not named and RGMercUtils.GetSetting('HPStopDOT') < targethp))
 end
+
+function AlgarInclude.DotManaCheck()
+	return (mq.TLO.Me.PctMana() >= RGMercUtils.GetSetting('ManaToDot')) or RGMercUtils.BurnCheck()
+end
+
+return AlgarInclude

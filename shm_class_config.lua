@@ -1012,21 +1012,21 @@ local _ClassConfig = {
                 name = "ChaoticDoT",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    return mq.TLO.Me.PctMana() > RGMercUtils.GetSetting('DOTMinMana') and AlgarInclude.DotSpellCheck(spell) and RGMercUtils.NPCSpellReady(spell, target.ID())
+                    return AlgarInclude.DotManaCheck() and AlgarInclude.DotSpellCheck(spell) and RGMercUtils.NPCSpellReady(spell, target.ID())
                 end,
             },
             {
                 name = "CurseDoT2",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    return mq.TLO.Me.PctMana() > RGMercUtils.GetSetting('DOTMinMana') and AlgarInclude.DotSpellCheck(spell) and RGMercUtils.NPCSpellReady(spell, target.ID())
+                    return AlgarInclude.DotManaCheck() and AlgarInclude.DotSpellCheck(spell) and RGMercUtils.NPCSpellReady(spell, target.ID())
                 end,
             },
             {
                 name = "PandemicDot",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    return mq.TLO.Me.PctMana() > RGMercUtils.GetSetting('DOTMinMana') and AlgarInclude.DotSpellCheck(spell) and RGMercUtils.NPCSpellReady(spell, target.ID())
+                    return AlgarInclude.DotManaCheck() and AlgarInclude.DotSpellCheck(spell) and RGMercUtils.NPCSpellReady(spell, target.ID())
                 end,
             },
             {
@@ -1443,8 +1443,8 @@ local _ClassConfig = {
         ['DebuffNamedAlways'] = { DisplayName = "Always Debuff Named", Category = "Debuffs", Tooltip = "Debuff named regardless of con color", Default = true, },
         ['DoStatBuff']        = { DisplayName = "Do Stat Buff", Category = "Buffs", Tooltip = "Do Stat Buffs for Group", Default = true, },
         ['HPStopDOT']         = { DisplayName = "HP Stop DOTs", Category = "Spells and Abilities", Tooltip = "Stop casting DOTs when a non-named mob hits [x] HP %.", Default = 50, Min = 1, Max = 100, },
-        ['DOTMinMana']        = { DisplayName = "DOT Min Mana", Category = "Spells and Abilities", Tooltip = "Stop casting DOTs when MP % falls below [x].", Default = 40, Min = 1, Max = 100, },
         ['NamedStopDOT']      = { DisplayName = "Named HP Stop DOTs", Category = "Spells and Abilities", Tooltip = "Stop casting DOTs when a named mob hits [x] HP %.", Default = 30, Min = 1, Max = 100, },
+        ['ManaToDot']         = { DisplayName = "Min Mana to Dot", Category = "Spells and Abilities", Tooltip = "The minimum Mana % to use DoTs outside of burns.", Default = 40, Min = 1, Max = 100, },
         --TODO: Categorize
         --Buffs
         --Debuffs

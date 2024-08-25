@@ -79,7 +79,7 @@ local _ClassConfig = {
     _author             = "Algar (based on RGMercs 1.0beta by Derple)",
     ['FullConfig']      = true,
     ['ModeChecks']      = {
-        -- IsTanking = function() return RGMercUtils.IsModeActive("Tank") end,
+        IsTanking = function() return RGMercUtils.IsModeActive("Tank") end,
     },
     ['Modes']           = {
         'Tank',
@@ -644,6 +644,13 @@ local _ClassConfig = {
             "Impertinent Influence",
             "Ignominious Influence",
         },
+        ['VisageBuff'] = {       --9 minute reuse makes these somewhat ridiculous to gem on the fly.
+            "Voice of Thule",    -- level 60, 12% hate
+            "Voice of Terris",   -- level 55, 10% hate
+            "Voice of Death",    -- level 50, 6% hate
+            "Voice of Shadows",  -- level 46, 4% hate
+            "Voice of Darkness", -- level 39, 2% hate
+        },
     },
     ['HelperFunctions'] = {
         -- helper function for advanced logic to see if we want to use Dark Lord's Unity
@@ -955,6 +962,15 @@ local _ClassConfig = {
                     self, spell)
                     if mq.TLO.Me.Pet.ID() ~= 0 or not RGMercUtils.GetSetting('DoPet') then return false end
                     return RGMercUtils.PCSpellReady(spell) and RGMercUtils.ReagentCheck(spell)
+                end,
+            },
+            {
+                name = "Scourge Skin",
+                type = "AA",
+                --tooltip = Tooltips.VOT,
+                active_cond = function(self, aaName) return RGMercUtils.BuffActiveByID(mq.TLO.Me.AltAbility(aaName).Spell.ID()) end,
+                cond = function(self, aaName)
+                    return RGMercUtils.SelfBuffAACheck(aaName)
                 end,
             },
         },
@@ -1509,20 +1525,20 @@ local _ClassConfig = {
             -- return RGMercUtils.GetSetting('DoSnare') and RGMercUtils.SpellLoaded(spell) and RGMercUtils.DetSpellCheck(spell) and not mq.TLO.Me.AltAbility(826)()
             -- end,
             -- },
-            -- {
-            --     name = "BondTap",
-            --     type = "Spell",
-            --     tooltip = Tooltips.BondTap,
-            --     cond = function(self, spell)
-            --         return RGMercUtils.SpellLoaded(spell) and RGMercUtils.NPCSpellReady(spell)
-            --     end,
-            -- },
+            {
+                name = "BondTap",
+                type = "Spell",
+                tooltip = Tooltips.BondTap,
+                cond = function(self, spell)
+                    return AlgarInclude.DotManaCheck() and AlgarInclude.DotSpellCheck(spell) and RGMercUtils.NPCSpellReady(spell, target.ID())
+                end,
+            },
             {
                 name = "Spearnuke",
                 type = "Spell",
                 tooltip = Tooltips.Spearnuke,
                 cond = function(self, spell)
-                    return RGMercUtils.SpellLoaded(spell) and RGMercUtils.NPCSpellReady(spell) and (RGMercUtils.ManaCheck() or RGMercUtils.BurnCheck())
+                    return RGMercUtils.NPCSpellReady(spell) and (RGMercUtils.ManaCheck() or RGMercUtils.BurnCheck())
                 end,
             },
             {
@@ -1530,8 +1546,7 @@ local _ClassConfig = {
                 type = "Spell",
                 tooltip = Tooltips.PoisonDot,
                 cond = function(self, spell)
-                    return RGMercUtils.SpellLoaded(spell) and RGMercUtils.NPCSpellReady(spell) and AlgarInclude.DotSpellCheck(spell) and
-                        (RGMercUtils.ManaCheck() or RGMercUtils.BurnCheck())
+                    return AlgarInclude.DotManaCheck() and AlgarInclude.DotSpellCheck(spell) and RGMercUtils.NPCSpellReady(spell, target.ID())
                 end,
             },
             {
@@ -1539,16 +1554,15 @@ local _ClassConfig = {
                 type = "Spell",
                 tooltip = Tooltips.PoisonDot,
                 cond = function(self, spell)
-                    return RGMercUtils.SpellLoaded(spell) and RGMercUtils.NPCSpellReady(spell) and
-                        AlgarInclude.DotSpellCheck(spell) and (RGMercUtils.ManaCheck() or RGMercUtils.BurnCheck())
+                    return AlgarInclude.DotManaCheck() and AlgarInclude.DotSpellCheck(spell) and RGMercUtils.NPCSpellReady(spell, target.ID())
                 end,
             },
             {
                 name = "BiteTap",
                 type = "Spell",
                 tooltip = Tooltips.BiteTap,
-                cond = function(self, spell)
-                    return RGMercUtils.SpellLoaded(spell) and RGMercUtils.NPCSpellReady(spell) and mq.TLO.Me.PctHPs() <= RGMercUtils.GetSetting('StartLifeTap')
+                cond = function(self, spell, target)
+                    return RGMercUtils.NPCSpellReady(spell, target.ID()) and mq.TLO.Me.PctHPs() <= RGMercUtils.GetSetting('StartLifeTap')
                 end,
             },
             -- {
@@ -1567,15 +1581,15 @@ local _ClassConfig = {
             -- type = "Spell",
             -- tooltip = Tooltips.DireDot,
             -- cond = function(self, spell)
-            -- return RGMercUtils.SpellLoaded(spell) and AlgarInclude.DotSpellCheck(spell)
+            --  return AlgarInclude.DotManaCheck() and AlgarInclude.DotSpellCheck(spell) and RGMercUtils.NPCSpellReady(spell, target.ID())
             -- end,
             -- },
             {
                 name = "Torrent",
                 type = "Spell",
                 tooltip = Tooltips.Torrent,
-                cond = function(self, spell)
-                    return RGMercUtils.SpellLoaded(spell) and not RGMercUtils.BuffActiveByName(spell.Name() .. " Recourse") and RGMercUtils.PCSpellReady(spell) and
+                cond = function(self, spell, target)
+                    return not RGMercUtils.BuffActiveByName(spell.Name() .. " Recourse") and RGMercUtils.NPCSpellReady(spell, target.ID()) and
                         RGMercUtils.GetSetting('DoTorrent')
                 end,
             },
@@ -1773,7 +1787,8 @@ local _ClassConfig = {
         ['DoVetAA']          = { DisplayName = "Use Vet AA", Category = "Spells and Abilities", Tooltip = "Use Veteran AA's in emergencies or during BigBurn", Default = true, },
         ['DoDot']            = { DisplayName = "Cast DoTs", Category = "Spells and Abilities", Tooltip = "Enable casting Damage Over Time spells.", Default = false, },
         ['HPStopDOT']        = { DisplayName = "HP Stop DoTs", Category = "Spells and Abilities", Tooltip = "Stop casting DOTs when the mob hits [x] HP %.", Default = 50, Min = 1, Max = 100, },
-        ['NamedStopDOT']     = { DisplayName = "Named HP Stop DOTs", Category = "Spells and Abilities", Tooltip = "Stop casting DOTs when a named mob hits [x] HP %.", Default = 30, Min = 1, Max = 100, },
+        ['NamedStopDOT']     = { DisplayName = "Named HP Stop DOTs", Category = "Spells and Abilities", Tooltip = "Stop casting DOTs when a named mob hits [x] HP %.", Default = 25, Min = 1, Max = 100, },
+        ['ManaToDot']        = { DisplayName = "Min Mana to Dot", Category = "Spells and Abilities", Index = 5, Tooltip = "The minimum Mana % to use DoTs outside of burns.", Default = 40, Min = 1, Max = 100, ConfigType = "Advanced", },
 
         --LifeTaps
         ['StartLifeTap']     = { DisplayName = "Use Life Taps", Category = "LifeTaps", Tooltip = "Your HP % before we use Life Taps.", Default = 100, Min = 1, Max = 100, },
