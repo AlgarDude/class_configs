@@ -853,35 +853,35 @@ local _ClassConfig = {
             {
                 name = "FireDot2",
                 type = "Spell",
-                cond = function(self, spell)
+                cond = function(self, spell, target)
                     return AlgarInclude.DotManaCheck() and AlgarInclude.DotSpellCheck(spell) and RGMercUtils.NPCSpellReady(spell, target.ID())
                 end,
             },
             {
                 name = "Combo",
                 type = "Spell",
-                cond = function(self, spell)
+                cond = function(self, spell, target)
                     return AlgarInclude.DotManaCheck() and AlgarInclude.DotSpellCheck(spell) and RGMercUtils.NPCSpellReady(spell, target.ID())
                 end,
             },
             {
                 name = "Poison2",
                 type = "Spell",
-                cond = function(self, spell)
+                cond = function(self, spell, target)
                     return AlgarInclude.DotManaCheck() and AlgarInclude.DotSpellCheck(spell) and RGMercUtils.NPCSpellReady(spell, target.ID())
                 end,
             },
             {
                 name = "Magic2",
                 type = "Spell",
-                cond = function(self, spell)
+                cond = function(self, spell, target)
                     return AlgarInclude.DotManaCheck() and AlgarInclude.DotSpellCheck(spell) and RGMercUtils.NPCSpellReady(spell, target.ID())
                 end,
             },
             {
                 name = "GroupLeech",
                 type = "Spell",
-                cond = function(self, spell)
+                cond = function(self, spell, target)
                     return AlgarInclude.DotManaCheck() and AlgarInclude.DotSpellCheck(spell) and RGMercUtils.NPCSpellReady(spell, target.ID())
                 end,
             },

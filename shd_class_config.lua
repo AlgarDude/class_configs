@@ -1529,7 +1529,7 @@ local _ClassConfig = {
                 name = "BondTap",
                 type = "Spell",
                 tooltip = Tooltips.BondTap,
-                cond = function(self, spell)
+                cond = function(self, spell, target)
                     return AlgarInclude.DotManaCheck() and AlgarInclude.DotSpellCheck(spell) and RGMercUtils.NPCSpellReady(spell, target.ID())
                 end,
             },
@@ -1537,15 +1537,15 @@ local _ClassConfig = {
                 name = "Spearnuke",
                 type = "Spell",
                 tooltip = Tooltips.Spearnuke,
-                cond = function(self, spell)
-                    return RGMercUtils.NPCSpellReady(spell) and (RGMercUtils.ManaCheck() or RGMercUtils.BurnCheck())
+                cond = function(self, spell, target)
+                    return RGMercUtils.NPCSpellReady(spell, target.ID()) and (RGMercUtils.ManaCheck() or RGMercUtils.BurnCheck())
                 end,
             },
             {
                 name = "PoisonDot",
                 type = "Spell",
                 tooltip = Tooltips.PoisonDot,
-                cond = function(self, spell)
+                cond = function(self, spell, target)
                     return AlgarInclude.DotManaCheck() and AlgarInclude.DotSpellCheck(spell) and RGMercUtils.NPCSpellReady(spell, target.ID())
                 end,
             },
@@ -1553,7 +1553,7 @@ local _ClassConfig = {
                 name = "CorruptionDot",
                 type = "Spell",
                 tooltip = Tooltips.PoisonDot,
-                cond = function(self, spell)
+                cond = function(self, spell, target)
                     return AlgarInclude.DotManaCheck() and AlgarInclude.DotSpellCheck(spell) and RGMercUtils.NPCSpellReady(spell, target.ID())
                 end,
             },
