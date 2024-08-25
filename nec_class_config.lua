@@ -927,7 +927,10 @@ local _ClassConfig = {
             {
                 name = "HealthTaps",
                 type = "Spell",
-                cond = function(self, spell) return RGMercUtils.ManaCheck() and not AlgarInclude.DotSpellCheck(spell) end,
+                cond = function(self, spell)
+                    return RGMercUtils.ManaCheck() and mq.TLO.Me.PctHPs() <= RGMercUtils.GetSetting('StartLifeTap') and
+                        not AlgarInclude.DotSpellCheck(spell)
+                end,
             },
         },
         ['Burn'] = {
@@ -1275,7 +1278,7 @@ local _ClassConfig = {
         ['StopLichHP']        = { DisplayName = "Stop Lich HP", Category = "Lich", Tooltip = "Cancel Lich at HP Pct [x]", RequiresLoadoutChange = false, Default = 25, Min = 1, Max = 99, },
         ['StopLichMana']      = { DisplayName = "Stop Lich Mana", Category = "Lich", Tooltip = "Cancel Lich at Mana Pct [x]", RequiresLoadoutChange = false, Default = 90, Min = 1, Max = 100, },
         ['DoChestClick']      = { DisplayName = "Do Chest Click", Category = "Utilities", Tooltip = "Click your chest item", Default = true, },
-
+        ['StartLifeTap']      = { DisplayName = "Use Life Taps", Category = "Spells and Abilities", Tooltip = "Your HP % before we use Life Taps.", Default = 99, Min = 1, Max = 100, },
     },
 
 }

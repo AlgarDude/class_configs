@@ -3,7 +3,7 @@ local RGMercUtils  = require("utils.rgmercs_utils")
 local AlgarInclude = require("utils.algar_include")
 
 local _ClassConfig = {
-    _version              = "Healdps",
+    _version              = "Healer",
     _author               = "Algar",
     ['FullConfig']        = true,
     ['ModeChecks']        = {
@@ -16,6 +16,7 @@ local _ClassConfig = {
         --'Hybrid',
     },
     ['Cures']             = {
+        --Revisit TLP Fallback when this is reintegrated
         CureNow = function(self, type, targetId)
             if RGMercUtils.AAReady("Radiant Cure") then
                 return RGMercUtils.UseAA("Radiant Cure", targetId)
@@ -34,15 +35,10 @@ local _ClassConfig = {
         ['VP2Hammer'] = {
             "Apothic Dragon Spine Hammer",
         },
-
     },
     ['AbilitySets']       = {
-        ["FocusSpell"] = {
-            -- Focus Spell - Lower Levels Mix in Single Target, Higher Prefer Group Target
-            -- "Inner Fire",                 -- Level 1 - Single
-            -- "Talisman of Tnarg",          -- Level 32 - Single
-            -- "Talisman of Altuna",         -- Level 40 - Single
-            -- "Talisman of Kragg",          -- Level 55 - Single
+        ["GroupFocusSpell"] = {
+            -- Focus Spell - Group Spells will be used on everyone
             "Khura's Focusing",           -- Level 60 - Group
             "Focus of the Seventh",       -- Level 65 - Group
             "Talisman of Wunshi",         -- Level 70 - Group
@@ -52,15 +48,23 @@ local _ClassConfig = {
             "Talisman of Soul's Unity",   -- Level 90 - Group
             "Talisman of Kolos' Unity",   -- Level 95 - Group
             "Talisman of the Courageous", -- Level 100 - Group
-            "Unity of the Doomscale",     -- Level 101 - Single
             "Talisman of the Doomscale",  -- Level 105 - Group
             "Talisman of the Wulthan",    -- Level 110 - Group
-            "Unity of the Kromrif",       -- Level 111 - Single
             "Talisman of the Ry'Gorr",    -- Level 115 - Group
-            "Unity of the Vampyre",       -- Level 116 - Single
             "Talisman of the Usurper",    -- Level 120 - Group
-            "Celeritous Unity",           -- Level 121 - Single
             "Talisman of the Heroic",     -- Level 125 - Group
+        },
+        ["SingleFocusSpell"] = {
+            -- Focus Spell - Single Spells will only be used on the Tank
+            "Inner Fire",             -- Level 1 - Single
+            "Talisman of Tnarg",      -- Level 32 - Single
+            "Talisman of Altuna",     -- Level 40 - Single
+            "Talisman of Kragg",      -- Level 55 - Single
+            "Unity of the Doomscale", -- Level 101 - Single
+            "Unity of the Wulthan",   -- Level 106 - Single
+            "Unity of the Kromrif",   -- Level 111 - Single
+            "Unity of the Vampyre",   -- Level 116 - Single
+            "Celeritous Unity",       -- Level 121 - Single
         },
         ["RunSpeedBuff"] = {
             -- Run Speed Buff - 9 - 74
@@ -234,6 +238,7 @@ local _ClassConfig = {
             "Minor Healing",
         },
         ["RecklessHeal2"] = {
+            --worthless to mem two mendings because they don't have a recast time, keep Qirik's for when we only have one Reckless.
             "Reckless Reinvigoration",
             "Reckless Resurgence",
             "Reckless Renewal",
@@ -243,21 +248,6 @@ local _ClassConfig = {
             "Reckless Remedy",
             "Reckless Mending",
             "Qirik's Mending",
-            "Dannal's Mending",
-            "Gemmi's Mending",
-            "Ahnkaul's Mending",
-            "Ancient: Wilslik's Mending",
-            "Yoppa's Mending",
-            "Daluda's Mending",
-            "Tnarg's Mending",
-            "Chloroblast",
-            "Kragg's Salve",
-            "Superior Healing",
-            "Spirit Salve",
-            "Greater Healing",
-            "Healing",
-            "Light Healing",
-            "Minor Healing",
         },
         ["AESpiritualHeal"] = {
             -- LVL 115-LVL100
@@ -875,11 +865,11 @@ local _ClassConfig = {
             },
         },
         ['Malo'] = {
-            -- {
-            -- name = "AEMaloSpell",
-            -- type = "Spell",
-            -- cond = function(self, _) return RGMercUtils.GetSetting('DoAEMalo') end,
-            -- },
+            {
+                name = "AEMaloSpell",
+                type = "Spell",
+                cond = function(self, _) return RGMercUtils.GetSetting('DoAEMalo') end,
+            },
             {
                 name = "Wind of Malaise",
                 type = "AA",
@@ -904,17 +894,20 @@ local _ClassConfig = {
                     return RGMercUtils.GetSetting('DoMalo') and RGMercUtils.DetSpellCheck(aaSpell) and RGMercUtils.NPCAAReady(aaName, target.ID())
                 end,
             },
-            -- {
-            -- name = "MaloSpell",
-            -- type = "Spell",
-            -- cond = function(self, spell) return RGMercUtils.GetSetting('DoMalo') and RGMercUtils.DetSpellCheck(spell) end,
-            -- },
+            {
+                name = "MaloSpell",
+                type = "Spell",
+                cond = function(self, spell) return RGMercUtils.GetSetting('DoMalo') and RGMercUtils.DetSpellCheck(spell) end,
+            },
         },
         ['Slow'] = {
             {
                 name = "AESlowSpell",
                 type = "Spell",
-                cond = function(self, spell) return RGMercUtils.GetSetting('DoAESlow') and RGMercUtils.DetSpellCheck(spell) and RGMercUtils.SpellStacksOnTarget(spell) end,
+                cond = function(self, spell)
+                    return RGMercUtils.GetSetting('DoAESlow') and
+                        RGMercUtils.GetXTHaterCount() >= RGMercUtils.GetSetting('AESlowCount') and RGMercUtils.DetSpellCheck(spell) and RGMercUtils.SpellStacksOnTarget(spell)
+                end,
             },
             {
                 name = "SlowSpell",
@@ -1171,10 +1164,7 @@ local _ClassConfig = {
             -- name = "GrowthBuff",
             -- type = "Spell",
             -- cond = function(self, spell, target)
-            -- -- force the target for StacksTarget to work.
-            -- RGMercUtils.SetTarget(target.ID() or 0)
-            -- return RGMercUtils.GetSetting('DoGrowth') and RGMercUtils.TargetClassIs("WAR", target) and not RGMercUtils.TargetHasBuff(spell, target) and
-            -- RGMercUtils.SpellStacksOnTarget(spell)
+            -- return RGMercUtils.GetSetting('DoGrowth') and RGMercUtils.TargetClassIs("WAR", target) and AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
             -- end,
             -- },
             {
@@ -1184,18 +1174,25 @@ local _ClassConfig = {
                     return RGMercConfig.Constants.RGTank:contains(target.Class.ShortName()) and AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
                 end,
             },
-            {
-                name = "FocusSpell",
+            { --Used on the entire group
+                name = "GroupFocusSpell",
                 type = "Spell",
                 cond = function(self, spell, target)
                     return AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
                 end,
             },
-            {
+            { --If our single target is better than the group spell above, we will use it on the Tank
+                name = "SingleFocusSpell",
+                type = "Spell",
+                cond = function(self, spell, target)
+                    return RGMercConfig.Constants.RGTank:contains(target.Class.ShortName()) and AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                end,
+            },
+            { --Only cast below 86 because past that our focus spells take over
                 name = "LowLvlAtkBuff",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    return mq.TLO.Me.Level() <= 85 and RGMercConfig.Constants.RGMelee:contains(target.Class.ShortName()) and
+                    return mq.TLO.Me.Level() < 86 and RGMercConfig.Constants.RGMelee:contains(target.Class.ShortName()) and
                         AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
                 end,
             },
@@ -1221,8 +1218,9 @@ local _ClassConfig = {
                     return RGMercUtils.BuffActiveByID(mq.TLO.Me.AltAbility(aaName)
                         .Spell.Trigger(1).ID())
                 end,
-                cond = function(self, aaName, target, uiCheck)
-                    if not RGMercUtils.GetSetting('DoRunSpeed') or not (mq.TLO.Me.AltAbility(aaName).Rank() or 0) > 2 then return false end
+                cond = function(self, aaName, target, uiCheck) --check ranks because we don't want group SoW over Bih'Li
+                    if not RGMercUtils.GetSetting('DoRunSpeed') or (mq.TLO.Me.AltAbility(aaName).Rank() or 999) < 3 then return false end
+                    --TODO: Refactor
                     local speedSpell = mq.TLO.Me.AltAbility(aaName).Spell.Trigger(1)
                     if not speedSpell or not speedSpell() then return false end
 
@@ -1250,6 +1248,8 @@ local _ClassConfig = {
             gem = 2,
             spells = {
                 { name = "RecklessHeal2", cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
+                { name = "MaloSpell",     cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
+
             },
         },
         {
@@ -1271,6 +1271,7 @@ local _ClassConfig = {
             gem = 5,
             spells = {
                 { name = "AESpiritualHeal", cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
+                { name = "AEMaloSpell",     cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
                 { name = "AESlowSpell",     cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
             },
         },
@@ -1290,41 +1291,45 @@ local _ClassConfig = {
         {
             gem = 8,
             spells = {
-                { name = "CurseDoT2", cond = function(self) return RGMercUtils.GetSetting('DoMagicDot') end, },
-            },
-        },
-        {
-            gem = 9,
-            cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
-            spells = {
-                { name = "ChaoticDoT", cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
+                { name = "SlowProcBuff", cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
 
             },
         },
-        {
+        { --55
+            gem = 9,
+            cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
+            spells = {
+                { name = "CurseDoT2", cond = function(self) return RGMercUtils.GetSetting('DoMagicDot') end, },
+                { name = "CureSpell", },
+            },
+        },
+        { --75
             gem = 10,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
-                { name = "PandemicDot", cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
+                { name = "ChaoticDoT",   cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
+                { name = "TwinHealNuke", cond = function(self) return RGMercUtils.IsModeActive("Heal") and RGMercUtils.GetSetting('DoTwinHeal') end, },
+                { name = "CureSpell", },
             },
         },
-        {
+        { --80
             gem = 11,
+            cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
+            spells = {
+                { name = "PandemicDot",  cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
+                { name = "TwinHealNuke", cond = function(self) return RGMercUtils.IsModeActive("Heal") and RGMercUtils.GetSetting('DoTwinHeal') end, },
+                { name = "CureSpell", },
+            },
+        },
+        { --80
+            gem = 12,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
                 { name = "TwinHealNuke", cond = function(self) return RGMercUtils.IsModeActive("Heal") and RGMercUtils.GetSetting('DoTwinHeal') end, },
                 { name = "CureSpell", },
-
             },
         },
-        {
-            gem = 12,
-            cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
-            spells = {
-                { name = "SlowProcBuff", cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
-            },
-        },
-        {
+        { --105
             gem = 13,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
