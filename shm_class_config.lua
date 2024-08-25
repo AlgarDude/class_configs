@@ -651,24 +651,30 @@ local _ClassConfig = {
             {
                 name = "RecourseHeal",
                 type = "Spell",
+                cond = function(self, spell)
+                    return RGMercUtils.PCSpellReady(spell)
+                end,
             },
             {
                 name = "AESpiritualHeal",
                 type = "Spell",
-                cond = function(self, _, target)
-                    return (target.ID() or 0) == RGMercUtils.GetMainAssistId()
+                cond = function(self, spell)
+                    return RGMercUtils.PCSpellReady(spell)
+                end,
+            },
+            {
+                name = "Call of the Ancients",
+                type = "AA",
+                cond = function(self, aaName)
+                    return RGMercUtils.PCAAReady(aaName)
                 end,
             },
             {
                 name = "Fleeting Spirit",
                 type = "AA",
                 cond = function(self, aaName)
-                    return RGMercUtils.GetSetting('DoHOT')
+                    return RGMercUtils.GetSetting('DoHOT') and RGMercUtils.PCAAReady(aaName)
                 end,
-            },
-            {
-                name = "Call of the Ancients",
-                type = "AA",
             },
             {
                 name = "GroupRenewalHoT",
@@ -678,26 +684,34 @@ local _ClassConfig = {
                 end,
             },
         },
-        ["BigHealPoint"] = {
+        ["BigHealPoint"] = { --TODO: check/add personal emergency AA for if target is me
             {
                 name = "Spiritual Blessing",
                 type = "AA",
+                cond = function(self, aaName)
+                    return RGMercUtils.PCAAReady(aaName)
+                end,
             },
             {
                 name = "InterventionHeal",
                 type = "Spell",
+                cond = function(self, spell, target)
+                    return RGMercUtils.NPCSpellReady(spell, target.ID(), true)
+                end,
             },
             {
                 name = "Soothsayer's Intervention",
                 type = "AA",
+                cond = function(self, aaName, target)
+                    return RGMercUtils.NPCAAReady(aaName, target.ID(), true)
+                end,
             },
             {
                 name = "Union of Spirits",
                 type = "AA",
-            },
-            {
-                name = "Forceful Rejuvenation",
-                type = "AA",
+                cond = function(self, aaName, target)
+                    return RGMercUtils.NPCAAReady(aaName, target.ID(), true)
+                end,
             },
             {
                 name = "VP2Hammer",
@@ -706,50 +720,41 @@ local _ClassConfig = {
                     return mq.TLO.FindItem(itemName).TimerReady() == 0
                 end,
             },
-
+            {
+                name = "Forceful Rejuvenation",
+                type = "AA",
+                cond = function(self, aaName)
+                    return RGMercUtils.PCAAReady(aaName)
+                end,
+            },
         },
         ["MainHealPoint"] = {
             {
                 name = "RecourseHeal",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    return AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                    return RGMercUtils.NPCSpellReady(spell, target.ID(), true)
                 end,
             },
             {
                 name = "AESpiritualHeal",
                 type = "Spell",
                 cond = function(self, _, target)
-                    return (target.ID() or 0) == RGMercUtils.GetMainAssistId()
-                end,
-            },
-            {
-                name = "Spirit Guardian",
-                type = "AA",
-                cond = function(self, _, target)
-                    return (target.ID() or 0) == RGMercUtils.GetMainAssistId()
+                    return (target.ID() or 0) == RGMercUtils.GetMainAssistId() and RGMercUtils.NPCSpellReady(spell, target.ID(), true)
                 end,
             },
             {
                 name = "RecklessHeal1",
                 type = "Spell",
-                cond = function(self, _, target) return true end,
+                cond = function(self, spell, target)
+                    return RGMercUtils.NPCSpellReady(spell, target.ID(), true)
+                end,
             },
             {
                 name = "RecklessHeal2",
                 type = "Spell",
-                cond = function(self, _, target) return true end,
-            },
-            {
-                name = "RecklessHeal3",
-                type = "Spell",
-                cond = function(self, _, target) return true end,
-            },
-            {
-                name = "Soothsayer's Intervention",
-                type = "AA",
-                cond = function(self, _, target)
-                    return true
+                cond = function(self, spell, target)
+                    return RGMercUtils.NPCSpellReady(spell, target.ID(), true)
                 end,
             },
             {
@@ -858,115 +863,112 @@ local _ClassConfig = {
             {
                 name = "TwinHealNuke",
                 type = "Spell",
-                cond = function(self, spell) return RGMercUtils.PCSpellReady(spell) end,
+                cond = function(self, spell)
+                    return RGMercUtils.PCSpellReady(spell)
+                end,
             },
         },
         ['Malo'] = {
             {
-                name = "AEMaloSpell",
-                type = "Spell",
-                cond = function(self, _) return RGMercUtils.GetSetting('DoAEMalo') end,
-            },
-            {
                 name = "Wind of Malaise",
                 type = "AA",
                 cond = function(self, aaName, target)
-                    local aaSpell = mq.TLO.Me.AltAbility(aaName).Spell
-
-                    if not aaSpell or not aaSpell() then return false end
-
-                    return RGMercUtils.GetSetting('DoAEMalo') and RGMercUtils.DetSpellCheck(aaSpell) and RGMercUtils.SpellStacksOnTarget(aaSpell) and
-                        RGMercUtils.DetAACheck(mq.TLO.Me.AltAbility(aaName).ID()) and
-                        RGMercUtils.GetXTHaterCount() >= RGMercUtils.GetSetting('AEMaloCount') and RGMercUtils.NPCAAReady(aaName, target.ID())
+                    if not RGMercUtils.GetSetting('DoAEMalo') or RGMercUtils.GetXTHaterCount() < RGMercUtils.GetSetting('AEMaloCount') then return false end
+                    return RGMercUtils.NPCAAReady(aaName, target.ID()) and RGMercUtils.DetAACheck(mq.TLO.Me.AltAbility(aaName).ID())
+                end,
+            },
+            {
+                name = "AEMaloSpell",
+                type = "Spell",
+                cond = function(self, spell, target)
+                    if not RGMercUtils.GetSetting('DoAEMalo') or RGMercUtils.GetXTHaterCount() < RGMercUtils.GetSetting('AEMaloCount') then return false end
+                    return RGMercUtils.NPCSpellReady(spell, target.ID()) and RGMercUtils.DetSpellCheck(spell)
                 end,
             },
             {
                 name = "Malaise",
                 type = "AA",
                 cond = function(self, aaName, target)
-                    local aaSpell = mq.TLO.Me.AltAbility(aaName).Spell
-
-                    if not aaSpell or not aaSpell() then return false end
-
-                    return RGMercUtils.GetSetting('DoMalo') and RGMercUtils.DetSpellCheck(aaSpell) and RGMercUtils.NPCAAReady(aaName, target.ID())
+                    if not RGMercUtils.GetSetting('DoMalo') then return false end
+                    return RGMercUtils.NPCAAReady(aaName, target.ID()) and RGMercUtils.DetAACheck(mq.TLO.Me.AltAbility(aaName).ID())
                 end,
             },
             {
                 name = "MaloSpell",
                 type = "Spell",
-                cond = function(self, spell) return RGMercUtils.GetSetting('DoMalo') and RGMercUtils.DetSpellCheck(spell) end,
+                cond = function(self, spell, target)
+                    if not RGMercUtils.GetSetting('DoMalo') then return false end
+                    return RGMercUtils.NPCSpellReady(spell, target.ID()) and RGMercUtils.DetSpellCheck(spell)
+                end,
             },
         },
         ['Slow'] = {
             {
+                name = "Turgur's Virulent Swarm",
+                type = "AA",
+                cond = function(self, aaName, target)
+                    if not RGMercUtils.GetSetting('DoAESlow') or RGMercUtils.GetXTHaterCount() < RGMercUtils.GetSetting('AESlowCount') then return false end
+                    return RGMercUtils.NPCAAReady(aaName, target.ID()) and RGMercUtils.DetAACheck(mq.TLO.Me.AltAbility(aaName).ID())
+                end,
+            },
+            {
                 name = "AESlowSpell",
                 type = "Spell",
-                cond = function(self, spell)
-                    return RGMercUtils.GetSetting('DoAESlow') and
-                        RGMercUtils.GetXTHaterCount() >= RGMercUtils.GetSetting('AESlowCount') and RGMercUtils.DetSpellCheck(spell) and RGMercUtils.SpellStacksOnTarget(spell)
+                cond = function(self, spell, target)
+                    if not RGMercUtils.GetSetting('DoAESlow') or RGMercUtils.GetXTHaterCount() < RGMercUtils.GetSetting('AESlowCount') then return false end
+                    return RGMercUtils.NPCSpellReady(spell, target.ID()) and RGMercUtils.DetSpellCheck(spell)
+                end,
+            },
+            {
+                name = "Turgur's Swarm",
+                type = "AA",
+                cond = function(self, aaName, target)
+                    if not RGMercUtils.GetSetting('DoSlow') then return false end
+                    return RGMercUtils.NPCAAReady(aaName, target.ID()) and RGMercUtils.DetAACheck(mq.TLO.Me.AltAbility(aaName).ID())
                 end,
             },
             {
                 name = "SlowSpell",
                 type = "Spell",
-                cond = function(self, spell) return mq.TLO.Me.Gem(spell.RankName.Name())() and RGMercUtils.GetSetting('DoSlow') and RGMercUtils.DetSpellCheck(spell) end,
-            },
-            {
-                name = "Turgur's Virulent Swarm",
-                type = "AA",
-                cond = function(self, aaName, target)
-                    return RGMercUtils.GetSetting('DoAESlow') and RGMercUtils.DetAACheck(mq.TLO.Me.AltAbility(aaName).ID()) and
-                        RGMercUtils.GetXTHaterCount() >= RGMercUtils.GetSetting('AESlowCount') and RGMercUtils.NPCAAReady(aaName, target.ID())
+                cond = function(self, spell, target)
+                    if not RGMercUtils.GetSetting('DoSlow') then return false end
+                    return RGMercUtils.NPCSpellReady(spell, target.ID()) and RGMercUtils.DetSpellCheck(spell)
                 end,
             },
-            -- {
+            -- { --add an option for this one I guess
+            -- name = "DieaseSlow",
+            -- type = "Spell",
+            -- cond = function(self, spell) return mq.TLO.Me.Gem(spell.RankName.Name())() and RGMercUtils.GetSetting('DoSlow') and RGMercUtils.DetSpellCheck(spell) end,
+            -- },
+            -- {    --I need to make this an optional setting (can break mez) and move it to combat (no business in debuffs anyway)
             -- name = "Languid Bite",
             -- type = "AA",
             -- cond = function(self, aaName)
             -- return RGMercUtils.GetSetting('DoSlow') and not RGMercUtils.BuffActiveByID(mq.TLO.Spell("Languid Bite").RankName.ID())
             -- end,
             -- },
-            {
-                name = "Turgur's Swarm",
-                type = "AA",
-                cond = function(self, aaName, target)
-                    return RGMercUtils.GetSetting('DoSlow') and
-                        not RGMercUtils.TargetHasBuffByName(mq.TLO.Spell("Turgur's Swarm").Trigger(1).RankName.Name()) and RGMercUtils.NPCAAReady(aaName, target.ID())
-                end,
-            },
-            -- {
-            -- name = "DieaseSlow",
-            -- type = "Spell",
-            -- cond = function(self, spell) return mq.TLO.Me.Gem(spell.RankName.Name())() and RGMercUtils.GetSetting('DoSlow') and RGMercUtils.DetSpellCheck(spell) end,
-            -- },
         },
         ['HealBurn'] = {
+            --TODO, Scrub AA to see if anything needs to be added, add vet AA
             {
                 name = "Ancestral Aid",
                 type = "AA",
                 cond = function(self, aaName)
-                    return RGMercUtils.MedBurn()
+                    return RGMercUtils.MedBurn() and RGMercUtils.AAReady(aaName)
                 end,
             },
             {
                 name = "Spire of Ancestors",
                 type = "AA",
                 cond = function(self, aaName)
-                    return RGMercUtils.SmallBurn()
-                end,
-            },
-            {
-                name = "Focus of Arcanum",
-                type = "AA",
-                cond = function(self, aaName)
-                    return RGMercUtils.BigBurn()
+                    return RGMercUtils.SmallBurn() and RGMercUtils.AAReady(aaName)
                 end,
             },
             {
                 name = "Spirit Call",
                 type = "AA",
-                cond = function(self, aaName)
-                    return RGMercUtils.SmallBurn()
+                cond = function(self, aaName, target)
+                    return RGMercUtils.SmallBurn() and RGMercUtils.NPCAAReady(aaName, target.ID())
                 end,
             },
             {
@@ -976,17 +978,28 @@ local _ClassConfig = {
                     return RGMercUtils.AAReady(aaName) and RGMercUtils.GetSetting('DoMelee') and mq.TLO.Me.Combat()
                 end,
             },
+            {
+                name = "Focus of Arcanum",
+                type = "AA",
+                cond = function(self, aaName)
+                    return RGMercUtils.BigBurn() and RGMercUtils.AAReady(aaName)
+                end,
+            },
         },
         ['HealDPS'] = {
             {
                 name = "DichoSpell",
                 type = "Spell",
-                cond = function(self, spell) return RGMercUtils.SelfBuffCheck(spell) end,
+                cond = function(self, spell)
+                    return RGMercUtils.PCSpellReady(spell) and RGMercUtils.SelfBuffCheck(spell)
+                end,
             },
             {
                 name = "MeleeProcBuff",
                 type = "Spell",
-                cond = function(self, spell) return RGMercUtils.SelfBuffCheck(spell) end,
+                cond = function(self, spell)
+                    return RGMercUtils.PCSpellReady(spell) and RGMercUtils.SelfBuffCheck(spell)
+                end,
             },
             {
                 name = "Epic",
@@ -1148,6 +1161,14 @@ local _ClassConfig = {
             },
         },
         ['GroupBuff'] = {
+            {
+                name = "Spirit Guardian",
+                type = "AA",
+                cond = function(self, aaName, target)
+                    if target.ID() ~= mq.TLO.Group.MainTank.ID() then return false end
+                    return RGMercUtils.AAReady(aaName) and AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                end,
+            },
             -- {
             -- name = "GrowthBuff",
             -- type = "Spell",
