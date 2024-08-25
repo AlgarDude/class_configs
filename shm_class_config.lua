@@ -93,7 +93,7 @@ local _ClassConfig = {
             "Wild Growth",
         },
         ["LowLvlAtkBuff"] = {
-            -- Low Level Attack Buff --- user under level 85
+            -- Low Level Attack Buff --- user under level 86
             "Primal Avatar",
             "Ferine Avatar",
             "Champion",
@@ -136,7 +136,7 @@ local _ClassConfig = {
             "Responsive Spirit",
             "Attentive Spirit",
         },
-        ["SelfHealProcBuff"] = {
+        ["SelfWard"] = {
             -- Self Heal Ward Spells -- LVL 115 -> LVL 80
             "Ward of Heroic Deeds",
             "Ward of Recuperation",
@@ -169,7 +169,7 @@ local _ClassConfig = {
             "Talisman of the Lynx",
             "Talisman of the Cougar",
             "Talisman of the Panther",
-            -- Below Level 71 This is a single target buff
+            -- Below Level 71 This is a single target buff and should not be enabled without entry editing (as entries are keyed off of the SHM's buffs)
             -- "Spirit of the Panther",
             -- "Spirit of the Leopard",
             -- "Spirit of the Jaguar",
@@ -281,8 +281,7 @@ local _ClassConfig = {
             "Antediluvian Intervention",
         },
         ["GroupRenewalHoT"] = {
-            -- LVL 115->70 -- Prior to 70 Breath of Trushar as a non-group HoTs will be used including the
-            --- the Torpor/Stoicism line. LVL 44 is the lowest level.
+            -- LVL 115->70
             "Reverie of Renewal",
             "Spirit of Renewal",
             "Spectre of Renewal",
@@ -294,9 +293,7 @@ local _ClassConfig = {
             "Shadow of Renewal",
             "Shade of Renewal",
             "Specter of Renewal",
-            --"Ghost of Renewal", --group but short duration, expensive, need to amend this. try again in 5 levels
-            --"Spiritual Serenity", --single target
-            --"Breath of Trushar", --single target
+            "Ghost of Renewal",
         },
         ["CanniSpell"] = {
             -- Convert Health to Mana - Level  23 - 113
@@ -373,7 +370,7 @@ local _ClassConfig = {
             "Sting of the Queen",
         },
         ["FrostNuke"] = {
-            --- rostNuke - Levels 4 - 114
+            --- FrostNuke - Levels 4 - 114
             "Ice Barrage",
             "Heavy Sleet",
             "Ice Salvo",
@@ -1040,6 +1037,53 @@ local _ClassConfig = {
         },
         ['Downtime'] = {
             {
+                name = "Cannibalization",
+                type = "AA",
+                cond = function(self, aaName)
+                    return RGMercUtils.GetSetting('DoAACanni') and RGMercUtils.AAReady(aaName) and
+                        mq.TLO.Me.PctMana() < RGMercUtils.GetSetting('AACanniManaPct') and
+                        mq.TLO.Me.PctHPs() >= RGMercUtils.GetSetting('AACanniMinHP')
+                end,
+            },
+            {
+                name = "CanniSpell",
+                type = "Spell",
+                cond = function(self, spell)
+                    return RGMercUtils.GetSetting('DoSpellCanni') and RGMercUtils.CastReady(spell.RankName()) and
+                        mq.TLO.Me.PctMana() < RGMercUtils.GetSetting('SpellCanniManaPct') and
+                        mq.TLO.Me.PctHPs() >= RGMercUtils.GetSetting('SpellCanniMinHP')
+                end,
+            },
+            {
+                name = "GroupHealProcBuff",
+                type = "Spell",
+                active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
+                cond = function(self, spell)
+                    return RGMercUtils.SelfBuffCheck(spell)
+                end,
+            },
+            {
+                name = "GroupRenewalHoT",
+                type = "Spell",
+                cond = function(self, spell)
+                    if not RGMercUtils.CanUseAA("Luminary's Synergy") then return false end
+                    return RGMercUtils.SpellStacksOnMe(spell) and (mq.TLO.Me.Song(spell).Duration.TotalSeconds() or 0) < 30
+                end,
+            },
+            {
+                name = "Preincarnation",
+                type = "AA",
+                active_cond = function(self, aaName)
+                    return RGMercUtils.BuffActiveByID(mq.TLO.Me.AltAbility(aaName)
+                        .Spell.Trigger(1).ID())
+                end,
+                cond = function(self, aaName)
+                    return RGMercUtils.SelfBuffAACheck(aaName)
+                end,
+            },
+        },
+        ['Slow Downtime'] = {
+            {
                 name = "Group Shrink",
                 type = "AA",
                 active_cond = function(self, _) return mq.TLO.Me.Height() < 2 end,
@@ -1065,26 +1109,6 @@ local _ClassConfig = {
                 cond = function(self, spell) return RGMercUtils.SelfBuffPetCheck(spell) end,
             },
             {
-                name = "Cannibalization",
-                type = "AA",
-                cond = function(self, aaName)
-                    return RGMercUtils.GetSetting('DoAACanni') and RGMercUtils.AAReady(aaName) and
-                        mq.TLO.Me.PctMana() < RGMercUtils.GetSetting('AACanniManaPct') and
-                        mq.TLO.Me.PctHPs() >= RGMercUtils.GetSetting('AACanniMinHP')
-                end,
-            },
-            {
-                name = "CanniSpell",
-                type = "Spell",
-                cond = function(self, spell)
-                    return RGMercUtils.GetSetting('DoSpellCanni') and RGMercUtils.CastReady(spell.RankName()) and
-                        mq.TLO.Me.PctMana() < RGMercUtils.GetSetting('SpellCanniManaPct') and
-                        mq.TLO.Me.PctHPs() >= RGMercUtils.GetSetting('SpellCanniMinHP')
-                end,
-            },
-        },
-        ['Slow Downtime'] = {
-            {
                 name = "Pact of the Wolf",
                 type = "AA",
                 active_cond = function(self, aaName) return mq.TLO.Me.Aura(aaName)() ~= nil end,
@@ -1094,36 +1118,15 @@ local _ClassConfig = {
                 end,
             },
             {
-                name = "Talisman of Celerity",
-                type = "AA",
-                active_cond = function(self, aaName) return mq.TLO.Me.Haste() end,
-                cond = function(self, aaName)
-                    return RGMercUtils.GetSetting('DoHaste') and not mq.TLO.Me.Haste() and RGMercUtils.SelfBuffAACheck(aaName)
-                end,
-            },
-            {
-                name = "Preincarnation",
-                type = "AA",
-                active_cond = function(self, aaName)
-                    return RGMercUtils.BuffActiveByID(mq.TLO.Me.AltAbility(aaName)
-                        .Spell.Trigger(1).ID())
-                end,
-                cond = function(self, aaName)
-                    return RGMercUtils.SelfBuffAACheck(aaName)
-                end,
-            },
-            {
                 name = "Visionary's Unity",
                 type = "AA",
                 active_cond = function(self, aaName)
                     return RGMercUtils.BuffActiveByID(mq.TLO.Me.AltAbility(aaName)
                         .Spell.Trigger(1).ID())
                 end,
-                cond = function(self, aaName)
+                cond = function(self, aaName) --Check ranks because we don't want the first pack buff (drains mana)
+                    if (mq.TLO.Me.AltAbility(aaName).Rank() or 999) < 2 then return false end
                     return RGMercUtils.SelfBuffAACheck(aaName)
-                    -- return mq.TLO.Me.AltAbility(aaName)() and
-                    -- RGMercUtils.SelfBuffAACheck(aaName) and
-                    -- not RGMercUtils.BuffActiveByID(mq.TLO.Me.AltAbility(aaName).Spell.Trigger(1).ID())
                 end,
             },
             {
@@ -1134,28 +1137,13 @@ local _ClassConfig = {
                     return RGMercUtils.SelfBuffCheck(spell)
                 end,
             },
-            -- {
-            -- name = "SelfHealProcBuff",
-            -- type = "Spell",
-            -- active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
-            -- cond = function(self, spell)
-            -- return RGMercUtils.SelfBuffCheck(spell)
-            -- end,
-            -- },
             {
-                name = "GroupHealProcBuff",
+                name = "SelfWard",
                 type = "Spell",
                 active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
                 cond = function(self, spell)
+                    if not RGMercUtils.GetSetting('DoSelfWard') then return false end
                     return RGMercUtils.SelfBuffCheck(spell)
-                end,
-            },
-            {
-                name = "GroupRenewalHoT",
-                type = "Spell",
-                cond = function(self, spell)
-                    if not RGMercUtils.CanUseAA("Luminary's Synergy") then return false end
-                    return RGMercUtils.SpellStacksOnMe(spell) and (mq.TLO.Me.Song(spell).Duration.TotalSeconds() or 0) < 30
                 end,
             },
         },
@@ -1197,10 +1185,19 @@ local _ClassConfig = {
                 end,
             },
             {
+                name = "Talisman of Celerity",
+                type = "AA",
+                active_cond = function(self, aaName) return mq.TLO.Me.Haste() end,
+                cond = function(self, aaName)
+                    return RGMercUtils.GetSetting('DoHaste') and AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                end,
+            },
+            {
                 name = "HasteBuff",
                 type = "Spell",
+                active_cond = function(self, aaName) return mq.TLO.Me.Haste() end,
                 cond = function(self, spell, target)
-                    return AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                    return RGMercUtils.GetSetting('DoHaste') and AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
                 end,
             },
             {
@@ -1384,6 +1381,7 @@ local _ClassConfig = {
         ['DoGrowth']          = { DisplayName = "Use Growth", Category = "Buffs", Tooltip = "Use Growth Buff", Default = true, },
         ['DoAura']            = { DisplayName = "Use Aura", Category = "Buffs", Tooltip = "Use Aura (Pact of Wolf)", Default = true, },
         ['DoHaste']           = { DisplayName = "Use Haste", Category = "Buffs", Tooltip = "Do Haste Spells/AAs", Default = true, },
+        ['DoSelfWard']        = { DisplayName = "Use Ward", Category = "Buffs", Tooltip = "Use your Self heal proc ward.", Default = false, },
         ['DoRunSpeed']        = { DisplayName = "Do Run Speed", Category = "Buffs", Tooltip = "Do Run Speed Spells/AAs", Default = true, },
         ['DoMalo']            = { DisplayName = "Cast Malo", Category = "Debuffs", Tooltip = "Do Malo Spells/AAs", Default = true, },
         ['DoAEMalo']          = { DisplayName = "Cast AE Malo", Category = "Debuffs", Tooltip = "Do AE Malo Spells/AAs", Default = false, },
