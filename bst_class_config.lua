@@ -385,7 +385,7 @@ return {
             "Warder's Alliance",
         },
         ['RunSpeedBuff'] = {
-            "Spirit of wolf",
+            "Spirit of Wolf",
             -- Spirit of the Shrew Is Only 30% Speed Flat So Removed it from the List as its too slow
             --   [] = "Spirit of the Shrew"],
             --   [] = "Pack Shrew"].
@@ -1133,7 +1133,7 @@ return {
                 name = "RunSpeedBuff",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    return AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                    return RGMercUtils.GetSetting('DoRunSpeed') and AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
                 end,
             },
             {

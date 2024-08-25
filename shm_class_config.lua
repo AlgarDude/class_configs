@@ -88,7 +88,7 @@ local _ClassConfig = {
             "Untamed Growth",
             "Wild Growth",
         },
-        ["LowLvlAttackBuff"] = {
+        ["LowLvlAtkBuff"] = {
             -- Low Level Attack Buff --- user under level 85
             "Primal Avatar",
             "Ferine Avatar",
@@ -575,6 +575,21 @@ local _ClassConfig = {
             "Abolish Poison",
             "Eradicate Poison",
         },
+        ["GroupRegenBuff"] = {
+            "Talisman of the Unforgettable",
+            "Talisman of the Tenacious",
+            "Talisman of the Enduring",
+            "Talisman of the Unwavering",
+            "Talisman of the Faithful",
+            "Talisman of the Steadfast",
+            "Talisman of the Indomitable",
+            "Talisman of the Reletntless",
+            "Talisman of the Resolute",
+            "Talisman of the Stalwart",
+            "Talisman of the Stoic One",
+            "Talisman of Perseverance",
+            "Regrowth of Dar Khura",
+        },
     },
     ['HelperFunctions']   = {
         DoRez = function(self, corpseId)
@@ -672,8 +687,6 @@ local _ClassConfig = {
                 name = "GroupRenewalHoT",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    -- force the target for StacksTarget to work.
-                    RGMercUtils.SetTarget(target.ID() or 0)
                     return RGMercUtils.GetSetting('DoHOT') and AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
                 end,
             },
@@ -981,6 +994,11 @@ local _ClassConfig = {
                 cond = function(self, spell) return RGMercUtils.SelfBuffCheck(spell) end,
             },
             {
+                name = "MeleeProcBuff",
+                type = "Spell",
+                cond = function(self, spell) return RGMercUtils.SelfBuffCheck(spell) end,
+            },
+            {
                 name = "Epic",
                 type = "Item",
                 cond = function(self)
@@ -1021,6 +1039,7 @@ local _ClassConfig = {
                 name = "GroupRenewalHoT",
                 type = "Spell",
                 cond = function(self, spell)
+                    if not RGMercUtils.CanUseAA("Luminary's Synergy") then return false end
                     return not AlgarInclude.DotSpellCheck(spell) and RGMercUtils.SpellStacksOnMe(spell)
                         and (mq.TLO.Me.Song(spell).Duration.TotalSeconds() or 0) < 30
                 end,
@@ -1081,15 +1100,14 @@ local _ClassConfig = {
                         mq.TLO.Me.Aura(aaName)() == nil
                 end,
             },
-            -- {
-            -- name = "Talisman of Celerity",
-            -- type = "AA",
-            -- active_cond = function(self, aaName) return mq.TLO.Me.Haste() end,
-            -- cond = function(self, aaName)
-            -- return RGMercUtils.GetSetting('DoHaste') and not mq.TLO.Me.Haste() and
-            -- RGMercUtils.SelfBuffAACheck(aaName)
-            -- end,
-            -- },
+            {
+                name = "Talisman of Celerity",
+                type = "AA",
+                active_cond = function(self, aaName) return mq.TLO.Me.Haste() end,
+                cond = function(self, aaName)
+                    return RGMercUtils.GetSetting('DoHaste') and not mq.TLO.Me.Haste() and RGMercUtils.SelfBuffAACheck(aaName)
+                end,
+            },
             {
                 name = "Preincarnation",
                 type = "AA",
@@ -1115,14 +1133,14 @@ local _ClassConfig = {
                     -- not RGMercUtils.BuffActiveByID(mq.TLO.Me.AltAbility(aaName).Spell.Trigger(1).ID())
                 end,
             },
-            -- {
-            -- name = "PackSelfBuff",
-            -- type = "Spell",
-            -- active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
-            -- cond = function(self, spell)
-            -- return RGMercUtils.SelfBuffCheck(spell)
-            -- end,
-            -- },
+            {
+                name = "PackSelfBuff",
+                type = "Spell",
+                active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
+                cond = function(self, spell)
+                    return RGMercUtils.SelfBuffCheck(spell)
+                end,
+            },
             -- {
             -- name = "SelfHealProcBuff",
             -- type = "Spell",
@@ -1139,20 +1157,11 @@ local _ClassConfig = {
                     return RGMercUtils.SelfBuffCheck(spell)
                 end,
             },
-            -- {
-            -- name = "FocusSpell",
-            -- type = "Spell",
-            -- active_cond = function(self, spell)
-            -- return RGMercUtils.BuffActive(spell)
-            -- end,
-            -- cond = function(self, spell)
-            -- return not RGMercUtils.BuffActive(spell) and RGMercUtils.SpellStacksOnMe(spell)
-            -- end,
-            -- },
             {
                 name = "GroupRenewalHoT",
                 type = "Spell",
                 cond = function(self, spell)
+                    if not RGMercUtils.CanUseAA("Luminary's Synergy") then return false end
                     return RGMercUtils.SpellStacksOnMe(spell) and (mq.TLO.Me.Song(spell).Duration.TotalSeconds() or 0) < 30
                 end,
             },
@@ -1172,23 +1181,35 @@ local _ClassConfig = {
                 name = "SlowProcBuff",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    return RGMercUtils.TargetClassIs({ "WAR", "PAL", "SHD", }, target) and AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
-                end,
-            },
-            {
-                name = "LowLvlStrBuff",
-                type = "Spell",
-                cond = function(self, spell, target)
-                    -- force the target for StacksTarget to work.
-                    RGMercUtils.SetTarget(target.ID() or 0)
-                    return mq.TLO.Me.Level() <= 85 and (spell.Level() or 0) >= 71 and
-                        RGMercUtils.TargetClassIs({ "WAR", "PAL", "SHD", "ROG", "MNK", "BER", "RNG", "BST", }, target) and RGMercUtils.GetSetting('DoStatBuff') and
-                        AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                    return RGMercConfig.Constants.RGTank:contains(target.Class.ShortName()) and AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
                 end,
             },
             {
                 name = "FocusSpell",
                 type = "Spell",
+                cond = function(self, spell, target)
+                    return AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                end,
+            },
+            {
+                name = "LowLvlAtkBuff",
+                type = "Spell",
+                cond = function(self, spell, target)
+                    return mq.TLO.Me.Level() <= 85 and RGMercConfig.Constants.RGMelee:contains(target.Class.ShortName()) and
+                        AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                end,
+            },
+            {
+                name = "HasteBuff",
+                type = "Spell",
+                cond = function(self, spell, target)
+                    return AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                end,
+            },
+            {
+                name = "GroupRegenBuff",
+                type = "Spell",
+                active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
                 cond = function(self, spell, target)
                     return AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
                 end,
@@ -1201,10 +1222,19 @@ local _ClassConfig = {
                         .Spell.Trigger(1).ID())
                 end,
                 cond = function(self, aaName, target, uiCheck)
+                    if not RGMercUtils.GetSetting('DoRunSpeed') or not (mq.TLO.Me.AltAbility(aaName).Rank() or 0) > 2 then return false end
                     local speedSpell = mq.TLO.Me.AltAbility(aaName).Spell.Trigger(1)
                     if not speedSpell or not speedSpell() then return false end
 
-                    return RGMercUtils.GetSetting('DoRunSpeed') and RGMercUtils.CanUseAA(aaName) and AlgarInclude.GroupBuffCheck(speedSpell, target.ID(), target.CleanName())
+                    return AlgarInclude.GroupBuffCheck(speedSpell, target.ID(), target.CleanName())
+                end,
+            },
+            {
+                name = "RunSpeedBuff",
+                type = "Spell",
+                cond = function(self, spell, target)
+                    if not RGMercUtils.GetSetting('DoRunSpeed') then return false end
+                    return AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
                 end,
             },
         },
@@ -1225,19 +1255,23 @@ local _ClassConfig = {
         {
             gem = 3,
             spells = {
-                { name = "RecourseHeal", cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
+                { name = "RecourseHeal",  cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
+                { name = "LowLvlAtkBuff", cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
+
             },
         },
         {
             gem = 4,
             spells = {
                 { name = "InterventionHeal", cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
+                { name = "SlowSpell",        cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
             },
         },
         {
             gem = 5,
             spells = {
                 { name = "AESpiritualHeal", cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
+                { name = "AESlowSpell",     cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
             },
         },
         {
@@ -1249,20 +1283,21 @@ local _ClassConfig = {
         {
             gem = 7,
             spells = {
-                { name = "CurseDoT2", cond = function(self) return RGMercUtils.GetSetting('DoMagicDot') end, },
+                { name = "DichoSpell",    cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
+                { name = "MeleeProcBuff", cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
             },
         },
         {
             gem = 8,
             spells = {
-                { name = "ChaoticDoT", cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
+                { name = "CurseDoT2", cond = function(self) return RGMercUtils.GetSetting('DoMagicDot') end, },
             },
         },
         {
             gem = 9,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
-                { name = "PandemicDot", cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
+                { name = "ChaoticDoT", cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
 
             },
         },
@@ -1270,8 +1305,7 @@ local _ClassConfig = {
             gem = 10,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
-                { name = "DichoSpell",    cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
-                { name = "MeleeProcBuff", cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
+                { name = "PandemicDot", cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
             },
         },
         {

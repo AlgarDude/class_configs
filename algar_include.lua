@@ -63,7 +63,7 @@ function AlgarInclude.GroupBuffCheck(spell, targetId, targetName)
 end
 
 --Allow us to ignore debuffing based on con color (and optionally always debuff named)
---TODO: Improve this to use a passed target ID for better accuracy, wrote this earlier on.
+--TODO: Improve this? Refactor? It may be possible to use a passed target ID for better accuracy, wrote this earlier on.
 function AlgarInclude.DebuffConCheck()
 	local conLevel = RGMercConfig.Constants.ConColorsNameToId[mq.TLO.Target.ConColor()]
 	if conLevel >= RGMercUtils.GetSetting('DebuffMinCon') or (RGMercUtils.IsNamed(mq.TLO.Target) and RGMercUtils.GetSetting('DebuffNamedAlways')) then return true end
