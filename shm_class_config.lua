@@ -881,7 +881,7 @@ local _ClassConfig = {
                 name = "AEMaloSpell",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    if not RGMercUtils.GetSetting('DoAEMalo') or RGMercUtils.GetXTHaterCount() < RGMercUtils.GetSetting('AEMaloCount') then return false end
+                    if not RGMercUtils.GetSetting('DoAEMalo') or RGMercUtils.CanUseAA("Wind of Malaise") or RGMercUtils.GetXTHaterCount() < RGMercUtils.GetSetting('AEMaloCount') then return false end
                     return RGMercUtils.NPCSpellReady(spell, target.ID()) and RGMercUtils.DetSpellCheck(spell)
                 end,
             },
@@ -889,7 +889,7 @@ local _ClassConfig = {
                 name = "Malaise",
                 type = "AA",
                 cond = function(self, aaName, target)
-                    if not RGMercUtils.GetSetting('DoMalo') then return false end
+                    if not RGMercUtils.GetSetting('DoMalo') or RGMercUtils.CanUseAA("Malaise") then return false end
                     return RGMercUtils.NPCAAReady(aaName, target.ID()) and RGMercUtils.DetAACheck(mq.TLO.Me.AltAbility(aaName).ID())
                 end,
             },
@@ -915,7 +915,7 @@ local _ClassConfig = {
                 name = "AESlowSpell",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    if not RGMercUtils.GetSetting('DoAESlow') or RGMercUtils.GetXTHaterCount() < RGMercUtils.GetSetting('AESlowCount') then return false end
+                    if not RGMercUtils.GetSetting('DoAESlow') or RGMercUtils.CanUseAA("Turgur's Virulent Swarm") or RGMercUtils.GetXTHaterCount() < RGMercUtils.GetSetting('AESlowCount') then return false end
                     return RGMercUtils.NPCSpellReady(spell, target.ID()) and RGMercUtils.DetSpellCheck(spell)
                 end,
             },
@@ -931,7 +931,7 @@ local _ClassConfig = {
                 name = "SlowSpell",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    if not RGMercUtils.GetSetting('DoSlow') then return false end
+                    if not RGMercUtils.GetSetting('DoSlow') or RGMercUtils.CanUseAA("Turgur's Swarm") then return false end
                     return RGMercUtils.NPCSpellReady(spell, target.ID()) and RGMercUtils.DetSpellCheck(spell)
                 end,
             },
@@ -1011,22 +1011,22 @@ local _ClassConfig = {
             {
                 name = "ChaoticDoT",
                 type = "Spell",
-                cond = function(self, spell)
-                    return mq.TLO.Me.PctMana() > RGMercUtils.GetSetting('DOTMinMana') and AlgarInclude.DotSpellCheck(spell)
+                cond = function(self, spell, target)
+                    return mq.TLO.Me.PctMana() > RGMercUtils.GetSetting('DOTMinMana') and AlgarInclude.DotSpellCheck(spell) and RGMercUtils.NPCSpellReady(spell, target.ID())
                 end,
             },
             {
                 name = "CurseDoT2",
                 type = "Spell",
-                cond = function(self, spell)
-                    return mq.TLO.Me.PctMana() > RGMercUtils.GetSetting('DOTMinMana') and AlgarInclude.DotSpellCheck(spell)
+                cond = function(self, spell, target)
+                    return mq.TLO.Me.PctMana() > RGMercUtils.GetSetting('DOTMinMana') and AlgarInclude.DotSpellCheck(spell) and RGMercUtils.NPCSpellReady(spell, target.ID())
                 end,
             },
             {
                 name = "PandemicDot",
                 type = "Spell",
-                cond = function(self, spell)
-                    return mq.TLO.Me.PctMana() > RGMercUtils.GetSetting('DOTMinMana') and AlgarInclude.DotSpellCheck(spell)
+                cond = function(self, spell, target)
+                    return mq.TLO.Me.PctMana() > RGMercUtils.GetSetting('DOTMinMana') and AlgarInclude.DotSpellCheck(spell) and RGMercUtils.NPCSpellReady(spell, target.ID())
                 end,
             },
             {
@@ -1209,7 +1209,7 @@ local _ClassConfig = {
                 name = "Talisman of Celerity",
                 type = "AA",
                 active_cond = function(self, aaName) return mq.TLO.Me.Haste() end,
-                cond = function(self, aaName)
+                cond = function(self, aaName, target)
                     return RGMercUtils.GetSetting('DoHaste') and AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
                 end,
             },
@@ -1266,8 +1266,12 @@ local _ClassConfig = {
             gem = 2,
             spells = {
                 { name = "RecklessHeal2", cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
-                { name = "MaloSpell",     cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
-
+                {
+                    name = "MaloSpell",
+                    cond = function(self)
+                        return RGMercUtils.IsModeActive("Heal") and not RGMercUtils.CanUseAA("Malaise")
+                    end,
+                },
             },
         },
         {
@@ -1282,15 +1286,30 @@ local _ClassConfig = {
             gem = 4,
             spells = {
                 { name = "InterventionHeal", cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
-                { name = "SlowSpell",        cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
+                {
+                    name = "SlowSpell",
+                    cond = function(self)
+                        return RGMercUtils.IsModeActive("Heal") and not RGMercUtils.CanUseAA("Turgur's Swarm")
+                    end,
+                },
             },
         },
         {
             gem = 5,
             spells = {
                 { name = "AESpiritualHeal", cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
-                { name = "AEMaloSpell",     cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
-                { name = "AESlowSpell",     cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
+                {
+                    name = "AEMaloSpell",
+                    cond = function(self)
+                        return RGMercUtils.IsModeActive("Heal") and not RGMercUtils.CanUseAA("Wind of Malaise")
+                    end,
+                },
+                {
+                    name = "AESlowSpell",
+                    cond = function(self)
+                        return RGMercUtils.IsModeActive("Heal") and not RGMercUtils.CanUseAA("Turgur's Virulent Swarm")
+                    end,
+                },
             },
         },
         {
@@ -1370,6 +1389,16 @@ local _ClassConfig = {
             end,
         },
         {
+            id = 'SlowAA',
+            Type = "AA",
+            DisplayName = "Turgur's Swarm",
+            AbilityName = "Turgur's Swarm",
+            AbilityRange = 150,
+            cond = function(self)
+                return mq.TLO.Me.AltAbility("Turgur's Swarm")
+            end,
+        },
+        {
             id = 'DDSpell',
             Type = "Spell",
             DisplayName = "Burst of Flame",
@@ -1389,7 +1418,7 @@ local _ClassConfig = {
         ['DoHOT']             = { DisplayName = "Cast HOTs", Category = "Spells and Abilities", Tooltip = "Use Heal Over Time Spells", Default = true, },
         -- Removing this as it is too confusing to explain when it would  be used.
         -- ['RecklessHealPct']   = { DisplayName = "Reckless Heal %", Category = "Spells and Abilities", Tooltip = "Use Reckless Heal When Assist hits [X]% HPs", Default = 80, Min = 1, Max = 100, },
-        ['DoDieaseSlow']      = { DisplayName = "Cast Diease Slows", Category = "Spells and Abilities", Tooltip = "Use Diease Slow Spells", Default = true, },
+        ['DoDiseaseSlow']     = { DisplayName = "Cast Disease Slows", Category = "Spells and Abilities", Tooltip = "Use Disease Slow Spells", Default = false, },
         ['DoMagicDot']        = { DisplayName = "Cast Magic DOT", Category = "Spells and Abilities", Tooltip = "Use Magic DOTs", Default = true, },
         ['DoAACanni']         = { DisplayName = "Use AA Canni", Category = "Spells and Abilities", Tooltip = "Use Canni AA during downtime", Default = true, },
         ['AACanniCombatPct']  = { DisplayName = "AA Canni Combat %", Category = "Spells and Abilities", Tooltip = "Use Canni AA Under [X]% mana", Default = 40, Min = 1, Max = 100, },
@@ -1416,6 +1445,12 @@ local _ClassConfig = {
         ['HPStopDOT']         = { DisplayName = "HP Stop DOTs", Category = "Spells and Abilities", Tooltip = "Stop casting DOTs when a non-named mob hits [x] HP %.", Default = 50, Min = 1, Max = 100, },
         ['DOTMinMana']        = { DisplayName = "DOT Min Mana", Category = "Spells and Abilities", Tooltip = "Stop casting DOTs when MP % falls below [x].", Default = 40, Min = 1, Max = 100, },
         ['NamedStopDOT']      = { DisplayName = "Named HP Stop DOTs", Category = "Spells and Abilities", Tooltip = "Stop casting DOTs when a named mob hits [x] HP %.", Default = 30, Min = 1, Max = 100, },
+        --TODO: Categorize
+        --Buffs
+        --Debuffs
+        --Healing
+        --DPS - Personal
+        --Items/Utility
     },
 }
 

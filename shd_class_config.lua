@@ -1635,6 +1635,8 @@ local _ClassConfig = {
             gem = 6,
             spells = {
                 { name = "PoisonDot", cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
+                { name = "BiteTap", },
+                { name = "Skin", },
                 -- { name = "BiteTap", },
                 -- { name = "SnareDOT", cond = function(self) return mq.TLO.Me.AltAbility("Encroaching Darkness")() == nil and RGMercUtils.GetSetting('DoSnare') end, },
                 -- { name = "PoisonDot", cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
@@ -1646,6 +1648,8 @@ local _ClassConfig = {
             gem = 7,
             spells = {
                 { name = "CorruptionDot", cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
+                { name = "BiteTap", },
+                { name = "Skin", },
                 -- { name = "BuffTap", }, --Keeping this scribed is likely better than me trying to write a convoluted helper function to handle maintaining the buff.
                 -- { name = "SnareDOT", cond = function(self) return mq.TLO.Me.AltAbility("Encroaching Darkness")() == nil and RGMercUtils.GetSetting('DoSnare') end, },
                 -- { name = "PoisonDot", cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },

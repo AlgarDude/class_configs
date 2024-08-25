@@ -1486,13 +1486,13 @@ _ClassConfig       = {
                         mq.TLO.Me.PctHPs() >= 60
                 end,
             },
-            -- {
-            --     name = "SwarmPet",
-            --     type = "Spell",
-            --     cond = function(self, spell)
-            --         return RGMercUtils.IsModeActive("Fire")
-            --     end,
-            -- },
+            {
+                name = "SwarmPet",
+                type = "Spell",
+                cond = function(self, spell)
+                    return RGMercUtils.IsModeActive("Fire") and (RGMercUtils.ManaCheck() or RGMerUtils.BurnCheck())
+                end,
+            },
             {
                 name = "VolleyNuke",
                 type = "Spell",
@@ -1514,21 +1514,21 @@ _ClassConfig       = {
                     return RGMercUtils.IsModeActive("Fire")
                 end,
             },
-            {
-                name = "FireNuke1",
-                type = "Spell",
-                cond = function(self) return mq.TLO.Me.Level() < 70 or RGMercUtils.IsModeActive("PetTank") end,
-            },
-            {
-                name = "FireNuke2",
-                type = "Spell",
-                cond = function(self) return mq.TLO.Me.Level() < 70 or RGMercUtils.IsModeActive("PetTank") end,
-            },
-            {
-                name = "FireBoltNuke",
-                type = "Spell",
-                cond = function(self) return mq.TLO.Me.Level() < 70 or RGMercUtils.IsModeActive("PetTank") end,
-            },
+            -- {
+            --     name = "FireNuke1",
+            --     type = "Spell",
+            --     cond = function(self) return mq.TLO.Me.Level() < 70 or RGMercUtils.IsModeActive("PetTank") end,
+            -- },
+            -- {
+            --     name = "FireNuke2",
+            --     type = "Spell",
+            --     cond = function(self) return mq.TLO.Me.Level() < 70 or RGMercUtils.IsModeActive("PetTank") end,
+            -- },
+            -- {
+            --     name = "FireBoltNuke",
+            --     type = "Spell",
+            --     cond = function(self) return mq.TLO.Me.Level() < 70 or RGMercUtils.IsModeActive("PetTank") end,
+            -- },
             {
                 name = "MagicNuke1",
                 type = "Spell",
