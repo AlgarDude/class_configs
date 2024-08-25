@@ -413,7 +413,6 @@ local _ClassConfig = {
             "Dire Censure",
             "Dire Rebuke",
         },
-        --todo: re-add low level taps (previous had some lines crossed iirc)
         ['LifeTap'] = {
             "Touch of Flariton",
             "Touch of Txiki",
@@ -428,11 +427,18 @@ local _ClassConfig = {
             "Touch of Kildrukaun",
             "Touch of Severan",
             "Touch of the Devourer",
-
+            "Touch of Inruku",
+            "Touch of Innoruuk",
+            "Touch of Volatis",
+            "Drain Soul",
+            "Drain Spirit",
+            "Spirit Tap",
+            "Siphon Life",
+            "Life Leech",
+            "Lifedraw",
             "Lifespike",
             "Lifetap",
         },
-        --todo: re-add low level taps (previous had some lines crossediirc )
         ['LifeTap2'] = {
             "Touch of Flariton",
             "Touch of Txiki",
@@ -447,7 +453,15 @@ local _ClassConfig = {
             "Touch of Kildrukaun",
             "Touch of Severan",
             "Touch of the Devourer",
-
+            "Touch of Inruku",
+            "Touch of Innoruuk",
+            "Touch of Volatis",
+            "Drain Soul",
+            "Drain Spirit",
+            "Spirit Tap",
+            "Siphon Life",
+            "Life Leech",
+            "Lifedraw",
             "Lifespike",
             "Lifetap",
         },
@@ -1495,14 +1509,14 @@ local _ClassConfig = {
             -- return RGMercUtils.GetSetting('DoSnare') and RGMercUtils.SpellLoaded(spell) and RGMercUtils.DetSpellCheck(spell) and not mq.TLO.Me.AltAbility(826)()
             -- end,
             -- },
-            {
-                name = "BondTap",
-                type = "Spell",
-                tooltip = Tooltips.BondTap,
-                cond = function(self, spell)
-                    return RGMercUtils.SpellLoaded(spell) and RGMercUtils.NPCSpellReady(spell)
-                end,
-            },
+            -- {
+            --     name = "BondTap",
+            --     type = "Spell",
+            --     tooltip = Tooltips.BondTap,
+            --     cond = function(self, spell)
+            --         return RGMercUtils.SpellLoaded(spell) and RGMercUtils.NPCSpellReady(spell)
+            --     end,
+            -- },
             {
                 name = "Spearnuke",
                 type = "Spell",

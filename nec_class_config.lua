@@ -235,6 +235,22 @@ local _ClassConfig = {
             "Dark Leech",
             "Leech",
         },
+        ['ManaDrain'] = {
+            --Mana Drain with Group Mana Recourse
+            "Mind Disintegrate",
+            "Mind Atrophy",
+            "Mind Erosion",
+            "Mind Exorciation",
+            "Mind Extraction",
+            "Mind Strip",
+            "Mind Abrasion",
+            "Thought Flay",
+            "Mind Decomposition",
+            "Mental Vivisection",
+            "Mind Dissection",
+            "Mind Flay",
+            "Mind Wrack",
+        },
         ['PoisonNuke1'] = {
             ---PoisonNuke >=LVL21
             "Necrotizing Venin",
@@ -827,6 +843,14 @@ local _ClassConfig = {
                 end,
             },
             {
+                name = "ManaDrain",
+                type = "Spell",
+                cond = function(self, spell, target)
+                    return not RGMercUtils.BuffActiveByName(spell.Name() .. " Recourse") and
+                        (mq.TLO.Target.PctMana() or -1) > 0 and (mq.TLO.Group.LowMana(RGMercUtils.GetSetting('StartLichMana'))() or -1) > 2
+                end,
+            },
+            {
                 name = "FireDot2",
                 type = "Spell",
                 cond = function(self, spell)
@@ -897,6 +921,11 @@ local _ClassConfig = {
             -- },
             {
                 name = "SoulTaps",
+                type = "Spell",
+                cond = function(self, spell) return RGMercUtils.ManaCheck() and not AlgarInclude.DotSpellCheck(spell) end,
+            },
+            {
+                name = "HealthTaps",
                 type = "Spell",
                 cond = function(self, spell) return RGMercUtils.ManaCheck() and not AlgarInclude.DotSpellCheck(spell) end,
             },
@@ -1143,6 +1172,7 @@ local _ClassConfig = {
             gem = 1,
             spells = {
                 { name = "SoulTaps", },
+                { name = "HealthTaps", },
             },
         },
         {
@@ -1154,7 +1184,7 @@ local _ClassConfig = {
         {
             gem = 3,
             spells = {
-                { name = "PoisonNuke1", },
+                { name = "ManaDrain", },
             },
         },
         {

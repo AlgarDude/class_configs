@@ -898,16 +898,16 @@ local _ClassConfig = {
             -- },
         },
         ['Slow'] = {
-            -- {
-            -- name = "AESlowSpell",
-            -- type = "Spell",
-            -- cond = function(self, spell) return RGMercUtils.GetSetting('DoAESlow') and RGMercUtils.DetSpellCheck(spell) and RGMercUtils.SpellStacksOnTarget(spell) end,
-            -- },
-            -- {
-            -- name = "SlowSpell",
-            -- type = "Spell",
-            -- cond = function(self, spell) return mq.TLO.Me.Gem(spell.RankName.Name())() and RGMercUtils.GetSetting('DoSlow') and RGMercUtils.DetSpellCheck(spell) end,
-            -- },
+            {
+                name = "AESlowSpell",
+                type = "Spell",
+                cond = function(self, spell) return RGMercUtils.GetSetting('DoAESlow') and RGMercUtils.DetSpellCheck(spell) and RGMercUtils.SpellStacksOnTarget(spell) end,
+            },
+            {
+                name = "SlowSpell",
+                type = "Spell",
+                cond = function(self, spell) return mq.TLO.Me.Gem(spell.RankName.Name())() and RGMercUtils.GetSetting('DoSlow') and RGMercUtils.DetSpellCheck(spell) end,
+            },
             {
                 name = "Turgur's Virulent Swarm",
                 type = "AA",

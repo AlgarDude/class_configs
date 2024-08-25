@@ -1486,13 +1486,13 @@ _ClassConfig       = {
                         mq.TLO.Me.PctHPs() >= 60
                 end,
             },
-            {
-                name = "SwarmPet",
-                type = "Spell",
-                cond = function(self, spell)
-                    return RGMercUtils.IsModeActive("Fire")
-                end,
-            },
+            -- {
+            --     name = "SwarmPet",
+            --     type = "Spell",
+            --     cond = function(self, spell)
+            --         return RGMercUtils.IsModeActive("Fire")
+            --     end,
+            -- },
             {
                 name = "VolleyNuke",
                 type = "Spell",
