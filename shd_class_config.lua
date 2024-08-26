@@ -362,6 +362,10 @@ local _ClassConfig = {
             "Unscrupulous Blight",
             "Nefarious Blight",
             "Duplicitous Blight",
+            "Deceitful Blight",
+            "Surreptitious Blight",
+            "Perfidious Blight",
+            "Insidious Blight", --Level 89
         },
         ['Spearnuke'] = {
             "Spike of Disease",
@@ -955,8 +959,7 @@ local _ClassConfig = {
                 type = "Spell",
                 tooltip = Tooltips.PetSpell,
                 active_cond = function(self, spell) return mq.TLO.Me.Pet.ID() > 0 end,
-                cond = function(
-                    self, spell)
+                cond = function(self, spell)
                     if mq.TLO.Me.Pet.ID() ~= 0 or not RGMercUtils.GetSetting('DoPet') then return false end
                     return RGMercUtils.PCSpellReady(spell) and RGMercUtils.ReagentCheck(spell)
                 end,
@@ -997,32 +1000,34 @@ local _ClassConfig = {
                 name = "Dicho",
                 type = "Spell",
                 tooltip = Tooltips.Dicho,
-                cond = function(self, spell)
-                    return RGMercUtils.SpellLoaded(spell) and RGMercUtils.NPCSpellReady(spell)
+                cond = function(self, spell, target)
+                    if not RGMercUtils.GetSetting('DoDicho') then return false end
+                    return RGMercUtils.NPCSpellReady(spell, target.ID())
                 end,
             },
             {
                 name = "DireTap",
                 type = "Spell",
                 tooltip = Tooltips.DireTap,
-                cond = function(self, spell)
-                    return RGMercUtils.SpellLoaded(spell) and RGMercUtils.NPCSpellReady(spell)
+                cond = function(self, spell, target)
+                    if not RGMercUtils.GetSetting('DoDireTap') then return false end
+                    return RGMercUtils.NPCSpellReady(spell, target.ID())
                 end,
             },
             {
                 name = "LifeTap",
                 type = "Spell",
                 tooltip = Tooltips.LifeTap,
-                cond = function(self, spell)
-                    return RGMercUtils.NPCSpellReady(spell)
+                cond = function(self, spell, target)
+                    return RGMercUtils.NPCSpellReady(spell, target.ID())
                 end,
             },
             {
                 name = "LifeTap2",
                 type = "Spell",
                 tooltip = Tooltips.LifeTap,
-                cond = function(self, spell)
-                    return RGMercUtils.SpellLoaded(spell) and RGMercUtils.NPCSpellReady(spell)
+                cond = function(self, spell, target)
+                    return RGMercUtils.SpellLoaded(spell) and RGMercUtils.NPCSpellReady(spell, target.ID())
                 end,
             },
             {
@@ -1034,14 +1039,13 @@ local _ClassConfig = {
                 end,
             },
             --Staunch Recovery placed as low priority as it has a long(ish) cast time. Also often used manually after a combat rez.
-            --Considering dropping this and removing the dofullrotation flag
+            --Considering dropping this
             {
                 name = "Staunch Recovery",
                 type = "AA",
                 tooltip = Tooltips.StaunchRecovery,
                 cond = function(self, aaName)
-                    return RGMercUtils.AAReady(aaName) and mq.TLO.Me.PctHPs() < 20
-                        and RGMercUtils.GetSetting('DoVetAA')
+                    return RGMercUtils.AAReady(aaName) and mq.TLO.Me.PctHPs() < 20 and RGMercUtils.GetSetting('DoVetAA')
                 end,
             },
 
@@ -1057,17 +1061,18 @@ local _ClassConfig = {
                 type = "AA",
                 tooltip = Tooltips.ArmorofExperience,
                 cond = function(self, aaName)
-                    return RGMercUtils.AAReady(aaName) and mq.TLO.Me.PctHPs() < 25
-                        and RGMercUtils.GetSetting('DoVetAA')
+                    return RGMercUtils.AAReady(aaName) and mq.TLO.Me.PctHPs() < 25 and RGMercUtils.GetSetting('DoVetAA')
                 end,
             },
             --Note that on named we may already have a mantle/carapace running already
+            --taking out old broken stuff but keeping. May decide to cancel other discs on preactivation
+            --and mq.TLO.Me.ActiveDisc.Name() ~= "Leechcurse Discipline" and mq.TLO.Me.ActiveDisc.Name() ~= "Deflection Discipline"
             {
                 name = "Deflection",
                 type = "Disc",
                 tooltip = Tooltips.Deflection,
                 cond = function(self, discSpell)
-                    return RGMercUtils.PCDiscReady(discSpell) and mq.TLO.Me.ActiveDisc.Name() ~= "Leechcurse Discipline" and mq.TLO.Me.PctHPs() < 35
+                    return RGMercUtils.PCDiscReady(discSpell) and mq.TLO.Me.PctHPs() < 35
                 end,
             },
             {
@@ -1075,7 +1080,7 @@ local _ClassConfig = {
                 type = "Disc",
                 tooltip = Tooltips.LeechCurse,
                 cond = function(self, discSpell)
-                    return RGMercUtils.PCDiscReady(discSpell) and mq.TLO.Me.ActiveDisc.Name() ~= "Deflection Discipline" and mq.TLO.Me.PctHPs() < 35
+                    return RGMercUtils.PCDiscReady(discSpell) and mq.TLO.Me.PctHPs() < 35
                 end,
             },
             {
@@ -1092,7 +1097,7 @@ local _ClassConfig = {
                 type = "Disc",
                 tooltip = Tooltips.InfluenceDisc,
                 cond = function(self, discSpell)
-                    return RGMercUtils.PCDiscReady(discSpell) and RGMercUtils.IsTanking() and not mq.TLO.Me.ActiveDisc.ID()
+                    return RGMercUtils.PCDiscReady(discSpell) and not mq.TLO.Me.ActiveDisc.ID() and RGMercUtils.IsTanking()
                 end,
             },
             {
@@ -1108,9 +1113,9 @@ local _ClassConfig = {
                 end,
             },
             {
-                name = "Carapace",
+                name = "Mantle",
                 type = "Disc",
-                tooltip = Tooltips.Carapace,
+                tooltip = Tooltips.Mantle,
                 cond = function(self, discSpell)
                     return RGMercUtils.PCDiscReady(discSpell) and not mq.TLO.Me.ActiveDisc.ID()
                 end,
@@ -1150,8 +1155,7 @@ local _ClassConfig = {
                 type = "AA",
                 tooltip = Tooltips.VeilofDarkness,
                 cond = function(self, aaName, target)
-                    return RGMercUtils.NPCAAReady(aaName, target.ID()) and (mq.TLO.Target.SecondaryPctAggro() or 0) > 70
-                        and RGMercUtils.IsNamed(mq.TLO.Target)
+                    return RGMercUtils.NPCAAReady(aaName, target.ID()) and RGMercUtils.IsNamed(mq.TLO.Target) and (mq.TLO.Target.SecondaryPctAggro() or 0) > 70
                 end,
             },
             {
@@ -1159,7 +1163,7 @@ local _ClassConfig = {
                 type = "Spell",
                 tooltip = Tooltips.AeTaunt,
                 cond = function(self, spell)
-                    return RGMercUtils.NPCSpellReady(spell) and self.ClassConfig.HelperFunctions.AeTauntCheck(self)
+                    return RGMercUtils.PCSpellReady(spell) and self.ClassConfig.HelperFunctions.AeTauntCheck(self)
                 end,
             },
             {
@@ -1183,8 +1187,7 @@ local _ClassConfig = {
                 type = "AA",
                 tooltip = Tooltips.ProjectionofDoom,
                 cond = function(self, aaName)
-                    return RGMercUtils.AAReady(aaName)
-                        and ((mq.TLO.Target.SecondaryPctAggro() or 0) > 80 and RGMercUtils.IsNamed(mq.TLO.Target))
+                    return RGMercUtils.AAReady(aaName) and RGMercUtils.IsNamed(mq.TLO.Target) and (mq.TLO.Target.SecondaryPctAggro() or 0) > 80
                 end,
             },
             {
@@ -1192,8 +1195,7 @@ local _ClassConfig = {
                 type = "Ability",
                 tooltip = Tooltips.Taunt,
                 cond = function(self, abilityName)
-                    return mq.TLO.Me.AbilityReady(abilityName)() and
-                        mq.TLO.Me.TargetOfTarget.ID() ~= mq.TLO.Me.ID() and RGMercUtils.GetTargetID() > 0 and
+                    return mq.TLO.Me.AbilityReady(abilityName)() and mq.TLO.Me.TargetOfTarget.ID() ~= mq.TLO.Me.ID() and RGMercUtils.GetTargetID() > 0 and
                         RGMercUtils.GetTargetDistance() < 30
                 end,
             },
@@ -1201,36 +1203,36 @@ local _ClassConfig = {
                 name = "Terror",
                 type = "Spell",
                 tooltip = Tooltips.Terror,
-                cond = function(self, spell)
-                    if not RGMercUtils.SpellLoaded(spell) and RGMercUtils.GetSetting('DoTerror') then return false end
-                    return RGMercUtils.NPCSpellReady(spell) and (mq.TLO.Target.SecondaryPctAggro() or 0) > 60
+                cond = function(self, spell, target)
+                    if not RGMercUtils.GetSetting('DoTerror') then return false end
+                    return RGMercUtils.NPCSpellReady(spell, target.ID()) and (mq.TLO.Target.SecondaryPctAggro() or 0) > 60
                 end,
             },
             {
                 name = "Terror2",
                 type = "Spell",
                 tooltip = Tooltips.Terror,
-                cond = function(self, spell)
-                    if not RGMercUtils.SpellLoaded(spell) and RGMercUtils.GetSetting('DoTerror') then return false end
-                    return RGMercUtils.NPCSpellReady(spell) and (mq.TLO.Target.SecondaryPctAggro() or 0) > 60
+                cond = function(self, spell, target)
+                    if not RGMercUtils.GetSetting('DoTerror') then return false end
+                    return RGMercUtils.SpellLoaded(spell) and RGMercUtils.NPCSpellReady(spell, target.ID()) and (mq.TLO.Target.SecondaryPctAggro() or 0) > 60
                 end,
             },
             {
                 name = "ForPower",
                 type = "Spell",
                 tooltip = Tooltips.ForPower,
-                cond = function(self, spell)
-                    return RGMercUtils.NPCSpellReady(spell) and RGMercUtils.DetSpellCheck(spell)
+                cond = function(self, spell, target)
+                    return RGMercUtils.NPCSpellReady(spell, target.ID()) and RGMercUtils.DetSpellCheck(spell)
                 end,
             },
         },
         ['Burn'] = {
-            --I'm seeing burnauto settings checks in conditions for existing entries, wondering if they are actually required... shouldn't burn checking in the rotation phase cover this? Whatever, will apply brainpower later, likely a reason.
-            -- return (RGMercUtils.GetSetting('BurnAuto') and RGMercUtils.IsNamed(mq.TLO.Target)) or RGMercUtils.MedBurn()
             {
                 name = "Visage of Death",
                 type = "AA",
-                cond = function(self, aaName) return RGMercUtils.AAReady(aaName) and RGMercUtils.MedBurn() end,
+                cond = function(self, aaName)
+                    return RGMercUtils.AAReady(aaName) and RGMercUtils.MedBurn()
+                end,
             },
             {
                 name = "Crimson",
@@ -1245,8 +1247,8 @@ local _ClassConfig = {
                 name = "Intensity of the Resolute",
                 type = "AA",
                 cond = function(self, aaName)
-                    return RGMercUtils.AAReady(aaName) and RGMercUtils.GetSetting('DoVetAA')
-                        and RGMercUtils.BigBurn()
+                    if not RGMercUtils.GetSetting('DoVetAA') then return false end
+                    return RGMercUtils.AAReady(aaName) and RGMercUtils.BigBurn()
                 end,
             },
             --the  next two entries are lower because we want a chance for the above to be up before we HT
@@ -1303,6 +1305,7 @@ local _ClassConfig = {
         },
         ['Debuff'] = {},
         ['Defenses'] = {
+            --TODO: Implement these. Shield: < EmergencyLock %, 2H > EmergencyStart, setting for autoswitching, etc
             -- {
             -- name = "ActivateShield",
             -- type = "CustomFunc",
@@ -1415,33 +1418,34 @@ local _ClassConfig = {
                 name = "Dicho",
                 type = "Spell",
                 tooltip = Tooltips.Dicho,
-                cond = function(self, spell)
-                    return RGMercUtils.SpellLoaded(spell) and RGMercUtils.PCSpellReady(spell) and mq.TLO.Me.PctHPs() <= RGMercUtils.GetSetting('StartDicho')
+                cond = function(self, spell, target)
+                    if not RGMercUtils.GetSetting('DoDicho') then return false end
+                    return RGMercUtils.NPCSpellReady(spell, target.ID()) and mq.TLO.Me.PctHPs() <= RGMercUtils.GetSetting('StartDicho')
                 end,
             },
             {
                 name = "DireTap",
                 type = "Spell",
                 tooltip = Tooltips.DireTap,
-                cond = function(self, spell)
-                    return RGMercUtils.SpellLoaded(spell) and RGMercUtils.PCSpellReady(spell) and mq.TLO.Me.PctHPs() <= RGMercUtils.GetSetting('StartDireTap')
+                cond = function(self, spell, target)
+                    if not RGMercUtils.GetSetting('DoDireTap') then return false end
+                    return RGMercUtils.NPCSpellReady(spell, target.ID()) and mq.TLO.Me.PctHPs() <= RGMercUtils.GetSetting('StartDireTap')
                 end,
             },
             {
                 name = "LifeTap",
                 type = "Spell",
                 tooltip = Tooltips.LifeTap,
-                cond = function(self, spell)
-                    return RGMercUtils.PCSpellReady(spell) and mq.TLO.Me.PctHPs() <= RGMercUtils.GetSetting('StartLifeTap')
+                cond = function(self, spell, target)
+                    return RGMercUtils.NPCSpellReady(spell, target.ID()) and mq.TLO.Me.PctHPs() <= RGMercUtils.GetSetting('StartLifeTap')
                 end,
             },
             {
                 name = "LifeTap2",
                 type = "Spell",
                 tooltip = Tooltips.LifeTap,
-                cond = function(self, spell)
-                    return RGMercUtils.SpellLoaded(spell) and RGMercUtils.PCSpellReady(spell) and mq.TLO.Me.PctHPs() <= RGMercUtils.GetSetting('StartLifeTap') and
-                        (RGMercUtils.ManaCheck() or RGMercUtils.BurnCheck())
+                cond = function(self, spell, target)
+                    return RGMercUtils.SpellLoaded(spell) and RGMercUtils.NPCSpellReady(spell, target.ID()) and mq.TLO.Me.PctHPs() <= RGMercUtils.GetSetting('StartLifeTap')
                 end,
             },
         },
