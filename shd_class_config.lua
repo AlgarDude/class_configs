@@ -143,10 +143,7 @@ local _ClassConfig = {
         },
         ['EndRegen'] = {
             --Timer 13, can't be used in combat
-            "Second Wind",
-            "Third Wind",
-            "Fourth Wind",
-            "Respite",
+            "Respite", --Level 86
             "Reprieve",
             "Rest",
             "Breather", --Level 101
@@ -177,7 +174,7 @@ local _ClassConfig = {
             "Incarnadine Blade",
         },
         ['MeleeMit'] = {
-            "Withstand",
+            -- "Withstand", -- Level 83, extreme endurance problems until 86 when we have Respite and Bard Regen Song gives endurance
             "Defy",
             "Renounce",
             "Reprove",
