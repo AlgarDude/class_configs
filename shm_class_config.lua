@@ -863,6 +863,7 @@ local _ClassConfig = {
             {
                 name = "TwinHealNuke",
                 type = "Spell",
+                retries = 0,
                 cond = function(self, spell)
                     return RGMercUtils.PCSpellReady(spell)
                 end,
