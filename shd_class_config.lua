@@ -1066,14 +1066,14 @@ local _ClassConfig = {
                 end,
             },
             --Note that on named we may already have a mantle/carapace running already
-            --taking out old broken stuff but keeping. May decide to cancel other discs on preactivation
+            --taking out old stuff but keeping. May decide to cancel other discs on preactivation
             --and mq.TLO.Me.ActiveDisc.Name() ~= "Leechcurse Discipline" and mq.TLO.Me.ActiveDisc.Name() ~= "Deflection Discipline"
             {
                 name = "Deflection",
                 type = "Disc",
                 tooltip = Tooltips.Deflection,
                 cond = function(self, discSpell)
-                    return RGMercUtils.PCDiscReady(discSpell) and mq.TLO.Me.PctHPs() < 35
+                    return mq.TLO.Me.PctHPs() < 35 and not mq.TLO.Me.ActiveDisc.ID() and RGMercUtils.PCDiscReady(discSpell)
                 end,
             },
             {
@@ -1081,7 +1081,7 @@ local _ClassConfig = {
                 type = "Disc",
                 tooltip = Tooltips.LeechCurse,
                 cond = function(self, discSpell)
-                    return RGMercUtils.PCDiscReady(discSpell) and mq.TLO.Me.PctHPs() < 35
+                    return mq.TLO.Me.PctHPs() < 35 and not mq.TLO.Me.ActiveDisc.ID() and RGMercUtils.PCDiscReady(discSpell)
                 end,
             },
             {
@@ -1099,6 +1099,14 @@ local _ClassConfig = {
                 tooltip = Tooltips.InfluenceDisc,
                 cond = function(self, discSpell)
                     return RGMercUtils.PCDiscReady(discSpell) and not mq.TLO.Me.ActiveDisc.ID() and RGMercUtils.IsTanking()
+                end,
+            },
+            {
+                name = "Carapace",
+                type = "Disc",
+                tooltip = Tooltips.Carapace,
+                cond = function(self, discSpell)
+                    return RGMercUtils.PCDiscReady(discSpell) and not mq.TLO.Me.ActiveDisc.ID() and (mq.TLO.Me.Level() < 97 or not RGMercUtils.IsTanking())
                 end,
             },
             {
@@ -1704,6 +1712,7 @@ local _ClassConfig = {
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
                 { name = "BiteTap", },
+                { name = "Skin", },
                 -- { name = "Terror", cond = function(self) return RGMercUtils.GetSetting('DoTerror') end, },
                 -- { name = "Terror2", cond = function(self) return RGMercUtils.GetSetting('DoTerror') end, },
                 -- { name = "LifeTap2", },

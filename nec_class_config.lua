@@ -843,18 +843,18 @@ local _ClassConfig = {
                 end,
             },
             {
-                name = "ManaDrain",
-                type = "Spell",
-                cond = function(self, spell, target)
-                    return not RGMercUtils.BuffActiveByName(spell.Name() .. " Recourse") and
-                        (mq.TLO.Target.PctMana() or -1) > 0 and (mq.TLO.Group.LowMana(RGMercUtils.GetSetting('StartLichMana'))() or -1) > 2
-                end,
-            },
-            {
                 name = "FireDot2",
                 type = "Spell",
                 cond = function(self, spell, target)
                     return AlgarInclude.DotManaCheck() and AlgarInclude.DotSpellCheck(spell) and RGMercUtils.NPCSpellReady(spell, target.ID())
+                end,
+            },
+            {
+                name = "ManaDrain",
+                type = "Spell",
+                cond = function(self, spell, target)
+                    return not RGMercUtils.BuffActiveByName(spell.Name() .. " Recourse") and
+                        (mq.TLO.Target.PctMana() or -1) > 0 and mq.TLO.Group.LowMana(40) > 2
                 end,
             },
             {
