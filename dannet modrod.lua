@@ -24,3 +24,10 @@ modRodNeeded = function (item, targetName)
     end
     return ineed or groupneeds
 end
+
+
+BandolierSwap = function(indexName)
+    if RGMercUtils.GetSetting('SwitchWeapons') and mq.TLO.Me.Bandolier(indexName).Index() and not mq.TLO.Me.Bandolier(indexName).Active() then
+        RGMercUtils.DoCmd("/bandolier activate %s", indexName)
+    end
+end

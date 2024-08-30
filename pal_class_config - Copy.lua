@@ -907,7 +907,6 @@ local _ClassConfig = {
             name = 'EmergencyHealing',
             state = 1,
             steps = 1,
-            doFullRotation = true,
             targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
             cond = function(self, combat_state)
                 return combat_state == "Combat" and mq.TLO.Me.PctHPs() <= RGMercUtils.GetSetting('EmergencyStart')
@@ -917,7 +916,6 @@ local _ClassConfig = {
             name = 'EmergencyDefenses',
             state = 1,
             steps = 1,
-            doFullRotation = true,
             targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
             cond = function(self, combat_state)
                 return combat_state == "Combat" and mq.TLO.Me.PctHPs() <= RGMercUtils.GetSetting('EmergencyStart')
@@ -931,17 +929,6 @@ local _ClassConfig = {
             targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
             cond = function(self, combat_state)
                 return combat_state == "Combat" and RGMercUtils.IsTanking()
-            end,
-        },
-        --Dynamic weapon swapping if UseBandolier is toggled
-        {
-            name = 'Weapon Management',
-            state = 1,
-            steps = 1,
-            doFullRotation = true,
-            targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
-            cond = function(self, combat_state)
-                return combat_state == "Combat" and RGMercUtils.GetSetting('UseBandolier')
             end,
         },
         --Defensive actions used proactively to prevent emergencies
@@ -971,7 +958,6 @@ local _ClassConfig = {
             name = 'ToTHeals',
             state = 1,
             steps = 1,
-            doFullRotation = true,
             targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
             cond = function(self, combat_state)
                 --using SpellInCooldown() sounds good in theory but want to test if necessary
@@ -1137,6 +1123,7 @@ local _ClassConfig = {
         },
         --revisit this as most are likely covered in heal modes
         ['EmergencyHealing'] = {
+            doFullRotation = true,
             {
                 name = "Lay on Hands",
                 type = "AA",
@@ -1210,6 +1197,7 @@ local _ClassConfig = {
             --Abilities should be placed in order of lowest to highest triggered HP thresholds
             --Side Note: I reserve Bargain for manual use while driving, the omission is intentional.
             --Some conditionals are commented out while I tweak percentages (or determine if they are necessary)
+            doFullRotation = true,
             {
                 name = "Armor of Experience",
                 type = "AA",
@@ -1224,27 +1212,18 @@ local _ClassConfig = {
                 name = "Deflection",
                 type = "Disc",
                 tooltip = Tooltips.Deflection,
-                pre_activate = function(self)
-                    if not AlgarInclude.ShieldEquipped() then
-                        AlgarInclude.BandolierSwap("Shield")
-                    end
-                end,
                 cond = function(self, discSpell)
-                    return RGMercUtils.PCDiscReady(discSpell) and mq.TLO.Me.PctHPs() <= RGMercUtils.GetSetting('EmergencyLockout') and
-                        (mq.TLO.Me.AltAbilityTimer("Shield Flash")() or 999999) < 234000
+                    return RGMercUtils.PCDiscReady(discSpell) and mq.TLO.Me.PctHPs() < 35
                 end,
             },
             {
                 name = "Shield Flash",
                 type = "AA",
                 tooltip = Tooltips.ShieldFlash,
-                pre_activate = function(self)
-                    if not AlgarInclude.ShieldEquipped() then
-                        AlgarInclude.BandolierSwap("Shield")
-                    end
-                end,
                 cond = function(self, aaName)
-                    return RGMercUtils.PCAAReady(aaName) and mq.TLO.Me.ActiveDisc.Name() ~= "Deflection Discipline"
+                    return RGMercUtils.AAReady(aaName)
+                    --return mq.TLO.Me.PctHPs() < 50
+                    --and mq.TLO.Me.ActiveDisc.ID()
                 end,
             },
             --putting this in in place of influence, figure out later, timer 11 (same as armor)
@@ -1476,6 +1455,33 @@ local _ClassConfig = {
         },
         ['Debuff'] = {},
         ['Defenses'] = {
+            -- {
+            -- name = "ActivateShield",
+            -- type = "CustomFunc",
+            -- -- tooltip = Tooltips.ActivateShield,
+            -- cond = function(self)
+            -- return RGMercUtils.GetSetting('DoBandolier') and not mq.TLO.Me.Bandolier("Shield").Active() and
+            -- mq.TLO.Me.Bandolier("Shield").Index() and RGMercUtils.IsTanking()
+            -- end,
+            -- custom_func = function(_)
+            -- RGMercUtils.DoCmd("/bandolier activate Shield")
+            -- return true
+            -- end,
+
+            -- },
+            -- {
+            -- name = "Activate2HS",
+            -- type = "CustomFunc",
+            -- -- tooltip = Tooltips.Activate2HS,
+            -- cond = function(self)
+            -- return RGMercUtils.GetSetting('DoBandolier') and not mq.TLO.Me.Bandolier("2HS").Active() and
+            -- mq.TLO.Me.Bandolier("2HS").Index() and not RGMercUtils.IsTanking()
+            -- end,
+            -- custom_func = function(_)
+            -- RGMercUtils.DoCmd("/bandolier activate 2HS")
+            -- return true
+            -- end,
+            -- },
             {
                 name = "MeleeMit",
                 type = "Disc",
@@ -1552,6 +1558,7 @@ local _ClassConfig = {
         ['ToTHeals'] = {
             -- This makes the full rotation execute each round, so it'll never pick up and resume wherever it left off the previous cast.
             -- We don't want a light ToT being used if Dicho is needed, for example.
+            doFullRotation = true,
             {
                 name = "Dicho",
                 type = "Spell",
@@ -1640,7 +1647,7 @@ local _ClassConfig = {
                 type = "Ability",
                 -- tooltip = Tooltips.Bash,
                 cond = function(self)
-                    return mq.TLO.Me.AbilityReady("Bash")() and RGMercUtils.GetTargetDistance() < 30 and AlgarInclude.ShieldEquipped()
+                    return mq.TLO.Me.AbilityReady("Bash")() and RGMercUtils.GetTargetDistance() < 30
                 end,
             },
             {
@@ -1754,33 +1761,6 @@ local _ClassConfig = {
             -- end,
             -- },
 
-        },
-        ['Weapon Management'] = {
-            {
-                name = "Equip Shield",
-                type = "CustomFunc",
-                active_cond = function(self)
-                    return mq.TLO.Me.Bandolier("Shield").Active()
-                end,
-                cond = function(self)
-                    if mq.TLO.Me.Bandolier("Shield").Active() then return false end
-                    return mq.TLO.Me.PctHPs() <= RGMercUtils.GetSetting('EquipShield')
-                end,
-                custom_func = function(self) return AlgarInclude.BandolierSwap("Shield") end,
-            },
-            {
-                name = "Equip 2Hand",
-                type = "CustomFunc",
-                active_cond = function(self)
-                    return mq.TLO.Me.Bandolier("2Hand").Active()
-                end,
-                cond = function(self)
-                    if mq.TLO.Me.Bandolier("2Hand").Active() then return false end
-                    return mq.TLO.Me.PctHPs() >= RGMercUtils.GetSetting('Equip2Hand') and mq.TLO.Me.ActiveDisc.Name() ~= "Deflection Discipline" and
-                        (mq.TLO.Me.AltAbilityTimer("Shield Flash")() or 0) < 234000
-                end,
-                custom_func = function(self) return AlgarInclude.BandolierSwap("2Hand") end,
-            },
         },
     },
     ['Spells']            = {
@@ -2048,9 +2028,7 @@ local _ClassConfig = {
         -- ['FlashHP']      = { DisplayName = "Use Shield Flash", Category = "Combat", Tooltip = "Your HP % before we use Shield Flash.", Default = 35, Min = 1, Max = 100, },
 
         --Equipment
-        ['UseBandolier']     = { DisplayName = "Dynamic Weapon Swap", Category = "Equipment", Index = 1, Tooltip = "Enable 1H+S/2H swapping based off of current health. ***YOU MUST HAVE BANDOLIER ENTRIES NAMED \"Shield\" and \"2Hand\" TO USE THIS FUNCTION.***", Default = false, },
-        ['EquipShield']      = { DisplayName = "Equip Shield", Category = "Equipment", Index = 2, Tooltip = "Under this HP%, you will swap to your \"Shield\" bandolier entry. (Dynamic Bandolier Enabled Only)", Default = 50, Min = 1, Max = 100, },
-        ['Equip2Hand']       = { DisplayName = "Equip 2Hand", Category = "Equipment", Index = 3, Tooltip = "Over this HP%, you will swap to your \"2Hand\" bandolier entry. (Dynamic Bandolier Enabled Only)", Default = 75, Min = 1, Max = 100, },
+        ['DoBandolier']      = { DisplayName = "Use Bandolier", Category = "Equipment", Tooltip = "Enable Swapping of items using the bandolier.", Default = false, },
         ['DoChestClick']     = { DisplayName = "Do Chest Click", Category = "Equipment", Tooltip = "Click your equipped chest.", Default = true, },
         ['DoCharmClick']     = { DisplayName = "Do Charm Click", Category = "Equipment", Tooltip = "Click your charm for Geomantra.", Default = true, },
         ['SummonArrows']     = { DisplayName = "Summon Arrows", Category = "Equipment", Tooltip = "Enable Summon Arrows", Default = true, },

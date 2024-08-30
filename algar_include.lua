@@ -85,4 +85,15 @@ function AlgarInclude.DotManaCheck()
 	return (mq.TLO.Me.PctMana() >= RGMercUtils.GetSetting('ManaToDot')) or RGMercUtils.BurnCheck()
 end
 
+function AlgarInclude.BandolierSwap(indexName)
+	if RGMercUtils.GetSetting('UseBandolier') and mq.TLO.Me.Bandolier(indexName).Index() and not mq.TLO.Me.Bandolier(indexName).Active() then
+		RGMercUtils.DoCmd("/bandolier activate %s", indexName)
+		RGMercsLogger.log_info("BandolierSwap() Swapping to %s.", indexName)
+	end
+end
+
+function AlgarInclude.ShieldEquipped()
+	return mq.TLO.InvSlot("14").Item.Type() and mq.TLO.InvSlot("14").Item.Type() == "Shield"
+end
+
 return AlgarInclude

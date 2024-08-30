@@ -757,6 +757,17 @@ local _ClassConfig = {
                 return combat_state == "Combat" and RGMercUtils.IsTanking()
             end,
         },
+        --Dynamic weapon swapping if UseBandolier is toggled
+        {
+            name = 'Weapon Management',
+            state = 1,
+            steps = 1,
+            doFullRotation = true,
+            targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
+            cond = function(self, combat_state)
+                return combat_state == "Combat" and RGMercUtils.GetSetting('UseBandolier')
+            end,
+        },
         --Defensive actions used proactively to prevent emergencies
         {
             name = 'Defenses',
@@ -1072,8 +1083,12 @@ local _ClassConfig = {
                 name = "Deflection",
                 type = "Disc",
                 tooltip = Tooltips.Deflection,
+                pre_activate = function(self)
+                    RGMercUtils.SafeCallFunc("Weapon Swap", AlgarInclude.BandolierSwap, "Shield")
+                end,
                 cond = function(self, discSpell)
-                    return mq.TLO.Me.PctHPs() < 35 and not mq.TLO.Me.ActiveDisc.ID() and RGMercUtils.PCDiscReady(discSpell)
+                    return RGMercUtils.PCDiscReady(discSpell) and mq.TLO.Me.PctHPs() <= RGMercUtils.GetSetting('EmergencyLockout') and
+                        (mq.TLO.Me.AltAbilityTimer("Shield Flash")() or 999999) < 234000
                 end,
             },
             {
@@ -1081,7 +1096,20 @@ local _ClassConfig = {
                 type = "Disc",
                 tooltip = Tooltips.LeechCurse,
                 cond = function(self, discSpell)
-                    return mq.TLO.Me.PctHPs() < 35 and not mq.TLO.Me.ActiveDisc.ID() and RGMercUtils.PCDiscReady(discSpell)
+                    return mq.TLO.Me.PctHPs() <= RGMercUtils.GetSetting('EmergencyLockout') and not mq.TLO.Me.ActiveDisc.ID() and RGMercUtils.PCDiscReady(discSpell)
+                end,
+            },
+            {
+                name = "Shield Flash",
+                type = "AA",
+                tooltip = Tooltips.ShieldFlash,
+                pre_activate = function(self)
+                    if RGMercUtils.GetSetting('UseBandolier') then
+                        RGMercUtils.SafeCallFunc("Equip Shield", AlgarInclude.BandolierSwap, "Shield")
+                    end
+                end,
+                cond = function(self, aaName)
+                    return RGMercUtils.PCAAReady(aaName) and mq.TLO.Me.ActiveDisc.Name() ~= "Deflection Discipline"
                 end,
             },
             {
@@ -1089,7 +1117,7 @@ local _ClassConfig = {
                 type = "AA",
                 tooltip = Tooltips.ShieldFlash,
                 cond = function(self, aaName)
-                    return RGMercUtils.AAReady(aaName)
+                    return RGMercUtils.PCAAReady(aaName)
                 end,
             },
             --Influence is in an odd place with Carapace. Usage is very subjective and may be more nuanced than automation can support. Placed here as an alternative to Carapace in low health situations to get you topped back off again for tanks. Should be used in burn for non-tanks (adding non-tank stuff is TODO)
@@ -1314,34 +1342,6 @@ local _ClassConfig = {
         },
         ['Debuff'] = {},
         ['Defenses'] = {
-            --TODO: Implement these. Shield: < EmergencyLock %, 2H > EmergencyStart, setting for autoswitching, etc
-            -- {
-            -- name = "ActivateShield",
-            -- type = "CustomFunc",
-            -- tooltip = Tooltips.ActivateShield,
-            -- cond = function(self)
-            -- return RGMercUtils.GetSetting('DoBandolier') and not mq.TLO.Me.Bandolier("Shield").Active() and
-            -- mq.TLO.Me.Bandolier("Shield").Index() and RGMercUtils.IsTanking()
-            -- end,
-            -- custom_func = function(_)
-            -- RGMercUtils.DoCmd("/bandolier activate Shield")
-            -- return true
-            -- end,
-
-            -- },
-            -- {
-            -- name = "Activate2HS",
-            -- type = "CustomFunc",
-            -- tooltip = Tooltips.Activate2HS,
-            -- cond = function(self)
-            -- return RGMercUtils.GetSetting('DoBandolier') and not mq.TLO.Me.Bandolier("2HS").Active() and
-            -- mq.TLO.Me.Bandolier("2HS").Index() and not RGMercUtils.IsTanking()
-            -- end,
-            -- custom_func = function(_)
-            -- RGMercUtils.DoCmd("/bandolier activate 2HS")
-            -- return true
-            -- end,
-            -- },
             {
                 name = "MeleeMit",
                 type = "Disc",
@@ -1504,9 +1504,9 @@ local _ClassConfig = {
             {
                 name = "Bash",
                 type = "Ability",
-                tooltip = Tooltips.Bash,
-                cond = function(self, abilityName, target)
-                    return mq.TLO.Me.AbilityReady(abilityName)() and RGMercUtils.GetTargetDistance() <= (target.MaxRangeTo() or 0)
+                -- tooltip = Tooltips.Bash,
+                cond = function(self)
+                    return mq.TLO.Me.AbilityReady("Bash")() and RGMercUtils.GetTargetDistance() < 30 and AlgarInclude.ShieldEquipped()
                 end,
             },
             {
@@ -1602,6 +1602,33 @@ local _ClassConfig = {
                     return not RGMercUtils.BuffActiveByName(spell.Name() .. " Recourse") and RGMercUtils.NPCSpellReady(spell, target.ID()) and
                         RGMercUtils.GetSetting('DoTorrent')
                 end,
+            },
+        },
+        ['Weapon Management'] = {
+            {
+                name = "Equip Shield",
+                type = "CustomFunc",
+                active_cond = function(self)
+                    return mq.TLO.Me.Bandolier("Shield").Active()
+                end,
+                cond = function(self)
+                    if mq.TLO.Me.Bandolier("Shield").Active() then return false end
+                    return mq.TLO.Me.PctHPs() <= RGMercUtils.GetSetting('EquipShield')
+                end,
+                custom_func = function(self) return AlgarInclude.BandolierSwap("Shield") end,
+            },
+            {
+                name = "Equip 2Hand",
+                type = "CustomFunc",
+                active_cond = function(self)
+                    return mq.TLO.Me.Bandolier("2Hand").Active()
+                end,
+                cond = function(self)
+                    if mq.TLO.Me.Bandolier("2Hand").Active() then return false end
+                    return mq.TLO.Me.PctHPs() >= RGMercUtils.GetSetting('Equip2Hand') and mq.TLO.Me.ActiveDisc.Name() ~= "Deflection Discipline" and
+                        (mq.TLO.Me.AltAbilityTimer("Shield Flash")() or 0) < 234000
+                end,
+                custom_func = function(self) return AlgarInclude.BandolierSwap("2Hand") end,
             },
         },
     },
@@ -1830,7 +1857,9 @@ local _ClassConfig = {
         ['UnholyCount']      = { DisplayName = "Unholy Count", Category = "Defenses", Tooltip = "Number of mobs around you before you use Unholy Disc.", Default = 4, Min = 1, Max = 10, },
 
         --Equipment
-        ['DoBandolier']      = { DisplayName = "Use Bandolier", Category = "Equipment", Tooltip = "Enable Swapping of items using the bandolier.", Default = false, },
+        ['UseBandolier']     = { DisplayName = "Dynamic Weapon Swap", Category = "Equipment", Index = 1, Tooltip = "Enable 1H+S/2H swapping based off of current health. ***YOU MUST HAVE BANDOLIER ENTRIES NAMED \"Shield\" and \"2Hand\" TO USE THIS FUNCTION.***", Default = false, },
+        ['EquipShield']      = { DisplayName = "Equip Shield", Category = "Equipment", Index = 2, Tooltip = "Under this HP%, you will swap to your \"Shield\" bandolier entry. (Dynamic Bandolier Enabled Only)", Default = 50, Min = 1, Max = 100, },
+        ['Equip2Hand']       = { DisplayName = "Equip 2Hand", Category = "Equipment", Index = 3, Tooltip = "Over this HP%, you will swap to your \"2Hand\" bandolier entry. (Dynamic Bandolier Enabled Only)", Default = 75, Min = 1, Max = 100, },
         ['DoChestClick']     = { DisplayName = "Do Chest Click", Category = "Equipment", Tooltip = "Click your equipped chest.", Default = true, },
         ['DoCharmClick']     = { DisplayName = "Do Charm Click", Category = "Equipment", Tooltip = "Click your charm for Geomantra.", Default = true, },
 
