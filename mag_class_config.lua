@@ -954,7 +954,7 @@ _ClassConfig       = {
             name = 'Summon ModRods',
             timer = 120,
             state = 1,
-            steps = 1,
+            steps = 2,
             targetId = function(self)
                 local groupIds = { mq.TLO.Me.ID(), }
                 local count = mq.TLO.Group.Members()
@@ -965,7 +965,7 @@ _ClassConfig       = {
             end,
             cond = function(self, combat_state)
                 if not RGMercUtils.GetSetting('SummonModRods') then return false end
-                local downtime = combat_state == "Downtime" and RGMercConfig:GetTimeSinceLastMove() > RGMercUtils.GetSetting('BuffWaitMoveTimer') and not mq.TLO.Me.Invis()
+                local downtime = combat_state == "Downtime" and RGMercUtils.DoBuffCheck()
                 local pct = RGMercUtils.GetSetting('GroupManaPct')
                 local combat = combat_state == "Combat" and RGMercUtils.GetSetting('CombatModRod') and (mq.TLO.Group.LowMana(pct)() or -1) >= RGMercUtils.GetSetting('GroupManaCt') and
                     not RGMercUtils.Feigning()
@@ -1786,14 +1786,14 @@ _ClassConfig       = {
             --     end,
             -- },
         },
-        ['Summon Modrods'] = {
+        ['Summon ModRods'] = {
             {
                 name = "Summon Modulation Shard",
                 type = "AA",
                 cond = function(self, aaName, target)
+                    if not RGMercUtils.GetSetting('SummonModRods') or not RGMercUtils.CanUseAA(aaName) then return false end
                     local modRodItem = mq.TLO.Spell(aaName).RankName.Base(1)()
-                    if not RGMercUtils.GetSetting('SummonModRods') or not modRodItem or not modRodItem() then return false end
-                    return RGMercUtils.AAReady(aaName) and DanNet.query(target.CleanName(), string.format("FindItemCount[%d]", modRodItem), 1000) == "0" and
+                    return modRodItem and RGMercUtils.AAReady(aaName) and DanNet.query(target.CleanName(), string.format("FindItemCount[%d]", modRodItem), 1000) == "0" and
                         (mq.TLO.Cursor.ID() or 0) == 0
                 end,
                 post_activate = function(self, aaName, success)
@@ -1806,9 +1806,9 @@ _ClassConfig       = {
                 name = "ManaRodSummon",
                 type = "Spell",
                 cond = function(self, spell, target)
+                    if RGMercUtils.CanUseAA("Summon Modulation Shard") or not RGMercUtils.GetSetting('SummonModRods') then return false end
                     local modRodItem = spell.RankName.Base(1)()
-                    if RGMercUtils.CanUseAA("Summon Modulation Shard") or not RGMercUtils.GetSetting('SummonModRods') or not modRodItem or not modRodItem() then return false end
-                    return RGMercUtils.PCSpellReady(spell) and DanNet.query(target.CleanName(), string.format("FindItemCount[%d]", modRodItem), 1000) == "0" and
+                    return modRodItem and RGMercUtils.PCSpellReady(spell) and DanNet.query(target.CleanName(), string.format("FindItemCount[%d]", modRodItem), 1000) == "0" and
                         (mq.TLO.Cursor.ID() or 0) == 0
                 end,
                 post_activate = function(self, spell, success)
@@ -1820,7 +1820,8 @@ _ClassConfig       = {
             {
                 name = "SelfManaRodSummon",
                 type = "Spell",
-                cond = function(self, spell)
+                cond = function(self, spell, target)
+                    if target.ID() ~= mq.TLO.Me.ID() then return false end
                     return mq.TLO.FindItemCount(spell.RankName.Base(1)() or "")() == 0 and (mq.TLO.Cursor.ID() or 0) == 0 and
                         not (combat_state == "Combat" and mq.TLO.Me.PctMana() > RGMercUtils.GetSetting('GroupManaPct'))
                 end,
@@ -1938,7 +1939,7 @@ _ClassConfig       = {
         ['DebuffMinCon']      = { DisplayName = "Debuff Min Con", Category = "Debuffs", Tooltip = "Min Con to use debuffs on", Default = 4, Min = 1, Max = #RGMercConfig.Constants.ConColors, Type = "Combo", ComboOptions = RGMercConfig.Constants.ConColors, },
         ['DebuffNamedAlways'] = { DisplayName = "Always Debuff Named", Category = "Debuffs", Tooltip = "Debuff named regardless of con color", Default = true, },
         ['CombatModRod']      = { DisplayName = "Combat Mod Rods", Category = "Mana", Index = 2, Tooltip = "Summon Mod Rods in combat if the criteria below are met.", Default = false, ConfigType = "Advanced", },
-        ['GroupManaPct']      = { DisplayName = "Combat ModRod %", Category = "Mana", Index = 3, Tooltip = "Mana% to begin summoning Mod Rods in combat. (0 disables)", Default = 40, Min = 0, Max = 100, ConfigType = "Advanced", },
+        ['GroupManaPct']      = { DisplayName = "Combat ModRod %", Category = "Mana", Index = 3, Tooltip = "Mana% to begin summoning Mod Rods in combat. (0 disables)", Default = 50, Min = 0, Max = 100, ConfigType = "Advanced", },
         ['GroupManaCt']       = { DisplayName = "Combat ModRod Count", Category = "Mana", Index = 4, Tooltip = "The number of party members (including yourself) that need to be under the above mana percentage.", Default = 3, Min = 1, Max = 6, ConfigType = "Advanced", },
     },
 }

@@ -88,7 +88,7 @@ end
 function AlgarInclude.BandolierSwap(indexName)
 	if RGMercUtils.GetSetting('UseBandolier') and mq.TLO.Me.Bandolier(indexName).Index() and not mq.TLO.Me.Bandolier(indexName).Active() then
 		RGMercUtils.DoCmd("/bandolier activate %s", indexName)
-		RGMercsLogger.log_info("BandolierSwap() Swapping to %s.", indexName)
+		RGMercsLogger.log_debug("BandolierSwap() Swapping to %s. Current Health: %d", indexName, mq.TLO.Me.PctHPs())
 	end
 end
 

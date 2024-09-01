@@ -662,7 +662,6 @@ local _ClassConfig = {
             "Legacy of Spike",
             -- Group Damage Shield -- Combined all single and group dammage shields.
             "Legacy of Bloodspikes",
-            "Duskthorn",
             "Legacy of Icebriars",
             "Icebriar Bulwark",
             "Legacy of Daggerspikes",
@@ -682,7 +681,6 @@ local _ClassConfig = {
             "Legacy of Viridiflora",
             "Viridifloral Shield",
             "Legacy of Nettles",
-            "Nettle Shield",
             "Legacy of Bracken",
             "Shield of Bracken",
             "Legacy of Thorn",

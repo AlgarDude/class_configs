@@ -1556,31 +1556,31 @@ local _ClassConfig = {
                 name = "Dicho",
                 type = "Spell",
                 -- tooltip = Tooltips.Dicho,
-                cond = function(self, spell)
-                    return RGMercUtils.NPCSpellReady(spell) and (mq.TLO.Me.TargetOfTarget.PctHPs() or 0) <= RGMercUtils.GetSetting('StartDicho')
+                cond = function(self, spell, target)
+                    return RGMercUtils.NPCSpellReady(spell, target.ID(), true) and (mq.TLO.Me.TargetOfTarget.PctHPs() or 0) <= RGMercUtils.GetSetting('StartDicho')
                 end,
             },
             {
                 name = "BurstHeal",
                 type = "Spell",
-                cond = function(self, spell)
-                    return RGMercUtils.PCSpellReady(spell) and
+                cond = function(self, spell, target)
+                    return RGMercUtils.NPCSpellReady(spell, target.ID(), true) and
                         (mq.TLO.Me.TargetOfTarget.PctHPs() or 0) < RGMercUtils.GetSetting('StartBurstToT')
                 end,
             },
             {
                 name = "TotLightHeal",
                 type = "Spell",
-                cond = function(self, spell)
-                    return RGMercUtils.PCSpellReady(spell) and
+                cond = function(self, spell, target)
+                    return RGMercUtils.NPCSpellReady(spell, target.ID(), true) and
                         (mq.TLO.Me.TargetOfTarget.PctHPs() or 0) < RGMercUtils.GetSetting('TotHealPoint')
                 end,
             },
             {
                 name = "Lowaggronuke",
                 type = "Spell",
-                cond = function(self, spell)
-                    return RGMercUtils.NPCSpellReady(spell) and
+                cond = function(self, spell, target)
+                    return RGMercUtils.NPCSpellReady(spell, target.ID()) and
                         (mq.TLO.Me.TargetOfTarget.PctHPs() or 0) < RGMercUtils.GetSetting('TotHealPoint')
                 end,
             },
@@ -1603,38 +1603,13 @@ local _ClassConfig = {
                     return RGMercUtils.PCDiscReady(discSpell) and mq.TLO.Me.PctEndurance() < 15
                 end,
             },
-            ---- figure out timer 2 stuff
-            -- {
-            -- name = "Disruptive Persecution",
-            -- type = "AA",
-            -- cond = function(self, aaName)
-            -- return RGMercUtils.AAReady(aaName) and mq.TLO.Me.AltAbility(aaName).Rank() >= 3 and not RGMercUtils.BuffActiveByName("Knight's Yaulp")
-            -- end,
-            -- },
-            -- {
-            -- name = "Vicious Bite of Chaos",
-            -- type = "AA",
-            -- tooltip = Tooltips.ViciousBiteOfChaos,
-            -- cond = function(self)
-            -- return RGMercUtils.GetTargetPctHPs() > 5 and RGMercUtils.GetTargetDistance() < 35
-            -- end,
-            -- },
-            -- {
-            -- name = "Blade",
-            -- type = "Disc",
-            -- tooltip = Tooltips.Blade,
-            -- cond = function(self)
-            -- return RGMercUtils.GetTargetID() > 0 and RGMercUtils.GetTargetPctHPs() > 5 and
-            -- RGMercUtils.GetTargetDistance() < 35 --and ((mq.TLO.Me.Inventory("mainhand").Type() or ""):find("2H"))
-            -- end,
-            -- },
-            -- {
-            -- name = "Gift of the Quick Spear",
-            -- type = "AA",
-            -- cond = function(self, aaName)
-            -- return RGMercUtils.AAReady(aaName)
-            -- end,
-            -- },
+            {
+                name = "Vanquish the Fallen",
+                type = "AA",
+                cond = function(self, aaName, target)
+                    return RGMercUtils.NPCAAReady(aaName, target.ID()) and RGMercUtils.TargetBodyIs(target, "Undead")
+                end,
+            },
             {
                 name = "Bash",
                 type = "Ability",
@@ -1653,18 +1628,18 @@ local _ClassConfig = {
             },
         },
         ['Combat'] = {
-            {
-                name = "StunTimer4",
-                type = "Spell",
-                cond = function(self, spell)
-                    return RGMercUtils.NPCSpellReady(spell) and RGMercUtils.DetSpellCheck(spell)
-                end,
-            },
+            -- {
+            --     name = "StunTimer4",
+            --     type = "Spell",
+            --     cond = function(self, spell)
+            --         return RGMercUtils.NPCSpellReady(spell) and RGMercUtils.DetSpellCheck(spell)
+            --     end,
+            -- },
             {
                 name = "HealStun",
                 type = "Spell",
-                cond = function(self, spell)
-                    return RGMercUtils.NPCSpellReady(spell) and RGMercUtils.DetSpellCheck(spell) and RGMercUtils.SpellStacksOnMe(spell) and
+                cond = function(self, spell, target)
+                    return RGMercUtils.NPCSpellReady(spell, target.ID()) and RGMercUtils.DetSpellCheck(spell) and RGMercUtils.SpellStacksOnMe(spell) and
                         (mq.TLO.Me.Song(spell.Trigger(1).Name).Duration.TotalSeconds() or 0) < 12
                 end,
             },
@@ -1674,10 +1649,24 @@ local _ClassConfig = {
                 cond = function(self, spell) return RGMercUtils.SelfBuffCheck(spell) end,
             },
             {
+                name = "CrushTimer6",
+                type = "Spell",
+                cond = function(self, spell, target)
+                    return RGMercUtils.NPCSpellReady(spell, target.ID())
+                end,
+            },
+            {
                 name = "HealNuke",
                 type = "Spell",
-                cond = function(self, spell)
-                    return RGMercUtils.NPCSpellReady(spell)
+                cond = function(self, spell, target)
+                    return RGMercUtils.NPCSpellReady(spell, target.ID())
+                end,
+            },
+            {
+                name = "Disruptive Persecution",
+                type = "AA",
+                cond = function(self, aaName, target)
+                    return RGMercUtils.NPCAAReady(aaName, target.ID()) and mq.TLO.Me.PctMana() > 60
                 end,
             },
             {
@@ -1710,13 +1699,13 @@ local _ClassConfig = {
             -- return RGMercUtils.NPCSpellReady(spell) and RGMercUtils.DetSpellCheck(spell)
             -- end,
             -- },
-            {
-                name = "LessonStun",
-                type = "Spell",
-                cond = function(self, spell)
-                    return RGMercUtils.PCSpellReady(spell) and RGMercUtils.DetSpellCheck(spell)
-                end,
-            },
+            -- {
+            --     name = "LessonStun",
+            --     type = "Spell",
+            --     cond = function(self, spell)
+            --         return RGMercUtils.PCSpellReady(spell) and RGMercUtils.DetSpellCheck(spell)
+            --     end,
+            -- },
             -- {
             -- name = "DebuffNuke",
             -- type = "Spell",
@@ -1739,45 +1728,30 @@ local _ClassConfig = {
             -- return RGMercUtils.NPCSpellReady(spell) and RGMercUtils.TargetHasBuff(spell) and RGMercUtils.GetSetting('DoReverseDS')
             -- end,
             -- },
-            {
-                name = "Lowaggronuke",
-                type = "Spell",
-                cond = function(self, spell)
-                    return RGMercUtils.NPCSpellReady(spell) and RGMercUtils.GetSetting('DoNuke')
-                end,
-            },
-            -- {
-            -- name = "CrushTimer6",
-            -- type = "Spell",
-            -- cond = function(self, spell)
-            -- return RGMercUtils.NPCSpellReady(spell)
-            -- end,
-            -- },
-
         },
         ['Weapon Management'] = {
             {
                 name = "Equip Shield",
                 type = "CustomFunc",
-                active_cond = function(self)
+                active_cond = function(self, target)
                     return mq.TLO.Me.Bandolier("Shield").Active()
                 end,
                 cond = function(self)
                     if mq.TLO.Me.Bandolier("Shield").Active() then return false end
-                    return mq.TLO.Me.PctHPs() <= RGMercUtils.GetSetting('EquipShield')
+                    return (mq.TLO.Me.PctHPs() <= RGMercUtils.GetSetting('EquipShield')) or (RGMercUtils.IsNamed(mq.TLO.Target) and RGMercUtils.GetSetting('NamedShieldLock'))
                 end,
                 custom_func = function(self) return AlgarInclude.BandolierSwap("Shield") end,
             },
             {
                 name = "Equip 2Hand",
                 type = "CustomFunc",
-                active_cond = function(self)
+                active_cond = function(self, target)
                     return mq.TLO.Me.Bandolier("2Hand").Active()
                 end,
                 cond = function(self)
                     if mq.TLO.Me.Bandolier("2Hand").Active() then return false end
                     return mq.TLO.Me.PctHPs() >= RGMercUtils.GetSetting('Equip2Hand') and mq.TLO.Me.ActiveDisc.Name() ~= "Deflection Discipline" and
-                        (mq.TLO.Me.AltAbilityTimer("Shield Flash")() or 0) < 234000
+                        (mq.TLO.Me.AltAbilityTimer("Shield Flash")() or 0) < 234000 and not (RGMercUtils.IsNamed(mq.TLO.Target) and RGMercUtils.GetSetting('NamedShieldLock'))
                 end,
                 custom_func = function(self) return AlgarInclude.BandolierSwap("2Hand") end,
             },
@@ -1800,7 +1774,8 @@ local _ClassConfig = {
         {
             gem = 3,
             spells = {
-                { name = "LessonStun", },
+                --{ name = "LessonStun", },
+                { name = "CrushTimer6", },
             },
         },
         {
@@ -2051,6 +2026,7 @@ local _ClassConfig = {
         ['UseBandolier']     = { DisplayName = "Dynamic Weapon Swap", Category = "Equipment", Index = 1, Tooltip = "Enable 1H+S/2H swapping based off of current health. ***YOU MUST HAVE BANDOLIER ENTRIES NAMED \"Shield\" and \"2Hand\" TO USE THIS FUNCTION.***", Default = false, },
         ['EquipShield']      = { DisplayName = "Equip Shield", Category = "Equipment", Index = 2, Tooltip = "Under this HP%, you will swap to your \"Shield\" bandolier entry. (Dynamic Bandolier Enabled Only)", Default = 50, Min = 1, Max = 100, },
         ['Equip2Hand']       = { DisplayName = "Equip 2Hand", Category = "Equipment", Index = 3, Tooltip = "Over this HP%, you will swap to your \"2Hand\" bandolier entry. (Dynamic Bandolier Enabled Only)", Default = 75, Min = 1, Max = 100, },
+        ['NamedShieldLock']  = { DisplayName = "Shield on Named", Category = "Equipment", Index = 4, Tooltip = "Keep Shield equipped for Named mobs(must be in SpawnMaster or named.lua)", Default = true, },
         ['DoChestClick']     = { DisplayName = "Do Chest Click", Category = "Equipment", Tooltip = "Click your equipped chest.", Default = true, },
         ['DoCharmClick']     = { DisplayName = "Do Charm Click", Category = "Equipment", Tooltip = "Click your charm for Geomantra.", Default = true, },
         ['SummonArrows']     = { DisplayName = "Summon Arrows", Category = "Equipment", Tooltip = "Enable Summon Arrows", Default = true, },
