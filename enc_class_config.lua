@@ -8,7 +8,7 @@ local _ClassConfig = {
     ['FullConfig']      = true,
     ['ModeChecks']      = {
         IsMezzing = function() return true end,
-        IsCharming = function() return RGMercUtils.IsModeActive("Charm") end,
+        IsCharming = function() return RGMercUtils.GetSetting('CharmOn') end,
     },
     ['Modes']           = {
         'Mez',
