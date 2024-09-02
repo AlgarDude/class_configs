@@ -1060,7 +1060,7 @@ local _ClassConfig = {
                 name = "TwincastSpell",
                 type = "Spell",
                 cond = function(self, spell)
-                    return RGMercUtils.SpellReady(spell) and mq.TLO.Me.Buff("Twincast").ID() == 0
+                    return RGMercUtils.PCSpellReady(spell) and mq.TLO.Me.Buff("Twincast").ID() == 0
                 end,
             },
         },

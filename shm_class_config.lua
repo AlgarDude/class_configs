@@ -1148,6 +1148,7 @@ local _ClassConfig = {
                 type = "Spell",
                 active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
                 cond = function(self, spell)
+                    if (mq.TLO.Me.AltAbility("Visionary's Unity").Rank() or 999) > 1 then return false end
                     return RGMercUtils.SelfBuffCheck(spell)
                 end,
             },
@@ -1167,7 +1168,7 @@ local _ClassConfig = {
                 type = "AA",
                 cond = function(self, aaName, target)
                     if target.ID() ~= mq.TLO.Group.MainTank.ID() then return false end
-                    return RGMercUtils.AAReady(aaName) and AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                    return RGMercUtils.AAReady(aaName)
                 end,
             },
             -- {
@@ -1211,7 +1212,8 @@ local _ClassConfig = {
                 type = "AA",
                 active_cond = function(self, aaName) return mq.TLO.Me.Haste() end,
                 cond = function(self, aaName, target)
-                    return RGMercUtils.GetSetting('DoHaste') and AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                    if not RGMercUtils.GetSetting('DoHaste') then return false end
+                    return mq.TLO.Me.Level() < 111 and AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
                 end,
             },
             {
@@ -1219,7 +1221,8 @@ local _ClassConfig = {
                 type = "Spell",
                 active_cond = function(self, aaName) return mq.TLO.Me.Haste() end,
                 cond = function(self, spell, target)
-                    return RGMercUtils.GetSetting('DoHaste') and AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                    if not RGMercUtils.GetSetting('DoHaste') or RGMercUtils.CanUseAA("Talisman of Celerity") then return false end
+                    return AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
                 end,
             },
             {

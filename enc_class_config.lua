@@ -956,6 +956,12 @@ local _ClassConfig = {
                 type = "AA",
                 active_cond = function(self, aaName) return mq.TLO.FindItem(aaName)() ~= nil end,
                 cond = function(self, aaName) return mq.TLO.Me.PctMana() > 90 and not mq.TLO.FindItem(aaName)() end,
+                post_activate = function(self, aaName, success)
+                    if success then
+                        mq.delay(100)
+                        RGMercUtils.DoCmd("/autoinventory")
+                    end
+                end,
             },
             {
                 name = "Gather Mana",

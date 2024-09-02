@@ -6,10 +6,7 @@ AlgarInclude.__index = AlgarInclude
 function AlgarInclude.GroupBuffCheck(spell, targetId, targetName)
 	if not spell or not spell() then return false end
 	--check our buffs if we are the target
-	if targetId == mq.TLO.Me.ID() then
-		return RGMercUtils.SelfBuffCheck(spell)
-		--check dannet if we aren't the target
-	elseif mq.TLO.DanNet(targetName)() ~= nil then
+	if mq.TLO.DanNet(targetName)() ~= nil then
 		local spellName = spell.RankName.Name()
 		local spellID = spell.RankName.ID()
 		local spellResult = DanNet.query(targetName, string.format("Me.FindBuff[id %d]", spellID), 1000)
