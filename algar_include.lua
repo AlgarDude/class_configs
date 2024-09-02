@@ -5,7 +5,7 @@ AlgarInclude.__index = AlgarInclude
 
 function AlgarInclude.GroupBuffCheck(spell, targetId, targetName)
 	if not spell or not spell() then return false end
-	--check our buffs if we are the target
+
 	if mq.TLO.DanNet(targetName)() ~= nil then
 		local spellName = spell.RankName.Name()
 		local spellID = spell.RankName.ID()
