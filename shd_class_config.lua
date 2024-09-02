@@ -896,6 +896,7 @@ local _ClassConfig = {
                 tooltip = Tooltips.TempHP,
                 active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.RankName.ID()) end,
                 cond = function(self, spell)
+                    if not RGMercUtils.GetSetting('DoTempHP') then return false end
                     return RGMercUtils.PCSpellReady(spell) and RGMercUtils.SpellStacksOnMe(spell) and (mq.TLO.Me.Buff(spell).Duration.TotalSeconds() or 0) < 45
                 end,
             },
@@ -946,6 +947,7 @@ local _ClassConfig = {
                 --tooltip = Tooltips.ScourgeSkin,
                 active_cond = function(self, aaName) return RGMercUtils.BuffActiveByID(mq.TLO.Me.AltAbility(aaName).Spell.ID()) end,
                 cond = function(self, aaName)
+                    if not RGMercUtils.IsTanking() then return false end
                     return RGMercUtils.SelfBuffAACheck(aaName)
                 end,
             },
@@ -1087,6 +1089,7 @@ local _ClassConfig = {
                 type = "Spell",
                 tooltip = Tooltips.AeTaunt,
                 cond = function(self, spell)
+                    if not RGMercUtils.GetSetting('AETauntSpell') > 1 then return false end
                     return RGMercUtils.PCSpellReady(spell) and self.ClassConfig.HelperFunctions.AeTauntCheck(self)
                 end,
             },
@@ -1095,6 +1098,7 @@ local _ClassConfig = {
                 type = "AA",
                 tooltip = Tooltips.ExplosionOfHatred,
                 cond = function(self, aaName, target)
+                    if not RGMercUtils.GetSetting('AETauntAA') then return false end
                     return RGMercUtils.NPCAAReady(aaName, target.ID()) and self.ClassConfig.HelperFunctions.AeTauntCheck(self)
                 end,
             },
@@ -1103,6 +1107,7 @@ local _ClassConfig = {
                 type = "AA",
                 tooltip = Tooltips.ExplosionOfSpite,
                 cond = function(self, aaName)
+                    if not RGMercUtils.GetSetting('AETauntAA') then return false end
                     return RGMercUtils.AAReady(aaName) and self.ClassConfig.HelperFunctions.AeTauntCheck(self)
                 end,
             },
@@ -1128,7 +1133,7 @@ local _ClassConfig = {
                 type = "Spell",
                 tooltip = Tooltips.Terror,
                 cond = function(self, spell, target)
-                    if not RGMercUtils.GetSetting('DoTerror') then return false end
+                    if not RGMercUtils.GetSetting('DoTerror') > 1 then return false end
                     return RGMercUtils.NPCSpellReady(spell, target.ID()) and (mq.TLO.Target.SecondaryPctAggro() or 0) > 60
                 end,
             },
@@ -1137,7 +1142,7 @@ local _ClassConfig = {
                 type = "Spell",
                 tooltip = Tooltips.Terror,
                 cond = function(self, spell, target)
-                    if not RGMercUtils.GetSetting('DoTerror') then return false end
+                    if not RGMercUtils.GetSetting('DoTerror') > 1 then return false end
                     return RGMercUtils.SpellLoaded(spell) and RGMercUtils.NPCSpellReady(spell, target.ID()) and (mq.TLO.Target.SecondaryPctAggro() or 0) > 60
                 end,
             },
@@ -1146,6 +1151,7 @@ local _ClassConfig = {
                 type = "Spell",
                 tooltip = Tooltips.ForPower,
                 cond = function(self, spell, target)
+                    if not RGMercUtils.GetSetting('DoForPower') then return false end
                     return RGMercUtils.NPCSpellReady(spell, target.ID()) and RGMercUtils.DetSpellCheck(spell)
                 end,
             },
@@ -1245,7 +1251,6 @@ local _ClassConfig = {
                 tooltip = Tooltips.EncroachingDarkness,
                 type = "AA",
                 cond = function(self, aaName, target)
-                    if not RGMercUtils.CanUseAA("Encroaching Darkness") then return false end
                     return RGMercUtils.NPCAAReady(aaName, target.ID()) and RGMercUtils.DetAACheck(aaName)
                 end,
             },
@@ -1451,6 +1456,7 @@ local _ClassConfig = {
                 type = "Spell",
                 tooltip = Tooltips.BondTap,
                 cond = function(self, spell, target)
+                    if not RGMercUtils.GetSetting('DoBondTap') then return false end
                     return AlgarInclude.DotManaCheck() and AlgarInclude.DotSpellCheck(spell) and RGMercUtils.NPCSpellReady(spell, target.ID())
                 end,
             },
@@ -1467,6 +1473,7 @@ local _ClassConfig = {
                 type = "Spell",
                 tooltip = Tooltips.PoisonDot,
                 cond = function(self, spell, target)
+                    if not RGMercUtils.GetSetting('DoPoisonDot') then return false end
                     return AlgarInclude.DotManaCheck() and AlgarInclude.DotSpellCheck(spell) and RGMercUtils.NPCSpellReady(spell, target.ID())
                 end,
             },
@@ -1475,6 +1482,7 @@ local _ClassConfig = {
                 type = "Spell",
                 tooltip = Tooltips.PoisonDot,
                 cond = function(self, spell, target)
+                    if not RGMercUtils.GetSetting('DoCorruptionDot') then return false end
                     return AlgarInclude.DotManaCheck() and AlgarInclude.DotSpellCheck(spell) and RGMercUtils.NPCSpellReady(spell, target.ID())
                 end,
             },
@@ -1483,6 +1491,7 @@ local _ClassConfig = {
                 type = "Spell",
                 tooltip = Tooltips.DireDot,
                 cond = function(self, spell)
+                    if not RGMercUtils.GetSetting('DoDireDot') then return false end
                     return AlgarInclude.DotManaCheck() and AlgarInclude.DotSpellCheck(spell) and RGMercUtils.NPCSpellReady(spell, target.ID())
                 end,
             },
@@ -1508,6 +1517,7 @@ local _ClassConfig = {
                 type = "Spell",
                 tooltip = Tooltips.BuffTap,
                 cond = function(self, spell, target)
+                    if not RGMercUtils.GetSetting('DoBuffTap') then return false end
                     return not RGMercUtils.BuffActive(spell.RankName.Name.Trigger(1)()) and RGMercUtils.SpellStacksOnMe(spell.RankName.Name.Trigger(1)()) and
                         RGMercUtils.NPCSpellReady(spell, target.ID())
                 end,
@@ -1541,7 +1551,7 @@ local _ClassConfig = {
             },
         },
     },
-    ['Spells']          = {
+    ['Spells']          = { --I am not trying to find a combination that works when we have 20 options that change based on level, so I've just made a repeating priority list. May adjust this later.
         {
             gem = 1,
             spells = {
@@ -1576,27 +1586,10 @@ local _ClassConfig = {
                     end,
                 },
                 { name = "BiteTap", },
-                { name = "BondTap",       cond = function(self) return RGMercUtils.GetSetting('DoBondTap') end, },
-                { name = "PoisonDot",     cond = function(self) return RGMercUtils.GetSetting('DoPoisonDot') end, },
-                { name = "CorruptionDot", cond = function(self) return RGMercUtils.GetSetting('DoCorruptionDot') end, },
-                { name = "DireDot",       cond = function(self) return RGMercUtils.GetSetting('DoDireDot') end, },
-                { name = "Torrent",       cond = function(self) return RGMercUtils.GetSetting('DoTorrent') end, },
-                { name = "BuffTap",       cond = function(self) return RGMercUtils.GetSetting('DoBuffTap') end, },
-                { name = "Skin",          cond = function(self) return mq.TLO.Me.NumGems() < 13 end, },
-                { name = "LifeTap2", },
-                {
-                    name = "Terror2",
-                    cond = function(self)
-                        return RGMercUtils.GetSetting('DoTerror') == 3 or
-                            (RGMercUtils.GetSetting('DoTerror') == 2 and mq.TLO.Me.Level() < 72)
-                    end,
-                },
-            },
         },
         {
             gem = 4,
             spells = {
-                { name = "SnareDOT", cond = function(self) return RGMercUtils.GetSetting('DoSnare') and not RGMercUtils.CanUseAA("Encroaching Darkness") end, },
                 { name = "DireTap",  cond = function(self) return RGMercUtils.GetSetting('DoDireTap') end, },
                 { name = "Dicho",    cond = function(self) return RGMercUtils.GetSetting('DoDicho') end, },
                 { name = "ForPower", cond = function(self) return RGMercUtils.GetSetting('DoForPower') end, },
@@ -1623,20 +1616,11 @@ local _ClassConfig = {
                 { name = "BuffTap",       cond = function(self) return RGMercUtils.GetSetting('DoBuffTap') end, },
                 { name = "Skin",          cond = function(self) return mq.TLO.Me.NumGems() < 13 end, },
                 { name = "LifeTap2", },
-                {
-                    name = "Terror2",
-                    cond = function(self)
-                        return RGMercUtils.GetSetting('DoTerror') == 3 or
-                            (RGMercUtils.GetSetting('DoTerror') == 2 and mq.TLO.Me.Level() < 72)
-                    end,
-                },
             },
         },
         {
             gem = 5,
             spells = {
-                { name = "SnareDOT", cond = function(self) return RGMercUtils.GetSetting('DoSnare') and not RGMercUtils.CanUseAA("Encroaching Darkness") end, },
-                { name = "DireTap",  cond = function(self) return RGMercUtils.GetSetting('DoDireTap') end, },
                 { name = "Dicho",    cond = function(self) return RGMercUtils.GetSetting('DoDicho') end, },
                 { name = "ForPower", cond = function(self) return RGMercUtils.GetSetting('DoForPower') end, },
                 {
@@ -1674,10 +1658,7 @@ local _ClassConfig = {
         {
             gem = 6,
             spells = {
-                { name = "SnareDOT", cond = function(self) return RGMercUtils.GetSetting('DoSnare') and not RGMercUtils.CanUseAA("Encroaching Darkness") end, },
-                { name = "DireTap",  cond = function(self) return RGMercUtils.GetSetting('DoDireTap') end, },
-                { name = "Dicho",    cond = function(self) return RGMercUtils.GetSetting('DoDicho') end, },
-                { name = "ForPower", cond = function(self) return RGMercUtils.GetSetting('DoForPower') end, },
+                { name = "ForPower",      cond = function(self) return RGMercUtils.GetSetting('DoForPower') end, },
                 {
                     name = "Terror",
                     cond = function(self)
@@ -1713,10 +1694,6 @@ local _ClassConfig = {
         {
             gem = 7,
             spells = {
-                { name = "SnareDOT", cond = function(self) return RGMercUtils.GetSetting('DoSnare') and not RGMercUtils.CanUseAA("Encroaching Darkness") end, },
-                { name = "DireTap",  cond = function(self) return RGMercUtils.GetSetting('DoDireTap') end, },
-                { name = "Dicho",    cond = function(self) return RGMercUtils.GetSetting('DoDicho') end, },
-                { name = "ForPower", cond = function(self) return RGMercUtils.GetSetting('DoForPower') end, },
                 {
                     name = "Terror",
                     cond = function(self)
@@ -1753,17 +1730,6 @@ local _ClassConfig = {
             gem = 8,
             cond = function(self) return mq.TLO.Me.NumGems() >= 9 end,
             spells = {
-                { name = "SnareDOT", cond = function(self) return RGMercUtils.GetSetting('DoSnare') and not RGMercUtils.CanUseAA("Encroaching Darkness") end, },
-                { name = "DireTap",  cond = function(self) return RGMercUtils.GetSetting('DoDireTap') end, },
-                { name = "Dicho",    cond = function(self) return RGMercUtils.GetSetting('DoDicho') end, },
-                { name = "ForPower", cond = function(self) return RGMercUtils.GetSetting('DoForPower') end, },
-                {
-                    name = "Terror",
-                    cond = function(self)
-                        return RGMercUtils.GetSetting('DoTerror') == 3 or
-                            (RGMercUtils.GetSetting('DoTerror') == 2 and mq.TLO.Me.Level() < 72)
-                    end,
-                },
                 {
                     name = "AETaunt",
                     cond = function(self)
@@ -1793,24 +1759,6 @@ local _ClassConfig = {
             gem = 9,
             cond = function(self) return mq.TLO.Me.NumGems() >= 10 end,
             spells = {
-                { name = "SnareDOT", cond = function(self) return RGMercUtils.GetSetting('DoSnare') and not RGMercUtils.CanUseAA("Encroaching Darkness") end, },
-                { name = "DireTap",  cond = function(self) return RGMercUtils.GetSetting('DoDireTap') end, },
-                { name = "Dicho",    cond = function(self) return RGMercUtils.GetSetting('DoDicho') end, },
-                { name = "ForPower", cond = function(self) return RGMercUtils.GetSetting('DoForPower') end, },
-                {
-                    name = "Terror",
-                    cond = function(self)
-                        return RGMercUtils.GetSetting('DoTerror') == 3 or
-                            (RGMercUtils.GetSetting('DoTerror') == 2 and mq.TLO.Me.Level() < 72)
-                    end,
-                },
-                {
-                    name = "AETaunt",
-                    cond = function(self)
-                        return RGMercUtils.GetSetting('AETauntSpell') == 3 or
-                            (RGMercUtils.GetSetting('DoTerror') == 2 and not RGMercUtils.CanUseAA("Explosion of Hatred"))
-                    end,
-                },
                 { name = "BiteTap", },
                 { name = "BondTap",       cond = function(self) return RGMercUtils.GetSetting('DoBondTap') end, },
                 { name = "PoisonDot",     cond = function(self) return RGMercUtils.GetSetting('DoPoisonDot') end, },
@@ -1833,25 +1781,6 @@ local _ClassConfig = {
             gem = 10,
             cond = function(self) return mq.TLO.Me.NumGems() >= 11 end,
             spells = {
-                { name = "SnareDOT", cond = function(self) return RGMercUtils.GetSetting('DoSnare') and not RGMercUtils.CanUseAA("Encroaching Darkness") end, },
-                { name = "DireTap",  cond = function(self) return RGMercUtils.GetSetting('DoDireTap') end, },
-                { name = "Dicho",    cond = function(self) return RGMercUtils.GetSetting('DoDicho') end, },
-                { name = "ForPower", cond = function(self) return RGMercUtils.GetSetting('DoForPower') end, },
-                {
-                    name = "Terror",
-                    cond = function(self)
-                        return RGMercUtils.GetSetting('DoTerror') == 3 or
-                            (RGMercUtils.GetSetting('DoTerror') == 2 and mq.TLO.Me.Level() < 72)
-                    end,
-                },
-                {
-                    name = "AETaunt",
-                    cond = function(self)
-                        return RGMercUtils.GetSetting('AETauntSpell') == 3 or
-                            (RGMercUtils.GetSetting('DoTerror') == 2 and not RGMercUtils.CanUseAA("Explosion of Hatred"))
-                    end,
-                },
-                { name = "BiteTap", },
                 { name = "BondTap",       cond = function(self) return RGMercUtils.GetSetting('DoBondTap') end, },
                 { name = "PoisonDot",     cond = function(self) return RGMercUtils.GetSetting('DoPoisonDot') end, },
                 { name = "CorruptionDot", cond = function(self) return RGMercUtils.GetSetting('DoCorruptionDot') end, },
@@ -1873,7 +1802,21 @@ local _ClassConfig = {
             gem = 11,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
-                { name = "TempHP", }, --level 84, this spell starts in a long recast so I prefer to keep it on the bar.
+                { name = "TempHP",        cond = function(self) return RGMercUtils.GetSetting('DoTempHP') end, }, --level 84, this spell starts in a long recast so I prefer to keep it on the bar.
+                { name = "PoisonDot",     cond = function(self) return RGMercUtils.GetSetting('DoPoisonDot') end, },
+                { name = "CorruptionDot", cond = function(self) return RGMercUtils.GetSetting('DoCorruptionDot') end, },
+                { name = "DireDot",       cond = function(self) return RGMercUtils.GetSetting('DoDireDot') end, },
+                { name = "Torrent",       cond = function(self) return RGMercUtils.GetSetting('DoTorrent') end, },
+                { name = "BuffTap",       cond = function(self) return RGMercUtils.GetSetting('DoBuffTap') end, },
+                { name = "Skin",          cond = function(self) return mq.TLO.Me.NumGems() < 13 end, },
+                { name = "LifeTap2", },
+                {
+                    name = "Terror2",
+                    cond = function(self)
+                        return RGMercUtils.GetSetting('DoTerror') == 3 or
+                            (RGMercUtils.GetSetting('DoTerror') == 2 and mq.TLO.Me.Level() < 72)
+                    end,
+                },
             },
         },
         { -- Level 80
@@ -1947,6 +1890,7 @@ local _ClassConfig = {
 
         --Buffs and Debuffs
         ['DoSnare']          = { DisplayName = "Use Snares", Category = "Buffs/Debuffs", Tooltip = "Use Snare(Snare Dot used until AA is available).", Default = false, RequiresLoadoutChange = true, },
+        ['DoTempHP']         = { DisplayName = "Use HP Buff", Category = "Buffs/Debuffs", Tooltip = "Use your Temp HP Buff.", Default = true, RequiresLoadoutChange = true, },
         ['DoTorrent']        = { DisplayName = "Use Torrents", Category = "Buffs/Debuffs", Tooltip = function() return RGMercUtils.GetDynamicTooltipForSpell("Torrent") end, RequiresLoadoutChange = true, Default = false, },
         ['DoBuffTap']        = { DisplayName = "Use MaxHP Tap", Category = "Spells and Abilities", Tooltip = function() return RGMercUtils.GetDynamicTooltipForSpell("BuffTap") end, Default = false, },
         ['DoVetAA']          = { DisplayName = "Use Vet AA", Category = "Spells and Abilities", Tooltip = "Use Veteran AA's in emergencies or during BigBurn", Default = true, },
