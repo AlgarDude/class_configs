@@ -32,7 +32,7 @@ local Tooltips     = {
     BondTap             = "Spell Line: LifeTap DOT",
     DireTap             = "Spell Line: LifeTap",
     LifeTap             = "Spell Line: LifeTap",
-    BuffTap             = "Spell Line: LifeTap + Hate Increase + HP Regen",
+    BuffTap             = "Spell Line: Dmg + Max HP Buff + Hate Increase",
     BiteTap             = "Spell Line: LifeTap + ManaTap",
     ForPower            = "Spell Line: Hate Increase + Hate Increase DOT + AC Buff 'BY THE POWER OF GRAYSKULL, I HAVE THE POWER -- HE-MAN'",
     Terror              = "Spell Line: Hate Increase + Taunt",
@@ -1574,18 +1574,19 @@ local _ClassConfig = {
                 {
                     name = "Terror",
                     cond = function(self)
-                        return RGMercUtils.GetSetting('DoTerror') == 3 or
-                            (RGMercUtils.GetSetting('DoTerror') == 2 and mq.TLO.Me.Level() < 72)
+                        local setting = RGMercUtils.GetSetting('DoTerror')
+                        return setting == 3 or (setting == 2 and mq.TLO.Me.Level() < 72)
                     end,
                 },
                 {
                     name = "AETaunt",
                     cond = function(self)
-                        return RGMercUtils.GetSetting('AETauntSpell') == 3 or
-                            (RGMercUtils.GetSetting('DoTerror') == 2 and not RGMercUtils.CanUseAA("Explosion of Hatred"))
+                        local setting = RGMercUtils.GetSetting('AETauntSpell')
+                        return setting == 3 or (setting == 2 and not RGMercUtils.CanUseAA("Explosion of Hatred"))
                     end,
                 },
                 { name = "BiteTap", },
+            },
         },
         {
             gem = 4,
@@ -1596,15 +1597,15 @@ local _ClassConfig = {
                 {
                     name = "Terror",
                     cond = function(self)
-                        return RGMercUtils.GetSetting('DoTerror') == 3 or
-                            (RGMercUtils.GetSetting('DoTerror') == 2 and mq.TLO.Me.Level() < 72)
+                        local setting = RGMercUtils.GetSetting('DoTerror')
+                        return setting == 3 or (setting == 2 and mq.TLO.Me.Level() < 72)
                     end,
                 },
                 {
                     name = "AETaunt",
                     cond = function(self)
-                        return RGMercUtils.GetSetting('AETauntSpell') == 3 or
-                            (RGMercUtils.GetSetting('DoTerror') == 2 and not RGMercUtils.CanUseAA("Explosion of Hatred"))
+                        local setting = RGMercUtils.GetSetting('AETauntSpell')
+                        return setting == 3 or (setting == 2 and not RGMercUtils.CanUseAA("Explosion of Hatred"))
                     end,
                 },
                 { name = "BiteTap", },
@@ -1614,7 +1615,7 @@ local _ClassConfig = {
                 { name = "DireDot",       cond = function(self) return RGMercUtils.GetSetting('DoDireDot') end, },
                 { name = "Torrent",       cond = function(self) return RGMercUtils.GetSetting('DoTorrent') end, },
                 { name = "BuffTap",       cond = function(self) return RGMercUtils.GetSetting('DoBuffTap') end, },
-                { name = "Skin",          cond = function(self) return mq.TLO.Me.NumGems() < 13 end, },
+                { name = "Skin",          cond = function(self) return RGMercUtils.IsTanking() and mq.TLO.Me.NumGems() < 13 end, },
                 { name = "LifeTap2", },
             },
         },
@@ -1626,15 +1627,15 @@ local _ClassConfig = {
                 {
                     name = "Terror",
                     cond = function(self)
-                        return RGMercUtils.GetSetting('DoTerror') == 3 or
-                            (RGMercUtils.GetSetting('DoTerror') == 2 and mq.TLO.Me.Level() < 72)
+                        local setting = RGMercUtils.GetSetting('DoTerror')
+                        return setting == 3 or (setting == 2 and mq.TLO.Me.Level() < 72)
                     end,
                 },
                 {
                     name = "AETaunt",
                     cond = function(self)
-                        return RGMercUtils.GetSetting('AETauntSpell') == 3 or
-                            (RGMercUtils.GetSetting('DoTerror') == 2 and not RGMercUtils.CanUseAA("Explosion of Hatred"))
+                        local setting = RGMercUtils.GetSetting('AETauntSpell')
+                        return setting == 3 or (setting == 2 and not RGMercUtils.CanUseAA("Explosion of Hatred"))
                     end,
                 },
                 { name = "BiteTap", },
@@ -1644,13 +1645,13 @@ local _ClassConfig = {
                 { name = "DireDot",       cond = function(self) return RGMercUtils.GetSetting('DoDireDot') end, },
                 { name = "Torrent",       cond = function(self) return RGMercUtils.GetSetting('DoTorrent') end, },
                 { name = "BuffTap",       cond = function(self) return RGMercUtils.GetSetting('DoBuffTap') end, },
-                { name = "Skin",          cond = function(self) return mq.TLO.Me.NumGems() < 13 end, },
+                { name = "Skin",          cond = function(self) return RGMercUtils.IsTanking() and mq.TLO.Me.NumGems() < 13 end, },
                 { name = "LifeTap2", },
                 {
                     name = "Terror2",
                     cond = function(self)
-                        return RGMercUtils.GetSetting('DoTerror') == 3 or
-                            (RGMercUtils.GetSetting('DoTerror') == 2 and mq.TLO.Me.Level() < 72)
+                        local setting = RGMercUtils.GetSetting('DoTerror')
+                        return setting == 3 or (setting == 2 and mq.TLO.Me.Level() < 72)
                     end,
                 },
             },
@@ -1662,15 +1663,15 @@ local _ClassConfig = {
                 {
                     name = "Terror",
                     cond = function(self)
-                        return RGMercUtils.GetSetting('DoTerror') == 3 or
-                            (RGMercUtils.GetSetting('DoTerror') == 2 and mq.TLO.Me.Level() < 72)
+                        local setting = RGMercUtils.GetSetting('DoTerror')
+                        return setting == 3 or (setting == 2 and mq.TLO.Me.Level() < 72)
                     end,
                 },
                 {
                     name = "AETaunt",
                     cond = function(self)
-                        return RGMercUtils.GetSetting('AETauntSpell') == 3 or
-                            (RGMercUtils.GetSetting('DoTerror') == 2 and not RGMercUtils.CanUseAA("Explosion of Hatred"))
+                        local setting = RGMercUtils.GetSetting('AETauntSpell')
+                        return setting == 3 or (setting == 2 and not RGMercUtils.CanUseAA("Explosion of Hatred"))
                     end,
                 },
                 { name = "BiteTap", },
@@ -1680,13 +1681,13 @@ local _ClassConfig = {
                 { name = "DireDot",       cond = function(self) return RGMercUtils.GetSetting('DoDireDot') end, },
                 { name = "Torrent",       cond = function(self) return RGMercUtils.GetSetting('DoTorrent') end, },
                 { name = "BuffTap",       cond = function(self) return RGMercUtils.GetSetting('DoBuffTap') end, },
-                { name = "Skin",          cond = function(self) return mq.TLO.Me.NumGems() < 13 end, },
+                { name = "Skin",          cond = function(self) return RGMercUtils.IsTanking() and mq.TLO.Me.NumGems() < 13 end, },
                 { name = "LifeTap2", },
                 {
                     name = "Terror2",
                     cond = function(self)
-                        return RGMercUtils.GetSetting('DoTerror') == 3 or
-                            (RGMercUtils.GetSetting('DoTerror') == 2 and mq.TLO.Me.Level() < 72)
+                        local setting = RGMercUtils.GetSetting('DoTerror')
+                        return setting == 3 or (setting == 2 and mq.TLO.Me.Level() < 72)
                     end,
                 },
             },
@@ -1697,15 +1698,15 @@ local _ClassConfig = {
                 {
                     name = "Terror",
                     cond = function(self)
-                        return RGMercUtils.GetSetting('DoTerror') == 3 or
-                            (RGMercUtils.GetSetting('DoTerror') == 2 and mq.TLO.Me.Level() < 72)
+                        local setting = RGMercUtils.GetSetting('DoTerror')
+                        return setting == 3 or (setting == 2 and mq.TLO.Me.Level() < 72)
                     end,
                 },
                 {
                     name = "AETaunt",
                     cond = function(self)
-                        return RGMercUtils.GetSetting('AETauntSpell') == 3 or
-                            (RGMercUtils.GetSetting('DoTerror') == 2 and not RGMercUtils.CanUseAA("Explosion of Hatred"))
+                        local setting = RGMercUtils.GetSetting('AETauntSpell')
+                        return setting == 3 or (setting == 2 and not RGMercUtils.CanUseAA("Explosion of Hatred"))
                     end,
                 },
                 { name = "BiteTap", },
@@ -1715,13 +1716,13 @@ local _ClassConfig = {
                 { name = "DireDot",       cond = function(self) return RGMercUtils.GetSetting('DoDireDot') end, },
                 { name = "Torrent",       cond = function(self) return RGMercUtils.GetSetting('DoTorrent') end, },
                 { name = "BuffTap",       cond = function(self) return RGMercUtils.GetSetting('DoBuffTap') end, },
-                { name = "Skin",          cond = function(self) return mq.TLO.Me.NumGems() < 13 end, },
+                { name = "Skin",          cond = function(self) return RGMercUtils.IsTanking() and mq.TLO.Me.NumGems() < 13 end, },
                 { name = "LifeTap2", },
                 {
                     name = "Terror2",
                     cond = function(self)
-                        return RGMercUtils.GetSetting('DoTerror') == 3 or
-                            (RGMercUtils.GetSetting('DoTerror') == 2 and mq.TLO.Me.Level() < 72)
+                        local setting = RGMercUtils.GetSetting('DoTerror')
+                        return setting == 3 or (setting == 2 and mq.TLO.Me.Level() < 72)
                     end,
                 },
             },
@@ -1733,8 +1734,8 @@ local _ClassConfig = {
                 {
                     name = "AETaunt",
                     cond = function(self)
-                        return RGMercUtils.GetSetting('AETauntSpell') == 3 or
-                            (RGMercUtils.GetSetting('DoTerror') == 2 and not RGMercUtils.CanUseAA("Explosion of Hatred"))
+                        local setting = RGMercUtils.GetSetting('AETauntSpell')
+                        return setting == 3 or (setting == 2 and not RGMercUtils.CanUseAA("Explosion of Hatred"))
                     end,
                 },
                 { name = "BiteTap", },
@@ -1744,15 +1745,16 @@ local _ClassConfig = {
                 { name = "DireDot",       cond = function(self) return RGMercUtils.GetSetting('DoDireDot') end, },
                 { name = "Torrent",       cond = function(self) return RGMercUtils.GetSetting('DoTorrent') end, },
                 { name = "BuffTap",       cond = function(self) return RGMercUtils.GetSetting('DoBuffTap') end, },
-                { name = "Skin",          cond = function(self) return mq.TLO.Me.NumGems() < 13 end, },
+                { name = "Skin",          cond = function(self) return RGMercUtils.IsTanking() and mq.TLO.Me.NumGems() < 13 end, },
                 { name = "LifeTap2", },
                 {
                     name = "Terror2",
                     cond = function(self)
-                        return RGMercUtils.GetSetting('DoTerror') == 3 or
-                            (RGMercUtils.GetSetting('DoTerror') == 2 and mq.TLO.Me.Level() < 72)
+                        local setting = RGMercUtils.GetSetting('DoTerror')
+                        return setting == 3 or (setting == 2 and mq.TLO.Me.Level() < 72)
                     end,
                 },
+
             },
         },
         { -- Level 55
@@ -1766,13 +1768,13 @@ local _ClassConfig = {
                 { name = "DireDot",       cond = function(self) return RGMercUtils.GetSetting('DoDireDot') end, },
                 { name = "Torrent",       cond = function(self) return RGMercUtils.GetSetting('DoTorrent') end, },
                 { name = "BuffTap",       cond = function(self) return RGMercUtils.GetSetting('DoBuffTap') end, },
-                { name = "Skin",          cond = function(self) return mq.TLO.Me.NumGems() < 13 end, },
+                { name = "Skin",          cond = function(self) return RGMercUtils.IsTanking() and mq.TLO.Me.NumGems() < 13 end, },
                 { name = "LifeTap2", },
                 {
                     name = "Terror2",
                     cond = function(self)
-                        return RGMercUtils.GetSetting('DoTerror') == 3 or
-                            (RGMercUtils.GetSetting('DoTerror') == 2 and mq.TLO.Me.Level() < 72)
+                        local setting = RGMercUtils.GetSetting('DoTerror')
+                        return setting == 3 or (setting == 2 and mq.TLO.Me.Level() < 72)
                     end,
                 },
             },
@@ -1787,13 +1789,13 @@ local _ClassConfig = {
                 { name = "DireDot",       cond = function(self) return RGMercUtils.GetSetting('DoDireDot') end, },
                 { name = "Torrent",       cond = function(self) return RGMercUtils.GetSetting('DoTorrent') end, },
                 { name = "BuffTap",       cond = function(self) return RGMercUtils.GetSetting('DoBuffTap') end, },
-                { name = "Skin",          cond = function(self) return mq.TLO.Me.NumGems() < 13 end, },
+                { name = "Skin",          cond = function(self) return RGMercUtils.IsTanking() and mq.TLO.Me.NumGems() < 13 end, },
                 { name = "LifeTap2", },
                 {
                     name = "Terror2",
                     cond = function(self)
-                        return RGMercUtils.GetSetting('DoTerror') == 3 or
-                            (RGMercUtils.GetSetting('DoTerror') == 2 and mq.TLO.Me.Level() < 72)
+                        local setting = RGMercUtils.GetSetting('DoTerror')
+                        return setting == 3 or (setting == 2 and mq.TLO.Me.Level() < 72)
                     end,
                 },
             },
@@ -1808,13 +1810,13 @@ local _ClassConfig = {
                 { name = "DireDot",       cond = function(self) return RGMercUtils.GetSetting('DoDireDot') end, },
                 { name = "Torrent",       cond = function(self) return RGMercUtils.GetSetting('DoTorrent') end, },
                 { name = "BuffTap",       cond = function(self) return RGMercUtils.GetSetting('DoBuffTap') end, },
-                { name = "Skin",          cond = function(self) return mq.TLO.Me.NumGems() < 13 end, },
+                { name = "Skin",          cond = function(self) return RGMercUtils.IsTanking() and mq.TLO.Me.NumGems() < 13 end, },
                 { name = "LifeTap2", },
                 {
                     name = "Terror2",
                     cond = function(self)
-                        return RGMercUtils.GetSetting('DoTerror') == 3 or
-                            (RGMercUtils.GetSetting('DoTerror') == 2 and mq.TLO.Me.Level() < 72)
+                        local setting = RGMercUtils.GetSetting('DoTerror')
+                        return setting == 3 or (setting == 2 and mq.TLO.Me.Level() < 72)
                     end,
                 },
             },
@@ -1823,14 +1825,27 @@ local _ClassConfig = {
             gem = 12,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
-                { name = "Skin", }, -- level 70, while not as bad as the TempHP line, also starts in a recast. Placed higher before level 106.
+                { name = "Skin",          cond = function(self) return RGMercUtils.IsTanking() end, }, -- level 70, while not as bad as the TempHP line, also starts in a recast. Placed higher before level 106.
+                { name = "CorruptionDot", cond = function(self) return RGMercUtils.GetSetting('DoCorruptionDot') end, },
+                { name = "DireDot",       cond = function(self) return RGMercUtils.GetSetting('DoDireDot') end, },
+                { name = "Torrent",       cond = function(self) return RGMercUtils.GetSetting('DoTorrent') end, },
+                { name = "BuffTap",       cond = function(self) return RGMercUtils.GetSetting('DoBuffTap') end, },
+                { name = "Skin",          cond = function(self) return RGMercUtils.IsTanking() and mq.TLO.Me.NumGems() < 13 end, },
+                { name = "LifeTap2", },
+                {
+                    name = "Terror2",
+                    cond = function(self)
+                        local setting = RGMercUtils.GetSetting('DoTerror')
+                        return setting == 3 or (setting == 2 and mq.TLO.Me.Level() < 72)
+                    end,
+                },
             },
         },
         { -- Level 106
             gem = 13,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
-                { name = "HealBurn", }, --level 103, this may be overwritten by pauses but it is fine, it has a low refresh time. At least it will be there on start.
+                { name = "Healburn", cond = function(self) return RGMercUtils.IsTanking() end, }, --level 103, this may be overwritten by pauses but it is fine, it has a low refresh time. At least it will be there on start.
             },
         },
     },
@@ -1889,49 +1904,49 @@ local _ClassConfig = {
         ['Mode']             = { DisplayName = "Mode", Category = "Mode", Tooltip = "Select the active Combat Mode for this PC.", Type = "Custom", RequiresLoadoutChange = true, Default = 1, Min = 1, Max = 2, },
 
         --Buffs and Debuffs
-        ['DoSnare']          = { DisplayName = "Use Snares", Category = "Buffs/Debuffs", Tooltip = "Use Snare(Snare Dot used until AA is available).", Default = false, RequiresLoadoutChange = true, },
-        ['DoTempHP']         = { DisplayName = "Use HP Buff", Category = "Buffs/Debuffs", Tooltip = "Use your Temp HP Buff.", Default = true, RequiresLoadoutChange = true, },
-        ['DoTorrent']        = { DisplayName = "Use Torrents", Category = "Buffs/Debuffs", Tooltip = function() return RGMercUtils.GetDynamicTooltipForSpell("Torrent") end, RequiresLoadoutChange = true, Default = false, },
-        ['DoBuffTap']        = { DisplayName = "Use MaxHP Tap", Category = "Spells and Abilities", Tooltip = function() return RGMercUtils.GetDynamicTooltipForSpell("BuffTap") end, Default = false, },
-        ['DoVetAA']          = { DisplayName = "Use Vet AA", Category = "Spells and Abilities", Tooltip = "Use Veteran AA's in emergencies or during BigBurn", Default = true, },
+        ['DoSnare']          = { DisplayName = "Use Snares", Category = "Buffs/Debuffs", Index = 1, Tooltip = "Use Snare(Snare Dot used until AA is available).", Default = false, RequiresLoadoutChange = true, },
+        ['DoTempHP']         = { DisplayName = "Use HP Buff", Category = "Buffs/Debuffs", Index = 2, Tooltip = function() return RGMercUtils.GetDynamicTooltipForSpell("TempHP") end, Default = true, RequiresLoadoutChange = true, },
+        ['DoTorrent']        = { DisplayName = "Use Torrents", Category = "Buffs/Debuffs", Index = 3, Tooltip = function() return RGMercUtils.GetDynamicTooltipForSpell("Torrent") end, RequiresLoadoutChange = true, Default = true, ConfigType = "Advanced", },
+        ['DoBuffTap']        = { DisplayName = "Use Buff Tap", Category = "Buffs/Debuffs", Index = 4, Tooltip = function() return RGMercUtils.GetDynamicTooltipForSpell("BuffTap") end, Default = false, RequiresLoadoutChange = true, ConfigType = "Advanced", },
+        ['DoVetAA']          = { DisplayName = "Use Vet AA", Category = "Spells and Abilities", Index = 5, Tooltip = "Use Veteran AA's in emergencies or during BigBurn.", Default = true, },
 
         --LifeTaps
-        ['StartLifeTap']     = { DisplayName = "HP % for LifeTaps", Category = "LifeTaps", Tooltip = "Your HP % before we use Life Taps.", Default = 100, Min = 1, Max = 100, },
-        ['DoDireTap']        = { DisplayName = "Cast Dire Taps", Category = "LifeTaps", Tooltip = function() return RGMercUtils.GetDynamicTooltipForSpell("DireTap") end, RequiresLoadoutChange = true, Default = true, },
-        ['StartDireTap']     = { DisplayName = "HP % for Dire", Category = "LifeTaps", Tooltip = "Your HP % before we use Dire taps.", Default = 85, Min = 1, Max = 100, },
-        ['DoDicho']          = { DisplayName = "Cast Dicho Taps", Category = "LifeTaps", Tooltip = function() return RGMercUtils.GetDynamicTooltipForSpell("Dicho") end, RequiresLoadoutChange = true, Default = true, },
-        ['StartDicho']       = { DisplayName = "HP % for Dicho", Category = "LifeTaps", Tooltip = "Your HP % before we use Dicho taps.", Default = 70, Min = 1, Max = 100, },
+        ['StartLifeTap']     = { DisplayName = "HP % for LifeTaps", Category = "LifeTaps", Index = 1, Tooltip = "Your HP % before we use Life Taps.", Default = 99, Min = 1, Max = 100, },
+        ['DoDireTap']        = { DisplayName = "Cast Dire Taps", Category = "LifeTaps", Index = 2, Tooltip = function() return RGMercUtils.GetDynamicTooltipForSpell("DireTap") end, RequiresLoadoutChange = true, Default = true, ConfigType = "Advanced", },
+        ['StartDireTap']     = { DisplayName = "HP % for Dire", Category = "LifeTaps", Index = 3, Tooltip = "Your HP % before we use Dire taps.", Default = 85, Min = 1, Max = 100, ConfigType = "Advanced", },
+        ['DoDicho']          = { DisplayName = "Cast Dicho Taps", Category = "LifeTaps", Index = 4, Tooltip = function() return RGMercUtils.GetDynamicTooltipForSpell("Dicho") end, RequiresLoadoutChange = true, Default = true, ConfigType = "Advanced", },
+        ['StartDicho']       = { DisplayName = "HP % for Dicho", Category = "LifeTaps", Index = 5, Tooltip = "Your HP % before we use Dicho taps.", Default = 70, Min = 1, Max = 100, ConfigType = "Advanced", },
 
         --DoTs
-        ['HPStopDOT']        = { DisplayName = "HP Stop DoTs", Category = "Spells and Abilities", Tooltip = "Stop casting DOTs when the mob hits [x] HP %.", Default = 50, Min = 1, Max = 100, },
-        ['NamedStopDOT']     = { DisplayName = "Named HP Stop DOTs", Category = "Spells and Abilities", Tooltip = "Stop casting DOTs when a named mob hits [x] HP %.", Default = 25, Min = 1, Max = 100, },
-        ['ManaToDot']        = { DisplayName = "Min Mana to Dot", Category = "Spells and Abilities", Index = 5, Tooltip = "The minimum Mana % to use DoTs outside of burns.", Default = 40, Min = 1, Max = 100, ConfigType = "Advanced", },
-        ['DoBondTap']        = { DisplayName = "Use Bond Dot", Category = "DoT Spells", Tooltip = "Use Dire Dot", RequiresLoadoutChange = true, Default = true, },
-        ['DoCorruptionDot']  = { DisplayName = "Use Corrupt Dot", Category = "DoT Spells", Tooltip = "Use Dire Dot", RequiresLoadoutChange = true, Default = true, },
-        ['DoDireDot']        = { DisplayName = "Use Dire Dot", Category = "DoT Spells", Tooltip = "Use Dire Dot", RequiresLoadoutChange = true, Default = false, },
-        ['DoPoisonDot']      = { DisplayName = "Use Poison Dot", Category = "DoT Spells", Tooltip = "Use Dire Dot", RequiresLoadoutChange = true, Default = true, },
+        ['DoBondTap']        = { DisplayName = "Use Bond Dot", Category = "DoT Spells", Index = 1, Tooltip = "Use Dire Dot", RequiresLoadoutChange = true, Default = true, },
+        ['DoPoisonDot']      = { DisplayName = "Use Poison Dot", Category = "DoT Spells", Index = 2, Tooltip = "Use Dire Dot", RequiresLoadoutChange = true, Default = true, },
+        ['DoCorruptionDot']  = { DisplayName = "Use Corrupt Dot", Category = "DoT Spells", Index = 3, Tooltip = "Use Dire Dot", RequiresLoadoutChange = true, Default = true, },
+        ['DoDireDot']        = { DisplayName = "Use Dire Dot", Category = "DoT Spells", Index = 4, Tooltip = "Use Dire Dot", RequiresLoadoutChange = true, Default = false, },
+        ['HPStopDOT']        = { DisplayName = "HP Stop DoTs", Category = "Spells and Abilities", Index = 5, Tooltip = "Stop casting DOTs when the mob hits [x] HP %.", Default = 50, Min = 1, Max = 100, ConfigType = "Advanced", },
+        ['NamedStopDOT']     = { DisplayName = "Named HP Stop DOTs", Category = "Spells and Abilities", Index = 6, Tooltip = "Stop casting DOTs when a named mob hits [x] HP %.", Default = 25, Min = 1, Max = 100, ConfigType = "Advanced", },
+        ['ManaToDot']        = { DisplayName = "Min Mana to Dot", Category = "Spells and Abilities", Index = 7, Tooltip = "The minimum Mana % to use DoTs outside of burns.", Default = 40, Min = 1, Max = 100, ConfigType = "Advanced", },
 
         --Hate Tools
-        ['UseVoT']           = { DisplayName = "Use VoT AA", Category = "Hate Tools", Tooltip = "Use Hate Buff AA. Spells currently not used because of low values and long refresh times.", Default = true, },
-        ['DoTerror']         = { DisplayName = "Terror Taunts:", Category = "Hate Tools", Index = 1, Tooltip = "Choose the level range (if any) to memorize Terror Spells.", RequiresLoadoutChange = true, Type = "Combo", ComboOptions = { 'Never', 'Until "For Power" spells are available', 'Always', }, Default = 2, Min = 1, Max = 3, },
-        ['DoForPower']       = { DisplayName = "Use \"For Power\" Spells", Category = "Hate Tools", Tooltip = function() return RGMercUtils.GetDynamicTooltipForSpell("ForPower") end, RequiresLoadoutChange = true, Default = false, },
-        ['AETauntAA']        = { DisplayName = "Use AE Taunt AA", Category = "Hate Tools", Tooltip = "Use Explosions of Hatred and Spite.", Default = true, },
-        ['AETauntSpell']     = { DisplayName = "AE Taunt Spell Choice:", Category = "Hate Tools", Index = 1, Tooltip = "Choose the level range (if any) to memorize AE Taunt Spells.", RequiresLoadoutChange = true, Type = "Combo", ComboOptions = { 'Never', 'Until Explosions (AA Taunts) are available', 'Always', }, Default = 2, Min = 1, Max = 3, },
-        ['AeTauntCnt']       = { DisplayName = "AE Taunt Count", Category = "Hate Tools", Tooltip = "Minimum number of haters before using AE Taunt Spells or AA.", Default = 2, Min = 1, Max = 10, },
-        ['SafeAeTaunt']      = { DisplayName = "AE Taunt Safety Check", Category = "Hate Tools", Tooltip = "Limit unintended pulls with AE Taunt Spells or AA. May result in non-use due to false positives.", Default = false, },
+        ['UseVoT']           = { DisplayName = "Use VoT AA", Category = "Hate Tools", Index = 1, Tooltip = "Use Hate Buff AA. Spells currently not used because of low values and long refresh times.", Default = true, ConfigType = "Advanced", },
+        ['DoTerror']         = { DisplayName = "Terror Taunts:", Category = "Hate Tools", Index = 2, Tooltip = "Choose the level range (if any) to memorize Terror Spells.", RequiresLoadoutChange = true, Type = "Combo", ComboOptions = { 'Never', 'Until "For Power" spells are available', 'Always', }, Default = 2, Min = 1, Max = 3, },
+        ['DoForPower']       = { DisplayName = "Use \"For Power\"", Category = "Hate Tools", Index = 3, Tooltip = function() return RGMercUtils.GetDynamicTooltipForSpell("ForPower") end, RequiresLoadoutChange = true, Default = true, ConfigType = "Advanced", },
+        ['AETauntAA']        = { DisplayName = "Use AE Taunt AA", Category = "Hate Tools", Index = 4, Tooltip = "Use Explosions of Hatred and Spite.", Default = true, ConfigType = "Advanced", },
+        ['AETauntSpell']     = { DisplayName = "AE Taunt Spell Choice:", Category = "Hate Tools", Index = 5, Tooltip = "Choose the level range (if any) to memorize AE Taunt Spells.", RequiresLoadoutChange = true, Type = "Combo", ComboOptions = { 'Never', 'Until Explosions (AA Taunts) are available', 'Always', }, Default = 2, Min = 1, Max = 3, ConfigType = "Advanced", },
+        ['AeTauntCnt']       = { DisplayName = "AE Taunt Count", Category = "Hate Tools", Index = 6, Tooltip = "Minimum number of haters before using AE Taunt Spells or AA.", Default = 2, Min = 1, Max = 10, },
+        ['SafeAeTaunt']      = { DisplayName = "AE Taunt Safety Check", Category = "Hate Tools", Index = 7, Tooltip = "Limit unintended pulls with AE Taunt Spells or AA. May result in non-use due to false positives.", Default = false, },
 
         --Defenses
-        ['DiscCount']        = { DisplayName = "Def. Disc. Count", Category = "Defenses", Tooltip = "Number of mobs around you before you use preemptively use Defensive Discs.", Default = 4, Min = 1, Max = 10, },
-        ['EmergencyStart']   = { DisplayName = "Emergency Start", Category = "Defenses", Tooltip = "Your HP % before we begin to use emergency abilities.", Default = 55, Min = 1, Max = 100, },
-        ['EmergencyLockout'] = { DisplayName = "Emergency Only", Category = "Defenses", Tooltip = "Your HP % before standard DPS rotations are cut in favor of emergency abilities.", Default = 35, Min = 1, Max = 100, },
+        ['DiscCount']        = { DisplayName = "Def. Disc. Count", Category = "Defenses", Index = 1, Tooltip = "Number of mobs around you before you use preemptively use Defensive Discs.", Default = 4, Min = 1, Max = 10, ConfigType = "Advanced", },
+        ['EmergencyStart']   = { DisplayName = "Emergency Start", Category = "Defenses", Index = 2, Tooltip = "Your HP % before we begin to use emergency abilities.", Default = 55, Min = 1, Max = 100, ConfigType = "Advanced", },
+        ['EmergencyLockout'] = { DisplayName = "Emergency Only", Category = "Defenses", Index = 3, Tooltip = "Your HP % before standard DPS rotations are cut in favor of emergency abilities.", Default = 35, Min = 1, Max = 100, ConfigType = "Advanced", },
 
         --Equipment
-        ['DoChestClick']     = { DisplayName = "Do Chest Click", Category = "Equipment", Tooltip = "Click your equipped chest.", Default = true, },
-        ['DoCharmClick']     = { DisplayName = "Do Charm Click", Category = "Equipment", Tooltip = "Click your charm for Geomantra.", Default = true, },
-        ['UseBandolier']     = { DisplayName = "Dynamic Weapon Swap", Category = "Equipment", Index = 1, Tooltip = "Enable 1H+S/2H swapping based off of current health. ***YOU MUST HAVE BANDOLIER ENTRIES NAMED \"Shield\" and \"2Hand\" TO USE THIS FUNCTION.***", Default = false, },
-        ['EquipShield']      = { DisplayName = "Equip Shield", Category = "Equipment", Index = 2, Tooltip = "Under this HP%, you will swap to your \"Shield\" bandolier entry. (Dynamic Bandolier Enabled Only)", Default = 50, Min = 1, Max = 100, },
-        ['Equip2Hand']       = { DisplayName = "Equip 2Hand", Category = "Equipment", Index = 3, Tooltip = "Over this HP%, you will swap to your \"2Hand\" bandolier entry. (Dynamic Bandolier Enabled Only)", Default = 75, Min = 1, Max = 100, },
-        ['NamedShieldLock']  = { DisplayName = "Shield on Named", Category = "Equipment", Index = 4, Tooltip = "Keep Shield equipped for Named mobs(must be in SpawnMaster or named.lua)", Default = true, },
+        ['DoChestClick']     = { DisplayName = "Do Chest Click", Category = "Equipment", Index = 1, Tooltip = "Click your equipped chest.", Default = true, },
+        ['DoCharmClick']     = { DisplayName = "Do Charm Click", Category = "Equipment", Index = 2, Tooltip = "Click your charm for Geomantra.", Default = true, },
+        ['UseBandolier']     = { DisplayName = "Dynamic Weapon Swap", Category = "Equipment", Index = 3, Tooltip = "Enable 1H+S/2H swapping based off of current health. ***YOU MUST HAVE BANDOLIER ENTRIES NAMED \"Shield\" and \"2Hand\" TO USE THIS FUNCTION.***", Default = false, },
+        ['EquipShield']      = { DisplayName = "Equip Shield", Category = "Equipment", Index = 4, Tooltip = "Under this HP%, you will swap to your \"Shield\" bandolier entry. (Dynamic Bandolier Enabled Only)", Default = 50, Min = 1, Max = 100, ConfigType = "Advanced", },
+        ['Equip2Hand']       = { DisplayName = "Equip 2Hand", Category = "Equipment", Index = 5, Tooltip = "Over this HP%, you will swap to your \"2Hand\" bandolier entry. (Dynamic Bandolier Enabled Only)", Default = 75, Min = 1, Max = 100, ConfigType = "Advanced", },
+        ['NamedShieldLock']  = { DisplayName = "Shield on Named", Category = "Equipment", Index = 6, Tooltip = "Keep Shield equipped for Named mobs(must be in SpawnMaster or named.lua)", Default = true, },
     },
 }
 
