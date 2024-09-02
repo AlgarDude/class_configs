@@ -1479,6 +1479,14 @@ local _ClassConfig = {
                 end,
             },
             {
+                name = "DireDot",
+                type = "Spell",
+                tooltip = Tooltips.DireDot,
+                cond = function(self, spell)
+                    return AlgarInclude.DotManaCheck() and AlgarInclude.DotSpellCheck(spell) and RGMercUtils.NPCSpellReady(spell, target.ID())
+                end,
+            },
+            {
                 name = "BiteTap",
                 type = "Spell",
                 tooltip = Tooltips.BiteTap,
@@ -1486,25 +1494,6 @@ local _ClassConfig = {
                     return RGMercUtils.NPCSpellReady(spell, target.ID()) and mq.TLO.Me.PctHPs() <= RGMercUtils.GetSetting('StartLifeTap')
                 end,
             },
-            -- {
-            -- name = "BuffTap",
-            -- type = "Spell",
-            -- tooltip = Tooltips.BuffTap,
-            -- cond = function(self, spell)
-            --TODO: Cleanup and test (I'm not using anyway)
-            -- return RGMercUtils.SpellLoaded(spell)
-            -- and not RGMercUtils.BuffActive(spell.RankName.Name.Trigger(1))
-            -- and RGMercUtils.SpellStacksOnMe(spell.RankName.Name.Trigger(1))
-            -- end,
-            -- },
-            -- {
-            -- name = "DireDot",
-            -- type = "Spell",
-            -- tooltip = Tooltips.DireDot,
-            -- cond = function(self, spell)
-            --  return AlgarInclude.DotManaCheck() and AlgarInclude.DotSpellCheck(spell) and RGMercUtils.NPCSpellReady(spell, target.ID())
-            -- end,
-            -- },
             {
                 name = "Torrent",
                 type = "Spell",
@@ -1512,6 +1501,15 @@ local _ClassConfig = {
                 cond = function(self, spell, target)
                     if not RGMercUtils.GetSetting('DoTorrent') then return false end
                     return not RGMercUtils.BuffActiveByName(spell.Name() .. " Recourse") and RGMercUtils.NPCSpellReady(spell, target.ID())
+                end,
+            },
+            {
+                name = "BuffTap",
+                type = "Spell",
+                tooltip = Tooltips.BuffTap,
+                cond = function(self, spell, target)
+                    return not RGMercUtils.BuffActive(spell.RankName.Name.Trigger(1)()) and RGMercUtils.SpellStacksOnMe(spell.RankName.Name.Trigger(1)()) and
+                        RGMercUtils.NPCSpellReady(spell, target.ID())
                 end,
             },
         },
@@ -1734,36 +1732,29 @@ local _ClassConfig = {
     },
     ['DefaultConfig']   = {
         --Mode
-        ['Mode']      = { DisplayName = "Mode", Category = "Mode", Tooltip = "Select the active Combat Mode for this PC.", Type = "Custom", RequiresLoadoutChange = true, Default = 1, Min = 1, Max = 2, },
+        ['Mode']             = { DisplayName = "Mode", Category = "Mode", Tooltip = "Select the active Combat Mode for this PC.", Type = "Custom", RequiresLoadoutChange = true, Default = 1, Min = 1, Max = 2, },
 
         --Buffs and Debuffs
-        ['DoSnare']   = { DisplayName = "Cast Snares", Category = "Spells and Abilities", Tooltip = "Enable casting Snare spells.", Default = true, },
-        ['DoTorrent'] = {
-            DisplayName = "Cast Torrents",
-            Category = "Spells and Abilities",
-            Tooltip = function() return RGMercUtils.GetDynamicTooltipForSpell("Torrent") end,
-            RequiresLoadoutChange = true,
-            Default = false,
-        },
-        ['DoBuffTap'] = { DisplayName = "Use HP Buff Tap", Category = "Spells and Abilities", Tooltip = "Enable casting Snare spells.", Default = false, },
-        ['DoVetAA']   = { DisplayName = "Use Vet AA", Category = "Spells and Abilities", Tooltip = "Use Veteran AA's in emergencies or during BigBurn", Default = true, },
-
+        ['DoSnare']          = { DisplayName = "Use Snares", Category = "Buffs/Debuffs", Tooltip = "Use Snare(Snare Dot used until AA is available).", Default = false, RequiresLoadoutChange = true, },
+        ['DoTorrent']        = { DisplayName = "Use Torrents", Category = "Buffs/Debuffs", Tooltip = function() return RGMercUtils.GetDynamicTooltipForSpell("Torrent") end, RequiresLoadoutChange = true, Default = false, },
+        ['DoBuffTap']        = { DisplayName = "Use MaxHP Tap", Category = "Spells and Abilities", Tooltip = function() return RGMercUtils.GetDynamicTooltipForSpell("BuffTap") end, Default = false, },
+        ['DoVetAA']          = { DisplayName = "Use Vet AA", Category = "Spells and Abilities", Tooltip = "Use Veteran AA's in emergencies or during BigBurn", Default = true, },
 
         --LifeTaps
         ['StartLifeTap']     = { DisplayName = "HP % for LifeTaps", Category = "LifeTaps", Tooltip = "Your HP % before we use Life Taps.", Default = 100, Min = 1, Max = 100, },
-        ['DoDireTap']        = { DisplayName = "Cast Dire Taps", Category = "LifeTaps", Tooltip = "Enable casting Dire Tap spells.", RequiresLoadoutChange = true, Default = true, },
-        ['StartDireTap']     = { DisplayName = "HP % for Dire", Category = "LifeTaps", Tooltip = "Your HP % before we use Dire taps in non-emergencies.", Default = 85, Min = 1, Max = 100, },
-        ['DoDicho']          = { DisplayName = "Cast Dicho Taps", Category = "LifeTaps", Tooltip = "Enable casting Dicho-line tap spells.", RequiresLoadoutChange = true, Default = true, },
-        ['StartDicho']       = { DisplayName = "HP % for Dicho", Category = "LifeTaps", Tooltip = "Your HP % before we use Dicho in non-emergencies.", Default = 70, Min = 1, Max = 100, },
+        ['DoDireTap']        = { DisplayName = "Cast Dire Taps", Category = "LifeTaps", Tooltip = function() return RGMercUtils.GetDynamicTooltipForSpell("DireTap") end, RequiresLoadoutChange = true, Default = true, },
+        ['StartDireTap']     = { DisplayName = "HP % for Dire", Category = "LifeTaps", Tooltip = "Your HP % before we use Dire taps.", Default = 85, Min = 1, Max = 100, },
+        ['DoDicho']          = { DisplayName = "Cast Dicho Taps", Category = "LifeTaps", Tooltip = function() return RGMercUtils.GetDynamicTooltipForSpell("Dicho") end, RequiresLoadoutChange = true, Default = true, },
+        ['StartDicho']       = { DisplayName = "HP % for Dicho", Category = "LifeTaps", Tooltip = "Your HP % before we use Dicho taps.", Default = 70, Min = 1, Max = 100, },
 
         --DoTs
         ['HPStopDOT']        = { DisplayName = "HP Stop DoTs", Category = "Spells and Abilities", Tooltip = "Stop casting DOTs when the mob hits [x] HP %.", Default = 50, Min = 1, Max = 100, },
         ['NamedStopDOT']     = { DisplayName = "Named HP Stop DOTs", Category = "Spells and Abilities", Tooltip = "Stop casting DOTs when a named mob hits [x] HP %.", Default = 25, Min = 1, Max = 100, },
         ['ManaToDot']        = { DisplayName = "Min Mana to Dot", Category = "Spells and Abilities", Index = 5, Tooltip = "The minimum Mana % to use DoTs outside of burns.", Default = 40, Min = 1, Max = 100, ConfigType = "Advanced", },
-        ['DoDireDot']        = { DisplayName = "Cast Dire Taps", Category = "DoT Spells", Tooltip = "Use Dire Dot", RequiresLoadoutChange = true, Default = false, },
-        ['DoPoisonDot']      = { DisplayName = "Cast Dire Taps", Category = "DoT Spells", Tooltip = "Use Dire Dot", RequiresLoadoutChange = true, Default = true, },
-        ['DoCorruptionDot']  = { DisplayName = "Cast Dire Taps", Category = "DoT Spells", Tooltip = "Use Dire Dot", RequiresLoadoutChange = true, Default = true, },
-        ['DoBondTap']        = { DisplayName = "Cast Dire Taps", Category = "DoT Spells", Tooltip = "Use Dire Dot", RequiresLoadoutChange = true, Default = true, },
+        ['DoBondTap']        = { DisplayName = "Use Bond Dot", Category = "DoT Spells", Tooltip = "Use Dire Dot", RequiresLoadoutChange = true, Default = true, },
+        ['DoCorruptionDot']  = { DisplayName = "Use Corrupt Dot", Category = "DoT Spells", Tooltip = "Use Dire Dot", RequiresLoadoutChange = true, Default = true, },
+        ['DoDireDot']        = { DisplayName = "Use Dire Dot", Category = "DoT Spells", Tooltip = "Use Dire Dot", RequiresLoadoutChange = true, Default = false, },
+        ['DoPoisonDot']      = { DisplayName = "Use Poison Dot", Category = "DoT Spells", Tooltip = "Use Dire Dot", RequiresLoadoutChange = true, Default = true, },
 
         --Hate Tools
         ['UseVoT']           = { DisplayName = "Use Hate Buff", Category = "Hate Tools", Tooltip = "Cast Voice of Thule", Default = true, },

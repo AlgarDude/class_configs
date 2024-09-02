@@ -730,8 +730,8 @@ return {
             {
                 name = "Improved Twincast",
                 type = "AA",
-                cond = function(self)
-                    return not RGMercUtils.BuffActive(mq.TLO.Spell("Twincast").RankName.Name())
+                cond = function(self,)
+                    return not RGMercUtils.BuffActivebyName("Twincast")
                 end,
             },
             {
