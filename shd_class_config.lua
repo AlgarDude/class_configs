@@ -1684,11 +1684,23 @@ local _ClassConfig = {
     },
     ['PullAbilities']   = {
         {
+            id = 'Spearnuke',
+            Type = "Spell",
+            DisplayName = function() return RGMercUtils.GetResolvedActionMapItem('Spearnuke').RankName.Name() or "" end,
+            AbilityName = function() return RGMercUtils.GetResolvedActionMapItem('Spearnuke').RankName.Name() or "" end,
+            AbilityRange = 200,
+            cond = function(self)
+                local resolvedSpell = RGMercUtils.GetResolvedActionMapItem('Spearnuke')
+                if not resolvedSpell then return false end
+                return mq.TLO.Me.Gem(resolvedSpell.RankName.Name() or "")() ~= nil
+            end,
+        },
+        {
             id = 'Terror',
             Type = "Spell",
             DisplayName = function() return RGMercUtils.GetResolvedActionMapItem('Terror').RankName.Name() or "" end,
             AbilityName = function() return RGMercUtils.GetResolvedActionMapItem('Terror').RankName.Name() or "" end,
-            AbilityRange = 150,
+            AbilityRange = 200,
             cond = function(self)
                 local resolvedSpell = RGMercUtils.GetResolvedActionMapItem('Terror')
                 if not resolvedSpell then return false end
@@ -1712,7 +1724,7 @@ local _ClassConfig = {
             Type = "Spell",
             DisplayName = function() return RGMercUtils.GetResolvedActionMapItem('Lifetap').RankName.Name() or "" end,
             AbilityName = function() return RGMercUtils.GetResolvedActionMapItem('Lifetap').RankName.Name() or "" end,
-            AbilityRange = 150,
+            AbilityRange = 200,
             cond = function(self)
                 local resolvedSpell = RGMercUtils.GetResolvedActionMapItem('Lifetap')
                 if not resolvedSpell then return false end
@@ -1722,51 +1734,48 @@ local _ClassConfig = {
     },
     ['DefaultConfig']   = {
         --Mode
-        ['Mode']             = { DisplayName = "Mode", Category = "Mode", Tooltip = "Select the active Combat Mode for this PC.", Type = "Custom", RequiresLoadoutChange = true, Default = 1, Min = 1, Max = 2, },
+        ['Mode']      = { DisplayName = "Mode", Category = "Mode", Tooltip = "Select the active Combat Mode for this PC.", Type = "Custom", RequiresLoadoutChange = true, Default = 1, Min = 1, Max = 2, },
 
-        --Spells and Abilities
-        ['DoSnare']          = { DisplayName = "Cast Snares", Category = "Spells and Abilities", Tooltip = "Enable casting Snare spells.", Default = true, },
-        ['DoTorrent']        = {
+        --Buffs and Debuffs
+        ['DoSnare']   = { DisplayName = "Cast Snares", Category = "Spells and Abilities", Tooltip = "Enable casting Snare spells.", Default = true, },
+        ['DoTorrent'] = {
             DisplayName = "Cast Torrents",
             Category = "Spells and Abilities",
             Tooltip = function() return RGMercUtils.GetDynamicTooltipForSpell("Torrent") end,
             RequiresLoadoutChange = true,
             Default = false,
         },
-        ['DoVetAA']          = { DisplayName = "Use Vet AA", Category = "Spells and Abilities", Tooltip = "Use Veteran AA's in emergencies or during BigBurn", Default = true, },
-        ['DoDot']            = { DisplayName = "Cast DoTs", Category = "Spells and Abilities", Tooltip = "Enable casting Damage Over Time spells.", Default = false, },
+        ['DoBuffTap'] = { DisplayName = "Use HP Buff Tap", Category = "Spells and Abilities", Tooltip = "Enable casting Snare spells.", Default = false, },
+        ['DoVetAA']   = { DisplayName = "Use Vet AA", Category = "Spells and Abilities", Tooltip = "Use Veteran AA's in emergencies or during BigBurn", Default = true, },
+
+
+        --LifeTaps
+        ['StartLifeTap']     = { DisplayName = "HP % for LifeTaps", Category = "LifeTaps", Tooltip = "Your HP % before we use Life Taps.", Default = 100, Min = 1, Max = 100, },
+        ['DoDireTap']        = { DisplayName = "Cast Dire Taps", Category = "LifeTaps", Tooltip = "Enable casting Dire Tap spells.", RequiresLoadoutChange = true, Default = true, },
+        ['StartDireTap']     = { DisplayName = "HP % for Dire", Category = "LifeTaps", Tooltip = "Your HP % before we use Dire taps in non-emergencies.", Default = 85, Min = 1, Max = 100, },
+        ['DoDicho']          = { DisplayName = "Cast Dicho Taps", Category = "LifeTaps", Tooltip = "Enable casting Dicho-line tap spells.", RequiresLoadoutChange = true, Default = true, },
+        ['StartDicho']       = { DisplayName = "HP % for Dicho", Category = "LifeTaps", Tooltip = "Your HP % before we use Dicho in non-emergencies.", Default = 70, Min = 1, Max = 100, },
+
+        --DoTs
         ['HPStopDOT']        = { DisplayName = "HP Stop DoTs", Category = "Spells and Abilities", Tooltip = "Stop casting DOTs when the mob hits [x] HP %.", Default = 50, Min = 1, Max = 100, },
         ['NamedStopDOT']     = { DisplayName = "Named HP Stop DOTs", Category = "Spells and Abilities", Tooltip = "Stop casting DOTs when a named mob hits [x] HP %.", Default = 25, Min = 1, Max = 100, },
         ['ManaToDot']        = { DisplayName = "Min Mana to Dot", Category = "Spells and Abilities", Index = 5, Tooltip = "The minimum Mana % to use DoTs outside of burns.", Default = 40, Min = 1, Max = 100, ConfigType = "Advanced", },
-
-        --LifeTaps
-        ['StartLifeTap']     = { DisplayName = "Use Life Taps", Category = "LifeTaps", Tooltip = "Your HP % before we use Life Taps.", Default = 100, Min = 1, Max = 100, },
-        ['DoDireTap']        = { DisplayName = "Cast Dire Taps", Category = "LifeTaps", Tooltip = "Enable casting Dire Tap spells.", RequiresLoadoutChange = true, Default = true, },
-        ['StartDireTap']     = { DisplayName = "Use Dire Taps", Category = "LifeTaps", Tooltip = "Your HP % before we use Dire taps in non-emergencies.", Default = 85, Min = 1, Max = 100, },
-        ['DoDicho']          = { DisplayName = "Cast Dicho Taps", Category = "LifeTaps", Tooltip = "Enable casting Dicho-line tap spells.", RequiresLoadoutChange = true, Default = true, },
-        ['StartDicho']       = { DisplayName = "Use Dicho Taps", Category = "LifeTaps", Tooltip = "Your HP % before we use Dicho in non-emergencies.", Default = 70, Min = 1, Max = 100, },
-
-        --DoTs
         ['DoDireDot']        = { DisplayName = "Cast Dire Taps", Category = "DoT Spells", Tooltip = "Use Dire Dot", RequiresLoadoutChange = true, Default = false, },
         ['DoPoisonDot']      = { DisplayName = "Cast Dire Taps", Category = "DoT Spells", Tooltip = "Use Dire Dot", RequiresLoadoutChange = true, Default = true, },
         ['DoCorruptionDot']  = { DisplayName = "Cast Dire Taps", Category = "DoT Spells", Tooltip = "Use Dire Dot", RequiresLoadoutChange = true, Default = true, },
         ['DoBondTap']        = { DisplayName = "Cast Dire Taps", Category = "DoT Spells", Tooltip = "Use Dire Dot", RequiresLoadoutChange = true, Default = true, },
 
         --Hate Tools
-        ['UseVoT']           = { DisplayName = "Use Voice of Thule", Category = "Hate Tools", Tooltip = "Cast Voice of Thule", Default = true, },
-        ['DoTerror']         = {
-            DisplayName = "Cast Terrors",
-            Category = "Hate Tools",
-            Tooltip = function() return RGMercUtils.GetDynamicTooltipForSpell("Terror") end,
-            RequiresLoadoutChange = true,
-            Default = false,
-        },
+        ['UseVoT']           = { DisplayName = "Use Hate Buff", Category = "Hate Tools", Tooltip = "Cast Voice of Thule", Default = true, },
+        ['FirstTerror']      = { DisplayName = "1st Terror Choice:", Category = "Hate Tools", Index = 1, Tooltip = "Choose the level range (if any) to memorize Terror Spells.", RequiresLoadoutChange = true, Type = "Combo", ComboOptions = { 'Never', 'Until "For Power" spells are available', 'Always', }, Default = 2, Min = 1, Max = 3, },
+        ['SecondTerror']     = { DisplayName = "2nd Terror Choice:", Category = "Hate Tools", Index = 1, Tooltip = "Choose the level range (if any) to memorize a second Terror Spell.", RequiresLoadoutChange = true, Type = "Combo", ComboOptions = { 'Never', 'Until "For Power" spells are available', 'Always', }, Default = 1, Min = 1, Max = 3, },
+        ['DoForPower']       = { DisplayName = "Use \"For Power\" Spells", Category = "Hate Tools", Tooltip = function() return RGMercUtils.GetDynamicTooltipForSpell("ForPower") end, RequiresLoadoutChange = true, Default = false, },
         ['UseAETauntAA']     = { DisplayName = "Use AA AE Taunts", Category = "Hate Tools", Tooltip = "Use Explosions of Hatred and Spite.", Default = true, },
-        ['DoAETauntSpell']   = { DisplayName = "Use AE Taunt Spells", Category = "Hate Tools", Tooltip = "Use AE Taunt Spells.", Default = true, },
+        ['AETauntSpells']    = { DisplayName = "AE Taunt Spell Choice:", Category = "Hate Tools", Index = 1, Tooltip = "Choose the level range (if any) to memorize AE Taunt Spells.", RequiresLoadoutChange = true, Type = "Combo", ComboOptions = { 'Never', 'Until Explosions (AA Taunts) are available', 'Always', }, Default = 2, Min = 1, Max = 3, },
         ['AeTauntCnt']       = { DisplayName = "AE Taunt Count", Category = "Hate Tools", Tooltip = "Minimum number of haters before using AE Taunt.", Default = 2, Min = 1, Max = 10, },
         ['SafeAeTaunt']      = { DisplayName = "AE Taunt Safety Check", Category = "Hate Tools", Tooltip = "Limit unintended pulls with AE Taunts. May result in non-use due to false positives.", Default = false, },
 
-        --Defensees
+        --Defenses
         ['EmergencyStart']   = { DisplayName = "Emergency Start", Category = "Defenses", Tooltip = "Your HP % before we begin to use emergency abilities.", Default = 55, Min = 1, Max = 100, },
         ['EmergencyLockout'] = { DisplayName = "Emergency Only", Category = "Defenses", Tooltip = "Your HP % before standard DPS rotations are cut in favor of emergency abilities.", Default = 35, Min = 1, Max = 100, },
         ['DiscCount']        = { DisplayName = "Def. Disc. Count", Category = "Defenses", Tooltip = "Number of mobs around you before you use preemptively use Defensive Discs.", Default = 4, Min = 1, Max = 10, },
