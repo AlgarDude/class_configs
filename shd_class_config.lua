@@ -943,7 +943,7 @@ local _ClassConfig = {
             {
                 name = "Scourge Skin",
                 type = "AA",
-                --tooltip = Tooltips.VOT,
+                --tooltip = Tooltips.ScourgeSkin,
                 active_cond = function(self, aaName) return RGMercUtils.BuffActiveByID(mq.TLO.Me.AltAbility(aaName).Spell.ID()) end,
                 cond = function(self, aaName)
                     return RGMercUtils.SelfBuffAACheck(aaName)
@@ -985,7 +985,7 @@ local _ClassConfig = {
                     end
                 end,
                 cond = function(self, discSpell)
-                    return RGMercUtils.PCDiscReady(discSpell) and mq.TLO.Me.PctHPs() <= RGMercUtils.GetSetting('EmergencyLockout') and
+                    return mq.TLO.Me.PctHPs() <= RGMercUtils.GetSetting('EmergencyLockout') and not mq.TLO.Me.ActiveDisc.ID() and RGMercUtils.PCDiscReady(discSpell) and
                         (mq.TLO.Me.AltAbilityTimer("Shield Flash")() or 999999) < 234000
                 end,
             },
@@ -1542,141 +1542,352 @@ local _ClassConfig = {
         },
     },
     ['Spells']          = {
-
-        --Use "--" in front of an entry and the spell won't be checked in that slot, bloated to handle most usecases for those who won't edit this.
-        --The function involved will choose the first spell it is able to for a particular gem.
         {
             gem = 1,
             spells = {
-                { name = "LifeTap", },
+                { name = "Spearnuke", },
             },
         },
         {
             gem = 2,
             spells = {
-                { name = "Spearnuke", },
-                { name = "SnareDOT",  cond = function(self) return mq.TLO.Me.AltAbility("Encroaching Darkness")() == nil and RGMercUtils.GetSetting('DoSnare') end, },
-                { name = "PoisonDot", cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
-                { name = "DireDot",   cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
-                { name = "LifeTap2", },
+                { name = "LifeTap", },
             },
         },
         {
             gem = 3,
             spells = {
-                { name = "DireTap",   cond = function(self) return RGMercUtils.GetSetting('DoDireTap') end, },
-                { name = "SnareDOT",  cond = function(self) return mq.TLO.Me.AltAbility("Encroaching Darkness")() == nil and RGMercUtils.GetSetting('DoSnare') end, },
-                { name = "PoisonDot", cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
-                { name = "DireDot",   cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
+                { name = "SnareDOT", cond = function(self) return RGMercUtils.GetSetting('DoSnare') and not RGMercUtils.CanUseAA("Encroaching Darkness") end, },
+                { name = "DireTap",  cond = function(self) return RGMercUtils.GetSetting('DoDireTap') end, },
+                { name = "Dicho",    cond = function(self) return RGMercUtils.GetSetting('DoDicho') end, },
+                { name = "ForPower", cond = function(self) return RGMercUtils.GetSetting('DoForPower') end, },
+                {
+                    name = "Terror",
+                    cond = function(self)
+                        return RGMercUtils.GetSetting('DoTerror') == 3 or
+                            (RGMercUtils.GetSetting('DoTerror') == 2 and mq.TLO.Me.Level() < 72)
+                    end,
+                },
+                {
+                    name = "AETaunt",
+                    cond = function(self)
+                        return RGMercUtils.GetSetting('AETauntSpell') == 3 or
+                            (RGMercUtils.GetSetting('DoTerror') == 2 and not RGMercUtils.CanUseAA("Explosion of Hatred"))
+                    end,
+                },
+                { name = "BiteTap", },
+                { name = "BondTap",       cond = function(self) return RGMercUtils.GetSetting('DoBondTap') end, },
+                { name = "PoisonDot",     cond = function(self) return RGMercUtils.GetSetting('DoPoisonDot') end, },
+                { name = "CorruptionDot", cond = function(self) return RGMercUtils.GetSetting('DoCorruptionDot') end, },
+                { name = "DireDot",       cond = function(self) return RGMercUtils.GetSetting('DoDireDot') end, },
+                { name = "Torrent",       cond = function(self) return RGMercUtils.GetSetting('DoTorrent') end, },
+                { name = "BuffTap",       cond = function(self) return RGMercUtils.GetSetting('DoBuffTap') end, },
+                { name = "Skin",          cond = function(self) return mq.TLO.Me.NumGems() < 13 end, },
                 { name = "LifeTap2", },
+                {
+                    name = "Terror2",
+                    cond = function(self)
+                        return RGMercUtils.GetSetting('DoTerror') == 3 or
+                            (RGMercUtils.GetSetting('DoTerror') == 2 and mq.TLO.Me.Level() < 72)
+                    end,
+                },
             },
         },
         {
             gem = 4,
             spells = {
-                { name = "Dicho", },
-                { name = "SnareDOT",  cond = function(self) return mq.TLO.Me.AltAbility("Encroaching Darkness")() == nil and RGMercUtils.GetSetting('DoSnare') end, },
-                { name = "PoisonDot", cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
-                { name = "DireDot",   cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
+                { name = "SnareDOT", cond = function(self) return RGMercUtils.GetSetting('DoSnare') and not RGMercUtils.CanUseAA("Encroaching Darkness") end, },
+                { name = "DireTap",  cond = function(self) return RGMercUtils.GetSetting('DoDireTap') end, },
+                { name = "Dicho",    cond = function(self) return RGMercUtils.GetSetting('DoDicho') end, },
+                { name = "ForPower", cond = function(self) return RGMercUtils.GetSetting('DoForPower') end, },
+                {
+                    name = "Terror",
+                    cond = function(self)
+                        return RGMercUtils.GetSetting('DoTerror') == 3 or
+                            (RGMercUtils.GetSetting('DoTerror') == 2 and mq.TLO.Me.Level() < 72)
+                    end,
+                },
+                {
+                    name = "AETaunt",
+                    cond = function(self)
+                        return RGMercUtils.GetSetting('AETauntSpell') == 3 or
+                            (RGMercUtils.GetSetting('DoTerror') == 2 and not RGMercUtils.CanUseAA("Explosion of Hatred"))
+                    end,
+                },
+                { name = "BiteTap", },
+                { name = "BondTap",       cond = function(self) return RGMercUtils.GetSetting('DoBondTap') end, },
+                { name = "PoisonDot",     cond = function(self) return RGMercUtils.GetSetting('DoPoisonDot') end, },
+                { name = "CorruptionDot", cond = function(self) return RGMercUtils.GetSetting('DoCorruptionDot') end, },
+                { name = "DireDot",       cond = function(self) return RGMercUtils.GetSetting('DoDireDot') end, },
+                { name = "Torrent",       cond = function(self) return RGMercUtils.GetSetting('DoTorrent') end, },
+                { name = "BuffTap",       cond = function(self) return RGMercUtils.GetSetting('DoBuffTap') end, },
+                { name = "Skin",          cond = function(self) return mq.TLO.Me.NumGems() < 13 end, },
                 { name = "LifeTap2", },
+                {
+                    name = "Terror2",
+                    cond = function(self)
+                        return RGMercUtils.GetSetting('DoTerror') == 3 or
+                            (RGMercUtils.GetSetting('DoTerror') == 2 and mq.TLO.Me.Level() < 72)
+                    end,
+                },
             },
         },
         {
             gem = 5,
             spells = {
-                { name = "BondTap", },
-                { name = "SnareDOT",  cond = function(self) return mq.TLO.Me.AltAbility("Encroaching Darkness")() == nil and RGMercUtils.GetSetting('DoSnare') end, },
-                { name = "PoisonDot", cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
-                { name = "DireDot",   cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
+                { name = "SnareDOT", cond = function(self) return RGMercUtils.GetSetting('DoSnare') and not RGMercUtils.CanUseAA("Encroaching Darkness") end, },
+                { name = "DireTap",  cond = function(self) return RGMercUtils.GetSetting('DoDireTap') end, },
+                { name = "Dicho",    cond = function(self) return RGMercUtils.GetSetting('DoDicho') end, },
+                { name = "ForPower", cond = function(self) return RGMercUtils.GetSetting('DoForPower') end, },
+                {
+                    name = "Terror",
+                    cond = function(self)
+                        return RGMercUtils.GetSetting('DoTerror') == 3 or
+                            (RGMercUtils.GetSetting('DoTerror') == 2 and mq.TLO.Me.Level() < 72)
+                    end,
+                },
+                {
+                    name = "AETaunt",
+                    cond = function(self)
+                        return RGMercUtils.GetSetting('AETauntSpell') == 3 or
+                            (RGMercUtils.GetSetting('DoTerror') == 2 and not RGMercUtils.CanUseAA("Explosion of Hatred"))
+                    end,
+                },
+                { name = "BiteTap", },
+                { name = "BondTap",       cond = function(self) return RGMercUtils.GetSetting('DoBondTap') end, },
+                { name = "PoisonDot",     cond = function(self) return RGMercUtils.GetSetting('DoPoisonDot') end, },
+                { name = "CorruptionDot", cond = function(self) return RGMercUtils.GetSetting('DoCorruptionDot') end, },
+                { name = "DireDot",       cond = function(self) return RGMercUtils.GetSetting('DoDireDot') end, },
+                { name = "Torrent",       cond = function(self) return RGMercUtils.GetSetting('DoTorrent') end, },
+                { name = "BuffTap",       cond = function(self) return RGMercUtils.GetSetting('DoBuffTap') end, },
+                { name = "Skin",          cond = function(self) return mq.TLO.Me.NumGems() < 13 end, },
                 { name = "LifeTap2", },
+                {
+                    name = "Terror2",
+                    cond = function(self)
+                        return RGMercUtils.GetSetting('DoTerror') == 3 or
+                            (RGMercUtils.GetSetting('DoTerror') == 2 and mq.TLO.Me.Level() < 72)
+                    end,
+                },
             },
         },
         {
             gem = 6,
             spells = {
-                { name = "PoisonDot", cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
+                { name = "SnareDOT", cond = function(self) return RGMercUtils.GetSetting('DoSnare') and not RGMercUtils.CanUseAA("Encroaching Darkness") end, },
+                { name = "DireTap",  cond = function(self) return RGMercUtils.GetSetting('DoDireTap') end, },
+                { name = "Dicho",    cond = function(self) return RGMercUtils.GetSetting('DoDicho') end, },
+                { name = "ForPower", cond = function(self) return RGMercUtils.GetSetting('DoForPower') end, },
+                {
+                    name = "Terror",
+                    cond = function(self)
+                        return RGMercUtils.GetSetting('DoTerror') == 3 or
+                            (RGMercUtils.GetSetting('DoTerror') == 2 and mq.TLO.Me.Level() < 72)
+                    end,
+                },
+                {
+                    name = "AETaunt",
+                    cond = function(self)
+                        return RGMercUtils.GetSetting('AETauntSpell') == 3 or
+                            (RGMercUtils.GetSetting('DoTerror') == 2 and not RGMercUtils.CanUseAA("Explosion of Hatred"))
+                    end,
+                },
                 { name = "BiteTap", },
-                { name = "Skin", },
-                -- { name = "BiteTap", },
-                -- { name = "SnareDOT", cond = function(self) return mq.TLO.Me.AltAbility("Encroaching Darkness")() == nil and RGMercUtils.GetSetting('DoSnare') end, },
-                -- { name = "PoisonDot", cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
-                -- { name = "DireDot", cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
-                -- { name = "LifeTap2", },
+                { name = "BondTap",       cond = function(self) return RGMercUtils.GetSetting('DoBondTap') end, },
+                { name = "PoisonDot",     cond = function(self) return RGMercUtils.GetSetting('DoPoisonDot') end, },
+                { name = "CorruptionDot", cond = function(self) return RGMercUtils.GetSetting('DoCorruptionDot') end, },
+                { name = "DireDot",       cond = function(self) return RGMercUtils.GetSetting('DoDireDot') end, },
+                { name = "Torrent",       cond = function(self) return RGMercUtils.GetSetting('DoTorrent') end, },
+                { name = "BuffTap",       cond = function(self) return RGMercUtils.GetSetting('DoBuffTap') end, },
+                { name = "Skin",          cond = function(self) return mq.TLO.Me.NumGems() < 13 end, },
+                { name = "LifeTap2", },
+                {
+                    name = "Terror2",
+                    cond = function(self)
+                        return RGMercUtils.GetSetting('DoTerror') == 3 or
+                            (RGMercUtils.GetSetting('DoTerror') == 2 and mq.TLO.Me.Level() < 72)
+                    end,
+                },
             },
         },
         {
             gem = 7,
             spells = {
-                { name = "CorruptionDot", cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
+                { name = "SnareDOT", cond = function(self) return RGMercUtils.GetSetting('DoSnare') and not RGMercUtils.CanUseAA("Encroaching Darkness") end, },
+                { name = "DireTap",  cond = function(self) return RGMercUtils.GetSetting('DoDireTap') end, },
+                { name = "Dicho",    cond = function(self) return RGMercUtils.GetSetting('DoDicho') end, },
+                { name = "ForPower", cond = function(self) return RGMercUtils.GetSetting('DoForPower') end, },
+                {
+                    name = "Terror",
+                    cond = function(self)
+                        return RGMercUtils.GetSetting('DoTerror') == 3 or
+                            (RGMercUtils.GetSetting('DoTerror') == 2 and mq.TLO.Me.Level() < 72)
+                    end,
+                },
+                {
+                    name = "AETaunt",
+                    cond = function(self)
+                        return RGMercUtils.GetSetting('AETauntSpell') == 3 or
+                            (RGMercUtils.GetSetting('DoTerror') == 2 and not RGMercUtils.CanUseAA("Explosion of Hatred"))
+                    end,
+                },
                 { name = "BiteTap", },
-                { name = "Skin", },
-                -- { name = "BuffTap", }, --Keeping this scribed is likely better than me trying to write a convoluted helper function to handle maintaining the buff.
-                -- { name = "SnareDOT", cond = function(self) return mq.TLO.Me.AltAbility("Encroaching Darkness")() == nil and RGMercUtils.GetSetting('DoSnare') end, },
-                -- { name = "PoisonDot", cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
-                -- { name = "DireDot", cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
-                -- { name = "Terror", cond = function(self) return RGMercUtils.GetSetting('DoTerror') end, },
-                -- { name = "LifeTap2", },
+                { name = "BondTap",       cond = function(self) return RGMercUtils.GetSetting('DoBondTap') end, },
+                { name = "PoisonDot",     cond = function(self) return RGMercUtils.GetSetting('DoPoisonDot') end, },
+                { name = "CorruptionDot", cond = function(self) return RGMercUtils.GetSetting('DoCorruptionDot') end, },
+                { name = "DireDot",       cond = function(self) return RGMercUtils.GetSetting('DoDireDot') end, },
+                { name = "Torrent",       cond = function(self) return RGMercUtils.GetSetting('DoTorrent') end, },
+                { name = "BuffTap",       cond = function(self) return RGMercUtils.GetSetting('DoBuffTap') end, },
+                { name = "Skin",          cond = function(self) return mq.TLO.Me.NumGems() < 13 end, },
+                { name = "LifeTap2", },
+                {
+                    name = "Terror2",
+                    cond = function(self)
+                        return RGMercUtils.GetSetting('DoTerror') == 3 or
+                            (RGMercUtils.GetSetting('DoTerror') == 2 and mq.TLO.Me.Level() < 72)
+                    end,
+                },
             },
         },
         {
             gem = 8,
+            cond = function(self) return mq.TLO.Me.NumGems() >= 9 end,
             spells = {
-                { name = "ForPower", },
-                { name = "AeTaunt",   cond = function(self) return RGMercUtils.GetSetting('DoAE') and mq.TLO.Me.AltAbility("Explosion of Hatred")() == nil end, },
-                { name = "Terror",    cond = function(self) return RGMercUtils.GetSetting('DoTerror') end, },
-                { name = "SnareDOT",  cond = function(self) return mq.TLO.Me.AltAbility("Encroaching Darkness")() == nil and RGMercUtils.GetSetting('DoSnare') end, },
-                { name = "PoisonDot", cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
-                { name = "DireDot",   cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
-                { name = "Terror",    cond = function(self) return RGMercUtils.GetSetting('DoTerror') end, },
-                { name = "LifeTap2", },
-                { name = "Terror2",   cond = function(self) return RGMercUtils.GetSetting('DoTerror') end, },
-            },
-        },
-        {
-            gem = 9,
-            cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
-            spells = {
-                { name = "Torrent",   cond = function(self) return RGMercUtils.GetSetting('DoTorrent') end, },
-                { name = "Terror",    cond = function(self) return RGMercUtils.GetSetting('DoTerror') end, },
-                { name = "Terror2",   cond = function(self) return RGMercUtils.GetSetting('DoTerror') end, },
-                { name = "PoisonDot", cond = function(self) return RGMercUtils.GetSetting('DoDot') end, },
-                { name = "LifeTap2", },
-            },
-        },
-        {
-            gem = 10,
-            cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
-            spells = {
+                { name = "SnareDOT", cond = function(self) return RGMercUtils.GetSetting('DoSnare') and not RGMercUtils.CanUseAA("Encroaching Darkness") end, },
+                { name = "DireTap",  cond = function(self) return RGMercUtils.GetSetting('DoDireTap') end, },
+                { name = "Dicho",    cond = function(self) return RGMercUtils.GetSetting('DoDicho') end, },
+                { name = "ForPower", cond = function(self) return RGMercUtils.GetSetting('DoForPower') end, },
+                {
+                    name = "Terror",
+                    cond = function(self)
+                        return RGMercUtils.GetSetting('DoTerror') == 3 or
+                            (RGMercUtils.GetSetting('DoTerror') == 2 and mq.TLO.Me.Level() < 72)
+                    end,
+                },
+                {
+                    name = "AETaunt",
+                    cond = function(self)
+                        return RGMercUtils.GetSetting('AETauntSpell') == 3 or
+                            (RGMercUtils.GetSetting('DoTerror') == 2 and not RGMercUtils.CanUseAA("Explosion of Hatred"))
+                    end,
+                },
                 { name = "BiteTap", },
-                { name = "Skin", },
-                -- { name = "Terror", cond = function(self) return RGMercUtils.GetSetting('DoTerror') end, },
-                -- { name = "Terror2", cond = function(self) return RGMercUtils.GetSetting('DoTerror') end, },
-                -- { name = "LifeTap2", },
+                { name = "BondTap",       cond = function(self) return RGMercUtils.GetSetting('DoBondTap') end, },
+                { name = "PoisonDot",     cond = function(self) return RGMercUtils.GetSetting('DoPoisonDot') end, },
+                { name = "CorruptionDot", cond = function(self) return RGMercUtils.GetSetting('DoCorruptionDot') end, },
+                { name = "DireDot",       cond = function(self) return RGMercUtils.GetSetting('DoDireDot') end, },
+                { name = "Torrent",       cond = function(self) return RGMercUtils.GetSetting('DoTorrent') end, },
+                { name = "BuffTap",       cond = function(self) return RGMercUtils.GetSetting('DoBuffTap') end, },
+                { name = "Skin",          cond = function(self) return mq.TLO.Me.NumGems() < 13 end, },
+                { name = "LifeTap2", },
+                {
+                    name = "Terror2",
+                    cond = function(self)
+                        return RGMercUtils.GetSetting('DoTerror') == 3 or
+                            (RGMercUtils.GetSetting('DoTerror') == 2 and mq.TLO.Me.Level() < 72)
+                    end,
+                },
             },
         },
-        {
+        { -- Level 55
+            gem = 9,
+            cond = function(self) return mq.TLO.Me.NumGems() >= 10 end,
+            spells = {
+                { name = "SnareDOT", cond = function(self) return RGMercUtils.GetSetting('DoSnare') and not RGMercUtils.CanUseAA("Encroaching Darkness") end, },
+                { name = "DireTap",  cond = function(self) return RGMercUtils.GetSetting('DoDireTap') end, },
+                { name = "Dicho",    cond = function(self) return RGMercUtils.GetSetting('DoDicho') end, },
+                { name = "ForPower", cond = function(self) return RGMercUtils.GetSetting('DoForPower') end, },
+                {
+                    name = "Terror",
+                    cond = function(self)
+                        return RGMercUtils.GetSetting('DoTerror') == 3 or
+                            (RGMercUtils.GetSetting('DoTerror') == 2 and mq.TLO.Me.Level() < 72)
+                    end,
+                },
+                {
+                    name = "AETaunt",
+                    cond = function(self)
+                        return RGMercUtils.GetSetting('AETauntSpell') == 3 or
+                            (RGMercUtils.GetSetting('DoTerror') == 2 and not RGMercUtils.CanUseAA("Explosion of Hatred"))
+                    end,
+                },
+                { name = "BiteTap", },
+                { name = "BondTap",       cond = function(self) return RGMercUtils.GetSetting('DoBondTap') end, },
+                { name = "PoisonDot",     cond = function(self) return RGMercUtils.GetSetting('DoPoisonDot') end, },
+                { name = "CorruptionDot", cond = function(self) return RGMercUtils.GetSetting('DoCorruptionDot') end, },
+                { name = "DireDot",       cond = function(self) return RGMercUtils.GetSetting('DoDireDot') end, },
+                { name = "Torrent",       cond = function(self) return RGMercUtils.GetSetting('DoTorrent') end, },
+                { name = "BuffTap",       cond = function(self) return RGMercUtils.GetSetting('DoBuffTap') end, },
+                { name = "Skin",          cond = function(self) return mq.TLO.Me.NumGems() < 13 end, },
+                { name = "LifeTap2", },
+                {
+                    name = "Terror2",
+                    cond = function(self)
+                        return RGMercUtils.GetSetting('DoTerror') == 3 or
+                            (RGMercUtils.GetSetting('DoTerror') == 2 and mq.TLO.Me.Level() < 72)
+                    end,
+                },
+            },
+        },
+        { -- Level 75
+            gem = 10,
+            cond = function(self) return mq.TLO.Me.NumGems() >= 11 end,
+            spells = {
+                { name = "SnareDOT", cond = function(self) return RGMercUtils.GetSetting('DoSnare') and not RGMercUtils.CanUseAA("Encroaching Darkness") end, },
+                { name = "DireTap",  cond = function(self) return RGMercUtils.GetSetting('DoDireTap') end, },
+                { name = "Dicho",    cond = function(self) return RGMercUtils.GetSetting('DoDicho') end, },
+                { name = "ForPower", cond = function(self) return RGMercUtils.GetSetting('DoForPower') end, },
+                {
+                    name = "Terror",
+                    cond = function(self)
+                        return RGMercUtils.GetSetting('DoTerror') == 3 or
+                            (RGMercUtils.GetSetting('DoTerror') == 2 and mq.TLO.Me.Level() < 72)
+                    end,
+                },
+                {
+                    name = "AETaunt",
+                    cond = function(self)
+                        return RGMercUtils.GetSetting('AETauntSpell') == 3 or
+                            (RGMercUtils.GetSetting('DoTerror') == 2 and not RGMercUtils.CanUseAA("Explosion of Hatred"))
+                    end,
+                },
+                { name = "BiteTap", },
+                { name = "BondTap",       cond = function(self) return RGMercUtils.GetSetting('DoBondTap') end, },
+                { name = "PoisonDot",     cond = function(self) return RGMercUtils.GetSetting('DoPoisonDot') end, },
+                { name = "CorruptionDot", cond = function(self) return RGMercUtils.GetSetting('DoCorruptionDot') end, },
+                { name = "DireDot",       cond = function(self) return RGMercUtils.GetSetting('DoDireDot') end, },
+                { name = "Torrent",       cond = function(self) return RGMercUtils.GetSetting('DoTorrent') end, },
+                { name = "BuffTap",       cond = function(self) return RGMercUtils.GetSetting('DoBuffTap') end, },
+                { name = "Skin",          cond = function(self) return mq.TLO.Me.NumGems() < 13 end, },
+                { name = "LifeTap2", },
+                {
+                    name = "Terror2",
+                    cond = function(self)
+                        return RGMercUtils.GetSetting('DoTerror') == 3 or
+                            (RGMercUtils.GetSetting('DoTerror') == 2 and mq.TLO.Me.Level() < 72)
+                    end,
+                },
+            },
+        },
+        { -- Level 80
             gem = 11,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
-                { name = "TempHP", }, --this spell starts in a long recast so I prefer to keep it on the bar. Replace/comment out as needed.
-                { name = "Terror",  cond = function(self) return RGMercUtils.GetSetting('DoTerror') end, },
-                { name = "Terror2", cond = function(self) return RGMercUtils.GetSetting('DoTerror') end, },
+                { name = "TempHP", }, --level 84, this spell starts in a long recast so I prefer to keep it on the bar.
             },
         },
-        {
+        { -- Level 80
             gem = 12,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
-                { name = "Skin", }, --while not as bad as the TempHP line, also starts in a recast, Replace/comment out as needed. Re-memorizing every time the slot is used for something else before level 106 is likely still a time-saver for typical scenarios.
-                { name = "Terror",  cond = function(self) return RGMercUtils.GetSetting('DoTerror') end, },
-                { name = "Terror2", cond = function(self) return RGMercUtils.GetSetting('DoTerror') end, },
+                { name = "Skin", }, -- level 70, while not as bad as the TempHP line, also starts in a recast. Placed higher before level 106.
             },
         },
-        {
+        { -- Level 106
             gem = 13,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
-                { name = "HealBurn", }, --this will simply be memorized as needed; re-memorizing every time the slot is used for another buff is of dubious benefit
+                { name = "HealBurn", }, --level 103, this may be overwritten by pauses but it is fine, it has a low refresh time. At least it will be there on start.
             },
         },
     },
@@ -1757,12 +1968,11 @@ local _ClassConfig = {
         ['DoPoisonDot']      = { DisplayName = "Use Poison Dot", Category = "DoT Spells", Tooltip = "Use Dire Dot", RequiresLoadoutChange = true, Default = true, },
 
         --Hate Tools
-        ['UseVoT']           = { DisplayName = "Use Hate Buff", Category = "Hate Tools", Tooltip = "Cast Voice of Thule", Default = true, },
-        ['FirstTerror']      = { DisplayName = "1st Terror Choice:", Category = "Hate Tools", Index = 1, Tooltip = "Choose the level range (if any) to memorize Terror Spells.", RequiresLoadoutChange = true, Type = "Combo", ComboOptions = { 'Never', 'Until "For Power" spells are available', 'Always', }, Default = 2, Min = 1, Max = 3, },
-        ['SecondTerror']     = { DisplayName = "2nd Terror Choice:", Category = "Hate Tools", Index = 1, Tooltip = "Choose the level range (if any) to memorize a second Terror Spell.", RequiresLoadoutChange = true, Type = "Combo", ComboOptions = { 'Never', 'Until "For Power" spells are available', 'Always', }, Default = 1, Min = 1, Max = 3, },
+        ['UseVoT']           = { DisplayName = "Use VoT AA", Category = "Hate Tools", Tooltip = "Use Hate Buff AA. Spells currently not used because of low values and long refresh times.", Default = true, },
+        ['DoTerror']         = { DisplayName = "Terror Taunts:", Category = "Hate Tools", Index = 1, Tooltip = "Choose the level range (if any) to memorize Terror Spells.", RequiresLoadoutChange = true, Type = "Combo", ComboOptions = { 'Never', 'Until "For Power" spells are available', 'Always', }, Default = 2, Min = 1, Max = 3, },
         ['DoForPower']       = { DisplayName = "Use \"For Power\" Spells", Category = "Hate Tools", Tooltip = function() return RGMercUtils.GetDynamicTooltipForSpell("ForPower") end, RequiresLoadoutChange = true, Default = false, },
-        ['UseAETauntAA']     = { DisplayName = "Use AE Taunt AA", Category = "Hate Tools", Tooltip = "Use Explosions of Hatred and Spite.", Default = true, },
-        ['AETauntSpells']    = { DisplayName = "AE Taunt Spell Choice:", Category = "Hate Tools", Index = 1, Tooltip = "Choose the level range (if any) to memorize AE Taunt Spells.", RequiresLoadoutChange = true, Type = "Combo", ComboOptions = { 'Never', 'Until Explosions (AA Taunts) are available', 'Always', }, Default = 2, Min = 1, Max = 3, },
+        ['AETauntAA']        = { DisplayName = "Use AE Taunt AA", Category = "Hate Tools", Tooltip = "Use Explosions of Hatred and Spite.", Default = true, },
+        ['AETauntSpell']     = { DisplayName = "AE Taunt Spell Choice:", Category = "Hate Tools", Index = 1, Tooltip = "Choose the level range (if any) to memorize AE Taunt Spells.", RequiresLoadoutChange = true, Type = "Combo", ComboOptions = { 'Never', 'Until Explosions (AA Taunts) are available', 'Always', }, Default = 2, Min = 1, Max = 3, },
         ['AeTauntCnt']       = { DisplayName = "AE Taunt Count", Category = "Hate Tools", Tooltip = "Minimum number of haters before using AE Taunt Spells or AA.", Default = 2, Min = 1, Max = 10, },
         ['SafeAeTaunt']      = { DisplayName = "AE Taunt Safety Check", Category = "Hate Tools", Tooltip = "Limit unintended pulls with AE Taunt Spells or AA. May result in non-use due to false positives.", Default = false, },
 

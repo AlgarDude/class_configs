@@ -1357,16 +1357,14 @@ local _ClassConfig = {
                     return RGMercUtils.AAReady(aaName) and self.ClassConfig.HelperFunctions.AeTauntCheck(self)
                 end,
             },
-            --likely leaving this one as a manual choice, can be used for splitpulling as well
-            -- {
-            -- name = "Projection of Doom",
-            -- type = "AA",
-            -- tooltip = Tooltips.ProjectionofDoom,
-            -- cond = function(self)
-            -- return (mq.TLO.Target.SecondaryPctAggro() or 0) > 80
-            -- and RGMercUtils.IsNamed(mq.TLO.Target)
-            -- end,
-            -- },
+            {
+                name = "Projection of Piety",
+                type = "AA",
+                tooltip = Tooltips.ProjectionofDoom,
+                cond = function(self, aaName)
+                    return RGMercUtils.AAReady(aaName) and RGMercUtils.IsNamed(mq.TLO.Target) and (mq.TLO.Target.SecondaryPctAggro() or 0) > 80
+                end,
+            },
             {
                 name = "Taunt",
                 type = "Ability",
