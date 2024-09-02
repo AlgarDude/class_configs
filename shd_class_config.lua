@@ -1908,7 +1908,7 @@ local _ClassConfig = {
         ['DoTempHP']         = { DisplayName = "Use HP Buff", Category = "Buffs/Debuffs", Index = 2, Tooltip = function() return RGMercUtils.GetDynamicTooltipForSpell("TempHP") end, Default = true, RequiresLoadoutChange = true, },
         ['DoTorrent']        = { DisplayName = "Use Torrents", Category = "Buffs/Debuffs", Index = 3, Tooltip = function() return RGMercUtils.GetDynamicTooltipForSpell("Torrent") end, RequiresLoadoutChange = true, Default = true, ConfigType = "Advanced", },
         ['DoBuffTap']        = { DisplayName = "Use Buff Tap", Category = "Buffs/Debuffs", Index = 4, Tooltip = function() return RGMercUtils.GetDynamicTooltipForSpell("BuffTap") end, Default = false, RequiresLoadoutChange = true, ConfigType = "Advanced", },
-        ['DoVetAA']          = { DisplayName = "Use Vet AA", Category = "Spells and Abilities", Index = 5, Tooltip = "Use Veteran AA's in emergencies or during BigBurn.", Default = true, },
+        ['DoVetAA']          = { DisplayName = "Use Vet AA", Category = "Buff/Debuffs", Index = 5, Tooltip = "Use Veteran AA's in emergencies or during BigBurn.", Default = true, },
 
         --LifeTaps
         ['StartLifeTap']     = { DisplayName = "HP % for LifeTaps", Category = "LifeTaps", Index = 1, Tooltip = "Your HP % before we use Life Taps.", Default = 99, Min = 1, Max = 100, },
@@ -1918,10 +1918,10 @@ local _ClassConfig = {
         ['StartDicho']       = { DisplayName = "HP % for Dicho", Category = "LifeTaps", Index = 5, Tooltip = "Your HP % before we use Dicho taps.", Default = 70, Min = 1, Max = 100, ConfigType = "Advanced", },
 
         --DoTs
-        ['DoBondTap']        = { DisplayName = "Use Bond Dot", Category = "DoT Spells", Index = 1, Tooltip = "Use Dire Dot", RequiresLoadoutChange = true, Default = true, },
-        ['DoPoisonDot']      = { DisplayName = "Use Poison Dot", Category = "DoT Spells", Index = 2, Tooltip = "Use Dire Dot", RequiresLoadoutChange = true, Default = true, },
-        ['DoCorruptionDot']  = { DisplayName = "Use Corrupt Dot", Category = "DoT Spells", Index = 3, Tooltip = "Use Dire Dot", RequiresLoadoutChange = true, Default = true, },
-        ['DoDireDot']        = { DisplayName = "Use Dire Dot", Category = "DoT Spells", Index = 4, Tooltip = "Use Dire Dot", RequiresLoadoutChange = true, Default = false, },
+        ['DoBondTap']        = { DisplayName = "Use Bond Dot", Category = "DoT Spells", Index = 1, function() return RGMercUtils.GetDynamicTooltipForSpell("BondTap") end, RequiresLoadoutChange = true, Default = true, },
+        ['DoPoisonDot']      = { DisplayName = "Use Poison Dot", Category = "DoT Spells", Index = 2, function() return RGMercUtils.GetDynamicTooltipForSpell("PoisonDot") end, RequiresLoadoutChange = true, Default = true, },
+        ['DoCorruptionDot']  = { DisplayName = "Use Corrupt Dot", Category = "DoT Spells", Index = 3, function() return RGMercUtils.GetDynamicTooltipForSpell("CorruptDot") end, RequiresLoadoutChange = true, Default = true, },
+        ['DoDireDot']        = { DisplayName = "Use Dire Dot", Category = "DoT Spells", Index = 4, function() return RGMercUtils.GetDynamicTooltipForSpell("Dicho") end, RequiresLoadoutChange = true, Default = false, },
         ['HPStopDOT']        = { DisplayName = "HP Stop DoTs", Category = "Spells and Abilities", Index = 5, Tooltip = "Stop casting DOTs when the mob hits [x] HP %.", Default = 50, Min = 1, Max = 100, ConfigType = "Advanced", },
         ['NamedStopDOT']     = { DisplayName = "Named HP Stop DOTs", Category = "Spells and Abilities", Index = 6, Tooltip = "Stop casting DOTs when a named mob hits [x] HP %.", Default = 25, Min = 1, Max = 100, ConfigType = "Advanced", },
         ['ManaToDot']        = { DisplayName = "Min Mana to Dot", Category = "Spells and Abilities", Index = 7, Tooltip = "The minimum Mana % to use DoTs outside of burns.", Default = 40, Min = 1, Max = 100, ConfigType = "Advanced", },
