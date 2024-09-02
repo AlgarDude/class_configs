@@ -1761,23 +1761,23 @@ local _ClassConfig = {
         ['FirstTerror']      = { DisplayName = "1st Terror Choice:", Category = "Hate Tools", Index = 1, Tooltip = "Choose the level range (if any) to memorize Terror Spells.", RequiresLoadoutChange = true, Type = "Combo", ComboOptions = { 'Never', 'Until "For Power" spells are available', 'Always', }, Default = 2, Min = 1, Max = 3, },
         ['SecondTerror']     = { DisplayName = "2nd Terror Choice:", Category = "Hate Tools", Index = 1, Tooltip = "Choose the level range (if any) to memorize a second Terror Spell.", RequiresLoadoutChange = true, Type = "Combo", ComboOptions = { 'Never', 'Until "For Power" spells are available', 'Always', }, Default = 1, Min = 1, Max = 3, },
         ['DoForPower']       = { DisplayName = "Use \"For Power\" Spells", Category = "Hate Tools", Tooltip = function() return RGMercUtils.GetDynamicTooltipForSpell("ForPower") end, RequiresLoadoutChange = true, Default = false, },
-        ['UseAETauntAA']     = { DisplayName = "Use AA AE Taunts", Category = "Hate Tools", Tooltip = "Use Explosions of Hatred and Spite.", Default = true, },
+        ['UseAETauntAA']     = { DisplayName = "Use AE Taunt AA", Category = "Hate Tools", Tooltip = "Use Explosions of Hatred and Spite.", Default = true, },
         ['AETauntSpells']    = { DisplayName = "AE Taunt Spell Choice:", Category = "Hate Tools", Index = 1, Tooltip = "Choose the level range (if any) to memorize AE Taunt Spells.", RequiresLoadoutChange = true, Type = "Combo", ComboOptions = { 'Never', 'Until Explosions (AA Taunts) are available', 'Always', }, Default = 2, Min = 1, Max = 3, },
-        ['AeTauntCnt']       = { DisplayName = "AE Taunt Count", Category = "Hate Tools", Tooltip = "Minimum number of haters before using AE Taunt.", Default = 2, Min = 1, Max = 10, },
-        ['SafeAeTaunt']      = { DisplayName = "AE Taunt Safety Check", Category = "Hate Tools", Tooltip = "Limit unintended pulls with AE Taunts. May result in non-use due to false positives.", Default = false, },
+        ['AeTauntCnt']       = { DisplayName = "AE Taunt Count", Category = "Hate Tools", Tooltip = "Minimum number of haters before using AE Taunt Spells or AA.", Default = 2, Min = 1, Max = 10, },
+        ['SafeAeTaunt']      = { DisplayName = "AE Taunt Safety Check", Category = "Hate Tools", Tooltip = "Limit unintended pulls with AE Taunt Spells or AA. May result in non-use due to false positives.", Default = false, },
 
         --Defenses
+        ['DiscCount']        = { DisplayName = "Def. Disc. Count", Category = "Defenses", Tooltip = "Number of mobs around you before you use preemptively use Defensive Discs.", Default = 4, Min = 1, Max = 10, },
         ['EmergencyStart']   = { DisplayName = "Emergency Start", Category = "Defenses", Tooltip = "Your HP % before we begin to use emergency abilities.", Default = 55, Min = 1, Max = 100, },
         ['EmergencyLockout'] = { DisplayName = "Emergency Only", Category = "Defenses", Tooltip = "Your HP % before standard DPS rotations are cut in favor of emergency abilities.", Default = 35, Min = 1, Max = 100, },
-        ['DiscCount']        = { DisplayName = "Def. Disc. Count", Category = "Defenses", Tooltip = "Number of mobs around you before you use preemptively use Defensive Discs.", Default = 4, Min = 1, Max = 10, },
 
         --Equipment
+        ['DoChestClick']     = { DisplayName = "Do Chest Click", Category = "Equipment", Tooltip = "Click your equipped chest.", Default = true, },
+        ['DoCharmClick']     = { DisplayName = "Do Charm Click", Category = "Equipment", Tooltip = "Click your charm for Geomantra.", Default = true, },
         ['UseBandolier']     = { DisplayName = "Dynamic Weapon Swap", Category = "Equipment", Index = 1, Tooltip = "Enable 1H+S/2H swapping based off of current health. ***YOU MUST HAVE BANDOLIER ENTRIES NAMED \"Shield\" and \"2Hand\" TO USE THIS FUNCTION.***", Default = false, },
         ['EquipShield']      = { DisplayName = "Equip Shield", Category = "Equipment", Index = 2, Tooltip = "Under this HP%, you will swap to your \"Shield\" bandolier entry. (Dynamic Bandolier Enabled Only)", Default = 50, Min = 1, Max = 100, },
         ['Equip2Hand']       = { DisplayName = "Equip 2Hand", Category = "Equipment", Index = 3, Tooltip = "Over this HP%, you will swap to your \"2Hand\" bandolier entry. (Dynamic Bandolier Enabled Only)", Default = 75, Min = 1, Max = 100, },
         ['NamedShieldLock']  = { DisplayName = "Shield on Named", Category = "Equipment", Index = 4, Tooltip = "Keep Shield equipped for Named mobs(must be in SpawnMaster or named.lua)", Default = true, },
-        ['DoChestClick']     = { DisplayName = "Do Chest Click", Category = "Equipment", Tooltip = "Click your equipped chest.", Default = true, },
-        ['DoCharmClick']     = { DisplayName = "Do Charm Click", Category = "Equipment", Tooltip = "Click your charm for Geomantra.", Default = true, },
     },
 }
 

@@ -730,8 +730,8 @@ return {
             {
                 name = "Improved Twincast",
                 type = "AA",
-                cond = function(self,)
-                    return not RGMercUtils.BuffActivebyName("Twincast")
+                cond = function(self, aaName)
+                    return RGMercUtils.AAReady(aaName) and not RGMercUtils.BuffActivebyName("Twincast")
                 end,
             },
             {
