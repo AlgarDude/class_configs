@@ -26,7 +26,7 @@ local Tooltips     = {
     CloakHP             = "Spell Line: Increase HP and Stacking DS",
     Covenant            = "Spell Line: Increase Mana Regen + Ultravision / Decrease HP Per Tick",
     CallAtk             = "Spell Line: Increase Attack / Decrease HP Per Tick",
-    AeTaunt             = "Spell Line: PBAE Hate Increase + Taunt",
+    AETaunt             = "Spell Line: PBAE Hate Increase + Taunt",
     PoisonDot           = "Spell Line: Poison Dot",
     Spearnuke           = "Spell Line: Instacast Disease Nuke",
     BondTap             = "Spell Line: LifeTap DOT",
@@ -321,7 +321,7 @@ local _ClassConfig = {
             "Call of Twilight",
             "Penumbral Call",
         },
-        ['AeTaunt'] = {
+        ['AETaunt'] = {
             "Dread Gaze", -- Level 69
             "Vilify",
             "Revile",
@@ -654,13 +654,13 @@ local _ClassConfig = {
             return res
         end,
         --Handles all AE taunt checks rather than repetetive hardcoded conditions in the UI loop
-        AeTauntCheck = function(self)
+        AETauntCheck = function(self)
             --check to see if we are the tank in the first place just in case something CRAAAAAZY happens
             if not RGMercUtils.IsTanking() then return false end
 
             -- check that there are sufficient targets to AE taunt and that it is (optionally) safe to do so
             local mobs = mq.TLO.SpawnCount("NPC radius 50 zradius 50")()
-            if (RGMercUtils.GetSetting('SafeAeTaunt') and mobs > RGMercUtils.GetXTHaterCount()) or RGMercUtils.GetXTHaterCount() < RGMercUtils.GetSetting('AeTauntCnt') then return false end
+            if (RGMercUtils.GetSetting('SafeAETaunt') and mobs > RGMercUtils.GetXTHaterCount()) or RGMercUtils.GetXTHaterCount() < RGMercUtils.GetSetting('AETauntCnt') then return false end
 
             --check to make sure the above targets need to be tanked
             local xtCount = mq.TLO.Me.XTarget()
@@ -1085,12 +1085,12 @@ local _ClassConfig = {
                 end,
             },
             {
-                name = "AeTaunt",
+                name = "AETaunt",
                 type = "Spell",
-                tooltip = Tooltips.AeTaunt,
+                tooltip = Tooltips.AETaunt,
                 cond = function(self, spell)
                     if not RGMercUtils.GetSetting('AETauntSpell') > 1 then return false end
-                    return RGMercUtils.PCSpellReady(spell) and self.ClassConfig.HelperFunctions.AeTauntCheck(self)
+                    return RGMercUtils.PCSpellReady(spell) and self.ClassConfig.HelperFunctions.AETauntCheck(self)
                 end,
             },
             {
@@ -1099,7 +1099,7 @@ local _ClassConfig = {
                 tooltip = Tooltips.ExplosionOfHatred,
                 cond = function(self, aaName, target)
                     if not RGMercUtils.GetSetting('AETauntAA') then return false end
-                    return RGMercUtils.NPCAAReady(aaName, target.ID()) and self.ClassConfig.HelperFunctions.AeTauntCheck(self)
+                    return RGMercUtils.NPCAAReady(aaName, target.ID()) and self.ClassConfig.HelperFunctions.AETauntCheck(self)
                 end,
             },
             {
@@ -1108,7 +1108,7 @@ local _ClassConfig = {
                 tooltip = Tooltips.ExplosionOfSpite,
                 cond = function(self, aaName)
                     if not RGMercUtils.GetSetting('AETauntAA') then return false end
-                    return RGMercUtils.AAReady(aaName) and self.ClassConfig.HelperFunctions.AeTauntCheck(self)
+                    return RGMercUtils.AAReady(aaName) and self.ClassConfig.HelperFunctions.AETauntCheck(self)
                 end,
             },
             {
@@ -1845,7 +1845,7 @@ local _ClassConfig = {
             gem = 13,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
-                { name = "Healburn", cond = function(self) return RGMercUtils.IsTanking() end, }, --level 103, this may be overwritten by pauses but it is fine, it has a low refresh time. At least it will be there on start.
+                { name = "HealBurn", cond = function(self) return RGMercUtils.IsTanking() end, }, --level 103, this may be overwritten by pauses but it is fine, it has a low refresh time. At least it will be there on start.
             },
         },
     },
@@ -1932,8 +1932,8 @@ local _ClassConfig = {
         ['DoForPower']       = { DisplayName = "Use \"For Power\"", Category = "Hate Tools", Index = 3, Tooltip = function() return RGMercUtils.GetDynamicTooltipForSpell("ForPower") end, RequiresLoadoutChange = true, Default = true, ConfigType = "Advanced", },
         ['AETauntAA']        = { DisplayName = "Use AE Taunt AA", Category = "Hate Tools", Index = 4, Tooltip = "Use Explosions of Hatred and Spite.", Default = true, ConfigType = "Advanced", },
         ['AETauntSpell']     = { DisplayName = "AE Taunt Spell Choice:", Category = "Hate Tools", Index = 5, Tooltip = "Choose the level range (if any) to memorize AE Taunt Spells.", RequiresLoadoutChange = true, Type = "Combo", ComboOptions = { 'Never', 'Until Explosions (AA Taunts) are available', 'Always', }, Default = 2, Min = 1, Max = 3, ConfigType = "Advanced", },
-        ['AeTauntCnt']       = { DisplayName = "AE Taunt Count", Category = "Hate Tools", Index = 6, Tooltip = "Minimum number of haters before using AE Taunt Spells or AA.", Default = 2, Min = 1, Max = 10, },
-        ['SafeAeTaunt']      = { DisplayName = "AE Taunt Safety Check", Category = "Hate Tools", Index = 7, Tooltip = "Limit unintended pulls with AE Taunt Spells or AA. May result in non-use due to false positives.", Default = false, },
+        ['AETauntCnt']       = { DisplayName = "AE Taunt Count", Category = "Hate Tools", Index = 6, Tooltip = "Minimum number of haters before using AE Taunt Spells or AA.", Default = 2, Min = 1, Max = 10, },
+        ['SafeAETaunt']      = { DisplayName = "AE Taunt Safety Check", Category = "Hate Tools", Index = 7, Tooltip = "Limit unintended pulls with AE Taunt Spells or AA. May result in non-use due to false positives.", Default = false, },
 
         --Defenses
         ['DiscCount']        = { DisplayName = "Def. Disc. Count", Category = "Defenses", Index = 1, Tooltip = "Number of mobs around you before you use preemptively use Defensive Discs.", Default = 4, Min = 1, Max = 10, ConfigType = "Advanced", },
