@@ -1739,7 +1739,7 @@ _ClassConfig       = {
                 name = "PetManaConv",
                 type = "Spell",
                 cond = function(self, spell)
-                    return spell and spell() and not RGMercUtils.BuffActive(mq.TLO.Spell(spell.RankName.AutoCast() or 0)) and mq.TLO.Me.Pet.ID() > 0
+                    return spell and spell() and not mq.TLO.Me.Buff(spell.Name() .. " Recourse")() and mq.TLO.Me.Pet.ID() > 0 --
                 end,
             },
             {
@@ -1749,14 +1749,14 @@ _ClassConfig       = {
                     return RGMercUtils.SelfBuffAACheck(aaName) and RGMercUtils.AAReady(aaName)
                 end,
             },
-            {
-                name = "Epic",
-                type = "Item",
-                cond = function(self, itemName)
-                    return not mq.TLO.Me.PetBuff("Primal Fusion")() and not mq.TLO.Me.PetBuff("Elemental Conjuction")() and mq.TLO.FindItem(itemName).TimerReady() == 0 and
-                        mq.TLO.Me.Pet.ID() > 0
-                end,
-            },
+            -- {
+            --     name = "Epic",
+            --     type = "Item",
+            --     cond = function(self, item)
+            --         return not mq.TLO.Me.PetBuff("Primal Fusion")() and not mq.TLO.Me.PetBuff("Elemental Conjuction")() and mq.TLO.FindItem(item).TimerReady() == 0 and
+            --             mq.TLO.Me.Pet.ID() > 0
+            --     end,
+            -- },
             {
                 name = "Second Wind Ward",
                 type = "AA",
