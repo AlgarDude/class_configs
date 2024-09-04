@@ -846,7 +846,7 @@ local _ClassConfig = {
                 name = "FireDot2",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    return AlgarInclude.DotManaCheck() and AlgarInclude.DotSpellCheck(spell) and RGMercUtils.NPCSpellReady(spell, target.ID())
+                    return RGMercUtils.DotSpellCheck(spell) and (RGMercUtils.DotManaCheck() or RGMercUtils.BurnCheck()) and RGMercUtils.NPCSpellReady(spell)
                 end,
             },
             {
@@ -861,39 +861,39 @@ local _ClassConfig = {
                 name = "Combo",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    return AlgarInclude.DotManaCheck() and AlgarInclude.DotSpellCheck(spell) and RGMercUtils.NPCSpellReady(spell, target.ID())
+                    return RGMercUtils.DotSpellCheck(spell) and (RGMercUtils.DotManaCheck() or RGMercUtils.BurnCheck()) and RGMercUtils.NPCSpellReady(spell)
                 end,
             },
             {
                 name = "Poison2",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    return AlgarInclude.DotManaCheck() and AlgarInclude.DotSpellCheck(spell) and RGMercUtils.NPCSpellReady(spell, target.ID())
+                    return RGMercUtils.DotSpellCheck(spell) and (RGMercUtils.DotManaCheck() or RGMercUtils.BurnCheck()) and RGMercUtils.NPCSpellReady(spell)
                 end,
             },
             {
                 name = "Magic2",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    return AlgarInclude.DotManaCheck() and AlgarInclude.DotSpellCheck(spell) and RGMercUtils.NPCSpellReady(spell, target.ID())
+                    return RGMercUtils.DotSpellCheck(spell) and (RGMercUtils.DotManaCheck() or RGMercUtils.BurnCheck()) and RGMercUtils.NPCSpellReady(spell)
                 end,
             },
             {
                 name = "GroupLeech",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    return AlgarInclude.DotManaCheck() and AlgarInclude.DotSpellCheck(spell) and RGMercUtils.NPCSpellReady(spell, target.ID())
+                    return RGMercUtils.DotSpellCheck(spell) and (RGMercUtils.DotManaCheck() or RGMercUtils.BurnCheck()) and RGMercUtils.NPCSpellReady(spell)
                 end,
             },
             {
                 name = "SwarmPet",
                 type = "Spell",
-                cond = function(self, spell) return not AlgarInclude.DotSpellCheck(spell) end,
+                cond = function(self, spell) return not RGMercUtils.DotSpellCheck(spell) end,
             },
             {
                 name = "PoisonNuke2",
                 type = "Spell",
-                cond = function(self, spell) return RGMercUtils.ManaCheck() and not AlgarInclude.DotSpellCheck(spell) end,
+                cond = function(self, spell) return RGMercUtils.ManaCheck() and not RGMercUtils.DotSpellCheck(spell) end,
             },
             {
                 name = "Death Bloom",
@@ -922,14 +922,14 @@ local _ClassConfig = {
             {
                 name = "SoulTaps",
                 type = "Spell",
-                cond = function(self, spell) return RGMercUtils.ManaCheck() and not AlgarInclude.DotSpellCheck(spell) end,
+                cond = function(self, spell) return RGMercUtils.ManaCheck() and not RGMercUtils.DotSpellCheck(spell) end,
             },
             {
                 name = "HealthTaps",
                 type = "Spell",
                 cond = function(self, spell)
                     return RGMercUtils.ManaCheck() and mq.TLO.Me.PctHPs() <= RGMercUtils.GetSetting('StartLifeTap') and
-                        not AlgarInclude.DotSpellCheck(spell)
+                        not RGMercUtils.DotSpellCheck(spell)
                 end,
             },
         },
@@ -1271,8 +1271,6 @@ local _ClassConfig = {
         ['StartFDPct']        = { DisplayName = "FD Aggro Pct", Category = "Aggro Management", Tooltip = "Aggro % at which to FD", Default = 90, Min = 1, Max = 99, },
         ['StopFDPct']         = { DisplayName = "Stand Aggro Pct", Category = "Aggro Management", Tooltip = "Aggro % at which to Stand up from FD", Default = 80, Min = 1, Max = 99, },
         ['WakeDeadCorpseCnt'] = { DisplayName = "WtD Corpse Count", Category = "Spells and Abilities", Tooltip = "Number of Corpses before we cast Wake the Dead", Default = 5, Min = 1, Max = 20, },
-        ['HPStopDOT']         = { DisplayName = "HP Stop DOTs", Category = "Spells and Abilities", Tooltip = "Stop casting DOTs when the mob hits [x] HP %.", Default = 50, Min = 1, Max = 100, },
-        ['NamedStopDOT']      = { DisplayName = "Named HP Stop DOTs", Category = "Spells and Abilities", Tooltip = "Stop casting DOTs when a named mob hits [x] HP %.", Default = 30, Min = 1, Max = 100, },
         ['DoLich']            = { DisplayName = "Cast Lich", Category = "Lich", Tooltip = "Enable casting Lich spells.", RequiresLoadoutChange = true, Default = true, },
         ['StartLichMana']     = { DisplayName = "Start Lich Mana", Category = "Lich", Tooltip = "Start Lich at Mana Pct [x]", RequiresLoadoutChange = false, Default = 70, Min = 1, Max = 100, },
         ['StopLichHP']        = { DisplayName = "Stop Lich HP", Category = "Lich", Tooltip = "Cancel Lich at HP Pct [x]", RequiresLoadoutChange = false, Default = 25, Min = 1, Max = 99, },

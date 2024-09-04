@@ -1225,8 +1225,8 @@ local _ClassConfig = {
                 type = "Disc",
                 tooltip = Tooltips.Deflection,
                 pre_activate = function(self)
-                    if not AlgarInclude.ShieldEquipped() then
-                        AlgarInclude.BandolierSwap("Shield")
+                    if not RGMercUtils.ShieldEquipped() then
+                        RGMercUtils.BandolierSwap("Shield")
                     end
                 end,
                 cond = function(self, discSpell)
@@ -1239,8 +1239,8 @@ local _ClassConfig = {
                 type = "AA",
                 tooltip = Tooltips.ShieldFlash,
                 pre_activate = function(self)
-                    if not AlgarInclude.ShieldEquipped() then
-                        AlgarInclude.BandolierSwap("Shield")
+                    if not RGMercUtils.ShieldEquipped() then
+                        RGMercUtils.BandolierSwap("Shield")
                     end
                 end,
                 cond = function(self, aaName)
@@ -1613,7 +1613,7 @@ local _ClassConfig = {
                 type = "Ability",
                 -- tooltip = Tooltips.Bash,
                 cond = function(self)
-                    return mq.TLO.Me.AbilityReady("Bash")() and RGMercUtils.GetTargetDistance() < 30 and AlgarInclude.ShieldEquipped()
+                    return mq.TLO.Me.AbilityReady("Bash")() and RGMercUtils.GetTargetDistance() < 30 and RGMercUtils.ShieldEquipped()
                 end,
             },
             {
@@ -1738,7 +1738,7 @@ local _ClassConfig = {
                     if mq.TLO.Me.Bandolier("Shield").Active() then return false end
                     return (mq.TLO.Me.PctHPs() <= RGMercUtils.GetSetting('EquipShield')) or (RGMercUtils.IsNamed(mq.TLO.Target) and RGMercUtils.GetSetting('NamedShieldLock'))
                 end,
-                custom_func = function(self) return AlgarInclude.BandolierSwap("Shield") end,
+                custom_func = function(self) return RGMercUtils.BandolierSwap("Shield") end,
             },
             {
                 name = "Equip 2Hand",
@@ -1751,7 +1751,7 @@ local _ClassConfig = {
                     return mq.TLO.Me.PctHPs() >= RGMercUtils.GetSetting('Equip2Hand') and mq.TLO.Me.ActiveDisc.Name() ~= "Deflection Discipline" and
                         (mq.TLO.Me.AltAbilityTimer("Shield Flash")() or 0) < 234000 and not (RGMercUtils.IsNamed(mq.TLO.Target) and RGMercUtils.GetSetting('NamedShieldLock'))
                 end,
-                custom_func = function(self) return AlgarInclude.BandolierSwap("2Hand") end,
+                custom_func = function(self) return RGMercUtils.BandolierSwap("2Hand") end,
             },
         },
     },

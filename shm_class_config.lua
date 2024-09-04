@@ -680,7 +680,7 @@ local _ClassConfig = {
                 name = "GroupRenewalHoT",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    return RGMercUtils.GetSetting('DoHOT') and RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                    return RGMercUtils.GetSetting('DoHOT') and RGMercUtils.GroupBuffCheck(spell, target)
                 end,
             },
         },
@@ -1013,21 +1013,21 @@ local _ClassConfig = {
                 name = "ChaoticDoT",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    return AlgarInclude.DotManaCheck() and AlgarInclude.DotSpellCheck(spell) and RGMercUtils.NPCSpellReady(spell, target.ID())
+                    return RGMercUtils.DotSpellCheck(spell) and (RGMercUtils.DotManaCheck() or RGMercUtils.BurnCheck()) and RGMercUtils.NPCSpellReady(spell)
                 end,
             },
             {
                 name = "CurseDoT2",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    return AlgarInclude.DotManaCheck() and AlgarInclude.DotSpellCheck(spell) and RGMercUtils.NPCSpellReady(spell, target.ID())
+                    return RGMercUtils.DotSpellCheck(spell) and (RGMercUtils.DotManaCheck() or RGMercUtils.BurnCheck()) and RGMercUtils.NPCSpellReady(spell)
                 end,
             },
             {
                 name = "PandemicDot",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    return AlgarInclude.DotManaCheck() and AlgarInclude.DotSpellCheck(spell) and RGMercUtils.NPCSpellReady(spell, target.ID())
+                    return RGMercUtils.DotSpellCheck(spell) and (RGMercUtils.DotManaCheck() or RGMercUtils.BurnCheck()) and RGMercUtils.NPCSpellReady(spell)
                 end,
             },
             {
@@ -1044,7 +1044,7 @@ local _ClassConfig = {
                 type = "Spell",
                 cond = function(self, spell)
                     if not RGMercUtils.CanUseAA("Luminary's Synergy") then return false end
-                    return not AlgarInclude.DotSpellCheck(spell) and RGMercUtils.SpellStacksOnMe(spell)
+                    return not RGMercUtils.DotSpellCheck(spell) and RGMercUtils.SpellStacksOnMe(spell)
                         and (mq.TLO.Me.Song(spell).Duration.TotalSeconds() or 0) < 30
                 end,
             },
@@ -1175,28 +1175,28 @@ local _ClassConfig = {
             -- name = "GrowthBuff",
             -- type = "Spell",
             -- cond = function(self, spell, target)
-            -- return RGMercUtils.GetSetting('DoGrowth') and RGMercUtils.TargetClassIs("WAR", target) and RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName())
+            -- return RGMercUtils.GetSetting('DoGrowth') and RGMercUtils.TargetClassIs("WAR", target) and RGMercUtils.GroupBuffCheck(spell, target)
             -- end,
             -- },
             {
                 name = "SlowProcBuff",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    return RGMercConfig.Constants.RGTank:contains(target.Class.ShortName()) and RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                    return RGMercConfig.Constants.RGTank:contains(target.Class.ShortName()) and RGMercUtils.GroupBuffCheck(spell, target)
                 end,
             },
             { --Used on the entire group
                 name = "GroupFocusSpell",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    return RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                    return RGMercUtils.GroupBuffCheck(spell, target)
                 end,
             },
             { --If our single target is better than the group spell above, we will use it on the Tank
                 name = "SingleFocusSpell",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    return RGMercConfig.Constants.RGTank:contains(target.Class.ShortName()) and RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                    return RGMercConfig.Constants.RGTank:contains(target.Class.ShortName()) and RGMercUtils.GroupBuffCheck(spell, target)
                 end,
             },
             { --Only cast below 86 because past that our focus spells take over
@@ -1204,7 +1204,7 @@ local _ClassConfig = {
                 type = "Spell",
                 cond = function(self, spell, target)
                     return mq.TLO.Me.Level() < 86 and RGMercConfig.Constants.RGMelee:contains(target.Class.ShortName()) and
-                        RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                        RGMercUtils.GroupBuffCheck(spell, target)
                 end,
             },
             {
@@ -1213,7 +1213,7 @@ local _ClassConfig = {
                 active_cond = function(self, aaName) return mq.TLO.Me.Haste() end,
                 cond = function(self, aaName, target)
                     if not RGMercUtils.GetSetting('DoHaste') then return false end
-                    return mq.TLO.Me.Level() < 111 and RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                    return mq.TLO.Me.Level() < 111 and RGMercUtils.GroupBuffCheck(spell, target)
                 end,
             },
             {
@@ -1222,7 +1222,7 @@ local _ClassConfig = {
                 active_cond = function(self, aaName) return mq.TLO.Me.Haste() end,
                 cond = function(self, spell, target)
                     if not RGMercUtils.GetSetting('DoHaste') or RGMercUtils.CanUseAA("Talisman of Celerity") then return false end
-                    return RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                    return RGMercUtils.GroupBuffCheck(spell, target)
                 end,
             },
             {
@@ -1230,7 +1230,7 @@ local _ClassConfig = {
                 type = "Spell",
                 active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
                 cond = function(self, spell, target)
-                    return RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                    return RGMercUtils.GroupBuffCheck(spell, target)
                 end,
             },
             {
@@ -1254,7 +1254,7 @@ local _ClassConfig = {
                 type = "Spell",
                 cond = function(self, spell, target)
                     if not RGMercUtils.GetSetting('DoRunSpeed') then return false end
-                    return RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                    return RGMercUtils.GroupBuffCheck(spell, target)
                 end,
             },
         },
@@ -1446,10 +1446,6 @@ local _ClassConfig = {
         ['DebuffMinCon']      = { DisplayName = "Debuff Min Con", Category = "Debuffs", Tooltip = "Min Con to use debuffs on", Default = 4, Min = 1, Max = #RGMercConfig.Constants.ConColors, Type = "Combo", ComboOptions = RGMercConfig.Constants.ConColors, },
         ['DebuffNamedAlways'] = { DisplayName = "Always Debuff Named", Category = "Debuffs", Tooltip = "Debuff named regardless of con color", Default = true, },
         ['DoStatBuff']        = { DisplayName = "Do Stat Buff", Category = "Buffs", Tooltip = "Do Stat Buffs for Group", Default = true, },
-        ['HPStopDOT']         = { DisplayName = "HP Stop DOTs", Category = "Spells and Abilities", Tooltip = "Stop casting DOTs when a non-named mob hits [x] HP %.", Default = 50, Min = 1, Max = 100, },
-        ['NamedStopDOT']      = { DisplayName = "Named HP Stop DOTs", Category = "Spells and Abilities", Tooltip = "Stop casting DOTs when a named mob hits [x] HP %.", Default = 30, Min = 1, Max = 100, },
-        ['ManaToDot']         = { DisplayName = "Min Mana to Dot", Category = "Spells and Abilities", Tooltip = "The minimum Mana % to use DoTs outside of burns.", Default = 40, Min = 1, Max = 100, },
-        --TODO: Categorize
         --Buffs
         --Debuffs
         --Healing

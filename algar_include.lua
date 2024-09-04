@@ -68,29 +68,4 @@ function AlgarInclude.DebuffConCheck()
 	return conLevel >= RGMercUtils.GetSetting('DebuffMinCon') or (RGMercUtils.IsNamed(mq.TLO.Target) and RGMercUtils.GetSetting('DebuffNamedAlways'))
 end
 
---this is already present in my BST (which is now default), can likely get this pushed to RGMercUtils
-function AlgarInclude.DotSpellCheck(spell) --Check dot stacking, stop dotting when a dynamic HP threshold is met(Named vs Trash)
-	if not spell or not spell() then return false end
-	local named = RGMercUtils.IsNamed(mq.TLO.Target)
-	local targethp = RGMercUtils.GetTargetPctHPs()
-
-	return not RGMercUtils.TargetHasBuff(spell) and RGMercUtils.SpellStacksOnTarget(spell) and
-		((named and (RGMercUtils.GetSetting('NamedStopDOT') < targethp)) or (not named and RGMercUtils.GetSetting('HPStopDOT') < targethp))
-end
-
-function AlgarInclude.DotManaCheck()
-	return (mq.TLO.Me.PctMana() >= RGMercUtils.GetSetting('ManaToDot')) or RGMercUtils.BurnCheck()
-end
-
-function AlgarInclude.BandolierSwap(indexName)
-	if RGMercUtils.GetSetting('UseBandolier') and mq.TLO.Me.Bandolier(indexName).Index() and not mq.TLO.Me.Bandolier(indexName).Active() then
-		RGMercUtils.DoCmd("/bandolier activate %s", indexName)
-		RGMercsLogger.log_debug("BandolierSwap() Swapping to %s. Current Health: %d", indexName, mq.TLO.Me.PctHPs())
-	end
-end
-
-function AlgarInclude.ShieldEquipped()
-	return mq.TLO.InvSlot("14").Item.Type() and mq.TLO.InvSlot("14").Item.Type() == "Shield"
-end
-
 return AlgarInclude

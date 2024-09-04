@@ -926,14 +926,14 @@ local _ClassConfig = {
                 type = "Spell",
                 cond = function(self, spell)
                     if not RGMercUtils.DetGOMCheck() or RGMercUtils.IsNamed(mq.TLO.Target) then return false end
-                    return RGMercUtils.NPCSpellReady(spell) and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell)
+                    return RGMercUtils.NPCSpellReady(spell) and RGMercUtils.DotSpellCheck(spell)
                 end,
             },
             {
                 name = "SunDOT",
                 type = "Spell",
                 cond = function(self, spell)
-                    return RGMercUtils.NPCSpellReady(spell) and RGMercUtils.ManaCheck() and RGMercUtils.DotSpellCheck(RGMercUtils.GetSetting('HPStopDOT'), spell)
+                    return RGMercUtils.NPCSpellReady(spell) and RGMercUtils.ManaCheck() and RGMercUtils.DotSpellCheck(spell)
                 end,
             },
             {
@@ -1103,14 +1103,14 @@ local _ClassConfig = {
                 name = "GroupDmgShield",
                 type = "Spell",
                 active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
-                cond = function(self, spell, target) return RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName()) end,
+                cond = function(self, spell, target) return RGMercUtils.GroupBuffCheck(spell, target) end,
             },
             -- {
             -- name = "MoveSpells",
             -- type = "Spell",
             -- active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
             -- cond = function(self, spell, target)
-            -- return RGMercUtils.GetSetting("DoRunSpeed") and RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName())
+            -- return RGMercUtils.GetSetting("DoRunSpeed") and RGMercUtils.GroupBuffCheck(spell, target)
             -- end,
             -- },
             {
@@ -1119,7 +1119,7 @@ local _ClassConfig = {
                 active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
                 cond = function(self, spell, target)
                     if not RGMercConfig.Constants.RGMelee:contains(target.Class.ShortName()) then return false end
-                    return RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                    return RGMercUtils.GroupBuffCheck(spell, target)
                 end,
             },
             -- {
@@ -1128,7 +1128,7 @@ local _ClassConfig = {
             -- active_cond = function(self, spell) return true end,
             -- cond = function(self, spell, target)
             --if not RGMercConfig.Constants.RGTank:contains(target.Class.ShortName()) then return false end
-            -- return RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName())
+            -- return RGMercUtils.GroupBuffCheck(spell, target)
             -- end,
             -- },
             {
@@ -1136,7 +1136,7 @@ local _ClassConfig = {
                 type = "Spell",
                 active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
                 cond = function(self, spell, target)
-                    return RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                    return RGMercUtils.GroupBuffCheck(spell, target)
                 end,
             },
             -- {
@@ -1145,7 +1145,7 @@ local _ClassConfig = {
             -- active_cond = function(self, spell) return true end,
             -- cond = function(self, spell, target)
             --if not Set.new({ "SHD", "WAR", }):contains(target.Class.ShortName()) then return false end
-            -- return RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName())
+            -- return RGMercUtils.GroupBuffCheck(spell, target)
             -- end,
             -- },
             {
@@ -1153,7 +1153,7 @@ local _ClassConfig = {
                 type = "Spell",
                 active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
                 cond = function(self, spell, target)
-                    return RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                    return RGMercUtils.GroupBuffCheck(spell, target)
                 end,
             },
             {

@@ -1619,7 +1619,7 @@ _ClassConfig       = {
                 cond = function(self, spell, target)
                     --If Single Target, only put on Tanks
                     if (spell and spell() and ((spell.TargetType() or ""):lower() == "single")) and not RGMercConfig.Constants.RGTank:contains(target.Class.ShortName()) then return false end
-                    return RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                    return RGMercUtils.GroupBuffCheck(spell, target)
                 end,
             },
         },
