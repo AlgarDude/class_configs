@@ -680,7 +680,7 @@ local _ClassConfig = {
                 name = "GroupRenewalHoT",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    return RGMercUtils.GetSetting('DoHOT') and AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                    return RGMercUtils.GetSetting('DoHOT') and RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName())
                 end,
             },
         },
@@ -1175,28 +1175,28 @@ local _ClassConfig = {
             -- name = "GrowthBuff",
             -- type = "Spell",
             -- cond = function(self, spell, target)
-            -- return RGMercUtils.GetSetting('DoGrowth') and RGMercUtils.TargetClassIs("WAR", target) and AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
+            -- return RGMercUtils.GetSetting('DoGrowth') and RGMercUtils.TargetClassIs("WAR", target) and RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName())
             -- end,
             -- },
             {
                 name = "SlowProcBuff",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    return RGMercConfig.Constants.RGTank:contains(target.Class.ShortName()) and AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                    return RGMercConfig.Constants.RGTank:contains(target.Class.ShortName()) and RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName())
                 end,
             },
             { --Used on the entire group
                 name = "GroupFocusSpell",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    return AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                    return RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName())
                 end,
             },
             { --If our single target is better than the group spell above, we will use it on the Tank
                 name = "SingleFocusSpell",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    return RGMercConfig.Constants.RGTank:contains(target.Class.ShortName()) and AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                    return RGMercConfig.Constants.RGTank:contains(target.Class.ShortName()) and RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName())
                 end,
             },
             { --Only cast below 86 because past that our focus spells take over
@@ -1204,7 +1204,7 @@ local _ClassConfig = {
                 type = "Spell",
                 cond = function(self, spell, target)
                     return mq.TLO.Me.Level() < 86 and RGMercConfig.Constants.RGMelee:contains(target.Class.ShortName()) and
-                        AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                        RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName())
                 end,
             },
             {
@@ -1213,7 +1213,7 @@ local _ClassConfig = {
                 active_cond = function(self, aaName) return mq.TLO.Me.Haste() end,
                 cond = function(self, aaName, target)
                     if not RGMercUtils.GetSetting('DoHaste') then return false end
-                    return mq.TLO.Me.Level() < 111 and AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                    return mq.TLO.Me.Level() < 111 and RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName())
                 end,
             },
             {
@@ -1222,7 +1222,7 @@ local _ClassConfig = {
                 active_cond = function(self, aaName) return mq.TLO.Me.Haste() end,
                 cond = function(self, spell, target)
                     if not RGMercUtils.GetSetting('DoHaste') or RGMercUtils.CanUseAA("Talisman of Celerity") then return false end
-                    return AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                    return RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName())
                 end,
             },
             {
@@ -1230,7 +1230,7 @@ local _ClassConfig = {
                 type = "Spell",
                 active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
                 cond = function(self, spell, target)
-                    return AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                    return RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName())
                 end,
             },
             {
@@ -1246,7 +1246,7 @@ local _ClassConfig = {
                     local speedSpell = mq.TLO.Me.AltAbility(aaName).Spell.Trigger(1)
                     if not speedSpell or not speedSpell() then return false end
 
-                    return AlgarInclude.GroupBuffCheck(speedSpell, target.ID(), target.CleanName())
+                    return RGMercUtils.GroupBuffCheck(speedSpell, target.ID(), target.CleanName())
                 end,
             },
             {
@@ -1254,7 +1254,7 @@ local _ClassConfig = {
                 type = "Spell",
                 cond = function(self, spell, target)
                     if not RGMercUtils.GetSetting('DoRunSpeed') then return false end
-                    return AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                    return RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName())
                 end,
             },
         },

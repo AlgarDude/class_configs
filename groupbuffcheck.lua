@@ -1,4 +1,4 @@
-function AlgarInclude.GroupBuffCheck(spell, targetId, targetName)
+function RGMercUtils.GroupBuffCheck(spell, targetId, targetName)
     if not spell or not spell() then return false end
 
     if mq.TLO.DanNet(targetName)() ~= nil then
@@ -6,7 +6,7 @@ function AlgarInclude.GroupBuffCheck(spell, targetId, targetName)
         local spellID = spell.RankName.ID()
         local spellResult = DanNet.query(targetName, string.format("Me.FindBuff[id %d]", spellID), 1000)
         RGMercsLogger.log_verbose("GroupBuffCheck() Querying via DanNet for %s(ID:%d) on %s", spellName, spellID, targetName)
-        --RGMercsLogger.log_verbose("AlgarInclude.GroupBuffCheckNeedsBuff() DanNet result for %s: %s", spellName, spellResult)
+        --RGMercsLogger.log_verbose("RGMercUtils.GroupBuffCheckNeedsBuff() DanNet result for %s: %s", spellName, spellResult)
         if spellResult == spellName then
             RGMercsLogger.log_verbose("GroupBuffCheck() DanNet detects that %s(ID:%d) is already present on %s, ending.", spellName, spellID, targetName)
             return false

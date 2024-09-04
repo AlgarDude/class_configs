@@ -1133,14 +1133,14 @@ return {
                 name = "RunSpeedBuff",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    return RGMercUtils.GetSetting('DoRunSpeed') and AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                    return RGMercUtils.GetSetting('DoRunSpeed') and RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName())
                 end,
             },
             {
                 name = "ManaRegenBuff",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    return AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                    return RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName())
                 end,
             },
             {
@@ -1148,7 +1148,7 @@ return {
                 type = "Spell",
                 cond = function(self, spell, target)
                     if not RGMercUtils.GetSetting('DoAvatar') then return false end
-                    return RGMercConfig.Constants.RGMelee:contains(target.Class.ShortName()) and AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                    return RGMercConfig.Constants.RGMelee:contains(target.Class.ShortName()) and RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName())
                 end,
             },
             {
@@ -1160,7 +1160,7 @@ return {
                             or not RGMercConfig.Constants.RGMelee:contains(target.Class.ShortName())) then
                         return false
                     end
-                    return AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                    return RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName())
                 end,
             },
             {
@@ -1172,7 +1172,7 @@ return {
                         and not RGMercConfig.Constants.RGMelee:contains(target.Class.ShortName()) then
                         return false
                     end
-                    return AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                    return RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName())
                 end,
             },
             {
@@ -1184,7 +1184,7 @@ return {
                         and not RGMercConfig.Constants.RGMelee:contains(target.Class.ShortName()) then
                         return false
                     end
-                    return AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                    return RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName())
                 end,
             },
         },

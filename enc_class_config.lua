@@ -1002,7 +1002,7 @@ local _ClassConfig = {
                 type = "Spell",
                 active_cond = function(self, spell) return mq.TLO.Me.FindBuff("id " .. tostring(spell.ID()))() ~= nil end,
                 cond = function(self, spell, target)
-                    return AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                    return RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName())
                 end,
             },
             {
@@ -1012,7 +1012,7 @@ local _ClassConfig = {
                 cond = function(self, spell, target)
                     if not RGMercConfig.Constants.RGCasters:contains(target.Class.ShortName()) then return false end
 
-                    return AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                    return RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName())
                 end,
             },
             {
@@ -1020,7 +1020,7 @@ local _ClassConfig = {
                 type = "Spell",
                 active_cond = function(self, spell) return mq.TLO.Me.FindBuff("id " .. tostring(spell.ID()))() ~= nil end,
                 cond = function(self, spell, target)
-                    return RGMercConfig.Constants.RGMelee:contains(target.Class.ShortName()) and AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                    return RGMercConfig.Constants.RGMelee:contains(target.Class.ShortName()) and RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName())
                 end,
             },
             {
@@ -1028,7 +1028,7 @@ local _ClassConfig = {
                 type = "Spell",
                 active_cond = function(self, spell) return mq.TLO.Me.FindBuff("id " .. tostring(spell.ID()))() ~= nil end,
                 cond = function(self, spell, target)
-                    return AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName()) and RGMercUtils.ReagentCheck(spell)
+                    return RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName()) and RGMercUtils.ReagentCheck(spell)
                 end,
             },
             -- {
@@ -1038,7 +1038,7 @@ local _ClassConfig = {
             -- cond = function(self, spell, target)
             -- if not target or not target() then return false end
 
-            -- return AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName()) and RGMercUtils.ReagentCheck(spell) and RGMercUtils.SpellStacksOnTarget(spell)
+            -- return RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName()) and RGMercUtils.ReagentCheck(spell) and RGMercUtils.SpellStacksOnTarget(spell)
             -- end,
             -- },
             {
@@ -1046,7 +1046,7 @@ local _ClassConfig = {
                 type = "Spell",
                 active_cond = function(self, spell) return mq.TLO.Me.FindBuff("id " .. tostring(spell.ID()))() ~= nil end,
                 cond = function(self, spell, target)
-                    return AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName()) and RGMercUtils.ReagentCheck(spell)
+                    return RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName()) and RGMercUtils.ReagentCheck(spell)
                 end,
             },
             {
@@ -1062,7 +1062,7 @@ local _ClassConfig = {
                         return false
                     end
 
-                    return AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                    return RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName())
                 end,
             },
             {
@@ -1072,7 +1072,7 @@ local _ClassConfig = {
                 cond = function(self, spell, target)
                     if not RGMercUtils.GetSetting('DoGroupAbsorb') or RGMercConfig.Constants.RGCasters:contains(target.Class.ShortName()) then return false end
 
-                    return AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName()) and RGMercUtils.ReagentCheck(spell)
+                    return RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName()) and RGMercUtils.ReagentCheck(spell)
                 end,
             },
             -- {
@@ -1082,7 +1082,7 @@ local _ClassConfig = {
             -- cond = function(self, spell, target)
             -- if not RGMercUtils.GetSetting('DoAggroRune') and RGMercConfig.Constants.RGTank:contains(target.Class.ShortName()) then return false end
 
-            -- return AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
+            -- return RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName())
             -- end,
             -- },
         },

@@ -1103,14 +1103,14 @@ local _ClassConfig = {
                 name = "GroupDmgShield",
                 type = "Spell",
                 active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
-                cond = function(self, spell, target) return AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName()) end,
+                cond = function(self, spell, target) return RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName()) end,
             },
             -- {
             -- name = "MoveSpells",
             -- type = "Spell",
             -- active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
             -- cond = function(self, spell, target)
-            -- return RGMercUtils.GetSetting("DoRunSpeed") and AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
+            -- return RGMercUtils.GetSetting("DoRunSpeed") and RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName())
             -- end,
             -- },
             {
@@ -1119,7 +1119,7 @@ local _ClassConfig = {
                 active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
                 cond = function(self, spell, target)
                     if not RGMercConfig.Constants.RGMelee:contains(target.Class.ShortName()) then return false end
-                    return AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                    return RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName())
                 end,
             },
             -- {
@@ -1128,7 +1128,7 @@ local _ClassConfig = {
             -- active_cond = function(self, spell) return true end,
             -- cond = function(self, spell, target)
             --if not RGMercConfig.Constants.RGTank:contains(target.Class.ShortName()) then return false end
-            -- return AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
+            -- return RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName())
             -- end,
             -- },
             {
@@ -1136,7 +1136,7 @@ local _ClassConfig = {
                 type = "Spell",
                 active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
                 cond = function(self, spell, target)
-                    return AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                    return RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName())
                 end,
             },
             -- {
@@ -1145,7 +1145,7 @@ local _ClassConfig = {
             -- active_cond = function(self, spell) return true end,
             -- cond = function(self, spell, target)
             --if not Set.new({ "SHD", "WAR", }):contains(target.Class.ShortName()) then return false end
-            -- return AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
+            -- return RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName())
             -- end,
             -- },
             {
@@ -1153,7 +1153,7 @@ local _ClassConfig = {
                 type = "Spell",
                 active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
                 cond = function(self, spell, target)
-                    return AlgarInclude.GroupBuffCheck(spell, target.ID(), target.CleanName())
+                    return RGMercUtils.GroupBuffCheck(spell, target.ID(), target.CleanName())
                 end,
             },
             {
