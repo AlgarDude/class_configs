@@ -1098,11 +1098,12 @@ return {
                 type = "Item",
                 active_cond = function(self)
                     local item = mq.TLO.Me.Inventory("Chest")
-                    return item() and mq.TLO.Me.Song(item.Spell.RankName.Name())() ~= nil
+                    return RGMercUtils.BuffActive(item.Spell)
                 end,
                 cond = function(self)
                     local item = mq.TLO.Me.Inventory("Chest")
-                    return RGMercUtils.GetSetting('DoChestClick') and item() and item.Spell.Stacks() and item.TimerReady() == 0
+                    if not RGMercUtils.GetSetting('DoChestClick') or not item or not item() then return false end
+                    return RGMercUtils.SelfBuffCheck(item.Spell) and item.TimerReady() == 0
                 end,
             },
             {
