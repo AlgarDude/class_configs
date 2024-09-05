@@ -8,7 +8,13 @@ Make no mistake, while I am a regular contributor, none of this is officially en
 
 To use these: place them in (VV install)\config\rgmercs\class_configs
 
-*** *PLEASE NOTE* *** "algar_include.lua" is required to use any of my configs! It contains custom functions used on multiple classes that I may be using privately or testing to eventually edit/replace functions in the main repo. For now, this needs to be copied to the "utils" folder (VV\lua\rgmercs\utils\)
+*** *PLEASE NOTE* *** As of 5 Sep 2024, all of my custom functions have been fully integrated into the main branch and algar_include.lua is no longer required!
+Other updates: 
+SHD is now fully integrated. 
+BST is now fully integrated. 
+BRD is now fully integrated.
+ENC is being tested for full integration.
+SHM is my next project to integrate.
 
 THANK YOU FOR TESTING:
 If I've asked you to help me test a specific config, the below warnings likely don't apply! (Dont be skerd yo)

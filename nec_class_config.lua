@@ -10,7 +10,6 @@
 
 local mq           = require('mq')
 local RGMercUtils  = require("utils.rgmercs_utils")
-local AlgarInclude = require("utils.algar_include")
 
 local _ClassConfig = {
     _version            = "Jank",

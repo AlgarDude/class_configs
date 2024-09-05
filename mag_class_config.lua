@@ -1,8 +1,7 @@
-local mq           = require('mq')
-local RGMercUtils  = require("utils.rgmercs_utils")
-local AlgarInclude = require("utils.algar_include")
+local mq          = require('mq')
+local RGMercUtils = require("utils.rgmercs_utils")
 
-_ClassConfig       = {
+_ClassConfig      = {
     _version              = "0.2B Modified",
     _author               = "Algar, Derple, Morisato",
     ['FullConfig']        = true,
@@ -920,7 +919,7 @@ _ClassConfig       = {
             steps = 1,
             targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
             cond = function(self, combat_state)
-                return combat_state == "Combat" and AlgarInclude.DebuffConCheck() and not RGMercUtils.Feigning()
+                return combat_state == "Combat" and RGMercUtils.DebuffConCheck() and not RGMercUtils.Feigning()
             end,
         },
         -- {

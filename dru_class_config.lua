@@ -1,7 +1,6 @@
 local mq           = require('mq')
 local RGMercUtils  = require("utils.rgmercs_utils")
 local Set          = require('mq.Set')
-local AlgarInclude = require("utils.algar_include")
 
 local _ClassConfig = {
     _version              = "1.1 Custom",
