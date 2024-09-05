@@ -291,8 +291,8 @@ local _ClassConfig = {
             "Umbral Auspice",
         },
         ['SelfGuardShield'] = {
+            "Shield of Inevitability",
             "Shield of Inescapability",
-            "Shield of Shadow",
             "Shield of Destiny",
             "Shield of Order",
             "Shield of Consequence",
@@ -322,7 +322,7 @@ local _ClassConfig = {
             "Chromatic Covenant",
             "Chromatic Alliance",
         },
-        ['TwinCast'] = {
+        ['TwinCastMez'] = {
             "Chaotic Deception",
             "Chaotic Delusion",
             "Chaotic Bewildering",
@@ -916,6 +916,24 @@ local _ClassConfig = {
                 cond = function(self, spell) return mq.TLO.Me.Pet.ID() == 0 and RGMercUtils.ReagentCheck(spell) end,
             },
             {
+                name = "Orator's Unity",
+                type = "AA",
+                active_cond = function(self, aaName) return RGMercUtils.BuffActiveByName(aaName) end,
+                cond = function(self, aaName) return RGMercUtils.SelfBuffAACheck(aaName) and RGMercUtils.AAReady(aaName) end,
+            },
+            {
+                name = "SelfGuardShield",
+                type = "Spell",
+                active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.RankName.ID()) end,
+                cond = function(self, spell) return RGMercUtils.SelfBuffCheck(spell) end,
+            },
+            {
+                name = "SelfRune1",
+                type = "Spell",
+                active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
+                cond = function(self, spell) return RGMercUtils.SelfBuffCheck(spell) end,
+            },
+            {
                 name = "SelfHPBuff",
                 type = "Spell",
                 active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
@@ -923,12 +941,6 @@ local _ClassConfig = {
             },
             {
                 name = "MezBuff",
-                type = "Spell",
-                active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
-                cond = function(self, spell) return RGMercUtils.SelfBuffCheck(spell) end,
-            },
-            {
-                name = "SelfRune1",
                 type = "Spell",
                 active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
                 cond = function(self, spell) return RGMercUtils.SelfBuffCheck(spell) end,
@@ -943,20 +955,20 @@ local _ClassConfig = {
                 name = "Veil of Mindshadow",
                 type = "AA",
                 active_cond = function(self, aaName) return RGMercUtils.BuffActiveByName(aaName) end,
-                cond = function(self, aaName) return RGMercUtils.SelfBuffAACheck(aaName) end,
+                cond = function(self, aaName) return RGMercUtils.SelfBuffAACheck(aaName) and RGMercUtils.AAReady(aaName) end,
             },
 
             { --TODO: Add autoinventory as a post_activate
                 name = "Azure Mind Crystal",
                 type = "AA",
                 active_cond = function(self, aaName) return mq.TLO.FindItem(aaName)() ~= nil end,
-                cond = function(self, aaName) return mq.TLO.Me.PctMana() > 90 and not mq.TLO.FindItem(aaName)() end,
+                cond = function(self, aaName) return mq.TLO.Me.PctMana() > 90 and not mq.TLO.FindItem(aaName)() and RGMercUtils.AAReady(aaName) end,
             },
             {
                 name = "Gather Mana",
                 type = "AA",
                 active_cond = function(self, aaName) return RGMercUtils.AAReady(aaName) end,
-                cond = function(self, aaName) return mq.TLO.Me.PctMana() < 60 end,
+                cond = function(self, aaName) return mq.TLO.Me.PctMana() < 60 and RGMercUtils.AAReady(aaName) end,
             },
             {
                 name = "AuraBuff1",
@@ -986,14 +998,6 @@ local _ClassConfig = {
             },
         },
         ['GroupBuff'] = {
-            {
-                name = "SingleRune",
-                type = "Spell",
-                active_cond = function(self, spell) return mq.TLO.Me.FindBuff("id " .. tostring(spell.ID()))() ~= nil end,
-                cond = function(self, spell, target)
-                    return RGMercUtils.GroupBuffCheck(spell, target)
-                end,
-            },
             {
                 name = "ManaRegen",
                 type = "Spell",
@@ -1057,7 +1061,7 @@ local _ClassConfig = {
                 type = "Spell",
                 active_cond = function(self, spell) return mq.TLO.Me.FindBuff("id " .. tostring(spell.ID()))() ~= nil end,
                 cond = function(self, spell, target)
-                    if not RGMercUtils.GetSetting('DoGroupAbsorb') or RGMercConfig.Constants.RGCasters:contains(target.Class.ShortName()) then return false end
+                    if not RGMercUtils.GetSetting('DoGroupAbsorb') or not RGMercConfig.Constants.RGCasters:contains(target.Class.ShortName()) then return false end
                     return RGMercUtils.GroupBuffCheck(spell, target) and RGMercUtils.ReagentCheck(spell)
                 end,
             },
@@ -1066,8 +1070,17 @@ local _ClassConfig = {
                 type = "Spell",
                 active_cond = function(self, spell) return mq.TLO.Me.FindBuff("id " .. tostring(spell.ID()))() ~= nil end,
                 cond = function(self, spell, target)
-                    if not RGMercUtils.GetSetting('DoAggroRune') or RGMercConfig.Constants.RGTank:contains(target.Class.ShortName()) then return false end
-                    return RGMercUtils.GroupBuffCheck(spell, target.CleanName())
+                    if not RGMercUtils.GetSetting('DoAggroRune') or not RGMercConfig.Constants.RGTank:contains(target.Class.ShortName()) then return false end
+                    return RGMercUtils.GroupBuffCheck(spell, target)
+                end,
+            },
+            {
+                name = "SingleRune",
+                type = "Spell",
+                active_cond = function(self, spell) return mq.TLO.Me.FindBuff("id " .. tostring(spell.ID()))() ~= nil end,
+                cond = function(self, spell, target)
+                    if RGMercUtils.GetSetting('DoGroupAbsorb') then return false end
+                    return RGMercUtils.GroupBuffCheck(spell, target)
                 end,
             },
         },
@@ -1430,7 +1443,7 @@ local _ClassConfig = {
         {
             gem = 1,
             spells = {
-                { name = "TwinCastMez", cond = function(self) return RGMercUtils.IsModeActive("ModernEra") and RGMercUtils.GetSetting('DoTwinCastMez') end, },
+                { name = "TwinCastMez", cond = function(self) return RGMercUtils.IsModeActive("ModernEra") and RGMercUtils.GetSetting('DoTwincastMez') end, },
                 { name = "MezSpell", },
             },
         },
@@ -1490,6 +1503,7 @@ local _ClassConfig = {
             gem = 9,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
+                { name = "NdtBuff", cond = function(self) return RGMercUtils.IsModeActive("ModernEra") end, },
                 { name = "ManaDot", cond = function(self) return true end, },
             },
         },
@@ -1556,13 +1570,13 @@ local _ClassConfig = {
         ['AESlowCount']      = { DisplayName = "Slow Count", Category = "Debuffs", Tooltip = "Number of XT Haters before we start AE slowing", Min = 1, Default = 2, Max = 10, },
         ['DoTash']           = { DisplayName = "Do Tash", Category = "Debuffs", Tooltip = "Cast Tash Spells", Default = true, },
         ['DoTwincastDPS']    = { DisplayName = "Do Twincast DPS", Category = "Combat", Tooltip = "(Default Mode Only) Cast TwinCast Mez during DPS rotation", Default = true, },
-        ['DoTwincastMez']    = { DisplayName = "Do Twincast DPS", Category = "Debuffs", Tooltip = "(ModernEra Mode Only) Use TwinCast Mez as your main ST Mez", Default = true, },
+        ['DoTwincastMez']    = { DisplayName = "Use Twincast Mez", Category = "Debuffs", Tooltip = "(ModernEra Mode Only) Use TwinCast Mez as your main ST Mez", Default = true, },
         ['DoDot']            = { DisplayName = "Cast DOTs", Category = "Combat", Tooltip = "Enable casting Damage Over Time spells. (Dots always used for ModernEra Mode)", Default = true, },
         ['DoSlow']           = { DisplayName = "Cast Slow", Category = "Debuffs", Tooltip = "Enable casting Slow spells.", Default = true, },
         ['DoCripple']        = { DisplayName = "Cast Cripple", Category = "Debuffs", Tooltip = "Enable casting Cripple spells.", Default = true, },
         ['DoDicho']          = { DisplayName = "Cast Dicho", Category = "Combat", Tooltip = "Enable casting Dicho spells.(Dicho always used for ModernEra Mode)", Default = true, },
         ['DoNDTBuff']        = { DisplayName = "Cast NDT", Category = "Buffs", Tooltip = "Enable casting use Melee Proc Buff (Night's Dark Terror Line).", Default = true, },
-        ['DoGroupAbsorb']    = { DisplayName = "Do Group Absorb", Category = "Buffs", Tooltip = "Enable casting the Group Absorb line with -Hate Proc.", Default = true, },
+        ['DoGroupAbsorb']    = { DisplayName = "Do Group Absorb", Category = "Buffs", Tooltip = "Enable casting the Group Absorb line with -Hate Proc. If disabled, single target runes will be used.", Default = true, },
         ['DoGroupDotShield'] = { DisplayName = "Do Group DoT Shield", Category = "Buffs", Tooltip = "Enable casting the Group DoT Shield Line.", Default = true, },
         ['DoAggroRune']      = { DisplayName = "Do Aggro Rune", Category = "Buffs", Tooltip = "Enable casting the Tank Aggro Rune", Default = true, },
         ['DoStripBuff']      = { DisplayName = "Do Strip Buffs", Category = "Debuffs", Tooltip = "Enable removing beneficial enemy effects.", Default = true, },
