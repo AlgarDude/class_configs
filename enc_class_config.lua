@@ -855,7 +855,7 @@ local _ClassConfig = {
             steps = 1,
             targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
             cond = function(self, combat_state)
-                if not RGMercUtils.GetSetting('DoSlow') or RGMercUtils.GetSetting('DoCripple') then return false end
+                if not RGMercUtils.GetSetting('DoSlow') or not RGMercUtils.GetSetting('DoCripple') then return false end
                 return combat_state == "Combat" and RGMercUtils.DebuffConCheck() and not RGMercUtils.Feigning() and
                     mq.TLO.Me.PctMana() >= RGMercUtils.GetSetting('ManaToDebuff')
             end,
@@ -1304,25 +1304,25 @@ local _ClassConfig = {
                     return (RGMercUtils.ManaCheck() or RGMercUtils.BurnCheck()) and RGMercUtils.NPCSpellReady(spell, target.ID())
                 end,
             },
-            { --Mana check used instead of dot mana check because this is spammed.
+            { --Mana check used instead of dot mana check because this is spammed like a nuke
                 name = "DoTSpell1",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    return RGMercUtils.DotSpellCheck(spell) and (RGMercUtils.ManaCheck() or RGMercUtils.BurnCheck()) and RGMercUtils.NPCSpellReady(spell, target.ID())
+                    return (RGMercUtils.ManaCheck() or RGMercUtils.BurnCheck()) and RGMercUtils.NPCSpellReady(spell, target.ID())
                 end,
             },
             { --this is not an error, we want the spell twice in a row as part of the rotation.
                 name = "DoTSpell1",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    return RGMercUtils.DotSpellCheck(spell) and (RGMercUtils.ManaCheck() or RGMercUtils.BurnCheck()) and RGMercUtils.NPCSpellReady(spell, target.ID())
+                    return (RGMercUtils.ManaCheck() or RGMercUtils.BurnCheck()) and RGMercUtils.NPCSpellReady(spell, target.ID())
                 end,
             },
             { --used when the chanter or group members are low mana
                 name = "ManaNuke",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    return (mq.TLO.Group.LowMana(50)() or -1) > 1 or not RGMercUtils.ManaCheck() and RGMercUtils.NPCSpellReady(spell, target.ID())
+                    return (mq.TLO.Group.LowMana(80)() or -1) > 1 or not RGMercUtils.ManaCheck() and RGMercUtils.NPCSpellReady(spell, target.ID())
                 end,
             },
         },
@@ -1389,7 +1389,6 @@ local _ClassConfig = {
                 name = "Bite of Tashani",
                 type = "AA",
                 cond = function(self, aaName, target)
-                    if mq.TLO.Target.ID() <= 0 then return false end
                     return RGMercUtils.GetSetting('DoTash') and RGMercUtils.DetAACheck(mq.TLO.Me.AltAbility(aaName).ID()) and not mq.TLO.Target.Tashed() and
                         RGMercUtils.GetXTHaterCount() > 1 and RGMercUtils.NPCAAReady(aaName, target.ID())
                 end,
@@ -1533,8 +1532,9 @@ local _ClassConfig = {
             gem = 13,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
-                { name = "AllianceSpell",  cond = function(self) return RGMercUtils.GetSetting('DoAlliance') end, },
-                { name = "ManaDrainSpell", cond = function(self) return RGMercUtils.IsModeActive("Default") end, },
+                { name = "AllianceSpell",    cond = function(self) return RGMercUtils.GetSetting('DoAlliance') end, },
+                { name = "GroupAuspiceBuff", cond = function(self) return RGMercUtils.IsModeActive("ModernEra") end, },
+                { name = "ManaDrainSpell",   cond = function(self) return RGMercUtils.IsModeActive("Default") end, },
             },
         },
     },
