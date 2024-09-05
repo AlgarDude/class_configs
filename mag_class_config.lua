@@ -1295,6 +1295,13 @@ _ClassConfig       = {
                     return RGMercUtils.SelfBuffPetCheck(spell)
                 end,
             },
+            {
+                name = "PetManaConv",
+                type = "Spell",
+                cond = function(self, spell)
+                    return spell and spell() and not mq.TLO.Me.Buff(spell.Name() .. " Recourse")() and RGMercUtils.SpellStacksOnMe(spell)
+                end,
+            },
             --removed temporarily and will be eliminated when autoinventory on individual entries have been widely tested
             -- {
             --     name = "Drop Cursor Items",
@@ -1733,13 +1740,6 @@ _ClassConfig       = {
                     if success then
                         RGMercUtils.SafeCallFunc("Autoinventory", self.ClassConfig.HelperFunctions.HandleItemSummon, self, spell, "personal")
                     end
-                end,
-            },
-            {
-                name = "PetManaConv",
-                type = "Spell",
-                cond = function(self, spell)
-                    return spell and spell() and not mq.TLO.Me.Buff(spell.Name() .. " Recourse")() and mq.TLO.Me.Pet.ID() > 0 --
                 end,
             },
             {

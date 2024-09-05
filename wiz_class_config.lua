@@ -1103,7 +1103,7 @@ return {
                 cond = function(self)
                     local item = mq.TLO.Me.Inventory("Chest")
                     if not RGMercUtils.GetSetting('DoChestClick') or not item or not item() then return false end
-                    return RGMercUtils.SelfBuffCheck(item.Spell) and item.TimerReady() == 0
+                    return mq.TLO.Me.PctMana() < RGMercUtils.GetSetting('HarvestManaPct') and item.TimerReady() == 0 and RGMercUtils.SelfBuffCheck(item.Spell)
                 end,
             },
             {
