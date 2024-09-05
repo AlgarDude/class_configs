@@ -23,26 +23,26 @@ local _ClassConfig = {
         },
     },
     ['AbilitySets']   = {
-        ['AuraBuff1'] = {
+        ['TwincastAura'] = {
             "Twincast Aura",
         },
-        ['AuraBuff2'] = {
-            -- "Mana Ripple Aura",
-            -- "Mana Radix Aura",
-            -- "Mana Replication Aura",
-            -- "Mana Repetition Aura",
-            -- "Mana Reciprocation Aura",
+        ['SpellProcAura'] = {
+            "Mana Ripple Aura",
+            "Mana Radix Aura",
+            "Mana Replication Aura",
+            "Mana Repetition Aura",
+            "Mana Reciprocation Aura",
             "Mana Reverberation Aura",
-            -- "Mana Repercussion Aura",
-            -- "Mana Reiteration Aura",
-            -- "Mana Reiterate Aura",
-            -- "Mana Resurgence Aura",
-            -- "Mystifier's Aura",
-            -- "Entrancer's Aura",
-            -- "Illusionist's Aura",
-            -- "Beguiler's Aura",
+            "Mana Repercussion Aura",
+            "Mana Reiteration Aura",
+            "Mana Reiterate Aura",
+            "Mana Resurgence Aura",
+            "Mystifier's Aura",
+            "Entrancer's Aura",
+            "Illusionist's Aura",
+            "Beguiler's Aura",
         },
-        ['AuraBuff3'] = {
+        ['LearnersAura'] = {
             "Learner's Aura",
         },
         ['HasteBuff'] = {
@@ -304,7 +304,7 @@ local _ClassConfig = {
             "Transfixer's Auspice",
             "Enticer's Auspice",
         },
-        ['GroupProcBuff'] = {
+        ['SpellProcBuff'] = {
             "Mana Reproduction",
             "Mana Rebirth",
             "Mana Replication",
@@ -971,7 +971,15 @@ local _ClassConfig = {
                 cond = function(self, aaName) return mq.TLO.Me.PctMana() < 60 and RGMercUtils.AAReady(aaName) end,
             },
             {
-                name = "AuraBuff1",
+                name = "Learners",
+                type = "Spell",
+                active_cond = function(self, spell) return RGMercUtils.AuraActiveByName(spell.Name()) end,
+                cond = function(self, spell)
+                    return RGMercUtils.GetSetting('DoLearners') and RGMercUtils.PCSpellReady(spell) and not RGMercUtils.AuraActiveByName(spell.Name())
+                end,
+            },
+            {
+                name = "TwincastAura",
                 type = "Spell",
                 active_cond = function(self, spell) return RGMercUtils.AuraActiveByName(spell.Name()) end,
                 cond = function(self, spell)
@@ -980,20 +988,23 @@ local _ClassConfig = {
                 end,
             },
             {
-                name = "AuraBuff2",
+                name = "SpellProcAura",
                 type = "Spell",
-                active_cond = function(self, spell) return RGMercUtils.AuraActiveByName(spell.Name()) and not RGMercUtils.AuraActiveByName("Mana Ripple") end,
-                cond = function(self, spell)
-                    return RGMercUtils.PCSpellReady(spell) and not RGMercUtils.AuraActiveByName(spell.Name()) and not RGMercUtils.AuraActiveByName("Mana Ripple") and
-                        not RGMercUtils.GetSetting('DoLearners')
+                active_cond = function(self, spell)
+                    local aura = string.sub(spell.Name(), 1, 8)
+                    return RGMercUtils.AuraActiveByName(aura)
                 end,
-            },
-            {
-                name = "AuraBuff3",
-                type = "Spell",
-                active_cond = function(self, spell) return RGMercUtils.AuraActiveByName(spell.Name()) end,
+                pre_activate = function(self, spell)               --remove the old aura if we leveled up, otherwise we will be spammed because of no focus.
+                    local aura = string.sub(spell.Name(), 1, 8)
+                    if not RGMercUtils.AuraActiveByName(aura) then ----This is complex because the aura could be in slot 1 or 2 depending on level and aa status
+                        local rmv = 1
+                        if RGMercUtils.CanUseAA('Auroria Mastery') then rmv = 2 end
+                        RGMercUtils.DoCmd("/lua parse mq.TLO.Me.Aura(%d).Remove", rmv) --I have to remove by slot because I can't map the "old" aura
+                    end
+                end,
                 cond = function(self, spell)
-                    return RGMercUtils.GetSetting('DoLearners') and RGMercUtils.PCSpellReady(spell) and not RGMercUtils.AuraActiveByName(spell.Name())
+                    local aura = string.sub(spell.Name(), 1, 8)
+                    return RGMercUtils.PCSpellReady(spell) and not RGMercUtils.AuraActiveByName(aura) and not RGMercUtils.GetSetting('DoLearners')
                 end,
             },
         },
@@ -1057,6 +1068,15 @@ local _ClassConfig = {
                 end,
             },
             {
+                name = "SpellProcBuff",
+                type = "Spell",
+                active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
+                cond = function(self, spell, target)
+                    if not RGMercConfig.Constants.RGCasters:contains(target.Class.ShortName()) then return false end
+                    return RGMercUtils.GroupBuffCheck(spell, target)
+                end,
+            },
+            {
                 name = "GroupRune",
                 type = "Spell",
                 active_cond = function(self, spell) return mq.TLO.Me.FindBuff("id " .. tostring(spell.ID()))() ~= nil end,
@@ -1080,7 +1100,7 @@ local _ClassConfig = {
                 active_cond = function(self, spell) return mq.TLO.Me.FindBuff("id " .. tostring(spell.ID()))() ~= nil end,
                 cond = function(self, spell, target)
                     if RGMercUtils.GetSetting('DoGroupAbsorb') then return false end
-                    return RGMercUtils.GroupBuffCheck(spell, target)
+                    return RGMercUtils.GroupBuffCheck(spell, target) and RGMercUtils.ReagentCheck(spell)
                 end,
             },
         },
@@ -1524,7 +1544,7 @@ local _ClassConfig = {
             gem = 12,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
-                { name = "GroupProcBuff", cond = function(self) return RGMercUtils.IsModeActive("ModernEra") end, },
+                { name = "SpellProcBuff", cond = function(self) return RGMercUtils.IsModeActive("ModernEra") end, },
                 { name = "DichoSpell",    cond = function(self) return true end, },
             },
         },

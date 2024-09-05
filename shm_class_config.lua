@@ -1442,8 +1442,6 @@ local _ClassConfig = {
         ['DoAESlow']          = { DisplayName = "Cast AE Slow", Category = "Debuffs", Tooltip = "Do AE Slow Spells/AAs", Default = false, },
         ['AESlowCount']       = { DisplayName = "AE Slow Count", Category = "Debuffs", Tooltip = "Number of XT Haters before we start AE slowing", Min = 1, Default = 3, Max = 10, },
         ['AEMaloCount']       = { DisplayName = "AE Malo Count", Category = "Debuffs", Tooltip = "Number of XT Haters before we start AE Maloing", Min = 1, Default = 3, Max = 10, },
-        ['DebuffMinCon']      = { DisplayName = "Debuff Min Con", Category = "Debuffs", Tooltip = "Min Con to use debuffs on", Default = 4, Min = 1, Max = #RGMercConfig.Constants.ConColors, Type = "Combo", ComboOptions = RGMercConfig.Constants.ConColors, },
-        ['DebuffNamedAlways'] = { DisplayName = "Always Debuff Named", Category = "Debuffs", Tooltip = "Debuff named regardless of con color", Default = true, },
         ['DoStatBuff']        = { DisplayName = "Do Stat Buff", Category = "Buffs", Tooltip = "Do Stat Buffs for Group", Default = true, },
         --Buffs
         --Debuffs
