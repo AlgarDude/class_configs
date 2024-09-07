@@ -2,27 +2,25 @@ local mq           = require('mq')
 local RGMercUtils  = require("utils.rgmercs_utils")
 
 local _ClassConfig = {
-    _version          = "1.2 Beta",
-    _author           = "Derple, Grimmier, Algar",
-    ['FullConfig']    = true,
-    ['ModeChecks']    = {
+    _version            = "1.2",
+    _author             = "Derple, Grimmier, Algar",
+    ['ModeChecks']      = {
         CanMez     = function() return true end,
         CanCharm   = function() return true end,
         IsCharming = function() return RGMercUtils.GetSetting('CharmOn') end,
         IsMezzing  = function() return true end,
-        -- IsCharming = function() return RGMercUtils.IsModeActive("Charm") end,
     },
-    ['Modes']         = {
+    ['Modes']           = {
         'Default',
         'ModernEra', --Different DPS rotation, meant for ~90+ (and may not come fully online until 105ish)
     },
-    ['ItemSets']      = {
+    ['ItemSets']        = {
         ['Epic'] = {
             "Staff of Eternal Eloquence",
             "Oculus of Persuasion",
         },
     },
-    ['AbilitySets']   = {
+    ['AbilitySets']     = {
         ['TwincastAura'] = {
             "Twincast Aura",
         },
@@ -804,20 +802,29 @@ local _ClassConfig = {
             "Root",
         },
     },
-    ['RotationOrder'] = {
+    ['RotationOrder']   = {
         {
             name = 'Downtime',
             targetId = function(self) return { mq.TLO.Me.ID(), } end,
             cond = function(self, combat_state)
                 return combat_state == "Downtime" and RGMercUtils.DoBuffCheck()
             end,
-
         },
-        {
-            name = 'Pet Downtime',
-            targetId = function(self) return { mq.TLO.Me.Pet.ID(), } end,
+        { --Summon pet even when buffs are off on emu
+            name = 'Pet Management',
+            state = 1,
+            steps = 1,
+            targetId = function(self) return { mq.TLO.Me.ID(), } end,
             cond = function(self, combat_state)
-                return combat_state == "Downtime" and RGMercUtils.DoBuffCheck() and mq.TLO.Me.Pet.ID() > 0
+                return combat_state == "Downtime" and mq.TLO.Me.Pet.ID() == 0 and not RGMercUtils.IsCharming()
+            end,
+        },
+        { --Pet Buffs if we have one, timer because we don't need to constantly check this
+            name = 'Pet Downtime',
+            timer = 60,
+            targetId = function(self) return mq.TLO.Me.Pet.ID() > 0 and { mq.TLO.Me.Pet.ID(), } or {} end,
+            cond = function(self, combat_state)
+                return combat_state == "Downtime" and mq.TLO.Me.Pet.ID() > 0 and RGMercUtils.DoBuffCheck()
             end,
         },
         {
@@ -838,7 +845,7 @@ local _ClassConfig = {
                 return combat_state == "Downtime" and RGMercUtils.DoBuffCheck()
             end,
         },
-        { --Slow and Tash seperated so we use both before we start DPS
+        { --Slow and Tash separated so we use both before we start DPS
             name = 'Tash',
             state = 1,
             steps = 1,
@@ -849,7 +856,7 @@ local _ClassConfig = {
                     mq.TLO.Me.PctMana() >= RGMercUtils.GetSetting('ManaToDebuff')
             end,
         },
-        { --Slow and Tash seperated so we use both before we start DPS
+        { --Slow and Tash separated so we use both before we start DPS
             name = 'CripSlow',
             state = 1,
             steps = 1,
@@ -899,22 +906,22 @@ local _ClassConfig = {
             end,
         },
     },
-    ['Rotations']     = {
-        ['Pet Downtime'] = {
-            {
-                name = "PetBuffSpell",
-                type = "Spell",
-                active_cond = function(self, spell) return mq.TLO.Me.PetBuff(spell.ID()).ID() end,
-                cond = function(self, spell) return RGMercUtils.SelfBuffPetCheck(spell) end,
-            },
-        },
+    ['HelperFunctions'] = { --used to autoinventory our azure crystal after summon
+        StashCrystal = function()
+            mq.delay("2s", function() return mq.TLO.Cursor() and mq.TLO.Cursor.ID() == mq.TLO.Spell("Azure Mind Crystal").Base(1)() end)
+
+            if not mq.TLO.Cursor() then
+                RGMercsLogger.log_debug("No valid item found on cursor, item handling aborted.")
+                return false
+            end
+
+            RGMercsLogger.log_info("Sending the %s to our bags.", mq.TLO.Cursor())
+            mq.delay(150)
+            RGMercUtils.DoCmd("/autoinventory")
+        end,
+    },
+    ['Rotations']       = {
         ['Downtime'] = {
-            {
-                name = "PetSpell",
-                type = "Spell",
-                active_cond = function(self, _) return mq.TLO.Me.Pet.ID() > 0 end,
-                cond = function(self, spell) return mq.TLO.Me.Pet.ID() == 0 and RGMercUtils.ReagentCheck(spell) end,
-            },
             {
                 name = "Orator's Unity",
                 type = "AA",
@@ -958,11 +965,16 @@ local _ClassConfig = {
                 cond = function(self, aaName) return RGMercUtils.SelfBuffAACheck(aaName) and RGMercUtils.AAReady(aaName) end,
             },
 
-            { --TODO: Add autoinventory as a post_activate
+            {
                 name = "Azure Mind Crystal",
                 type = "AA",
                 active_cond = function(self, aaName) return mq.TLO.FindItem(aaName)() ~= nil end,
                 cond = function(self, aaName) return mq.TLO.Me.PctMana() > 90 and not mq.TLO.FindItem(aaName)() and RGMercUtils.AAReady(aaName) end,
+                post_activate = function(self, aaName, success)
+                    if success then
+                        RGMercUtils.SafeCallFunc("Autoinventory", self.ClassConfig.HelperFunctions.StashCrystal)
+                    end
+                end,
             },
             {
                 name = "Gather Mana",
@@ -971,7 +983,7 @@ local _ClassConfig = {
                 cond = function(self, aaName) return mq.TLO.Me.PctMana() < 60 and RGMercUtils.AAReady(aaName) end,
             },
             {
-                name = "Learners",
+                name = "LearnersAura",
                 type = "Spell",
                 active_cond = function(self, spell) return RGMercUtils.AuraActiveByName(spell.Name()) end,
                 cond = function(self, spell)
@@ -997,15 +1009,30 @@ local _ClassConfig = {
                 pre_activate = function(self, spell)               --remove the old aura if we leveled up, otherwise we will be spammed because of no focus.
                     local aura = string.sub(spell.Name(), 1, 8)
                     if not RGMercUtils.AuraActiveByName(aura) then ----This is complex because the aura could be in slot 1 or 2 depending on level and aa status
-                        local rmv = 1
-                        if RGMercUtils.CanUseAA('Auroria Mastery') then rmv = 2 end
-                        RGMercUtils.DoCmd("/lua parse mq.TLO.Me.Aura(%d).Remove", rmv) --I have to remove by slot because I can't map the "old" aura
+                        local rmv = RGMercUtils.CanUseAA('Auroria Mastery') and 2 or 1
+                        mq.TLO.Me.Aura(rmv).Remove()               --I have to remove by slot because I can't map the "old" aura to remove it by name
                     end
                 end,
                 cond = function(self, spell)
                     local aura = string.sub(spell.Name(), 1, 8)
                     return RGMercUtils.PCSpellReady(spell) and not RGMercUtils.AuraActiveByName(aura) and not RGMercUtils.GetSetting('DoLearners')
                 end,
+            },
+        },
+        ['Pet Management'] = {
+            {
+                name = "PetSpell",
+                type = "Spell",
+                active_cond = function(self, _) return mq.TLO.Me.Pet.ID() > 0 end,
+                cond = function(self, spell) return RGMercUtils.ReagentCheck(spell) end,
+            },
+        },
+        ['Pet Downtime'] = {
+            {
+                name = "PetBuffSpell",
+                type = "Spell",
+                active_cond = function(self, spell) return mq.TLO.Me.PetBuff(spell.ID()).ID() end,
+                cond = function(self, spell) return RGMercUtils.SelfBuffPetCheck(spell) end,
             },
         },
         ['GroupBuff'] = {
@@ -1458,7 +1485,7 @@ local _ClassConfig = {
             },
         },
     },
-    ['Spells']        = {
+    ['Spells']          = {
         {
             gem = 1,
             spells = {
@@ -1558,7 +1585,7 @@ local _ClassConfig = {
             },
         },
     },
-    ['PullAbilities'] = {
+    ['PullAbilities']   = {
         {
             id = 'TashSpell',
             Type = "Spell",
@@ -1584,7 +1611,7 @@ local _ClassConfig = {
             end,
         },
     },
-    ['DefaultConfig'] = {
+    ['DefaultConfig']   = {
         ['Mode']             = { DisplayName = "Mode", Category = "Combat", Tooltip = "Select the Combat Mode for this PC. Default: The original RGMercs Config. ModernEra: DPS rotation and spellset aimed at modern live play (~90+)", Type = "Custom", RequiresLoadoutChange = true, Default = 1, Min = 1, Max = 2, },
         ['DoLearners']       = { DisplayName = "Do Learners", Category = "Buffs", Tooltip = "Set to use the Learner's Aura instead of the Mana Regen Aura.", Default = false, },
         ['AESlowCount']      = { DisplayName = "Slow Count", Category = "Debuffs", Tooltip = "Number of XT Haters before we start AE slowing", Min = 1, Default = 2, Max = 10, },
