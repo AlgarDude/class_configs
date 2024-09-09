@@ -1511,14 +1511,6 @@ _ClassConfig      = {
         },
         ['DPS'] = {
             {
-                name = "SelfModRod",
-                type = "Item",
-                cond = function(self)
-                    return mq.TLO.FindItemCount(RGMercUtils.GetSetting('SelfModRod'))() == 0 and mq.TLO.Me.PctMana() < RGMercUtils.GetSetting('ModRodManaPct') and
-                        mq.TLO.Me.PctHPs() >= 60
-                end,
-            },
-            {
                 name = "SwarmPet",
                 type = "Spell",
                 cond = function(self, spell)
