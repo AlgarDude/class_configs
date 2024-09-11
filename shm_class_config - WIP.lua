@@ -189,7 +189,7 @@ local _ClassConfig = {
             "Walking Sleep",
             "Drowsy",
         },
-        ["DieaseSlow"] = {
+        ["DiseaseSlow"] = {
             "Cloud of Grummus",
             "Plague of Insects",
         },
@@ -231,7 +231,7 @@ local _ClassConfig = {
             "Talisman of the Lynx",
             "Talisman of the Cougar",
             "Talisman of the Panther",
-            -- Below Level 71 This is a single target buff and should not be enabled without entry editing (as entries are keyed off of the SHM's buffs)
+            -- Below Level 71 This is a single target buff and should not be enabled without entry editing (as entries are keyed off of checking the SHM's buffs)
             -- "Spirit of the Panther",
             -- "Spirit of the Leopard",
             -- "Spirit of the Jaguar",
@@ -268,18 +268,11 @@ local _ClassConfig = {
             "Ancient Alliance",
             "Ancient Coalition",
         },
-        ["IcefixSpell"] = {
-            -- Eradicate Curse
-            "Remove Greater Curse",
-            "Eradicate Curse",
-        },
-        -- Some of these probably only work on EMU servers.
-        ['RezSpell'] =
-        {
-            'Incarnate Anew',
-            'Resuscitate',
-            'Revive',
-            'Reanimation',
+        ['RezSpell'] = {
+            'Incarnate Anew', -- Level 59
+            'Resuscitate',    --emu only
+            'Revive',         --emu only
+            'Reanimation',    --emu only
         },
         ["RecklessHeal1"] = {
             "Reckless Reinvigoration",
@@ -910,7 +903,7 @@ local _ClassConfig = {
             targetId = function(self) return { mq.TLO.Me.ID(), } end,
             cond = function(self, combat_state)
                 return combat_state == "Downtime" and
-                    (not RGMercUtils.IsModeActive('Heal') or RGMercUtils.GetMainAssistPctHPs() >= RGMercUtils.GetSetting('MainHealPoint')) and
+                    (not RGMercUtils.IsModeActive('Heal') or RGMercUtils.HealerEmergencyCheck()) and
                     RGMercUtils.DoBuffCheck()
             end,
         },
@@ -920,7 +913,7 @@ local _ClassConfig = {
             steps = 1,
             targetId = function(self) return { mq.TLO.Me.ID(), } end,
             cond = function(self, combat_state)
-                return combat_state == "Downtime" and (not RGMercUtils.IsModeActive('Heal') or RGMercUtils.GetMainAssistPctHPs() >= RGMercUtils.GetSetting('MainHealPoint'))
+                return combat_state == "Downtime" and (not RGMercUtils.IsModeActive('Heal') or RGMercUtils.HealerEmergencyCheck())
             end,
         },
         {
@@ -928,7 +921,7 @@ local _ClassConfig = {
             targetId = function(self) return { mq.TLO.Me.Pet.ID(), } end,
             cond = function(self, combat_state)
                 return combat_state == "Downtime" and mq.TLO.Me.Pet.ID() > 0 and
-                    (not RGMercUtils.IsModeActive('Heal') or RGMercUtils.GetMainAssistPctHPs() >= RGMercUtils.GetSetting('MainHealPoint')) and
+                    (not RGMercUtils.IsModeActive('Heal') or RGMercUtils.HealerEmergencyCheck()) and
                     RGMercUtils.DoBuffCheck()
             end,
         },
@@ -938,7 +931,7 @@ local _ClassConfig = {
             targetId = function(self) return { mq.TLO.Me.ID(), } end,
             cond = function(self, combat_state)
                 return combat_state == "Downtime" and
-                    (not RGMercUtils.IsModeActive('Heal') or RGMercUtils.GetMainAssistPctHPs() >= RGMercUtils.GetSetting('MainHealPoint')) and
+                    (not RGMercUtils.IsModeActive('Heal') or RGMercUtils.HealerEmergencyCheck()) and
                     RGMercUtils.DoBuffCheck()
             end,
         },
@@ -958,7 +951,7 @@ local _ClassConfig = {
             end,
             cond = function(self, combat_state)
                 return combat_state == "Downtime" and RGMercUtils.DoBuffCheck() and
-                    (not RGMercUtils.IsModeActive('Heal') or RGMercUtils.GetMainAssistPctHPs() >= RGMercUtils.GetSetting('MainHealPoint')) and
+                    (not RGMercUtils.IsModeActive('Heal') or RGMercUtils.HealerEmergencyCheck()) and
                     RGMercUtils.DoBuffCheck()
             end,
         },
@@ -968,8 +961,8 @@ local _ClassConfig = {
             steps = 1,
             targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
             cond = function(self, combat_state)
-                return combat_state == "Combat" and not RGMercUtils.Feigning() and RGMercUtils.DoCombatActions() and RGMercUtils.DebuffConCheck() and
-                    (not RGMercUtils.IsModeActive('Heal') or RGMercUtils.GetMainAssistPctHPs() >= RGMercUtils.GetSetting('MainHealPoint'))
+                return combat_state == "Combat" and not RGMercUtils.Feigning() and RGMercUtils.DebuffConCheck() and
+                    (not RGMercUtils.IsModeActive('Heal') or RGMercUtils.HealerEmergencyCheck())
             end,
         },
         {
@@ -978,8 +971,8 @@ local _ClassConfig = {
             steps = 1,
             targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
             cond = function(self, combat_state)
-                return combat_state == "Combat" and not RGMercUtils.Feigning() and RGMercUtils.DoCombatActions() and RGMercUtils.DebuffConCheck() and
-                    (not RGMercUtils.IsModeActive('Heal') or RGMercUtils.GetMainAssistPctHPs() >= RGMercUtils.GetSetting('MainHealPoint'))
+                return combat_state == "Combat" and not RGMercUtils.Feigning() and RGMercUtils.DebuffConCheck() and
+                    (not RGMercUtils.IsModeActive('Heal') or RGMercUtils.HealerEmergencyCheck())
             end,
         },
         {
@@ -988,9 +981,8 @@ local _ClassConfig = {
             steps = 1,
             targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
             cond = function(self, combat_state)
-                return combat_state == "Combat" and
-                    RGMercUtils.BurnCheck() and (RGMercUtils.IsModeActive('Heal') and RGMercUtils.GetMainAssistPctHPs() >= RGMercUtils.GetSetting('MainHealPoint')) and
-                    not RGMercUtils.Feigning()
+                return combat_state == "Combat" and RGMercUtils.BurnCheck() and not RGMercUtils.Feigning() and
+                    (not RGMercUtils.IsModeActive('Heal') or RGMercUtils.HealerEmergencyCheck())
             end,
         },
         {
@@ -1010,7 +1002,7 @@ local _ClassConfig = {
             targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
             cond = function(self, combat_state)
                 if not RGMercUtils.IsModeActive("Heal") then return false end
-                return combat_state == "Combat" and not RGMercUtils.Feigning() and RGMercUtils.GetMainAssistPctHPs() >= RGMercUtils.GetSetting('MainHealPoint')
+                return combat_state == "Combat" and not RGMercUtils.Feigning() and RGMercUtils.HealerEmergencyCheck()
             end,
         },
         {
@@ -1020,7 +1012,7 @@ local _ClassConfig = {
             targetId = function(self) return { RGMercUtils.GetMainAssistId(), } end,
             cond = function(self, combat_state)
                 if not RGMercUtils.GetSetting('DoTwinHeal') then return false end
-                return combat_state == "Combat" and not RGMercUtils.Feigning()
+                return combat_state == "Combat" and not RGMercUtils.Feigning() and RGMercUtils.HealerEmergencyCheck()
             end,
         },
 
@@ -1069,6 +1061,14 @@ local _ClassConfig = {
                 type = "AA",
                 cond = function(self, aaName)
                     return RGMercUtils.BigBurn() and RGMercUtils.AAReady(aaName)
+                end,
+            },
+            {
+                name = "Intensity of the Resolute",
+                type = "AA",
+                cond = function(self, aaName)
+                    if not RGMercUtils.GetSetting('DoVetAA') then return false end
+                    return RGMercUtils.AAReady(aaName) and RGMercUtils.BigBurn()
                 end,
             },
         },
@@ -1140,7 +1140,7 @@ local _ClassConfig = {
                 end,
             },
             -- { --add an option for this one I guess
-            -- name = "DieaseSlow",
+            -- name = "DiseaseSlow",
             -- type = "Spell",
             -- cond = function(self, spell) return mq.TLO.Me.Gem(spell.RankName.Name())() and RGMercUtils.GetSetting('DoSlow') and RGMercUtils.DetSpellCheck(spell) end,
             -- },
@@ -1672,7 +1672,7 @@ local _ClassConfig = {
                 { name = "ChaoticDoT", },
                 { name = "SaryrnDot", },
                 -- [ TLP FALL BACK ] --
-                { name = "DieaseSlow",       cond = function(self) return RGMercUtils.GetSetting('DoDieaseSlow') end, },
+                { name = "DiseaseSlow",      cond = function(self) return RGMercUtils.GetSetting('DoDiseaseSlow') end, },
                 { name = "SlowSpell", },
             },
         },
@@ -1762,7 +1762,7 @@ local _ClassConfig = {
                 { name = "GrowthBuff",  cond = function(self) return RGMercUtils.IsModeActive("Heal") and RGMercUtils.GetSetting('DoGrowth') end, },
                 { name = "CurseDoT2",   cond = function(self) return RGMercUtils.IsModeActive("Heal") and RGMercUtils.GetSetting('DoMagicDot') end, },
                 -- [ Hybrid MODE ] --
-                { name = "IcefixSpell", },
+                { name = "IceFixSpell", }, --This has been removed. Ice isn't a thing. We also won't use it with CureNow.
                 { name = "PoisonNuke", },
             },
         },
@@ -1811,7 +1811,7 @@ local _ClassConfig = {
         ['DoHOT']             = { DisplayName = "Cast HOTs", Category = "Spells and Abilities", Tooltip = "Use Heal Over Time Spells", Default = true, },
         -- Removing this as it is too confusing to explain when it would  be used.
         -- ['RecklessHealPct']   = { DisplayName = "Reckless Heal %", Category = "Spells and Abilities", Tooltip = "Use Reckless Heal When Assist hits [X]% HPs", Default = 80, Min = 1, Max = 100, },
-        ['DoDieaseSlow']      = { DisplayName = "Cast Diease Slows", Category = "Spells and Abilities", Tooltip = "Use Diease Slow Spells", Default = true, },
+        ['DoDiseaseSlow']     = { DisplayName = "Cast Disease Slows", Category = "Spells and Abilities", Tooltip = "Use Disease Slow Spells", Default = false, },
         ['DoMagicDot']        = { DisplayName = "Cast Magic DOT", Category = "Spells and Abilities", Tooltip = "Use Magic DOTs", Default = true, },
         ['DoAACanni']         = { DisplayName = "Use AA Canni", Category = "Spells and Abilities", Tooltip = "Use Canni AA during downtime", Default = true, },
         ['AACanniManaPct']    = { DisplayName = "AA Canni Mana %", Category = "Spells and Abilities", Tooltip = "Use Canni AA Under [X]% mana", Default = 70, Min = 1, Max = 100, },
@@ -1833,6 +1833,7 @@ local _ClassConfig = {
         ['AEMaloCount']       = { DisplayName = "AE Malo Count", Category = "Debuffs", Tooltip = "Number of XT Haters before we start AE Maloing", Min = 1, Default = 3, Max = 10, },
         ['DoStatBuff']        = { DisplayName = "Do Stat Buff", Category = "Buffs", Tooltip = "Do Stat Buffs for Group", Default = true, },
         ['DoHealDPS']         = { DisplayName = "Use HealDPS", Category = "Spells and Abilities", Tooltip = "Use HealDPS Rotation", Default = false, },
+        ['DoVetAA']           = { DisplayName = "Use Vet AA", Category = "Buffs/Debuffs", Index = 5, Tooltip = "Use Veteran AA's in emergencies or during BigBurn.", Default = true, },
     },
 }
 

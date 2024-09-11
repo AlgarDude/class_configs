@@ -1276,7 +1276,6 @@ local _ClassConfig = {
         ['StopLichMana']      = { DisplayName = "Stop Lich Mana", Category = "Lich", Tooltip = "Cancel Lich at Mana Pct [x]", RequiresLoadoutChange = false, Default = 90, Min = 1, Max = 100, },
         ['DoChestClick']      = { DisplayName = "Do Chest Click", Category = "Utilities", Tooltip = "Click your chest item", Default = true, },
         ['StartLifeTap']      = { DisplayName = "Use Life Taps", Category = "Spells and Abilities", Tooltip = "Your HP % before we use Life Taps.", Default = 99, Min = 1, Max = 100, },
-        ['ManaToDot']         = { DisplayName = "Min Mana to Dot", Category = "Spells and Abilities", Index = 5, Tooltip = "The minimum Mana % to use DoTs outside of burns.", Default = 20, Min = 1, Max = 100, ConfigType = "Advanced", },
     },
 
 }
