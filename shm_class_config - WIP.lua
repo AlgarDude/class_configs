@@ -796,7 +796,7 @@ local _ClassConfig = {
                 name = "Fleeting Spirit",
                 type = "AA",
                 cond = function(self, aaName)
-                    return RGMercUtils.GetSetting('DoHOT') and RGMercUtils.PCAAReady(aaName)
+                    return RGMercUtils.GetSetting('DoHOT') and RGMercUtils.AAReady(aaName)
                 end,
             },
             {
@@ -1029,6 +1029,13 @@ local _ClassConfig = {
         ['Burn'] = {
             --TODO, Scrub AA to see if anything needs to be added, add vet AA
             {
+                name = "Fleeting Spirit",
+                type = "AA",
+                cond = function(self, aaName)
+                    return RGMercUtils.BigBurn() and RGMercUtils.AAReady(aaName)
+                end,
+            },
+            {
                 name = "Ancestral Aid",
                 type = "AA",
                 cond = function(self, aaName)
@@ -1154,14 +1161,25 @@ local _ClassConfig = {
         },
         ['DPS'] = {
             {
-                name = "AESpiritualHeal",
+                name = "DichoSpell",
                 type = "Spell",
-                cond = function(self) return RGMercUtils.IsHealing() and RGMercUtils.SongActiveByName("Healing Twincast") and RGMercUtils.GetSetting('CastAESpirituals') end,
+                cond = function(self, spell)
+                    return RGMercUtils.PCSpellReady(spell) and RGMercUtils.SelfBuffCheck(spell)
+                end,
             },
             {
                 name = "MeleeProcBuff",
                 type = "Spell",
-                cond = function(self, spell) return RGMercUtils.SelfBuffCheck(spell) end,
+                cond = function(self, spell)
+                    return RGMercUtils.PCSpellReady(spell) and RGMercUtils.SelfBuffCheck(spell)
+                end,
+            },
+            {
+                name = "Epic",
+                type = "Item",
+                cond = function(self, itemName)
+                    return mq.TLO.FindItem(itemName).TimerReady() == 0
+                end,
             },
             {
                 name = "Cannibalization",
@@ -1180,18 +1198,6 @@ local _ClassConfig = {
                         mq.TLO.Me.PctMana() < RGMercUtils.GetSetting('SpellCanniManaPct') and
                         mq.TLO.Me.PctHPs() >= RGMercUtils.GetSetting('SpellCanniMinHP')
                 end,
-            },
-            {
-                name = "Epic",
-                type = "Item",
-                cond = function(self)
-                    return true
-                end,
-            },
-            {
-                name = "DichoSpell",
-                type = "Spell",
-                cond = function(self, spell) return RGMercUtils.SelfBuffCheck(spell) end,
             },
             {
                 name = "Rabid Bear",
