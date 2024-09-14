@@ -857,7 +857,7 @@ _ClassConfig      = {
             name = 'PetSummon',
             targetId = function(self) return { mq.TLO.Me.ID(), } end,
             cond = function(self, combat_state)
-                return combat_state == "Downtime" and RGMercUtils.DoPetCheck() and (mq.TLO.Me.Pet.ID() == 0 or RGMercUtils.GetSetting('DoPocktPet'))
+                return combat_state == "Downtime" and RGMercUtils.DoPetCheck() and (mq.TLO.Me.Pet.ID() == 0 or RGMercUtils.GetSetting('DoPocketPet'))
             end,
         },
         {
@@ -1287,7 +1287,7 @@ _ClassConfig      = {
                 cond = function(self, spell) return RGMercUtils.PCSpellReady(spell) end,
             },
         },
-        ['PetBuffs'] = {
+        ['PetBuff'] = {
             {
                 name = "HandlePetToys",
                 type = "CustomFunc",
