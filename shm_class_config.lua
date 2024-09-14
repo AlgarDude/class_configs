@@ -97,8 +97,8 @@ local _ClassConfig = {
             "Ferine Avatar",
             "Champion",
         },
-        ["AEMaloSpell"] = { --Checking this, I don't think we support free-target spells
-            "Wind of Malisene",
+        ["AEMaloSpell"] = {
+            "Wind of Malisene", 
             "Wind of Malis",
         },
         ["MaloSpell"] = {

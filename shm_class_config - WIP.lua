@@ -46,9 +46,10 @@ local _ClassConfig = {
         ["FocusSpell"] = {
             -- Focus Spell - Lower Levels Mix in Single Target, Higher Prefer Group Target
             "Inner Fire",                 -- Level 1 - Single
-            "Talisman of Tnarg",          -- Level 32 - Single
-            "Talisman of Altuna",         -- Level 40 - Single
-            "Talisman of Kragg",          -- Level 55 - Single
+            "Talisman of Tnarg",          -- Level 32 - Single --This is just a HP buff, fix
+            "Talisman of Altuna",         -- Level 40 - Single --This is just a HP buff, fix
+            "Harnessing of Sprit",        -- Level 46 - Single
+            "Talisman of Kragg",          -- Level 55 - Single --This is just a HP buff, fix
             "Khura's Focusing",           -- Level 60 - Group
             "Focus of the Seventh",       -- Level 65 - Group
             "Talisman of Wunshi",         -- Level 70 - Group
@@ -94,7 +95,7 @@ local _ClassConfig = {
             "Wild Growth",
         },
         ["LowLvlStaminaBuff"] = {
-            -- Low Level Stamina Buff --- Use under Level 86
+            -- Low Level Stamina Buff --- This has no real place outside of raids on select tanks. Waste of mana.
             "Spirit of Bear",
             "Spirit of Ox",
             "Health",
@@ -116,27 +117,18 @@ local _ClassConfig = {
             "Champion",
         },
         ["LowLvlStrBuff"] = {
-            -- Low Level Strength Buff -- use under evel 86
-            "Talisman of Might",
-            "Spirit of Might",
+            -- Low Level Strength Buff -- Below 68 these are only worthwhile on non-live, defiant stat caps too easily. Even then arguable.
+            "Talisman of Might",  -- Level 70, Group
+            "Spirit of Might",    -- Level 68, Single Target
             "Talisman of the Diaku",
-            "Strength of the Diaku",
-            "Voice of the Berserker",
-            "Talisman of the Rhino",
-            "Maniacal Strength",
-            "Primal Essence",
-            "Strength",
-            "Rage",
-            "Furious Strength",
+            "Infusion of Spirit", -- Level 49, Str/Dex/Sta, can use HP buff
+
             "Tumultuous Strength",
-            "Fury",
             "Raging Strength",
-            "Frenzy",
-            "Spirit Strength",
-            "Burst of Strength",
+            "Spirit Strength", -- Level 18, Can't see this as being very worth but keeping for now.
         },
         ["LowLvlDexBuff"] = {
-            -- Low Level Dex Buff -- use under level 70
+            -- Low Level Dex Buff -- This has no real place outside of raids on select tanks. Waste of mana.
             "Talisman of the Raptor",
             "Mortal Deftness",
             "Dexterity",
@@ -146,7 +138,7 @@ local _ClassConfig = {
             "Dexterous Aura",
         },
         ["LowLvlAgiBuff"] = {
-            --- Low Level AGI Buff -- Use under level 85
+            --- Low Level AGI Buff -- This has no real place outside of raids on select tanks. Waste of mana.
             "Talisman of Foresight",
             "Preternatural Foresight",
             "Talisman of Sense",
@@ -172,10 +164,10 @@ local _ClassConfig = {
             "Malos",
             "Malosinia",
             "Malo",
-            "Malosini",
-            "Malosi",
-            "Malaisement",
-            "Malaise",
+            --"Malosini", --These aren't really necessary for the group game yet and the raid game will use Malo > Malosini anyway so we don't want this automated.
+            --"Malosi",
+            --"Malaisement",
+            --"Malaise",
         },
         ["AESlowSpell"] = {
             "Tigir's Insects",
@@ -183,15 +175,21 @@ local _ClassConfig = {
         ["SlowSpell"] = {
             "Balance of Discord",
             "Balance of the Nihil",
-            "Turgur's Insects",
+            "Turgur's Insects", --Can save mana by continuing to use Togor's on group mobs, but this is problematic for automation. Not worth splitting the entry.
             "Togor's Insects",
             "Tagar's Insects",
-            "Walking Sleep",
-            "Drowsy",
+            --"Walking Sleep", --Too much mana with little benefit at these levels
+            --"Drowsy", --Too much mana with little benefit at these levels
         },
         ["DiseaseSlow"] = {
             "Cloud of Grummus",
             "Plague of Insects",
+        },
+        ["CrippleSpell"] = {
+            "Crippling Spasm", -- Level 66
+            "Cripple",         -- Level 53, Starts to become worth it, depending on target
+            --"Incapacitate",    -- Level 41, Likely not worth
+            --"Listless Power",  -- Level 29, Definitely not worth
         },
         ["GroupHealProcBuff"] = {
             "Watchful Spirit",
@@ -643,7 +641,7 @@ local _ClassConfig = {
             "Abolish Poison",
             "Eradicate Poison",
         },
-        ["GroupRegenBuff"] = {
+        ["RegenBuff"] = {
             "Talisman of the Unforgettable",
             "Talisman of the Tenacious",
             "Talisman of the Enduring",
@@ -657,6 +655,10 @@ local _ClassConfig = {
             "Talisman of the Stoic One",
             "Talisman of Perseverance",
             "Regrowth of Dar Khura",
+            --single target below this
+            "Regrowth",
+            "Chloroplast",
+            "Regeneration", -- Level 22
         },
     },
     ['HelperFunctions']   = {
@@ -1491,6 +1493,18 @@ local _ClassConfig = {
                 end,
             },
             {
+                name = "RegenBuff",
+                type = "Spell",
+                active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
+                cond = function(self, spell, target)
+                    if (spell and spell() and ((spell.TargetType() or ""):lower() ~= "group v2"))
+                        and not RGMercConfig.Constants.RGTank:contains(target.Class.ShortName()) then
+                        return false
+                    end
+                    return RGMercUtils.GroupBuffCheck(spell, target)
+                end,
+            },
+            {
                 name = "LowLvlStaminaBuff",
                 type = "Spell",
                 cond = function(self, spell, target)
@@ -1611,9 +1625,6 @@ local _ClassConfig = {
         {
             gem = 1,
             spells = {
-                -- [ HEAL MODE ] --
-                { name = "RecklessHeal1", cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
-                -- [ Hybrid MODE ] --
                 { name = "RecklessHeal1", },
             },
         },
@@ -1624,24 +1635,18 @@ local _ClassConfig = {
                 {
                     name = "SlowSpell",
                     cond = function(self)
-                        return RGMercUtils.IsModeActive("Heal") and
-                            mq.TLO.Me.AltAbility("Turgur's Swarm")() == nil
-                            and RGMercUtils.GetSetting('DoSlow')
+                        return not RGMercUtils.CanUseAA("Turgur's Swarm") and RGMercUtils.GetSetting('DoSlow')
                     end,
                 },
                 {
                     name = "AESlowSpell",
                     cond = function(self)
-                        return RGMercUtils.IsModeActive("Heal") and
-                            mq.TLO.Me.AltAbility("Turgur's Virulent Swarm")() == nil
-                            and RGMercUtils.GetSetting('DoAESlow')
+                        return RGMercUtils.IsModeActive("Heal") and not RGMercUtils.CanUseAA("Turgur's Virulent Swarm") and RGMercUtils.GetSetting('DoAESlow')
                     end,
                 },
-                { name = "RecklessHeal2",   cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
+                { name = "RecklessHeal2", cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
                 -- [ Hybrid MODE ] --
                 { name = "FrostNuke", },
-                -- [ TLP FALL BACK ] --
-                { name = "GroupRenewalHoT", },
             },
         },
         {

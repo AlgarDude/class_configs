@@ -749,6 +749,21 @@ local _ClassConfig = {
                 return true
             end,
         },
+        { --Summon pet even when buffs are off on emu
+            name = 'PetSummon',
+            targetId = function(self) return { mq.TLO.Me.ID(), } end,
+            cond = function(self, combat_state)
+                return combat_state == "Downtime" and RGMercUtils.DoPetCheck() and not RGMercUtils.IsCharming()
+            end,
+        },
+        { --Pet Buffs if we have one, timer because we don't need to constantly check this
+            name = 'PetBuff',
+            timer = 30,
+            targetId = function(self) return mq.TLO.Me.Pet.ID() > 0 and { mq.TLO.Me.Pet.ID(), } or {} end,
+            cond = function(self, combat_state)
+                return combat_state == "Downtime" and mq.TLO.Me.Pet.ID() > 0 and RGMercUtils.DoPetCheck()
+            end,
+        },
         {
             -- this will always run first in combat to check for things like FD or stand up
             -- if you add to it make sure it remains pretty short because everythign will be
@@ -1086,7 +1101,9 @@ local _ClassConfig = {
                 active_cond = function(self, spell) return RGMercUtils.SongActiveByName(spell.RankName()) end,
                 cond = function(self, spell) return not RGMercUtils.SongActiveByName(spell.RankName()) end,
             },
-            {
+        },
+        ['PetSummon'] = { --TODO: Double check these lists to ensure someone leveling doesn't have to change options to keep pets current at lower levels
+            {             --this seems like a really cool idea to get rid of the old pet, but how often do you actually switch pets like this? Do some homework here. --Algar
                 name = "PetSpellWar",
                 type = "Spell",
                 active_cond = function(self, _) return mq.TLO.Me.Pet.ID() ~= 0 and mq.TLO.Me.Pet.Class.ShortName():lower() == "war" end,
@@ -1095,7 +1112,10 @@ local _ClassConfig = {
                         RGMercUtils.DoCmd("/pet leave")
                     end
                 end,
-                cond = function(self, spell) return RGMercUtils.GetSetting('PetType') == 1 and (mq.TLO.Me.Pet.ID() == 0 or mq.TLO.Me.Pet.Class.ShortName():lower() ~= "war") end,
+                cond = function(self, spell)
+                    return RGMercUtils.GetSetting('PetType') == 1 and (mq.TLO.Me.Pet.ID() == 0 or mq.TLO.Me.Pet.Class.ShortName():lower() ~= "war") and
+                        RGMercUtils.ReagentCheck(spell)
+                end,
                 post_activate = function(self, spell, success)
                     local pet = mq.TLO.Me.Pet
                     if success and pet.ID() > 0 then
@@ -1112,7 +1132,10 @@ local _ClassConfig = {
                         RGMercUtils.DoCmd("/pet leave")
                     end
                 end,
-                cond = function(self, _) return RGMercUtils.GetSetting('PetType') == 2 and (mq.TLO.Me.Pet.ID() == 0 or mq.TLO.Me.Pet.Class.ShortName():lower() ~= "rog") end,
+                cond = function(self, spell)
+                    return RGMercUtils.GetSetting('PetType') == 2 and (mq.TLO.Me.Pet.ID() == 0 or mq.TLO.Me.Pet.Class.ShortName():lower() ~= "rog") and
+                        RGMercUtils.ReagentCheck(spell)
+                end,
                 post_activate = function(self, spell, success)
                     local pet = mq.TLO.Me.Pet
                     if success and pet.ID() > 0 then
@@ -1120,6 +1143,8 @@ local _ClassConfig = {
                     end
                 end,
             },
+        },
+        ['PetBuff'] = {
             {
                 name = "PetHaste",
                 type = "Spell",
