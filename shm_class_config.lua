@@ -98,7 +98,7 @@ local _ClassConfig = {
             "Champion",
         },
         ["AEMaloSpell"] = {
-            "Wind of Malisene", 
+            "Wind of Malisene",
             "Wind of Malis",
         },
         ["MaloSpell"] = {
@@ -786,6 +786,21 @@ local _ClassConfig = {
                     RGMercUtils.DoBuffCheck() and RGMercConfig:GetTimeSinceLastMove() > RGMercUtils.GetSetting('BuffWaitMoveTimer')
             end,
         },
+        { --Summon pet even when buffs are off on emu
+            name = 'PetSummon',
+            targetId = function(self) return { mq.TLO.Me.ID(), } end,
+            cond = function(self, combat_state)
+                return combat_state == "Downtime" and mq.TLO.Me.Pet.ID() == 0 and RGMercUtils.DoPetCheck()
+            end,
+        },
+        { --Pet Buffs if we have one, timer because we don't need to constantly check this
+            name = 'PetBuff',
+            timer = 60,
+            targetId = function(self) return mq.TLO.Me.Pet.ID() > 0 and { mq.TLO.Me.Pet.ID(), } or {} end,
+            cond = function(self, combat_state)
+                return combat_state == "Downtime" and mq.TLO.Me.Pet.ID() > 0 and RGMercUtils.DoPetCheck()
+            end,
+        },
         {
             name = 'GroupBuff',
             timer = 60, -- only run every 60 seconds top.
@@ -1055,6 +1070,7 @@ local _ClassConfig = {
                 end,
             },
         },
+
         ['Downtime'] = {
             {
                 name = "Cannibalization",
@@ -1102,13 +1118,7 @@ local _ClassConfig = {
                 end,
             },
         },
-        ['Slow Downtime'] = {
-            {
-                name = "Group Shrink",
-                type = "AA",
-                active_cond = function(self, _) return mq.TLO.Me.Height() < 2 end,
-                cond = function(self, _) return RGMercUtils.GetSetting('DoGroupShrink') and mq.TLO.Me.Height() > 2.2 end,
-            },
+        ['PetSummon'] = {
             {
                 name = "PetSpell",
                 type = "Spell",
@@ -1122,11 +1132,21 @@ local _ClassConfig = {
                     end
                 end,
             },
+        },
+        ['PetBuff'] = {
             {
                 name = "PetBuffSpell",
                 type = "Spell",
                 active_cond = function(self, spell) return mq.TLO.Me.PetBuff(spell.RankName())() ~= nil end,
                 cond = function(self, spell) return RGMercUtils.SelfBuffPetCheck(spell) end,
+            },
+        },
+        ['Slow Downtime'] = {
+            {
+                name = "Group Shrink",
+                type = "AA",
+                active_cond = function(self, _) return mq.TLO.Me.Height() < 2 end,
+                cond = function(self, _) return RGMercUtils.GetSetting('DoGroupShrink') and mq.TLO.Me.Height() > 2.2 end,
             },
             {
                 name = "Pact of the Wolf",

@@ -10,7 +10,7 @@ _ClassConfig      = {
     -- },
     ['Modes']           = {
         'Fire',
-        -- 'PetTank',
+        'PetTank',
     },
     -- ['OnModeChange']      = function(self, mode)
     --     if mode == "PetTank" then
@@ -1296,16 +1296,6 @@ _ClassConfig      = {
                 end,
             },
             {
-                name = "PetAura",
-                type = "Spell",
-                active_cond = function(self, spell)
-                    return RGMercUtils.AuraActiveByName(spell.BaseName()) ~= nil
-                end,
-                cond = function(self, spell)
-                    return not RGMercUtils.AuraActiveByName(spell.BaseName())
-                end,
-            },
-            {
                 name = "PetIceFlame",
                 type = "Spell",
                 active_cond = function(self, spell)
@@ -1359,7 +1349,7 @@ _ClassConfig      = {
                 name = "Companion's Aegis",
                 type = "AA",
                 cond = function(self, aaName)
-                    return RGMercUtils.SelfBuffPetCheck(mq.TLO.Spell(aaName)) and RGMercUtils.IsModeActive("PetTank") and RGMercUtils.AAReady(aaName)
+                    return RGMercUtils.SelfBuffPetCheck(mq.TLO.Spell(aaName)) and RGMercUtils.AAReady(aaName)
                 end,
             },
             {
@@ -1726,6 +1716,16 @@ _ClassConfig      = {
                 type = "AA",
                 cond = function(self, aaName)
                     return RGMercUtils.SelfBuffAACheck(aaName) and RGMercUtils.AAReady(aaName)
+                end,
+            },
+            {
+                name = "PetAura",
+                type = "Spell",
+                active_cond = function(self, spell)
+                    return RGMercUtils.AuraActiveByName(spell.BaseName()) ~= nil
+                end,
+                cond = function(self, spell)
+                    return not RGMercUtils.AuraActiveByName(spell.BaseName())
                 end,
             },
             {
