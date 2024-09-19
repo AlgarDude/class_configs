@@ -1256,6 +1256,7 @@ local _ClassConfig = {
                 type = "Spell",
                 active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
                 cond = function(self, spell, target)
+                    if RGMercUtils.GetResolvedActionMapItem('DichoSpell') then return false end --Dicho regen overwrites this
                     return RGMercUtils.GroupBuffCheck(spell, target)
                 end,
             },
@@ -1358,7 +1359,7 @@ local _ClassConfig = {
         {
             gem = 8,
             spells = {
-                { name = "SlowProcBuff", cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
+                { name = "FastPoisonNuke", cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
 
             },
         },

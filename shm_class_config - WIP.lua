@@ -45,11 +45,7 @@ local _ClassConfig = {
     ['AbilitySets']       = {
         ["FocusSpell"] = {
             -- Focus Spell - Lower Levels Mix in Single Target, Higher Prefer Group Target
-            "Inner Fire",                 -- Level 1 - Single
-            "Talisman of Tnarg",          -- Level 32 - Single --This is just a HP buff, fix
-            "Talisman of Altuna",         -- Level 40 - Single --This is just a HP buff, fix
-            "Harnessing of Sprit",        -- Level 46 - Single
-            "Talisman of Kragg",          -- Level 55 - Single --This is just a HP buff, fix
+            "Harnessing of Spirit",       -- Level 46 - Single
             "Khura's Focusing",           -- Level 60 - Group
             "Focus of the Seventh",       -- Level 65 - Group
             "Talisman of Wunshi",         -- Level 70 - Group
@@ -116,13 +112,18 @@ local _ClassConfig = {
             "Ferine Avatar",
             "Champion",
         },
+        ["LowLvlHPBuff"] = {
+            "Inner Fire",         -- Level 1 - Single
+            "Talisman of Tnarg",  -- Level 32 - Single
+            "Talisman of Altuna", -- Level 40 - Single
+            "Talisman of Kragg",  -- Level 55 - Single
+        },
         ["LowLvlStrBuff"] = {
             -- Low Level Strength Buff -- Below 68 these are only worthwhile on non-live, defiant stat caps too easily. Even then arguable.
             "Talisman of Might",  -- Level 70, Group
             "Spirit of Might",    -- Level 68, Single Target
             "Talisman of the Diaku",
             "Infusion of Spirit", -- Level 49, Str/Dex/Sta, can use HP buff
-
             "Tumultuous Strength",
             "Raging Strength",
             "Spirit Strength", -- Level 18, Can't see this as being very worth but keeping for now.
@@ -641,7 +642,7 @@ local _ClassConfig = {
             "Abolish Poison",
             "Eradicate Poison",
         },
-        ["RegenBuff"] = {
+        ["GroupRegenBuff"] = { --Does not stack with Dicho Regen
             "Talisman of the Unforgettable",
             "Talisman of the Tenacious",
             "Talisman of the Enduring",
@@ -654,8 +655,9 @@ local _ClassConfig = {
             "Talisman of the Stalwart",
             "Talisman of the Stoic One",
             "Talisman of Perseverance",
-            "Regrowth of Dar Khura",
-            --single target below this
+            "Regrowth of Dar Khura", -- Level 56
+        },
+        ["SingleRegenBuff"] = {
             "Regrowth",
             "Chloroplast",
             "Regeneration", -- Level 22
@@ -1470,133 +1472,83 @@ local _ClassConfig = {
         },
         ['GroupBuff'] = {
             {
-                name = "GrowthBuff",
-                type = "Spell",
-                cond = function(self, spell, target)
-                    -- force the target for StacksTarget to work.
-                    RGMercUtils.SetTarget(target.ID() or 0)
-                    return RGMercUtils.GetSetting('DoGrowth') and RGMercUtils.TargetClassIs("WAR", target)
-                        and not RGMercUtils.TargetHasBuff(spell, target) and RGMercUtils.SpellStacksOnTarget(spell)
+                name = "Spirit Guardian",
+                type = "AA",
+                cond = function(self, aaName, target)
+                    if target.ID() ~= mq.TLO.Group.MainTank.ID() then return false end
+                    return RGMercUtils.AAReady(aaName)
                 end,
             },
+            -- {
+            -- name = "GrowthBuff",
+            -- type = "Spell",
+            -- cond = function(self, spell, target)
+            -- return RGMercUtils.GetSetting('DoGrowth') and RGMercUtils.TargetClassIs("WAR", target) and RGMercUtils.GroupBuffCheck(spell, target)
+            -- end,
+            -- },
             {
                 name = "SlowProcBuff",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    -- force the target for StacksTarget to work.
-                    RGMercUtils.SetTarget(target.ID() or 0)
-                    return RGMercUtils.TargetClassIs({ "WAR", "PAL", "SHD", }, target) and
-                        not RGMercUtils.TargetHasBuff(spell, target) and RGMercUtils.SpellStacksOnTarget(spell)
+                    return RGMercConfig.Constants.RGTank:contains(target.Class.ShortName()) and RGMercUtils.GroupBuffCheck(spell, target)
                 end,
             },
-            {
-                name = "RegenBuff",
+            { --Used on the entire group
+                name = "GroupFocusSpell",
                 type = "Spell",
-                active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
                 cond = function(self, spell, target)
-                    if (spell and spell() and ((spell.TargetType() or ""):lower() ~= "group v2"))
-                        and not RGMercConfig.Constants.RGTank:contains(target.Class.ShortName()) then
-                        return false
-                    end
                     return RGMercUtils.GroupBuffCheck(spell, target)
                 end,
             },
-            {
-                name = "LowLvlStaminaBuff",
+            { --If our single target is better than the group spell above, we will use it on the Tank
+                name = "SingleFocusSpell",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    -- force the target for StacksTarget to work.
-                    RGMercUtils.SetTarget(target.ID() or 0)
-                    return mq.TLO.Me.Level() <= 85 and RGMercUtils.TargetClassIs({ "WAR", "PAL", "SHD", }, target) and
-                        not RGMercUtils.TargetHasBuff(spell, target) and RGMercUtils.GetSetting('DoStatBuff') and
-                        RGMercUtils.SpellStacksOnTarget(spell)
+                    return RGMercConfig.Constants.RGTank:contains(target.Class.ShortName()) and RGMercUtils.GroupBuffCheck(spell, target)
+                end,
+            },
+            { --Only cast below 86 because past that our focus spells take over
+                name = "LowLvlAtkBuff",
+                type = "Spell",
+                cond = function(self, spell, target)
+                    return mq.TLO.Me.Level() < 86 and RGMercConfig.Constants.RGMelee:contains(target.Class.ShortName()) and
+                        RGMercUtils.GroupBuffCheck(spell, target)
                 end,
             },
             {
-                name = "LowLvlAttackBuff",
-                type = "Spell",
-                cond = function(self, spell, target)
-                    -- force the target for StacksTarget to work.
-                    RGMercUtils.SetTarget(target.ID() or 0)
-                    return mq.TLO.Me.Level() <= 85 and
-                        RGMercUtils.TargetClassIs({ "WAR", "PAL", "SHD", "ROG", "MNK", "BER", "RNG", "BST", }, target) and
-                        not RGMercUtils.TargetHasBuff(spell, target) and RGMercUtils.GetSetting('DoStatBuff') and
-                        RGMercUtils.SpellStacksOnTarget(spell)
-                end,
-            },
-            {
-                name = "LowLvlStrBuff",
-                type = "Spell",
-                cond = function(self, spell, target)
-                    -- force the target for StacksTarget to work.
-                    RGMercUtils.SetTarget(target.ID() or 0)
-                    return mq.TLO.Me.Level() <= 85 and (spell.Level() or 0) >= 71 and
-                        RGMercUtils.TargetClassIs({ "WAR", "PAL", "SHD", "ROG", "MNK", "BER", "RNG", "BST", }, target) and
-                        not RGMercUtils.TargetHasBuff(spell, target) and RGMercUtils.GetSetting('DoStatBuff') and
-                        RGMercUtils.SpellStacksOnTarget(spell)
-                end,
-            },
-            {
-                name = "LowLvlAgiBuff",
-                type = "Spell",
-                cond = function(self, spell, target)
-                    -- force the target for StacksTarget to work.
-                    RGMercUtils.SetTarget(target.ID() or 0)
-                    return mq.TLO.Me.Level() <= 85 and
-                        RGMercUtils.TargetClassIs({ "WAR", "PAL", "SHD", "ROG", "MNK", "BER", "RNG", "BST", }, target) and
-                        not RGMercUtils.TargetHasBuff(spell, target) and RGMercUtils.GetSetting('DoStatBuff') and
-                        RGMercUtils.SpellStacksOnTarget(spell)
-                end,
-            },
-            {
-                name = "LowLvlDexBuff",
-                type = "Spell",
-                cond = function(self, spell, target)
-                    -- force the target for StacksTarget to work.
-                    RGMercUtils.SetTarget(target.ID() or 0)
-                    return mq.TLO.Me.Level() <= 85 and
-                        RGMercUtils.TargetClassIs({ "WAR", "PAL", "SHD", "ROG", "MNK", "BER", "RNG", "BST", }, target) and
-                        not RGMercUtils.TargetHasBuff(spell, target) and RGMercUtils.GetSetting('DoStatBuff') and
-                        RGMercUtils.SpellStacksOnTarget(spell)
-                end,
-            },
-            {
-                name = "FocusSpell",
-                type = "Spell",
-                cond = function(self, spell, target)
-                    -- force the target for StacksTarget to work.
-                    if (spell and spell() and ((spell.TargetType() or ""):lower() ~= "single")) then return false end
-
-                    RGMercUtils.SetTarget(target.ID() or 0)
-                    return not RGMercUtils.TargetHasBuff(spell, target) and RGMercUtils.SpellStacksOnTarget(spell)
+                name = "Talisman of Celerity",
+                type = "AA",
+                active_cond = function(self, aaName) return mq.TLO.Me.Haste() end,
+                cond = function(self, aaName, target)
+                    if not RGMercUtils.GetSetting('DoHaste') then return false end
+                    return mq.TLO.Me.Level() < 111 and RGMercUtils.GroupBuffCheck(spell, target)
                 end,
             },
             {
                 name = "HasteBuff",
                 type = "Spell",
+                active_cond = function(self, aaName) return mq.TLO.Me.Haste() end,
                 cond = function(self, spell, target)
-                    if RGMercUtils.CanUseAA("Talisman of Celerity") then return false end
-                    local focusSpell = RGMercUtils.GetResolvedActionMapItem('FocusSpell')
-
-                    local focusLevelPass = focusSpell and (focusSpell.Level() or 0) <= 111 or true
-
-                    -- force the target for StacksTarget to work.
-                    RGMercUtils.SetTarget(target.ID() or 0)
-
-                    return focusLevelPass and
-                        RGMercUtils.TargetClassIs({ "WAR", "PAL", "SHD", "ROG", "MNK", "BER", "RNG", "BST", }, target) and
-                        not RGMercUtils.TargetHasBuff(spell, target) and RGMercUtils.GetSetting('DoHaste') and RGMercUtils.SpellStacksOnTarget(spell)
+                    if not RGMercUtils.GetSetting('DoHaste') or RGMercUtils.CanUseAA("Talisman of Celerity") then return false end
+                    return RGMercUtils.GroupBuffCheck(spell, target)
                 end,
             },
             {
-                name = "RunSpeedBuff",
+                name = "SingleRegenBuff",
                 type = "Spell",
                 active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
                 cond = function(self, spell, target)
-                    -- force the target for StacksTarget to work.
-                    RGMercUtils.SetTarget(target.ID() or 0)
-                    return RGMercUtils.GetSetting('DoRunSpeed') and not RGMercUtils.TargetHasBuff(spell) and RGMercUtils.SpellStacksOnTarget(spell) and
-                        not RGMercUtils.CanUseAA("Lupine Spirit") and not RGMercUtils.TargetHasBuff(spell, target) and RGMercUtils.TargetIsType("PC", target)
+                    if RGMercUtils.GetResolvedActionMapItem('GroupRegenBuff') then return false end --We don't need this once we can use the group version
+                    return (RGMercConfig.Constants.RGTank:contains(target.Class.ShortName()) or target.ID() == mq.TLO.Me.Target.ID()) and RGMercUtils.GroupBuffCheck(spell, target)
+                end,
+            },
+            {
+                name = "GroupRegenBuff",
+                type = "Spell",
+                active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
+                cond = function(self, spell, target)
+                    if RGMercUtils.GetResolvedActionMapItem('DichoSpell') then return false end --Dicho regen overwrites this
+                    return RGMercUtils.GroupBuffCheck(spell, target)
                 end,
             },
             {
@@ -1606,14 +1558,21 @@ local _ClassConfig = {
                     return RGMercUtils.BuffActiveByID(mq.TLO.Me.AltAbility(aaName)
                         .Spell.Trigger(1).ID())
                 end,
-                cond = function(self, aaName, target)
+                cond = function(self, aaName, target, uiCheck) --check ranks because this won't use Tala'Tak between 74 and 90
+                    if not RGMercUtils.GetSetting('DoRunSpeed') or (mq.TLO.Me.AltAbility(aaName).Rank() or 999) < 4 then return false end
+                    --TODO: Refactor
                     local speedSpell = mq.TLO.Me.AltAbility(aaName).Spell.Trigger(1)
                     if not speedSpell or not speedSpell() then return false end
-                    -- force the target for StacksTarget to work.
-                    RGMercUtils.SetTarget(target.ID() or 0)
 
-                    return RGMercUtils.GetSetting('DoRunSpeed') and RGMercUtils.TargetIsType("PC", target) and RGMercUtils.CanUseAA(aaName) and
-                        not RGMercUtils.TargetHasBuff(speedSpell) and RGMercUtils.SpellStacksOnTarget(speedSpell)
+                    return RGMercUtils.GroupBuffCheck(speedSpell, target)
+                end,
+            },
+            {
+                name = "RunSpeedBuff",
+                type = "Spell",
+                cond = function(self, spell, target) --We get Tala'tak at 74, but don't get the AA version until 90
+                    if not RGMercUtils.GetSetting('DoRunSpeed') or (mq.TLO.Me.AltAbility(aaName).Rank() or -1) > 3 then return false end
+                    return RGMercUtils.GroupBuffCheck(spell, target)
                 end,
             },
         },
