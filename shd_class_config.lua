@@ -1317,23 +1317,6 @@ local _ClassConfig = {
                 end,
             },
             {
-                name = "Epic",
-                type = "Item",
-                tooltip = Tooltips.Epic,
-                cond = function(self, itemName)
-                    return mq.TLO.FindItemCount(itemName)() ~= 0 and mq.TLO.FindItem(itemName).TimerReady() == 0 and
-                        (self.ClassConfig.HelperFunctions.LeechCheck(self) or RGMercUtils.IsNamed(mq.TLO.Target))
-                end,
-            },
-            {
-                name = "OoW_Chest",
-                type = "Item",
-                tooltip = Tooltips.OoW_BP,
-                cond = function(self, itemName)
-                    return mq.TLO.FindItemCount(itemName)() ~= 0 and mq.TLO.FindItem(itemName).TimerReady() == 0 and self.ClassConfig.HelperFunctions.LeechCheck(self)
-                end,
-            },
-            {
                 name = "Carapace",
                 type = "Disc",
                 tooltip = Tooltips.Carapace,
@@ -1368,6 +1351,23 @@ local _ClassConfig = {
                 cond = function(self, discSpell)
                     return RGMercUtils.PCDiscReady(discSpell) and RGMercUtils.IsTanking() and not mq.TLO.Me.ActiveDisc.ID() and
                         (RGMercUtils.IsNamed(mq.TLO.Target) or (self.ClassConfig.HelperFunctions.GetXTHatersInRange(true) >= RGMercUtils.GetSetting('DiscCount')))
+                end,
+            },
+            {
+                name = "Epic",
+                type = "Item",
+                tooltip = Tooltips.Epic,
+                cond = function(self, itemName)
+                    return mq.TLO.FindItemCount(itemName)() ~= 0 and mq.TLO.FindItem(itemName).TimerReady() == 0 and
+                        (self.ClassConfig.HelperFunctions.LeechCheck(self) or RGMercUtils.IsNamed(mq.TLO.Target))
+                end,
+            },
+            {
+                name = "OoW_Chest",
+                type = "Item",
+                tooltip = Tooltips.OoW_BP,
+                cond = function(self, itemName)
+                    return mq.TLO.FindItemCount(itemName)() ~= 0 and mq.TLO.FindItem(itemName).TimerReady() == 0 and self.ClassConfig.HelperFunctions.LeechCheck(self)
                 end,
             },
             {
