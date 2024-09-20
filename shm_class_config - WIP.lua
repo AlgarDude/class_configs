@@ -91,7 +91,7 @@ local _ClassConfig = {
             "Wild Growth",
         },
         ["LowLvlStaminaBuff"] = {
-            -- Low Level Stamina Buff --- This has no real place outside of raids on select tanks. Waste of mana.
+            -- Low Level Stamina Buff --- I guess this is okay for tanks. Need to scrub which levels.
             "Spirit of Bear",
             "Spirit of Ox",
             "Health",
