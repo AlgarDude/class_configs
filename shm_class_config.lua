@@ -969,21 +969,21 @@ local _ClassConfig = {
                 name = "Ancestral Aid",
                 type = "AA",
                 cond = function(self, aaName)
-                    return RGMercUtils.MedBurn() and RGMercUtils.AAReady(aaName)
+                    return RGMercUtils.AAReady(aaName)
                 end,
             },
             {
                 name = "Spire of Ancestors",
                 type = "AA",
                 cond = function(self, aaName)
-                    return RGMercUtils.SmallBurn() and RGMercUtils.AAReady(aaName)
+                    return RGMercUtils.AAReady(aaName)
                 end,
             },
             {
                 name = "Spirit Call",
                 type = "AA",
                 cond = function(self, aaName, target)
-                    return RGMercUtils.SmallBurn() and RGMercUtils.NPCAAReady(aaName, target.ID())
+                    return RGMercUtils.Small and RGMercUtils.NPCAAReady(aaName, target.ID())
                 end,
             },
             {
@@ -997,7 +997,7 @@ local _ClassConfig = {
                 name = "Focus of Arcanum",
                 type = "AA",
                 cond = function(self, aaName)
-                    return RGMercUtils.BigBurn() and RGMercUtils.AAReady(aaName)
+                    return RGMercUtils.AAReady(aaName)
                 end,
             },
         },

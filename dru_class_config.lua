@@ -751,7 +751,7 @@ local _ClassConfig = {
             {
                 name = "VP2Hammer",
                 type = "Item",
-                cond = function(self)
+                cond = function(self, itemName)
                     return mq.TLO.FindItem(itemName).TimerReady() == 0
                 end,
             },

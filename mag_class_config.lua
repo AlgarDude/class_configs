@@ -1558,7 +1558,7 @@ _ClassConfig      = {
                 name = "SwarmPet",
                 type = "Spell",
                 cond = function(self, spell)
-                    return RGMercUtils.IsModeActive("Fire") and (RGMercUtils.ManaCheck() or RGMerUtils.BurnCheck())
+                    return RGMercUtils.IsModeActive("Fire") and (RGMercUtils.ManaCheck() or RGMercUtils.BurnCheck())
                 end,
             },
             {
@@ -1642,7 +1642,7 @@ _ClassConfig      = {
                 type = "Spell",
                 cond = function(self, spell, target)
                     return RGMercUtils.GetSetting('DoMalo') and RGMercUtils.DetSpellCheck(spell) and
-                        RGMercUtils.NPCAAReady(aaName, target.ID())
+                        RGMercUtils.NPCSpellReady(spell, target.ID())
                 end,
             },
             {
@@ -1814,7 +1814,7 @@ _ClassConfig      = {
             {
                 name = "SelfManaRodSummon",
                 type = "Spell",
-                cond = function(self, spell, target)
+                cond = function(self, spell, target, combat_state)
                     if target.ID() ~= mq.TLO.Me.ID() then return false end
                     return mq.TLO.FindItemCount(spell.RankName.Base(1)() or "")() == 0 and (mq.TLO.Cursor.ID() or 0) == 0 and
                         not (combat_state == "Combat" and mq.TLO.Me.PctMana() > RGMercUtils.GetSetting('GroupManaPct'))

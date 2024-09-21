@@ -106,7 +106,7 @@ local _ClassConfig = {
             "Talisman of Vehemence",
             "Spirit of Vehemence",
         },
-        ["LowLvlAttackBuff"] = {
+        ["LowLvlAtkBuff"] = {
             -- Low Level Attack Buff --- user under level 86
             "Primal Avatar",
             "Ferine Avatar",
@@ -1033,28 +1033,28 @@ local _ClassConfig = {
                 name = "Fleeting Spirit",
                 type = "AA",
                 cond = function(self, aaName)
-                    return RGMercUtils.BigBurn() and RGMercUtils.AAReady(aaName)
+                    return RGMercUtils.AAReady(aaName)
                 end,
             },
             {
                 name = "Ancestral Aid",
                 type = "AA",
                 cond = function(self, aaName)
-                    return RGMercUtils.MedBurn() and RGMercUtils.AAReady(aaName)
+                    return RGMercUtils.AAReady(aaName)
                 end,
             },
             {
                 name = "Spire of Ancestors",
                 type = "AA",
                 cond = function(self, aaName)
-                    return RGMercUtils.SmallBurn() and RGMercUtils.AAReady(aaName)
+                    return RGMercUtils.AAReady(aaName)
                 end,
             },
             {
                 name = "Spirit Call",
                 type = "AA",
                 cond = function(self, aaName, target)
-                    return RGMercUtils.SmallBurn() and RGMercUtils.NPCAAReady(aaName, target.ID())
+                    return RGMercUtils.NPCAAReady(aaName, target.ID())
                 end,
             },
             {
@@ -1068,7 +1068,7 @@ local _ClassConfig = {
                 name = "Focus of Arcanum",
                 type = "AA",
                 cond = function(self, aaName)
-                    return RGMercUtils.BigBurn() and RGMercUtils.AAReady(aaName)
+                    return RGMercUtils.AAReady(aaName)
                 end,
             },
             {
@@ -1076,7 +1076,7 @@ local _ClassConfig = {
                 type = "AA",
                 cond = function(self, aaName)
                     if not RGMercUtils.GetSetting('DoVetAA') then return false end
-                    return RGMercUtils.AAReady(aaName) and RGMercUtils.BigBurn()
+                    return RGMercUtils.AAReady(aaName)
                 end,
             },
         },
@@ -1290,8 +1290,7 @@ local _ClassConfig = {
                     if mq.TLO.Me.Level() > 65 then
                         return true
                     end
-                    return RGMercUtils.GetSetting('BurnAuto') or
-                        RGMercUtils.SmallBurn() and RGMercUtils.ManaCheck() and RGMercUtils.GetSetting('DoNuke')
+                    return RGMercUtils.GetSetting('BurnAuto') and RGMercUtils.ManaCheck() and RGMercUtils.GetSetting('DoNuke')
                 end,
             },
         },
@@ -1521,7 +1520,7 @@ local _ClassConfig = {
                 active_cond = function(self, aaName) return mq.TLO.Me.Haste() end,
                 cond = function(self, aaName, target)
                     if not RGMercUtils.GetSetting('DoHaste') then return false end
-                    return mq.TLO.Me.Level() < 111 and RGMercUtils.GroupBuffCheck(spell, target)
+                    return mq.TLO.Me.Level() < 111 and RGMercUtils.GroupBuffCheck(aaName, target)
                 end,
             },
             {
@@ -1539,7 +1538,7 @@ local _ClassConfig = {
                 active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
                 cond = function(self, spell, target)
                     if RGMercUtils.GetResolvedActionMapItem('GroupRegenBuff') then return false end --We don't need this once we can use the group version
-                    return (RGMercConfig.Constants.RGTank:contains(target.Class.ShortName()) or target.ID() == mq.TLO.Me.Target.ID()) and RGMercUtils.GroupBuffCheck(spell, target)
+                    return (RGMercConfig.Constants.RGTank:contains(target.Class.ShortName()) or target.ID() == mq.TLO.Me.ID()) and RGMercUtils.GroupBuffCheck(spell, target)
                 end,
             },
             {
@@ -1571,7 +1570,7 @@ local _ClassConfig = {
                 name = "RunSpeedBuff",
                 type = "Spell",
                 cond = function(self, spell, target) --We get Tala'tak at 74, but don't get the AA version until 90
-                    if not RGMercUtils.GetSetting('DoRunSpeed') or (mq.TLO.Me.AltAbility(aaName).Rank() or -1) > 3 then return false end
+                    if not RGMercUtils.GetSetting('DoRunSpeed') or (mq.TLO.Me.AltAbility("Lupine Spirit").Rank() or -1) > 3 then return false end
                     return RGMercUtils.GroupBuffCheck(spell, target)
                 end,
             },
@@ -1647,12 +1646,12 @@ local _ClassConfig = {
             gem = 6,
             spells = {
                 -- [ HEAL MODE ] --
-                { name = "ChaoticDoT",       cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
-                { name = "SaryrnDot",        cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
+                { name = "ChaoticDoT",    cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
+                { name = "SaryrnDot",     cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
                 -- [ Hybrid MODE ] --
-                { name = "CanniSpell",       cond = function(self) return RGMercUtils.GetSetting('DoSpellCanni') end, },
+                { name = "CanniSpell",    cond = function(self) return RGMercUtils.GetSetting('DoSpellCanni') end, },
                 -- [ TLP FALL BACK ] --
-                { name = "LowLvlAttackBuff", },
+                { name = "LowLvlAtkBuff", },
             },
         },
         {
@@ -1660,12 +1659,12 @@ local _ClassConfig = {
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
                 -- [ HEAL MODE ] --
-                { name = "PandemicDot",      cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
-                { name = "UltorDot",         cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
+                { name = "PandemicDot",   cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
+                { name = "UltorDot",      cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },
                 -- [ Hybrid MODE ] --
                 { name = "SlowProcBuff", },
                 -- [ TLP FALL BACK ] --
-                { name = "LowLvlAttackBuff", },
+                { name = "LowLvlAtkBuff", },
                 { name = "CanniSpell", },
                 { name = "PetBuffSpell", },
             },
@@ -1800,7 +1799,7 @@ local _ClassConfig = {
         ['AEMaloCount']       = { DisplayName = "AE Malo Count", Category = "Debuffs", Tooltip = "Number of XT Haters before we start AE Maloing", Min = 1, Default = 3, Max = 10, },
         ['DoStatBuff']        = { DisplayName = "Do Stat Buff", Category = "Buffs", Tooltip = "Do Stat Buffs for Group", Default = true, },
         ['DoHealDPS']         = { DisplayName = "Use HealDPS", Category = "Spells and Abilities", Tooltip = "Use HealDPS Rotation", Default = false, },
-        ['DoVetAA']           = { DisplayName = "Use Vet AA", Category = "Buffs/Debuffs", Index = 5, Tooltip = "Use Veteran AA's in emergencies or during BigBurn.", Default = true, },
+        ['DoVetAA']           = { DisplayName = "Use Vet AA", Category = "Buffs/Debuffs", Index = 5, Tooltip = "Use Veteran AA's in emergencies or during Burn.", Default = true, },
     },
 }
 

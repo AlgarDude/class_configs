@@ -1396,18 +1396,20 @@ local _ClassConfig = {
         },
         ['Burn'] = {
             --I'm seeing burnauto settings checks in conditions for existing entries, wondering if they are actually required... shouldn't burn checking in the rotation phase cover this? Whatever, will apply brainpower later, likely a reason.
-            -- return (RGMercUtils.GetSetting('BurnAuto') and RGMercUtils.IsNamed(mq.TLO.Target)) or RGMercUtils.MedBurn()
+            -- return (RGMercUtils.GetSetting('BurnAuto') and RGMercUtils.IsNamed(mq.TLO.Target)) or RGMercUtils.Med
 
             {
                 name = "Valorous Rage",
                 type = "AA",
-                cond = function(self, aaName) return RGMercUtils.AAReady(aaName) and RGMercUtils.MedBurn() end,
+                cond = function(self, aaName)
+                    return RGMercUtils.AAReady(aaName)
+                end,
             },
             {
                 name = "RighteousStrike",
                 type = "Disc",
                 cond = function(self, discSpell)
-                    return RGMercUtils.NPCDiscReady(discSpell) and RGMercUtils.MedBurn()
+                    return RGMercUtils.NPCDiscReady(discSpell)
                 end,
             },
             {
@@ -1416,41 +1418,22 @@ local _ClassConfig = {
                 tooltip = Tooltips.ThoughtLeech,
                 cond = function(self, aaName)
                     return RGMercUtils.AAReady(aaName) and RGMercUtils.GetSetting('DoVetAA')
-                        and RGMercUtils.BigBurn()
                 end,
             },
-            -- --the  next two entries are lower because we want a chance for the above to be up before we HT
-            -- {
-            -- name = "Harm Touch",
-            -- type = "AA",
-            -- tooltip = Tooltips.HarmTouch,
-            -- cond = function(self, _)
-            -- return RGMercUtils.MedBurn()
-            -- end,
-            -- },
-            -- {
-            -- name = "Thought Leech",
-            -- type = "AA",
-            -- tooltip = Tooltips.ThoughtLeech,
-            -- cond = function(self, _)
-            -- return RGMercUtils.MedBurn()
-            -- end,
-            -- },
-            --back to lower priority burn stuff
             {
                 name = "Spire of Chivalry",
                 type = "AA",
                 tooltip = Tooltips.SpireoftheReavers,
                 cond = function(self, aaName)
                     return
-                        RGMercUtils.AAReady(aaName) and RGMercUtils.SmallBurn()
+                        RGMercUtils.AAReady(aaName)
                 end,
             },
             {
                 name = "Thunder of Karana",
                 type = "AA",
                 cond = function(self, aaName)
-                    return RGMercUtils.AAReady(aaName) and RGMercUtils.GetSetting('DoNuke') and RGMercUtils.SmallBurn()
+                    return RGMercUtils.AAReady(aaName) and RGMercUtils.GetSetting('DoNuke')
                 end,
             },
             -- not sure about this one yet, more homework
@@ -1992,7 +1975,7 @@ local _ClassConfig = {
         ['DoNuke']           = { DisplayName = "Cast Spells", Category = "Spells and Abilities", Tooltip = "Use Spells", Default = true, },
         ['DoCures']          = { DisplayName = "Do Cures", Category = "Spells and Abilities", Tooltip = "Use Cure spells and abilities", Default = true, },
         ['DoReverseDS']      = { DisplayName = "Do Reverse DS", Category = "Spells and Abilities", Tooltip = "Cast Reverse DS", Default = true, },
-        ['DoVetAA']          = { DisplayName = "Use Vet AA", Category = "Spells and Abilities", Tooltip = "Use Veteran AA's in emergencies or during BigBurn", Default = true, },
+        ['DoVetAA']          = { DisplayName = "Use Vet AA", Category = "Spells and Abilities", Tooltip = "Use Veteran AA's in emergencies", Default = true, },
 
         --Group Buffs
         ['DoBrells']         = { DisplayName = "Do Brells", Category = "Group Buffs", Tooltip = "Enable Casting Brells", Default = true, },

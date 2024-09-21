@@ -677,24 +677,25 @@ local _ClassConfig = {
             local mobs = mq.TLO.SpawnCount("NPC radius 50 zradius 50")()
             if not RGMercUtils.IsTanking() or mobs < RGMercUtils.GetSetting('AETauntCnt') then return false end
             local xtCount = mq.TLO.Me.XTarget() or 0
-            local haters = {}
+            local tauntme = {}
             for i = 1, xtCount do
                 local xtarg = mq.TLO.Me.XTarget(i)
-                if xtarg and xtarg.ID() > 0 and ((xtarg.Aggressive() or xtarg.TargetType():lower() == "auto hater")) and (xtarg.Distance() or 999) <= 50 then
+                if xtarg and xtarg.ID() > 0 and ((xtarg.Aggressive() or xtarg.TargetType():lower() == "auto hater")) and xtarg.PctAggro() < 100 and (xtarg.Distance() or 999) <= 50 then
                     if printDebug then
-                        RGMercsLogger.log_verbose("GetXTHatersInRange(): XT(%d) Counting %s(%d) as a hater in range.", i, xtarg.CleanName() or "None", xtarg.ID())
+                        RGMercsLogger.log_verbose("AETauntCheck(): XT(%d) Counting %s(%d) as a hater eligible to AE Taunt.", i, xtarg.CleanName() or "None",
+                            xtarg.ID())
                     end
-                    table.insert(haters, xtarg.ID())
+                    table.insert(tauntme, xtarg.ID())
                 end
             end
-            return #haters >= RGMercUtils.GetSetting('AETauntCnt') and not (RGMercUtils.GetSetting('SafeAETaunt') and #haters < mobs)
+            return #tauntme >= RGMercUtils.GetSetting('AETauntCnt') and not (RGMercUtils.GetSetting('SafeAETaunt') and #tauntme < mobs)
         end,
-        GetXTHatersInRange = function(printDebug)
+        GetXTHatersInRange = function(range, printDebug)
             local xtCount = mq.TLO.Me.XTarget() or 0
             local haters = {}
             for i = 1, xtCount do
                 local xtarg = mq.TLO.Me.XTarget(i)
-                if xtarg and xtarg.ID() > 0 and ((xtarg.Aggressive() or xtarg.TargetType():lower() == "auto hater")) and (xtarg.Distance() or 999) <= 50 then
+                if xtarg and xtarg.ID() > 0 and ((xtarg.Aggressive() or xtarg.TargetType():lower() == "auto hater")) and (xtarg.Distance() or 999) <= range then
                     if printDebug then
                         RGMercsLogger.log_verbose("GetXTHatersInRange(): XT(%d) Counting %s(%d) as a hater in range.", i, xtarg.CleanName() or "None", xtarg.ID())
                     end
@@ -705,9 +706,9 @@ local _ClassConfig = {
         end,
         --function to space out Epic and Omens Chest with Mortal Coil old-school swarm style. Epic has an override condition to fire anyway on named.
         LeechCheck = function(self)
-            local LeechEffects = { "Leechcurse Discipline", "Mortal Coil", "Lich Sting Recourse", "Leeching Embrace", "Reaper Strike Recourse", }
+            local LeechEffects = { "Leechcurse Discipline", "Mortal Coil", "Lich Sting Recourse", "Leeching Embrace", "Reaper Strike Recourse", "Leeching Touch", }
             for _, buffName in ipairs(LeechEffects) do
-                if RGMercUtils.BuffActiveByName(buffName) then return false end
+                if mq.TLO.Me.Song(buffName)() or mq.TLO.Me.Buff(buffName)() then return false end
             end
             return true
         end,
@@ -1322,7 +1323,7 @@ local _ClassConfig = {
                 tooltip = Tooltips.Carapace,
                 cond = function(self, discSpell)
                     return RGMercUtils.PCDiscReady(discSpell) and RGMercUtils.IsTanking() and not mq.TLO.Me.ActiveDisc.ID() and
-                        (RGMercUtils.IsNamed(mq.TLO.Target) or (self.ClassConfig.HelperFunctions.GetXTHatersInRange(true) >= RGMercUtils.GetSetting('DiscCount'))) and
+                        (RGMercUtils.IsNamed(mq.TLO.Target) or (self.ClassConfig.HelperFunctions.GetXTHatersInRange(30, true) >= RGMercUtils.GetSetting('DiscCount'))) and
                         mq.TLO.Me.Level() > 87 --shares timer with mantle before 88
                 end,
             },
@@ -1332,7 +1333,7 @@ local _ClassConfig = {
                 tooltip = Tooltips.Mantle,
                 cond = function(self, discSpell)
                     return RGMercUtils.PCDiscReady(discSpell) and RGMercUtils.IsTanking() and not mq.TLO.Me.ActiveDisc.ID() and
-                        (RGMercUtils.IsNamed(mq.TLO.Target) or (self.ClassConfig.HelperFunctions.GetXTHatersInRange(true) >= RGMercUtils.GetSetting('DiscCount')))
+                        (RGMercUtils.IsNamed(mq.TLO.Target) or (self.ClassConfig.HelperFunctions.GetXTHatersInRange(30, true) >= RGMercUtils.GetSetting('DiscCount')))
                 end,
             },
             {
@@ -1341,7 +1342,7 @@ local _ClassConfig = {
                 tooltip = Tooltips.Guardian,
                 cond = function(self, discSpell)
                     return RGMercUtils.PCDiscReady(discSpell) and RGMercUtils.IsTanking() and not mq.TLO.Me.ActiveDisc.ID() and
-                        (RGMercUtils.IsNamed(mq.TLO.Target) or (self.ClassConfig.HelperFunctions.GetXTHatersInRange(true) >= RGMercUtils.GetSetting('DiscCount')))
+                        (RGMercUtils.IsNamed(mq.TLO.Target) or (self.ClassConfig.HelperFunctions.GetXTHatersInRange(30, true) >= RGMercUtils.GetSetting('DiscCount')))
                 end,
             },
             {
@@ -1350,7 +1351,7 @@ local _ClassConfig = {
                 tooltip = Tooltips.UnholyAura,
                 cond = function(self, discSpell)
                     return RGMercUtils.PCDiscReady(discSpell) and RGMercUtils.IsTanking() and not mq.TLO.Me.ActiveDisc.ID() and
-                        (RGMercUtils.IsNamed(mq.TLO.Target) or (self.ClassConfig.HelperFunctions.GetXTHatersInRange(true) >= RGMercUtils.GetSetting('DiscCount')))
+                        (RGMercUtils.IsNamed(mq.TLO.Target) or (self.ClassConfig.HelperFunctions.GetXTHatersInRange(30, true) >= RGMercUtils.GetSetting('DiscCount')))
                 end,
             },
             {
