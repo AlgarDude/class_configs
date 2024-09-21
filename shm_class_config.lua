@@ -715,7 +715,7 @@ local _ClassConfig = {
             {
                 name = "VP2Hammer",
                 type = "Item",
-                cond = function(self)
+                cond = function(self, itemName)
                     return mq.TLO.FindItem(itemName).TimerReady() == 0
                 end,
             },
@@ -738,7 +738,7 @@ local _ClassConfig = {
             {
                 name = "AESpiritualHeal",
                 type = "Spell",
-                cond = function(self, _, target)
+                cond = function(self, spell, target)
                     return (target.ID() or 0) == RGMercUtils.GetMainAssistId() and RGMercUtils.NPCSpellReady(spell, target.ID(), true)
                 end,
             },
@@ -759,7 +759,7 @@ local _ClassConfig = {
             {
                 name = "VP2Hammer",
                 type = "Item",
-                cond = function(self)
+                cond = function(self, itemName)
                     return mq.TLO.FindItem(itemName).TimerReady() == 0
                 end,
             },
@@ -1239,7 +1239,7 @@ local _ClassConfig = {
                 active_cond = function(self, aaName) return mq.TLO.Me.Haste() end,
                 cond = function(self, aaName, target)
                     if not RGMercUtils.GetSetting('DoHaste') then return false end
-                    return mq.TLO.Me.Level() < 111 and RGMercUtils.GroupBuffCheck(spell, target)
+                    return mq.TLO.Me.Level() < 111 and RGMercUtils.GroupBuffCheck(mq.TLO.AltAbility(aaName).Spell, target)
                 end,
             },
             {
@@ -1280,7 +1280,7 @@ local _ClassConfig = {
                 name = "RunSpeedBuff",
                 type = "Spell",
                 cond = function(self, spell, target) --We get Tala'tak at 74, but don't get the AA version until 90
-                    if not RGMercUtils.GetSetting('DoRunSpeed') or (mq.TLO.Me.AltAbility(aaName).Rank() or -1) > 3 then return false end
+                    if not RGMercUtils.GetSetting('DoRunSpeed') or (mq.TLO.Me.AltAbility("Lupine Spirit").Rank() or -1) > 3 then return false end
                     return RGMercUtils.GroupBuffCheck(spell, target)
                 end,
             },

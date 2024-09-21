@@ -818,7 +818,7 @@ local _ClassConfig = {
             {
                 name = "Gift of Life",
                 type = "AA",
-                cond = function(self, aaName)
+                cond = function(self, aaName, combat_state)
                     if not mq.TLO.Group() then return false end
                     return combat_state == "Combat" and RGMercUtils.AAReady(aaName) and
                         mq.TLO.Group.Injured(RGMercUtils.GetSetting('BigHealPoint'))() > RGMercUtils.GetSetting('GroupInjureCnt')
@@ -827,7 +827,7 @@ local _ClassConfig = {
             {
                 name = "Hand of Piety",
                 type = "AA",
-                cond = function(self, aaName)
+                cond = function(self, aaName, combat_state)
                     if not mq.TLO.Group() then return false end
                     return combat_state == "Combat" and RGMercUtils.AAReady(aaName) and
                         mq.TLO.Group.Injured(RGMercUtils.GetSetting('BigHealPoint'))() > RGMercUtils.GetSetting('GroupInjureCnt')
@@ -836,7 +836,7 @@ local _ClassConfig = {
             {
                 name = "Lay on Hands",
                 type = "AA",
-                cond = function(self, aaName)
+                cond = function(self, aaName, combat_state)
                     return combat_state == "Combat" and RGMercUtils.AAReady(aaName) and RGMercUtils.GetTargetPctHPs() < RGMercUtils.GetSetting('LayHandsPct')
                 end,
             },
