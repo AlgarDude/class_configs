@@ -8,13 +8,13 @@ Make no mistake, while I am a regular contributor, none of this is officially en
 
 To use these: place them in (VV install)\config\rgmercs\class_configs
 
-*** *PLEASE NOTE* *** As of 5 Sep 2024, all of my custom functions have been fully integrated into the main branch and algar_include.lua is no longer required!
+*** *PLEASE NOTE* *** As of 23 Sep 2024, all of my custom functions have been fully integrated into the main branch and algar_include.lua is no longer required!
 Other updates: 
 SHD is now fully integrated. 
 BST is now fully integrated. 
 BRD is now fully integrated.
-ENC is being tested for full integration.
-SHM is my next project to integrate.
+ENC is now fully integrated (as the "Modern Era" mode).
+SHM is being tested for full integration.
 
 THANK YOU FOR TESTING:
 If I've asked you to help me test a specific config, the below warnings likely don't apply! (Dont be skerd yo)
@@ -28,7 +28,6 @@ THESE CONFIGS ARE NOT FOR THOSE WHO WISH A TRUE TURN-IT-ON-AND-GO EXPERIENCE. I'
 
 Some of them have custom gem setups, and some of them are very close to their current default counterparts (as they were either a base for editing or I've PRed some of my changes).
 If you aren't comfortable editing some gem setups or commenting/uncommenting some entries, consider sticking to the targeted revamp testing.
-I've put particular work into SHD, PLD and ~~BRD~~ (accepted as the new default), and I've done a number on a healing DRU and SHM as well.
 
 Some spells and abilities are configured by the user in the main RGMercs module and may differ slightly from my own. Things like heal percentages, etc, may make these play for me and you slightly differently.
 
@@ -36,4 +35,4 @@ For those of you who are curious, my current setups I use for playtesting:
 
 Level 120 SK/SHM/BRD/BST/MAG/NEC (Gold, no expansions)
 
-Level 115 PAL/DRU/BRD/ENC/MAG/WIZ (Gold, no expansions)
+Level 120 PAL/DRU/BRD/ENC/MAG/WIZ (Gold, no expansions)
