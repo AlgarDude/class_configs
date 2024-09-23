@@ -1142,7 +1142,7 @@ local _ClassConfig = {
                 name = "Malaise",
                 type = "AA",
                 cond = function(self, aaName, target)
-                    if not RGMercUtils.GetSetting('DoMalo') then return false end
+                    if not RGMercUtils.GetSetting('DoSTMalo') then return false end
                     return RGMercUtils.NPCAAReady(aaName, target.ID()) and RGMercUtils.DetAACheck(mq.TLO.Me.AltAbility(aaName).ID())
                 end,
             },
@@ -1150,7 +1150,7 @@ local _ClassConfig = {
                 name = "MaloSpell",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    if not RGMercUtils.GetSetting('DoMalo') or RGMercUtils.CanUseAA("Malaise") then return false end
+                    if not RGMercUtils.GetSetting('DoSTMalo') or RGMercUtils.CanUseAA("Malaise") then return false end
                     return RGMercUtils.NPCSpellReady(spell, target.ID()) and RGMercUtils.DetSpellCheck(spell)
                 end,
             },
