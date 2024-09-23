@@ -771,7 +771,9 @@ local _ClassConfig = {
                 name = "GroupRenewalHoT",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    return RGMercUtils.GetSetting('DoHOT') and RGMercUtils.GroupBuffCheck(spell, target) and RGMercUtils.NPCSpellReady(spell, target.ID(), true)
+                    if not RGMercUtils.GetSetting('DoHOT') then return false end
+                    return RGMercUtils.CastReady(spell.RankName) and RGMercUtils.NPCSpellReady(spell, target.ID(), true)
+                        and RGMercUtils.GroupBuffCheck(spell, target)
                 end,
             },
         },
@@ -816,7 +818,8 @@ local _ClassConfig = {
                 name = "GroupRenewalHoT",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    return RGMercUtils.GetSetting('DoHOT') and RGMercUtils.GroupBuffCheck(spell, target)
+                    if not RGMercUtils.GetSetting('DoHOT') then return false end
+                    return RGMercUtils.CastReady(spell.RankName) and RGMercUtils.GroupBuffCheck(spell, target)
                 end,
             },
         },
@@ -1283,7 +1286,7 @@ local _ClassConfig = {
                 name = "GroupRenewalHoT",
                 type = "Spell",
                 cond = function(self, spell)
-                    if not RGMercUtils.CanUseAA("Luminary's Synergy") then return false end
+                    if not RGMercUtils.CanUseAA("Luminary's Synergy") and RGMercUtils.GetSetting('DoHOT') then return false end
                     return not RGMercUtils.DotSpellCheck(spell) and RGMercUtils.SpellStacksOnMe(spell)
                         and (mq.TLO.Me.Song(spell).Duration.TotalSeconds() or 0) < 30
                 end,
@@ -1358,7 +1361,7 @@ local _ClassConfig = {
                 name = "GroupRenewalHoT",
                 type = "Spell",
                 cond = function(self, spell)
-                    if not RGMercUtils.CanUseAA("Luminary's Synergy") then return false end
+                    if not RGMercUtils.CanUseAA("Luminary's Synergy") and RGMercUtils.GetSetting('DoHOT') then return false end
                     return RGMercUtils.SpellStacksOnMe(spell) and (mq.TLO.Me.Song(spell).Duration.TotalSeconds() or 0) < 30
                 end,
             },
@@ -1638,7 +1641,7 @@ local _ClassConfig = {
         {
             gem = 7,
             spells = {
-                { name = "GroupRenewalHoT", cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },                                                   -- 44-125 Heal
+                { name = "GroupRenewalHoT", cond = function(self) return RGMercUtils.IsModeActive("Heal") and RGMercUtils.GetSetting('DoHOT') end, },               -- 44-125 Heal
                 { name = "SingleRegenBuff", cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },                                                   -- 22-55 Convenience
                 { name = "AfflictionDot",   cond = function(self) return RGMercUtils.IsModeActive("Hybrid") end, },                                                 -- 92-125 Hybrid (Boss Only)
                 { name = "UltorDot",        cond = function(self) return RGMercUtils.IsModeActive("Hybrid") and mq.TLO.Me.Level() < 92 end, },                      -- 4-91 Hybrid (Boss Only)
