@@ -90,7 +90,7 @@ local _ClassConfig = {
             "Celerity",
             "Quickness",
         },
-        ["GrowthBuff"] = {
+        ["TempHPBuff"] = {
             -- Growth Buff 111 -> 81
             "Overwhelming Growth",
             "Fervent Growth",
@@ -1424,7 +1424,7 @@ local _ClassConfig = {
                 type = "Spell",
                 active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
                 cond = function(self, spell)
-                    if not RGMercUtils.GetSetting('WardsPlease') then return false end
+                    if not RGMercUtils.GetSetting('DoSelfWard') then return false end
                     return RGMercUtils.SelfBuffCheck(spell)
                 end,
             },
@@ -1439,10 +1439,10 @@ local _ClassConfig = {
                 end,
             },
             {
-                name = "GrowthBuff",
+                name = "TempHPBuff",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    if not RGMercUtils.GetSetting('DoGrowth') then return false end
+                    if not RGMercUtils.GetSetting('DoTempHP') then return false end
                     return RGMercUtils.TargetClassIs("WAR", target) and RGMercUtils.CastReady(spell.RankName) and RGMercUtils.GroupBuffCheck(spell, target)
                 end,
             },
@@ -1655,7 +1655,7 @@ local _ClassConfig = {
                 { name = "LowLvlAtkBuff",     cond = function(self) return mq.TLO.Me.Level() < 86 end, },                                                             -- 60-85
                 { name = "TwinHealNuke",      cond = function(self) return RGMercUtils.IsModeActive("Heal") and RGMercUtils.GetSetting('DoTwinHeal') end, },          -- 85-125
                 { name = "FastPoisonNuke",    cond = function(self) return not (RGMercUtils.IsModeActive("Heal") and not RGMercUtils.GetSetting('DoHealDPS')) end, }, -- 73-125
-                { name = "GrowthBuff",        cond = function(self) return RGMercUtils.GetSetting('DoGrowth') end, },                                                 -- 81-125
+                { name = "TempHPBuff",        cond = function(self) return RGMercUtils.GetSetting('DoTempHP') end, },                                                 -- 81-125
                 { name = "CureSpell",         cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },                                                   -- 52-125 Heal
                 { name = "CurseDoT1",         cond = function(self) return not (RGMercUtils.IsModeActive("Heal") and not RGMercUtils.GetSetting('DoHealDPS')) end, }, -- 34-??? Heal, 34-125 Hybrid
                 { name = "SaryrnDot",         cond = function(self) return not (RGMercUtils.IsModeActive("Heal") and not RGMercUtils.GetSetting('DoHealDPS')) end, }, -- 8-?? Heal, 8-125 Hybrid
@@ -1672,7 +1672,7 @@ local _ClassConfig = {
             spells = {
                 { name = "FastPoisonNuke",    cond = function(self) return not (RGMercUtils.IsModeActive("Heal") and not RGMercUtils.GetSetting('DoHealDPS')) end, }, -- 73-125
                 { name = "TwinHealNuke",      cond = function(self) return RGMercUtils.IsModeActive("Heal") and RGMercUtils.GetSetting('DoTwinHeal') end, },          -- 85-125
-                { name = "GrowthBuff",        cond = function(self) return RGMercUtils.GetSetting('DoGrowth') end, },                                                 -- 81-125
+                { name = "TempHPBuff",        cond = function(self) return RGMercUtils.GetSetting('DoTempHP') end, },                                                 -- 81-125
                 { name = "CureSpell",         cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },                                                   -- 52-125 Heal
                 { name = "CurseDoT1",         cond = function(self) return not (RGMercUtils.IsModeActive("Heal") and not RGMercUtils.GetSetting('DoHealDPS')) end, }, -- 34-??? Heal, 34-125 Hybrid
                 { name = "SaryrnDot",         cond = function(self) return not (RGMercUtils.IsModeActive("Heal") and not RGMercUtils.GetSetting('DoHealDPS')) end, }, -- 8-?? Heal, 8-125 Hybrid
@@ -1690,7 +1690,7 @@ local _ClassConfig = {
                 { name = "CurseDoT2",         cond = function(self) return not (RGMercUtils.IsModeActive("Heal") and not RGMercUtils.GetSetting('DoHealDPS')) end, }, -- 100-125
                 { name = "TwinHealNuke",      cond = function(self) return RGMercUtils.IsModeActive("Heal") and RGMercUtils.GetSetting('DoTwinHeal') end, },          -- 85-125
                 { name = "FastPoisonNuke",    cond = function(self) return not (RGMercUtils.IsModeActive("Heal") and not RGMercUtils.GetSetting('DoHealDPS')) end, }, -- 73-125
-                { name = "GrowthBuff",        cond = function(self) return RGMercUtils.GetSetting('DoGrowth') end, },                                                 -- 81-125
+                { name = "TempHPBuff",        cond = function(self) return RGMercUtils.GetSetting('DoTempHP') end, },                                                 -- 81-125
                 { name = "CureSpell",         cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },                                                   -- 52-125 Heal
                 { name = "CurseDoT1",         cond = function(self) return not (RGMercUtils.IsModeActive("Heal") and not RGMercUtils.GetSetting('DoHealDPS')) end, }, -- 34-??? Heal, 34-125 Hybrid
                 { name = "SaryrnDot",         cond = function(self) return not (RGMercUtils.IsModeActive("Heal") and not RGMercUtils.GetSetting('DoHealDPS')) end, }, -- 8-?? Heal, 8-125 Hybrid
@@ -1708,7 +1708,7 @@ local _ClassConfig = {
                 { name = "PandemicDot",       cond = function(self) return not (RGMercUtils.IsModeActive("Heal") and not RGMercUtils.GetSetting('DoHealDPS')) end, }, -- 103-125
                 { name = "TwinHealNuke",      cond = function(self) return RGMercUtils.IsModeActive("Heal") and RGMercUtils.GetSetting('DoTwinHeal') end, },          -- 85-125
                 { name = "FastPoisonNuke",    cond = function(self) return not (RGMercUtils.IsModeActive("Heal") and not RGMercUtils.GetSetting('DoHealDPS')) end, }, -- 73-125
-                { name = "GrowthBuff",        cond = function(self) return RGMercUtils.GetSetting('DoGrowth') end, },                                                 -- 81-125
+                { name = "TempHPBuff",        cond = function(self) return RGMercUtils.GetSetting('DoTempHP') end, },                                                 -- 81-125
                 { name = "CureSpell",         cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },                                                   -- 52-125 Heal
                 { name = "CurseDoT1",         cond = function(self) return not (RGMercUtils.IsModeActive("Heal") and not RGMercUtils.GetSetting('DoHealDPS')) end, }, -- 34-??? Heal, 34-125 Hybrid
                 { name = "SaryrnDot",         cond = function(self) return not (RGMercUtils.IsModeActive("Heal") and not RGMercUtils.GetSetting('DoHealDPS')) end, }, -- 8-?? Heal, 8-125 Hybrid
@@ -1726,7 +1726,7 @@ local _ClassConfig = {
                 { name = "ChaoticDoT",        cond = function(self) return not (RGMercUtils.IsModeActive("Heal") and not RGMercUtils.GetSetting('DoHealDPS')) end, }, -- 104-125
                 { name = "TwinHealNuke",      cond = function(self) return RGMercUtils.IsModeActive("Heal") and RGMercUtils.GetSetting('DoTwinHeal') end, },          -- 85-125
                 { name = "FastPoisonNuke",    cond = function(self) return not (RGMercUtils.IsModeActive("Heal") and not RGMercUtils.GetSetting('DoHealDPS')) end, }, -- 73-125
-                { name = "GrowthBuff",        cond = function(self) return RGMercUtils.GetSetting('DoGrowth') end, },                                                 -- 81-125
+                { name = "TempHPBuff",        cond = function(self) return RGMercUtils.GetSetting('DoTempHP') end, },                                                 -- 81-125
                 { name = "CureSpell",         cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },                                                   -- 52-125 Heal
                 { name = "CurseDoT1",         cond = function(self) return not (RGMercUtils.IsModeActive("Heal") and not RGMercUtils.GetSetting('DoHealDPS')) end, }, -- 34-??? Heal, 34-125 Hybrid
                 { name = "SaryrnDot",         cond = function(self) return not (RGMercUtils.IsModeActive("Heal") and not RGMercUtils.GetSetting('DoHealDPS')) end, }, -- 8-?? Heal, 8-125 Hybrid
@@ -1741,7 +1741,7 @@ local _ClassConfig = {
             gem = 13,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
-                { name = "GrowthBuff",        cond = function(self) return RGMercUtils.GetSetting('DoGrowth') end, }, -- 81-125
+                { name = "TempHPBuff",        cond = function(self) return RGMercUtils.GetSetting('DoTempHP') end, }, -- 81-125
                 { name = "CureSpell",         cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },   -- 52-125 Heal
                 { name = "GroupHealProcBuff", cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },   -- 101-125
                 { name = "PoisonNuke",        cond = function(self) return RGMercUtils.IsModeActive("Hybrid") end, }, -- Hey, why not?
@@ -1792,7 +1792,7 @@ local _ClassConfig = {
         ['SpellCanniManaPct'] = { DisplayName = "Spell Canni Mana %", Category = "Spells and Abilities", Tooltip = "Use Canni Spell Under [X]% mana", Default = 70, Min = 1, Max = 100, },
         ['SpellCanniMinHP']   = { DisplayName = "Spell Canni HP %", Category = "Spells and Abilities", Tooltip = "Dont Use Canni Spell Under [X]% HP", Default = 70, Min = 1, Max = 100, },
         ['DoGroupShrink']     = { DisplayName = "Group Shrink", Category = "Buffs", Tooltip = "Use Group Shrink Buff", Default = false, },
-        ['DoGrowth']          = { DisplayName = "Temp HP Buff", Category = "Buffs", Tooltip = "Use Temp HP Buff (Only for WAR, other tanks have their own)", Default = false, },
+        ['DoTempHP']          = { DisplayName = "Temp HP Buff", Category = "Buffs", Tooltip = "Use Temp HP Buff (Only for WAR, other tanks have their own)", Default = false, },
         ['DoHaste']           = { DisplayName = "Use Haste", Category = "Buffs", Tooltip = "Do Haste Spells/AAs", Default = true, },
         ['DoRunSpeed']        = { DisplayName = "Do Run Speed", Category = "Buffs", Tooltip = "Do Run Speed Spells/AAs", Default = true, },
         ['DoSTMalo']          = { DisplayName = "Cast ST Malo", Category = "Debuffs", Tooltip = "Do Malo Spells/AAs", Default = true, },
