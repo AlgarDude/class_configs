@@ -868,7 +868,7 @@ local _ClassConfig = {
                 type = "Spell",
                 cond = function(self, spell, target)
                     return not RGMercUtils.BuffActiveByName(spell.Name() .. " Recourse") and
-                        (mq.TLO.Target.PctMana() or -1) > 0 and mq.TLO.Group.LowMana(40) > 2
+                        (mq.TLO.Target.PctMana() or -1) > 0 and mq.TLO.Group.LowMana(40)() > 2
                 end,
             },
             {

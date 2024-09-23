@@ -1094,42 +1094,41 @@ local _ClassConfig = {
                 name = "Swarm of Fireflies",
                 type = "AA",
                 cond = function(self, aaName, target)
-                    if target.ID() ~= RGMercUtils.GetMainAssistId() then return false end
-                    return RGMercUtils.AAReady(aaName)
+                    return target.ID() == (mq.TLO.Group.MainTank.ID() or 0) and RGMercUtils.AAReady(aaName) and RGMercUtils.GroupBuffCheck(mq.TLO.AltAbility(aaName).Spell, target)
                 end,
             },
             {
                 name = "GroupDmgShield",
                 type = "Spell",
                 active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
-                cond = function(self, spell, target) return RGMercUtils.GroupBuffCheck(spell, target) end,
+                cond = function(self, spell, target)
+                    return RGMercUtils.GroupBuffCheck(spell, target)
+                end,
             },
-            -- {
-            -- name = "MoveSpells",
-            -- type = "Spell",
-            -- active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
-            -- cond = function(self, spell, target)
-            -- return RGMercUtils.GetSetting("DoRunSpeed") and RGMercUtils.GroupBuffCheck(spell, target)
-            -- end,
-            -- },
+            {
+                name = "MoveSpells",
+                type = "Spell",
+                active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
+                cond = function(self, spell, target)
+                    return RGMercUtils.GetSetting("DoRunSpeed") and RGMercUtils.GroupBuffCheck(spell, target)
+                end,
+            },
             {
                 name = "AtkBuff",
                 type = "Spell",
                 active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
                 cond = function(self, spell, target)
-                    if not RGMercConfig.Constants.RGMelee:contains(target.Class.ShortName()) then return false end
-                    return RGMercUtils.GroupBuffCheck(spell, target)
+                    return RGMercConfig.Constants.RGMelee:contains(target.Class.ShortName()) and RGMercUtils.GroupBuffCheck(spell, target)
                 end,
             },
-            -- {
-            -- name = "TempHPBuff",
-            -- type = "Spell",
-            -- active_cond = function(self, spell) return true end,
-            -- cond = function(self, spell, target)
-            --if not RGMercConfig.Constants.RGTank:contains(target.Class.ShortName()) then return false end
-            -- return RGMercUtils.GroupBuffCheck(spell, target)
-            -- end,
-            -- },
+            {
+                name = "TempHPBuff",
+                type = "Spell",
+                active_cond = function(self, spell) return true end,
+                cond = function(self, spell, target)
+                    return RGMercUtils.TargetClassIs("WAR", target) and RGMercUtils.GroupBuffCheck(spell, target) --PAL/SHD have their own temp hp buff
+                end,
+            },
             {
                 name = "HPTypeOneGroup",
                 type = "Spell",
@@ -1138,15 +1137,14 @@ local _ClassConfig = {
                     return RGMercUtils.GroupBuffCheck(spell, target)
                 end,
             },
-            -- {
-            -- name = "ReptileCombatInnate",
-            -- type = "Spell",
-            -- active_cond = function(self, spell) return true end,
-            -- cond = function(self, spell, target)
-            --if not Set.new({ "SHD", "WAR", }):contains(target.Class.ShortName()) then return false end
-            -- return RGMercUtils.GroupBuffCheck(spell, target)
-            -- end,
-            -- },
+            {
+                name = "ReptileCombatInnate",
+                type = "Spell",
+                active_cond = function(self, spell) return true end,
+                cond = function(self, spell, target)
+                    return RGMercUtils.TargetClassIs({ "WAR", "SHD", }, target) and RGMercUtils.GroupBuffCheck(spell, target) --does not stack with PAL innate buff
+                end,
+            },
             {
                 name = "GroupRegenBuff",
                 type = "Spell",
@@ -1160,8 +1158,7 @@ local _ClassConfig = {
                 type = "AA",
                 active_cond = function(self, aaName) return true end,
                 cond = function(self, aaName, target)
-                    return not RGMercUtils.TargetHasBuff(mq.TLO.Me.AltAbility(aaName).Spell) and
-                        target.ID() == RGMercUtils.GetMainAssistId()
+                    return target.ID() == RGMercUtils.GetMainAssistId() and RGMercUtils.GroupBuffCheck(mq.TLO.Me.AltAbility(aaName).Spell, target)
                 end,
             },
         },
