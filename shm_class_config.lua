@@ -1125,7 +1125,7 @@ local _ClassConfig = {
                 type = "AA",
                 cond = function(self, aaName, target)
                     if not RGMercUtils.GetSetting('DoAEMalo') then return false end
-                    return RGMercUtils.GetXTHaterCount() < RGMercUtils.GetSetting('AEMaloCount') and RGMercUtils.NPCAAReady(aaName, target.ID()) and
+                    return RGMercUtils.GetXTHaterCount() >= RGMercUtils.GetSetting('AEMaloCount') and RGMercUtils.NPCAAReady(aaName, target.ID()) and
                         RGMercUtils.DetAACheck(mq.TLO.Me.AltAbility(aaName).ID())
                 end,
             },
@@ -1134,7 +1134,7 @@ local _ClassConfig = {
                 type = "Spell",
                 cond = function(self, spell, target)
                     if not RGMercUtils.GetSetting('DoAEMalo') or RGMercUtils.CanUseAA("Wind of Malaise") then return false end
-                    return RGMercUtils.GetXTHaterCount() < RGMercUtils.GetSetting('AEMaloCount') and RGMercUtils.NPCSpellReady(spell, target.ID()) and
+                    return RGMercUtils.GetXTHaterCount() >= RGMercUtils.GetSetting('AEMaloCount') and RGMercUtils.NPCSpellReady(spell, target.ID()) and
                         RGMercUtils.DetSpellCheck(spell)
                 end,
             },
@@ -1161,7 +1161,7 @@ local _ClassConfig = {
                 type = "AA",
                 cond = function(self, aaName, target)
                     if not RGMercUtils.GetSetting('DoAESlow') then return false end
-                    return RGMercUtils.GetXTHaterCount() < RGMercUtils.GetSetting('AESlowCount') and RGMercUtils.NPCAAReady(aaName, target.ID()) and
+                    return RGMercUtils.GetXTHaterCount() >= RGMercUtils.GetSetting('AESlowCount') and RGMercUtils.NPCAAReady(aaName, target.ID()) and
                         RGMercUtils.DetAACheck(mq.TLO.Me.AltAbility(aaName).ID())
                 end,
             },
@@ -1170,7 +1170,7 @@ local _ClassConfig = {
                 type = "Spell",
                 cond = function(self, spell, target)
                     if not RGMercUtils.GetSetting('DoAESlow') or RGMercUtils.CanUseAA("Turgur's Virulent Swarm") then return false end
-                    return RGMercUtils.GetXTHaterCount() < RGMercUtils.GetSetting('AESlowCount') and RGMercUtils.NPCSpellReady(spell, target.ID()) and
+                    return RGMercUtils.GetXTHaterCount() >= RGMercUtils.GetSetting('AESlowCount') and RGMercUtils.NPCSpellReady(spell, target.ID()) and
                         RGMercUtils.DetSpellCheck(spell)
                 end,
             },
@@ -1269,7 +1269,7 @@ local _ClassConfig = {
                 type = "AA",
                 cond = function(self, aaName)
                     if not (RGMercUtils.GetSetting('DoAACanni') and RGMercUtils.GetSetting('DoCombatCanni')) then return false end
-                    return RGMercUtils.AAReady(aaName) and mq.TLO.Me.PctMana() < RGMercUtils.GetSetting('AACanniPct') and
+                    return RGMercUtils.AAReady(aaName) and mq.TLO.Me.PctMana() < RGMercUtils.GetSetting('AACanniManaPct') and
                         mq.TLO.Me.PctHPs() >= RGMercUtils.GetSetting('AACanniMinHP')
                 end,
             },
