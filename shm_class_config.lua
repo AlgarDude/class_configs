@@ -582,6 +582,16 @@ local _ClassConfig = {
             "Affliction",
             "Sicken",
         },
+        ["AfflictionDot"] = {
+            ---, Stacking: Yubai's Affliction - Long Dot(96s) - Level 9+, used on named only for hybrid
+            "Krizad's Affliction",
+            "Brightfeld's Affliction",
+            "Svartmane's Affliction",
+            "Rirwech's Affliction",
+            "Livio's Affliction",
+            "Falhotep's Affliction",
+            "Yubai's Affliction",
+        },
         ["NectarDot"] = { --almost never worth casting in a group, not currently gemmed.
             --- Nectar Dot Line
             "Nectar of Obscurity",
@@ -1199,7 +1209,8 @@ local _ClassConfig = {
                 type = "Spell",
                 cond = function(self, spell, target)
                     if RGMercUtils.IsModeActive("Heal") and not RGMercUtils.GetSetting('DoHealDPS') then return false end
-                    return RGMercUtils.DotSpellCheck(spell) and (RGMercUtils.DotManaCheck() or RGMercUtils.BurnCheck()) and RGMercUtils.NPCSpellReady(spell)
+                    return RGMercUtils.CastReady(spell.RankName) and RGMercUtils.DotSpellCheck(spell) and (RGMercUtils.DotManaCheck() or RGMercUtils.BurnCheck()) and
+                        RGMercUtils.NPCSpellReady(spell)
                 end,
             },
             {
@@ -1288,8 +1299,8 @@ local _ClassConfig = {
                 name = "PoisonNuke",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    if RGMercUtils.GetResolvedActionMapItem('FastPoisonNuke') then return false end
-                    return (RGMercUtils.ManaCheck() or RGMercUtils.BurnCheck()) and RGMercUtils.NPCSpellReady(spell)
+                    if RGMercUtils.IsModeActive("Heal") and RGMercUtils.GetResolvedActionMapItem('FastPoisonNuke') then return false end
+                    return not RGMercUtils.DotSpellCheck(spell) and (RGMercUtils.ManaCheck() or RGMercUtils.BurnCheck()) and RGMercUtils.NPCSpellReady(spell)
                 end,
             },
             {
@@ -1297,7 +1308,7 @@ local _ClassConfig = {
                 type = "Spell",
                 cond = function(self, spell, target)
                     if RGMercUtils.GetResolvedActionMapItem('PoisonNuke') then return false end
-                    return (RGMercUtils.ManaCheck() or RGMercUtils.BurnCheck()) and RGMercUtils.NPCSpellReady(spell)
+                    return not RGMercUtils.DotSpellCheck(spell) and (RGMercUtils.ManaCheck() or RGMercUtils.BurnCheck()) and RGMercUtils.NPCSpellReady(spell)
                 end,
             },
         },
@@ -1384,8 +1395,7 @@ local _ClassConfig = {
                 type = "AA",
                 active_cond = function(self, aaName) return mq.TLO.Me.Aura(aaName)() ~= nil end,
                 cond = function(self, aaName)
-                    return RGMercUtils.GetSetting('DoAura') and not RGMercUtils.SongActiveByName(aaName) and
-                        mq.TLO.Me.Aura(aaName)() == nil
+                    return not RGMercUtils.SongActiveByName(aaName) and mq.TLO.Me.Aura(aaName)() == nil
                 end,
             },
             {
@@ -1630,11 +1640,11 @@ local _ClassConfig = {
             spells = {
                 { name = "GroupRenewalHoT", cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },                                                   -- 44-125 Heal
                 { name = "SingleRegenBuff", cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },                                                   -- 22-55 Convenience
+                { name = "AfflictionDot",   cond = function(self) return RGMercUtils.IsModeActive("Hybrid") end, },                                                 -- 92-125 Hybrid (Boss Only)
+                { name = "UltorDot",        cond = function(self) return RGMercUtils.IsModeActive("Hybrid") and mq.TLO.Me.Level() < 92 end, },                      -- 4-91 Hybrid (Boss Only)
                 { name = "FastPoisonNuke",  cond = function(self) return not (RGMercUtils.IsModeActive("Heal") and not RGMercUtils.GetSetting('DoHealDPS')) end, }, -- 73-125
                 { name = "CurseDoT1",       cond = function(self) return not (RGMercUtils.IsModeActive("Heal") and not RGMercUtils.GetSetting('DoHealDPS')) end, }, -- 34-??? Heal, 34-125 Hybrid
                 { name = "SaryrnDot",       cond = function(self) return not (RGMercUtils.IsModeActive("Heal") and not RGMercUtils.GetSetting('DoHealDPS')) end, }, -- 8-?? Heal, 8-125 Hybrid
-                { name = "AfflictionDot",   cond = function(self) return RGMercUtils.IsModeActive("Hybrid") end, },                                                 -- 92-125 Hybrid (Boss Only)
-                { name = "UltorDot",        cond = function(self) return RGMercUtils.IsModeActive("Hybrid") and mq.TLO.Me.Level() < 92 end, },                      -- 4-91 Hybrid (Boss Only)
             },
         },
         { --We will leave this gem open for buffing until we have 9
@@ -1642,7 +1652,7 @@ local _ClassConfig = {
             cond = function(self) return mq.TLO.Me.NumGems() >= 9 end,
             spells = {
                 --Harnessing of Spirit won't be full-time memmed, but will still be used as needed.
-                { name = "LowLvlAtkBuff", },                                                                                                                          -- 60-85
+                { name = "LowLvlAtkBuff",     cond = function(self) return mq.TLO.Me.Level() < 86 end, },                                                             -- 60-85
                 { name = "TwinHealNuke",      cond = function(self) return RGMercUtils.IsModeActive("Heal") and RGMercUtils.GetSetting('DoTwinHeal') end, },          -- 85-125
                 { name = "FastPoisonNuke",    cond = function(self) return not (RGMercUtils.IsModeActive("Heal") and not RGMercUtils.GetSetting('DoHealDPS')) end, }, -- 73-125
                 { name = "GrowthBuff",        cond = function(self) return RGMercUtils.GetSetting('DoGrowth') end, },                                                 -- 81-125
@@ -1727,14 +1737,15 @@ local _ClassConfig = {
                 { name = "SlowProcBuff", },
             },
         },
-        { --105, we will allow this gem to be filled for the convenience of buffing at the risk of having it overwritten due to a pause, etc.
+        { --105, we will allow this gem to be filled for the convenience of buffing (or an extra nuke) at the risk of having it overwritten due to a pause, etc.
             gem = 13,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
                 { name = "GrowthBuff",        cond = function(self) return RGMercUtils.GetSetting('DoGrowth') end, }, -- 81-125
                 { name = "CureSpell",         cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },   -- 52-125 Heal
                 { name = "GroupHealProcBuff", cond = function(self) return RGMercUtils.IsModeActive("Heal") end, },   -- 101-125
-                { name = "SlowProcBuff", },
+                { name = "PoisonNuke",        cond = function(self) return RGMercUtils.IsModeActive("Hybrid") end, }, -- Hey, why not?
+                { name = "SlowProcBuff", },                                                                           --fallback
 
             },
         },
@@ -1768,32 +1779,29 @@ local _ClassConfig = {
     ['DefaultConfig']     = {
         ['Mode']              = { DisplayName = "Mode", Category = "Combat", Tooltip = "Select the Combat Mode for this Toon", Type = "Custom", RequiresLoadoutChange = true, Default = 2, Min = 1, Max = 2, },
         ['DoTwinHeal']        = { DisplayName = "Cast Twin Heal Nuke", Category = "Spells and Abilities", Tooltip = "Use Twin Heal Nuke Spells", RequiresLoadoutChange = true, Default = true, },
-        ['DoNuke']            = { DisplayName = "Cast Nukes", Category = "Spells and Abilities", Tooltip = "Use Nuke Spells", Default = true, },
-        ['DoHOT']             = { DisplayName = "Cast HOTs", Category = "Spells and Abilities", Tooltip = "Use Heal Over Time Spells", Default = true, },
+        ['DoHealDPS']         = { DisplayName = "Use HealDPS", Category = "Spells and Abilities", Tooltip = "Use DoTs and Nukes in Heal Mode.", RequiresLoadoutChange = true, Default = true, },
+        ['DoHOT']             = { DisplayName = "Cast HOTs", Category = "Spells and Abilities", Tooltip = "Use Heal Over Time Spells", RequiresLoadoutChange = true, Default = true, },
         -- Removing this as it is too confusing to explain when it would  be used.
         -- ['RecklessHealPct']   = { DisplayName = "Reckless Heal %", Category = "Spells and Abilities", Tooltip = "Use Reckless Heal When Assist hits [X]% HPs", Default = 80, Min = 1, Max = 100, },
         ['DoDiseaseSlow']     = { DisplayName = "Cast Disease Slows", Category = "Spells and Abilities", Tooltip = "Use Disease Slow Spells", Default = false, },
-        ['DoMagicDot']        = { DisplayName = "Cast Magic DOT", Category = "Spells and Abilities", Tooltip = "Use Magic DOTs", Default = true, },
         ['DoAACanni']         = { DisplayName = "Use AA Canni", Category = "Spells and Abilities", Tooltip = "Use Canni AA during downtime", Default = true, },
         ['AACanniManaPct']    = { DisplayName = "AA Canni Mana %", Category = "Spells and Abilities", Tooltip = "Use Canni AA Under [X]% mana", Default = 70, Min = 1, Max = 100, },
         ['AACanniMinHP']      = { DisplayName = "AA Canni HP %", Category = "Spells and Abilities", Tooltip = "Dont Use Canni AA Under [X]% HP", Default = 70, Min = 1, Max = 100, },
         ['DoSpellCanni']      = { DisplayName = "Use Spell Canni", Category = "Spells and Abilities", Tooltip = "Use Canni Spell during downtime", Default = true, },
+        ['DoCombatCanni']     = { DisplayName = "Combat Canni", Category = "Spells and Abilities", Tooltip = "Use Canni AA/Spells during combat.", Default = true, },
         ['SpellCanniManaPct'] = { DisplayName = "Spell Canni Mana %", Category = "Spells and Abilities", Tooltip = "Use Canni Spell Under [X]% mana", Default = 70, Min = 1, Max = 100, },
         ['SpellCanniMinHP']   = { DisplayName = "Spell Canni HP %", Category = "Spells and Abilities", Tooltip = "Dont Use Canni Spell Under [X]% HP", Default = 70, Min = 1, Max = 100, },
-        ['DoGroupShrink']     = { DisplayName = "Group Shrink", Category = "Buffs", Tooltip = "Use Group Shrink Buff", Default = true, },
-        ['DoGrowth']          = { DisplayName = "Use Growth", Category = "Buffs", Tooltip = "Use Growth Buff", Default = true, },
-        ['DoAura']            = { DisplayName = "Use Aura", Category = "Buffs", Tooltip = "Use Aura (Pact of Wolf)", Default = true, },
+        ['DoGroupShrink']     = { DisplayName = "Group Shrink", Category = "Buffs", Tooltip = "Use Group Shrink Buff", Default = false, },
+        ['DoGrowth']          = { DisplayName = "Temp HP Buff", Category = "Buffs", Tooltip = "Use Temp HP Buff (Only for WAR, other tanks have their own)", Default = false, },
         ['DoHaste']           = { DisplayName = "Use Haste", Category = "Buffs", Tooltip = "Do Haste Spells/AAs", Default = true, },
         ['DoRunSpeed']        = { DisplayName = "Do Run Speed", Category = "Buffs", Tooltip = "Do Run Speed Spells/AAs", Default = true, },
-        ['DoMalo']            = { DisplayName = "Cast Malo", Category = "Debuffs", Tooltip = "Do Malo Spells/AAs", Default = true, },
+        ['DoSTMalo']          = { DisplayName = "Cast ST Malo", Category = "Debuffs", Tooltip = "Do Malo Spells/AAs", Default = true, },
         ['DoAEMalo']          = { DisplayName = "Cast AE Malo", Category = "Debuffs", Tooltip = "Do AE Malo Spells/AAs", Default = false, },
-        ['DoSlow']            = { DisplayName = "Cast Slow", Category = "Debuffs", Tooltip = "Do Slow Spells/AAs", Default = true, },
-        ['DoAESlow']          = { DisplayName = "CastAESlow", Category = "Debuffs", Tooltip = "Do AE Slow Spells/AAs", Default = false, },
-        ['DoAESurge']         = { DisplayName = "CastAESpirituals", Category = "Spells and Abilities", Tooltip = "Do AE Heal", Default = true, },
+        ['DoSTSlow']          = { DisplayName = "Cast ST Slow", Category = "Debuffs", Tooltip = "Do Slow Spells/AAs", Default = true, },
+        ['DoAESlow']          = { DisplayName = "Cast AE Slow", Category = "Debuffs", Tooltip = "Do AE Slow Spells/AAs", Default = false, },
         ['AESlowCount']       = { DisplayName = "AE Slow Count", Category = "Debuffs", Tooltip = "Number of XT Haters before we start AE slowing", Min = 1, Default = 3, Max = 10, },
         ['AEMaloCount']       = { DisplayName = "AE Malo Count", Category = "Debuffs", Tooltip = "Number of XT Haters before we start AE Maloing", Min = 1, Default = 3, Max = 10, },
-        ['DoStatBuff']        = { DisplayName = "Do Stat Buff", Category = "Buffs", Tooltip = "Do Stat Buffs for Group", Default = true, },
-        ['DoHealDPS']         = { DisplayName = "Use HealDPS", Category = "Spells and Abilities", Tooltip = "Use HealDPS Rotation", Default = false, },
+        --['DoStatBuff']        = { DisplayName = "Do Stat Buff", Category = "Buffs", Tooltip = "Do Stat Buffs for Group", Default = true, },
         ['DoVetAA']           = { DisplayName = "Use Vet AA", Category = "Buffs/Debuffs", Index = 5, Tooltip = "Use Veteran AA's in emergencies or during Burn.", Default = true, },
     },
 }
