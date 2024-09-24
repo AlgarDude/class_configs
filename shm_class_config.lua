@@ -1398,7 +1398,22 @@ local _ClassConfig = {
                 type = "AA",
                 active_cond = function(self, aaName) return mq.TLO.Me.Aura(aaName)() ~= nil end,
                 cond = function(self, aaName)
-                    return not RGMercUtils.SongActiveByName(aaName) and mq.TLO.Me.Aura(aaName)() == nil
+                    return not RGMercUtils.OnEMU() and RGMercUtils.GetSetting('DoAura') and not RGMercUtils.SongActiveByName(aaName) and
+                        mq.TLO.Me.Aura(aaName)() == nil
+                end,
+            },
+            {
+                -- this is emu only and lands only on your group but not yourself
+                name = "Pact of the Wolf - Emu",
+                type = "CustomFunc",
+                active_cond = function(self) return mq.TLO.Me.Aura("Pact of the Wolf Effect")() ~= nil end,
+                custom_func = function(self)
+                    if not RGMercUtils.OnEMU() then return false end
+                    if not RGMercUtils.GetSetting('DoAura') or mq.TLO.Me.Aura("Pact of the Wolf Effect")() ~= nil then return false end
+                    RGMercUtils.UseAA("Pact of the Wolf", mq.TLO.Me.ID())
+                    mq.delay(500, function() return RGMercUtils.AAReady('Group Pact of the Wolf') end)
+                    RGMercUtils.UseAA("Group Pact of the Wolf", mq.TLO.Me.ID())
+                    return true
                 end,
             },
             {
@@ -1452,8 +1467,8 @@ local _ClassConfig = {
             {
                 name = "Group Shrink",
                 type = "AA",
-                active_cond = function(self, _) return mq.TLO.Me.Height() < 2 end,
-                cond = function(self, _) return RGMercUtils.GetSetting('DoGroupShrink') and mq.TLO.Me.Height() > 2.2 end,
+                active_cond = function(self) return mq.TLO.Me.Height() < 2 end,
+                cond = function(self) return RGMercUtils.GetSetting('DoGroupShrink') and mq.TLO.Me.Height() > 2.2 end,
             },
             {
                 name = "SlowProcBuff",
@@ -1780,32 +1795,169 @@ local _ClassConfig = {
         },
     },
     ['DefaultConfig']     = {
-        ['Mode']              = { DisplayName = "Mode", Category = "Combat", Tooltip = "Select the Combat Mode for this Toon", Type = "Custom", RequiresLoadoutChange = true, Default = 2, Min = 1, Max = 2, },
-        ['DoTwinHeal']        = { DisplayName = "Cast Twin Heal Nuke", Category = "Spells and Abilities", Tooltip = "Use Twin Heal Nuke Spells", RequiresLoadoutChange = true, Default = true, },
-        ['DoHealDPS']         = { DisplayName = "Use HealDPS", Category = "Spells and Abilities", Tooltip = "Use DoTs and Nukes in Heal Mode.", RequiresLoadoutChange = true, Default = true, },
-        ['DoHOT']             = { DisplayName = "Cast HOTs", Category = "Spells and Abilities", Tooltip = "Use Heal Over Time Spells", RequiresLoadoutChange = true, Default = true, },
-        -- Removing this as it is too confusing to explain when it would  be used.
-        -- ['RecklessHealPct']   = { DisplayName = "Reckless Heal %", Category = "Spells and Abilities", Tooltip = "Use Reckless Heal When Assist hits [X]% HPs", Default = 80, Min = 1, Max = 100, },
-        ['DoDiseaseSlow']     = { DisplayName = "Cast Disease Slows", Category = "Spells and Abilities", Tooltip = "Use Disease Slow Spells", Default = false, },
-        ['DoAACanni']         = { DisplayName = "Use AA Canni", Category = "Spells and Abilities", Tooltip = "Use Canni AA during downtime", Default = true, },
-        ['AACanniManaPct']    = { DisplayName = "AA Canni Mana %", Category = "Spells and Abilities", Tooltip = "Use Canni AA Under [X]% mana", Default = 70, Min = 1, Max = 100, },
-        ['AACanniMinHP']      = { DisplayName = "AA Canni HP %", Category = "Spells and Abilities", Tooltip = "Dont Use Canni AA Under [X]% HP", Default = 70, Min = 1, Max = 100, },
-        ['DoSpellCanni']      = { DisplayName = "Use Spell Canni", Category = "Spells and Abilities", Tooltip = "Use Canni Spell during downtime", Default = true, },
-        ['DoCombatCanni']     = { DisplayName = "Combat Canni", Category = "Spells and Abilities", Tooltip = "Use Canni AA/Spells during combat.", Default = true, },
-        ['SpellCanniManaPct'] = { DisplayName = "Spell Canni Mana %", Category = "Spells and Abilities", Tooltip = "Use Canni Spell Under [X]% mana", Default = 70, Min = 1, Max = 100, },
-        ['SpellCanniMinHP']   = { DisplayName = "Spell Canni HP %", Category = "Spells and Abilities", Tooltip = "Dont Use Canni Spell Under [X]% HP", Default = 70, Min = 1, Max = 100, },
-        ['DoGroupShrink']     = { DisplayName = "Group Shrink", Category = "Buffs", Tooltip = "Use Group Shrink Buff", Default = false, },
-        ['DoTempHP']          = { DisplayName = "Temp HP Buff", Category = "Buffs", Tooltip = "Use Temp HP Buff (Only for WAR, other tanks have their own)", Default = false, },
-        ['DoHaste']           = { DisplayName = "Use Haste", Category = "Buffs", Tooltip = "Do Haste Spells/AAs", Default = true, },
-        ['DoRunSpeed']        = { DisplayName = "Do Run Speed", Category = "Buffs", Tooltip = "Do Run Speed Spells/AAs", Default = true, },
-        ['DoSTMalo']          = { DisplayName = "Cast ST Malo", Category = "Debuffs", Tooltip = "Do Malo Spells/AAs", Default = true, },
-        ['DoAEMalo']          = { DisplayName = "Cast AE Malo", Category = "Debuffs", Tooltip = "Do AE Malo Spells/AAs", Default = false, },
-        ['DoSTSlow']          = { DisplayName = "Cast ST Slow", Category = "Debuffs", Tooltip = "Do Slow Spells/AAs", Default = true, },
-        ['DoAESlow']          = { DisplayName = "Cast AE Slow", Category = "Debuffs", Tooltip = "Do AE Slow Spells/AAs", Default = false, },
-        ['AESlowCount']       = { DisplayName = "AE Slow Count", Category = "Debuffs", Tooltip = "Number of XT Haters before we start AE slowing", Min = 1, Default = 3, Max = 10, },
-        ['AEMaloCount']       = { DisplayName = "AE Malo Count", Category = "Debuffs", Tooltip = "Number of XT Haters before we start AE Maloing", Min = 1, Default = 3, Max = 10, },
+        ['Mode']              = {
+            DisplayName = "Mode",
+            Category = "Combat",
+            Tooltip = "Select the Combat Mode for this Toon",
+            Type = "Custom",
+            RequiresLoadoutChange = true,
+            Default = 2,
+            Min = 1,
+            Max = 2,
+            FAQ = "What do the different Modes do?",
+            Answer =
+            "Heal Mode: Primarily focuses on healing, cures, and maintaining HoTs. Secondary DPS focus with remaining spell gems. Hybrid: Prioritizes slightly more DPS at the expense of keeping a HoT, Cure Spell and second Reckless heal memorized.",
+        },
+        ['DoTwinHeal']        = {
+            DisplayName = "Twin Heal Nuke",
+            Category = "Spells and Abilities",
+            Tooltip = "Heal Mode: Use Twin Heal Nuke Spells",
+            RequiresLoadoutChange = true,
+            Default = true,
+            FAQ = "Why am I using the Twin Heal Nuke?",
+            Answer =
+            "Due to the nature of automation, we are likely to have the time to do so, and it helps hedge our bets against spike damage. Drivers that manually target switch may wish to disable this setting to allow for more cross-dotting. ",
+        },
+        ['DoHealDPS']         = {
+            DisplayName = "Heal DPS",
+            Category = "Spells and Abilities",
+            Tooltip = "Heal Mode: Use DoTs and Nukes",
+            Default = true,
+            FAQ = "I feel that my Shaman is too concerned with DPS, dots and nukes, what can be done?",
+            Answer = "Disabling Use HealDPS will stop the use of these spells and may add extra buffs or heals to their gems.",
+        },
+        ['DoHOT']             = {
+            DisplayName = "Use HoTs",
+            Category = "Spells and Abilities",
+            Tooltip = "Heal Mode: Use Heal Over Time Spells",
+            Default = true,
+            FAQ = "Why does my Shaman randomly use HoTs in downtime?",
+            Answer = "Maintaining HoTs prevents emergencies and hopefully allows for better DPS. It also grants Synergy Procs at high level.",
+        },
+        ['DoDiseaseSlow']     = {
+            DisplayName = "Disease Slow",
+            Category = "Spells and Abilities",
+            Tooltip = "Use Disease Slow instead of normal ST Slow",
+            Default = false,
+            FAQ = "What is a Disease Slow?",
+            Answer =
+            "During early eras of play, a slow that checked against disease resist was added to slow magic-resistant mobs. If selected, this will be used instead of a magic-based slow until the Turgur's AA becomes available.",
+        },
+        ['DoAACanni']         = {
+            DisplayName = "Use AA Canni",
+            Category = "Spells and Abilities",
+            Tooltip = "Use Canni AA",
+            Default = true,
+            FAQ = "Why am I not using the Canni AA?",
+            Answer = "Check your HP/Mana percent settings, and, for combat, ensure you have selected the combat option as well.",
+        },
+        ['AACanniManaPct']    = {
+            DisplayName = "AA Canni Mana %",
+            Category = "Spells and Abilities",
+            Tooltip = "Use Canni AA Under [X]% mana",
+            Default = 70,
+            Min = 1,
+            Max = 100,
+            FAQ = "Can you explain Canni Mana Settings?",
+            Answer = "Setting the Mana % setting will use that form of Canni when you are below that mana percent.",
+        },
+        ['AACanniMinHP']      = {
+            DisplayName = "AA Canni HP %",
+            Category = "Spells and Abilities",
+            Tooltip = "Dont Use Canni AA Under [X]% HP",
+            Default = 90,
+            Min = 1,
+            Max = 100,
+            FAQ = "Can you explain Canni HP Settings?",
+            Answer = "Setting the HP % setting will stop you from using the form of Canni if you are below that HP percent.",
+        },
+        ['DoSpellCanni']      = {
+            DisplayName = "Use Spell Canni",
+            Category = "Spells and Abilities",
+            Tooltip = "Mem and use Canni Spells",
+            Default = true,
+            FAQ = "Why am I still using a Canni spell, now that I have the AA?",
+            Answer =
+            "By default, the Canni spell will be used while the gems are still available to do so, as Canni AA may not be enough at earlier levels. Use Spell Canni can be turned off at any time.",
+        },
+        ['SpellCanniManaPct'] = {
+            DisplayName = "Spell Canni Mana %",
+            Category = "Spells and Abilities",
+            Tooltip = "Use Canni Spell Under [X]% mana",
+            Default = 70,
+            Min = 1,
+            Max = 100,
+            FAQ = "Why do I wait so long to use my canni spell?",
+            Answer = "Your Spell Canni Mana % governs how low you mana gets before you start using the spell.",
+        },
+        ['SpellCanniMinHP']   = {
+            DisplayName = "Spell Canni HP %",
+            Category = "Spells and Abilities",
+            Tooltip = "Dont Use Canni Spell Under [X]% HP",
+            Default = 85,
+            Min = 1,
+            Max = 100,
+            FAQ = "Why are Canni HP % settings so high?",
+            Answer = "Default thresholds are conservative to prevent knee-jerk healing and can configured as needed.",
+        },
+        ['DoCombatCanni']     = {
+            DisplayName = "Canni in Combat",
+            Category = "Spells and Abilities",
+            Tooltip = "Use Canni AA and Spells in combat",
+            Default = true,
+            FAQ = "My shaman spends his time in combat doing canni while I prefer him to do xyz other thing, what gives?",
+            Answer =
+            "Canni in Combat can be disabled at your discretion; you could also tune HP or Mana settings for Canni Spell or AA.",
+        },
+        ['DoGroupShrink']     = {
+            DisplayName = "Group Shrink",
+            Category = "Buffs",
+            Tooltip = "Use Group Shrink Buff",
+            Default = true,
+            FAQ = "Group Shrink is enabled, why are my dudes still big?",
+            Answer =
+            "For simplicity, the check to use it is keyed to the Shaman's height, rather than checking each group member. Also, the AA isn't available until level 80 (on official servers).",
+        },
+        ['DoTempHP']          = {
+            DisplayName = "Temp HP Buff",
+            Category = "Buffs",
+            Tooltip = "Use Temp HP Buff on Warriors in the group.",
+            Default = true,
+            FAQ = "Why is the Temp HP Buff only used on Warriors?",
+            Answer = "Mana costs and recast time make this buff only feasible on a Tank; PAL and SHD have their own buff and they don't stack with this one.",
+        },
+        ['DoAura']            = {
+            DisplayName = "Use Aura",
+            Category = "Buffs",
+            Tooltip = "Use Aura (Pact of Wolf)",
+            Default = true,
+            FAQ = "How do I stop my Aura from turning everything into a Werewolf?",
+            Answer = "You can use /blockspell to safely block the illusion without blocking the buff, instructions on its use are given when typed in-game.",
+        },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        ['DoHaste']     = { DisplayName = "Use Haste", Category = "Buffs", Tooltip = "Do Haste Spells/AAs", Default = true, },
+        ['DoRunSpeed']  = { DisplayName = "Do Run Speed", Category = "Buffs", Tooltip = "Do Run Speed Spells/AAs", Default = true, },
+        ['DoSTMalo']    = { DisplayName = "Cast ST Malo", Category = "Debuffs", Tooltip = "Do Malo Spells/AAs", Default = true, },
+        ['DoAEMalo']    = { DisplayName = "Cast AE Malo", Category = "Debuffs", Tooltip = "Do AE Malo Spells/AAs", Default = false, },
+        ['DoSTSlow']    = { DisplayName = "Cast ST Slow", Category = "Debuffs", Tooltip = "Do Slow Spells/AAs", Default = true, },
+        ['DoAESlow']    = { DisplayName = "Cast AE Slow", Category = "Debuffs", Tooltip = "Do AE Slow Spells/AAs", Default = false, },
+        ['AESlowCount'] = { DisplayName = "AE Slow Count", Category = "Debuffs", Tooltip = "Number of XT Haters before we start AE slowing", Min = 1, Default = 3, Max = 10, },
+        ['AEMaloCount'] = { DisplayName = "AE Malo Count", Category = "Debuffs", Tooltip = "Number of XT Haters before we start AE Maloing", Min = 1, Default = 3, Max = 10, },
         --['DoStatBuff']        = { DisplayName = "Do Stat Buff", Category = "Buffs", Tooltip = "Do Stat Buffs for Group", Default = true, },
-        ['DoVetAA']           = { DisplayName = "Use Vet AA", Category = "Buffs/Debuffs", Index = 5, Tooltip = "Use Veteran AA's in emergencies or during Burn.", Default = true, },
+        ['DoVetAA']     = { DisplayName = "Use Vet AA", Category = "Buffs/Debuffs", Index = 5, Tooltip = "Use Veteran AA's in emergencies or during Burn.", Default = true, },
     },
 }
 
