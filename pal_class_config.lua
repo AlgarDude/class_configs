@@ -72,6 +72,7 @@ local Tooltips     = {
     Slam                = "Use Slam Ability",
 }
 
+--This needs to be rebased and modernized to match SK improvements again. Still works well. Algar -9/24/24
 local _ClassConfig = {
     _version              = "1.1",
     _author               = "Algar (based on AlgarSK based on 1.0 Derple)",
@@ -761,7 +762,7 @@ local _ClassConfig = {
         castDPU = function(self)
             if not mq.TLO.Me.AltAbility("Divine Protector's Unity")() then return false end
             local furyProcLevel = self:GetResolvedActionMapItem('FuryProc') and self:GetResolvedActionMapItem('FuryProc').Level() or 0
-            local DPULevel = mq.TLO.Spell(mq.TLO.Me.AltAbility("Divine Protector's Unity").Spell.Trigger(1).BaseName()).Level() or 0
+            local DPULevel = mq.TLO.Me.AltAbility("Divine Protector's Unity").Spell.Trigger(1).Level() or 0
 
             return furyProcLevel <= DPULevel
         end,
