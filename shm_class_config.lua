@@ -827,7 +827,7 @@ local _ClassConfig = {
             {
                 name = "Ancestral Guard",
                 type = "AA",
-                cond = function(self, aaName)
+                cond = function(self, aaName, target)
                     return (target.ID() or 0) == mq.TLO.Me.ID() and RGMercUtils.PCAAReady(aaName)
                 end,
             },
