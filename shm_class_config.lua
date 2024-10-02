@@ -2023,7 +2023,7 @@ local _ClassConfig = {
             Max = 10,
             ConfigType = "Advanced",
             FAQ = "We are fighting more than one mob, why am I not using my AE Slow?",
-            Answer = "AE Slow Count govers the minimum number of targets before the AE Slow is used.",
+            Answer = "AE Slow Count governs the minimum number of targets before the AE Slow is used.",
         },
         ['AEMaloCount']       = {
             DisplayName = "AE Malo Count",
@@ -2035,7 +2035,7 @@ local _ClassConfig = {
             Max = 10,
             ConfigType = "Advanced",
             FAQ = "We are fighting more than one mob, why am I not using my AE Malo?",
-            Answer = "AE Malo Count govers the minimum number of targets before the AE Malo is used.",
+            Answer = "AE Malo Count governs the minimum number of targets before the AE Malo is used.",
         },
         ['DoDiseaseSlow']     = {
             DisplayName = "Disease Slow",

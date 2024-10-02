@@ -1133,6 +1133,7 @@ local _ClassConfig = {
                 type = "Spell",
                 active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.ID()) end,
                 cond = function(self, spell, target)
+                    if not RGMercUtils.GetSetting('DoHPBuff') then return false end
                     return RGMercUtils.GroupBuffCheck(spell, target)
                 end,
             },
@@ -1396,6 +1397,14 @@ local _ClassConfig = {
         ['DoChestClick'] = { DisplayName = "Do Chest Click", Category = "Utilities", Tooltip = "Click your chest item", Default = true, },
         ['DoDot']        = { DisplayName = "Cast DOTs", Category = "Spells and Abilities", Tooltip = "Enable casting Damage Over Time spells.", Default = true, },
         ['DoTwinHeal']   = { DisplayName = "Cast Twin Heal Nuke", Category = "Spells and Abilities", Tooltip = "Use Twin Heal Nuke Spells", RequiresLoadoutChange = true, Default = true, },
+        ['DoHPBuff']     = {
+            DisplayName = "Group HP Buff",
+            Category = "Spells and Abilities",
+            Tooltip = "Use your group HP Buff. Disable as desired to prevent conflicts with CLR or PAL buffs.",
+            Default = true,
+            FAQ = "Why am I in a buff war with my Paladin or Druid? We are constantly overwriting each other's buffs.",
+            Answer = "Disable Group HP Buff to prevent issues with Aego/Symbol lines overwriting. Alternatively, you can adjust the settings for the other class instead.",
+        },
     },
 }
 
