@@ -12,9 +12,8 @@ local mq           = require('mq')
 local RGMercUtils  = require("utils.rgmercs_utils")
 
 local _ClassConfig = {
-    _version            = "Jank",
+    _version            = "Experimental - Live lategame group DPS 1.1",
     _author             = "Algar",
-    ['FullConfig']      = true,
     ['Modes']           = {
         'DPS',
     },

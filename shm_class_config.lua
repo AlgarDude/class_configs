@@ -10,7 +10,6 @@ end
 local _ClassConfig = {
     _version              = "1.2 Beta",
     _author               = "Algar, Derple",
-    ['FullConfig']        = true, --REMOVE BEFORE THIS GOES DEFAULT
     ['ModeChecks']        = {
         IsHealing = function() return true end,
         IsCuring = function() return true end,

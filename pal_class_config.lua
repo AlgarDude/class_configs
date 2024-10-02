@@ -74,9 +74,8 @@ local Tooltips     = {
 
 --This needs to be rebased and modernized to match SK improvements again. Still works well. Algar -9/24/24
 local _ClassConfig = {
-    _version              = "1.1",
+    _version              = "Rewrite/form from SK - out of date!",
     _author               = "Algar (based on AlgarSK based on 1.0 Derple)",
-    ['FullConfig']        = true,
     ['ModeChecks']        = {
         IsTanking = function() return RGMercUtils.IsModeActive("Tank") end,
         IsHealing = function() return true end,

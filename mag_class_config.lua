@@ -4,7 +4,6 @@ local RGMercUtils = require("utils.rgmercs_utils")
 _ClassConfig      = {
     _version            = "0.2B Modified",
     _author             = "Algar, Derple, Morisato",
-    ['FullConfig']      = true,
     -- ['ModeChecks']        = {
     --     IsTanking = function() return RGMercUtils.IsModeActive("PetTank") end,
     -- },

@@ -3,9 +3,8 @@ local RGMercUtils  = require("utils.rgmercs_utils")
 local Set          = require('mq.Set')
 
 local _ClassConfig = {
-    _version              = "1.1 Custom",
+    _version              = "Experimental - Heal DPS 1.1",
     _author               = "Algar (based on default by Derple)",
-    ['FullConfig']        = true,
     ['ModeChecks']        = {
         IsHealing = function() return true end,
         IsCuring = function() return RGMercUtils.IsModeActive("Heal") end,

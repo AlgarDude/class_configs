@@ -7,7 +7,7 @@ local mq          = require('mq')
 local RGMercUtils = require("utils.rgmercs_utils")
 
 return {
-    _version         = "Jank",
+    _version         = "Experimental - Modern Era DPS (110+) 1.1",
     _author          = "Algar",
     ['FullConfig']   = true,
     ['Modes']        = {
