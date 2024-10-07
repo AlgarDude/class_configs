@@ -9,6 +9,8 @@ Make no mistake, while I am a regular contributor, none of this is officially en
 To use these: place them in (VV install)\config\rgmercs\class_configs
 
 *** *PLEASE NOTE* *** As of 23 Sep 2024, all of my custom functions have been fully integrated into the main branch and algar_include.lua is no longer required!
+
+
 Other updates: 
 
 NEC is now an experimental config in the main branch.
