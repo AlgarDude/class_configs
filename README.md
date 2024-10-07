@@ -10,12 +10,19 @@ To use these: place them in (VV install)\config\rgmercs\class_configs
 
 *** *PLEASE NOTE* *** As of 23 Sep 2024, all of my custom functions have been fully integrated into the main branch and algar_include.lua is no longer required!
 Other updates: 
+
 NEC is now an experimental config in the main branch.
+
 SHM is now in beta for full integration.
+
 ENC is now fully integrated (as the "Modern Era" mode).
+
 SHD is now fully integrated. 
+
 BST is now fully integrated. 
+
 BRD is now fully integrated.
+
 
 THANK YOU FOR TESTING:
 If I've asked you to help me test a specific config, the below warnings likely don't apply! (Dont be skerd yo)
