@@ -1850,7 +1850,7 @@ local _ClassConfig = {
         },
         ['StartBurstToT']     = {
             DisplayName = "HP % for Burst ToT",
-            Category = "Taps",
+            Category = "Healing",
             Index = 3,
             Tooltip = "ToT HP % before we use Burst heal.",
             Default = 85,
@@ -1873,7 +1873,7 @@ local _ClassConfig = {
         },
         ['StartDicho']        = {
             DisplayName = "HP % for Dicho",
-            Category = "Taps",
+            Category = "Healing",
             Index = 5,
             Tooltip = "Your HP % before we use Dicho.",
             Default = 70,
