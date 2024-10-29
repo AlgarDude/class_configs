@@ -17,7 +17,7 @@ WIZ is now an experiemntal config in the main branch.
 
 NEC is now an experimental config in the main branch.
 
-SHM is now in beta for full integration.
+SHM is now fully integrated. 
 
 ENC is now fully integrated (as the "Modern Era" mode).
 
