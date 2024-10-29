@@ -13,6 +13,8 @@ To use these: place them in (VV install)\config\rgmercs\class_configs
 
 Other updates: 
 
+WIZ is now an experiemntal config in the main branch.
+
 NEC is now an experimental config in the main branch.
 
 SHM is now in beta for full integration.
