@@ -1,70 +1,6 @@
 local mq           = require('mq')
 local RGMercUtils  = require("utils.rgmercs_utils")
 
---todo: add a LOT of tooltips or scrap them entirely. Hopefully the former.
--- local Tooltips     = {
---     Mantle              = "Spell Line: Melee Absorb Proc",
---     Carapace            = "Spell Line: Melee Absorb Proc",
---     CombatEndRegen      = "Discipline Line: Endurance Regen (In-Combat Useable)",
---     EndRegen            = "Discipline Line: Endurance Regen (Out of Combat)",
---     Blade               = "Ability Line: Double 2HS Attack w/ Accuracy Mod",
---     Crimson             = "Disicpline Line: Triple Attack w/ Accuracy Mod",
---     MeleeMit            = "Discipline Line: Absorb Incoming Dmg",
---     Deflection          = "Discipline: Shield Block Chance 100%",
---     LeechCurse          = "Discipline: Melee LifeTap w/ Increase Hit Chance",
---     UnholyAura          = "Discipline: Increase LifeTap Spell Damage",
---     Guardian            = "Discipline: Melee Mitigation w/ Defensive LifeTap & Lowered Melee DMG Output",
---     PetSpell            = "Spell Line: Summons SK Pet",
---     PetHaste            = "Spell Line: Haste Buff for SK Pet",
---     Shroud              = "Spell Line: Add Melee LifeTap Proc",
---     Horror              = "Spell Line: Proc HP Return",
---     Mental              = "Spell Line: Proc Mana Return",
---     Skin                = "Spell Line: Melee Absorb Proc",
---     SelfDS              = "Spell Line: Self Damage Shield",
---     Demeanor            = "Spell Line: Add LifeTap Proc Buff on Killshot",
---     HealBurn            = "Spell Line: Add Hate Proc on Incoming Spell Damage",
---     CloakHP             = "Spell Line: Increase HP and Stacking DS",
---     Covenant            = "Spell Line: Increase Mana Regen + Ultravision / Decrease HP Per Tick",
---     CallAtk             = "Spell Line: Increase Attack / Decrease HP Per Tick",
---     AETaunt             = "Spell Line: PBAE Hate Increase + Taunt",
---     PoisonDot           = "Spell Line: Poison Dot",
---     SpearNuke           = "Spell Line: Instacast Disease Nuke",
---     BondTap             = "Spell Line: LifeTap DOT",
---     DireTap             = "Spell Line: LifeTap",
---     LifeTap             = "Spell Line: LifeTap",
---     BuffTap             = "Spell Line: Dmg + Max HP Buff + Hate Increase",
---     BiteTap             = "Spell Line: LifeTap + ManaTap",
---     ForPower            = "Spell Line: Hate Increase + Hate Increase DOT + AC Buff 'BY THE POWER OF GRAYSKULL, I HAVE THE POWER -- HE-MAN'",
---     Terror              = "Spell Line: Hate Increase + Taunt",
---     TempHP              = "Spell Line: Temporary Hitpoints (Decrease per Tick)",
---     Dicho               = "Spell Line: Hate Increase + LifeTap",
---     Torrent             = "Spell Line: Attack Tap",
---     SnareDOT            = "Spell Line: Snare + HP DOT",
---     Acrimony            = "Spell Increase: Aggrolock + LifeTap DOT + Hate Generation",
---     SpiteStrike         = "Spell Line: LifeTap + Caster 1H Blunt Increase + Target Armor Decrease",
---     ReflexStrike        = "Ability: Triple 2HS Attack + HP Increase",
---     DireDot             = "Spell Line: DOT + AC Decrease + Strength Decrease",
---     AllianceNuke        = "Spell Line: Alliance (Requires Multiple of Same Class) - Increase Spell Damage Taken by Target + Large LifeTap",
---     InfluenceDisc       = "Ability Line: Increase AC + Absorb Damage + Melee Proc (LifeTap + Max HP Increase)",
---     DLUA                = "AA: Cast Highest Level of Scribed Buffs (Shroud, Horror, Drape, Demeanor, Skin, Covenant, CallATK)",
---     DLUB                = "AA: Cast Highest Level of Scribed Buffs (Shroud, Mental, Drape, Demeanor, Skin, Covenant, CallATK)",
---     HarmTouch           = "AA: Harms Target HP",
---     ThoughtLeech        = "AA: Harms Target HP + Harms Target Mana",
---     VisageOfDeath       = "Spell: Increases Melee Hit Dmg + Illusion",
---     LeechTouch          = "AA: LifeTap Touch",
---     Tvyls               = "Spell: Triple 2HS Attack + % Melee Damage Increase on Target",
---     ActivateShield      = "Activate 'Shield' if set in Bandolier",
---     Activate2HS         = "Activate '2HS' if set in Bandolier",
---     ExplosionOfHatred   = "Spell: Targeted AE Hatred Increase",
---     ExplosionOfSpite    = "Spell: Targeted PBAE Hatred Increase",
---     Taunt               = "Ability: Increases Hatred to 100% + 1",
---     EncroachingDarkness = "Ability: Snare + HP DOT",
---     Epic                = 'Item: Casts Epic Weapon Ability',
---     ViciousBiteOfChaos  = "Spell: Duration LifeTap + Mana Return",
---     Bash                = "Use Bash Ability",
---     Slam                = "Use Slam Ability",
--- }
-
 local _ClassConfig = {
     _version              = "1.5 - Experimental",
     _author               = "Algar",
@@ -1027,7 +963,6 @@ local _ClassConfig = {
             {
                 name = "EndRegen",
                 type = "Disc",
-                -- tooltip = Tooltips.EndRegen,
                 cond = function(self, discSpell)
                     return RGMercUtils.PCDiscReady(discSpell) and mq.TLO.Me.Level() < 106 and mq.TLO.Me.PctEndurance() < 15
                 end,
@@ -1036,7 +971,6 @@ local _ClassConfig = {
             {
                 name = "CombatEndRegen",
                 type = "Disc",
-                -- tooltip = Tooltips.CombatEndRegen,
                 cond = function(self, discSpell)
                     return RGMercUtils.PCDiscReady(discSpell) and mq.TLO.Me.Level() > 105 and mq.TLO.Me.PctEndurance() < 15
                 end,
@@ -1044,7 +978,6 @@ local _ClassConfig = {
             {
                 name = "Divine Protector's Unity",
                 type = "AA",
-                -- tooltip = Tooltips.DLUB,
                 active_cond = function(self, aaName) return RGMercUtils.BuffActiveByID(mq.TLO.Me.AltAbility(aaName).Spell.Trigger(1).ID() or 0) end,
                 cond = function(self, aaName)
                     return RGMercUtils.SelfBuffAACheck(aaName)
@@ -1053,7 +986,6 @@ local _ClassConfig = {
             {
                 name = "ArmorSelfBuff",
                 type = "Spell",
-                -- tooltip = Tooltips.Shroud,
                 active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.RankName.ID()) end,
                 cond = function(self, spell)
                     return self.ClassConfig.HelperFunctions.SingleBuffCheck() and RGMercUtils.SelfBuffCheck(spell)
@@ -1062,7 +994,6 @@ local _ClassConfig = {
             {
                 name = "FuryProc",
                 type = "Spell",
-                -- tooltip = Tooltips.Horror,
                 active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.RankName.ID()) end,
                 cond = function(self, spell)
                     return self.ClassConfig.HelperFunctions.SingleBuffCheck() and RGMercUtils.SelfBuffCheck(spell)
@@ -1079,7 +1010,6 @@ local _ClassConfig = {
             {
                 name = "Remorse",
                 type = "Spell",
-                -- tooltip = Tooltips.Demeanor,
                 active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.RankName.ID()) end,
                 cond = function(self, spell)
                     return self.ClassConfig.HelperFunctions.SingleBuffCheck() and RGMercUtils.SelfBuffCheck(spell)
@@ -1088,7 +1018,6 @@ local _ClassConfig = {
             {
                 name = "Piety",
                 type = "Spell",
-                -- tooltip = Tooltips.CloakHP,
                 active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.RankName.ID()) end,
                 cond = function(self, spell)
                     return self.ClassConfig.HelperFunctions.SingleBuffCheck() and RGMercUtils.SelfBuffCheck(spell)
@@ -1108,7 +1037,6 @@ local _ClassConfig = {
             {
                 name = "TempHP",
                 type = "Spell",
-                -- tooltip = Tooltips.TempHP,
                 active_cond = function(self, spell) return RGMercUtils.BuffActiveByID(spell.RankName.ID()) end,
                 cond = function(self, spell)
                     if not RGMercUtils.GetSetting('DoTempHP') then return false end
@@ -1173,7 +1101,6 @@ local _ClassConfig = {
             {
                 name = "Armor of Experience",
                 type = "AA",
-                -- tooltip = Tooltips.ArmorofExperience,
                 cond = function(self, aaName)
                     return RGMercUtils.AAReady(aaName) and mq.TLO.Me.PctHPs() < 25 and RGMercUtils.GetSetting('DoVetAA')
                 end,
@@ -1182,7 +1109,6 @@ local _ClassConfig = {
             {
                 name = "Deflection",
                 type = "Disc",
-                -- tooltip = Tooltips.Deflection,
                 pre_activate = function(self)
                     if RGMercUtils.GetSetting('UseBandolier') then
                         RGMercUtils.SafeCallFunc("Equip Shield", RGMercUtils.BandolierSwap, "Shield")
@@ -1196,7 +1122,6 @@ local _ClassConfig = {
             {
                 name = "Shield Flash",
                 type = "AA",
-                -- tooltip = Tooltips.ShieldFlash,
                 pre_activate = function(self)
                     if RGMercUtils.GetSetting('UseBandolier') then
                         RGMercUtils.SafeCallFunc("Equip Shield", RGMercUtils.BandolierSwap, "Shield")
@@ -1210,7 +1135,6 @@ local _ClassConfig = {
             {
                 name = "Penitent",
                 type = "Disc",
-                -- tooltip = Tooltips.InfluenceDisc,
                 cond = function(self, discSpell)
                     return RGMercUtils.PCDiscReady(discSpell) and not mq.TLO.Me.ActiveDisc.ID() and RGMercUtils.IsTanking()
                 end,
@@ -1241,7 +1165,6 @@ local _ClassConfig = {
             {
                 name = "Mantle",
                 type = "Disc",
-                -- tooltip = Tooltips.Mantle,
                 cond = function(self, discSpell)
                     return RGMercUtils.PCDiscReady(discSpell) and not mq.TLO.Me.ActiveDisc.ID()
                 end,
@@ -1250,7 +1173,6 @@ local _ClassConfig = {
             {
                 name = "Forceful Rejuvenation",
                 type = "AA",
-                -- tooltip = Tooltips.ForcefulRejuv,
                 cond = function(self, aaName)
                     return RGMercUtils.AAReady(aaName)
                 end,
@@ -1261,7 +1183,6 @@ local _ClassConfig = {
             {
                 name = "Ageless Enmity",
                 type = "AA",
-                -- tooltip = Tooltips.AgelessEnmity,
                 cond = function(self, aaName, target)
                     return RGMercUtils.NPCAAReady(aaName, target.ID()) and RGMercUtils.GetTargetPctHPs() < 90 and mq.TLO.Me.PctAggro() < 100
                 end,
@@ -1270,7 +1191,6 @@ local _ClassConfig = {
             {
                 name = "Affirmation",
                 type = "Disc",
-                -- tooltip = Tooltips.Acrimony,
                 cond = function(self, discSpell)
                     return RGMercUtils.NPCDiscReady(discSpell) and RGMercUtils.IsNamed(mq.TLO.Target)
                 end,
@@ -1278,7 +1198,6 @@ local _ClassConfig = {
             {
                 name = "Heroic Leap",
                 type = "AA",
-                -- tooltip = Tooltips.ExplosionOfHatred,
                 cond = function(self, aaName, target)
                     if not RGMercUtils.GetSetting('AETauntAA') then return false end
                     return RGMercUtils.NPCAAReady(aaName, target.ID()) and self.ClassConfig.HelperFunctions.AETauntCheck(true)
@@ -1287,7 +1206,6 @@ local _ClassConfig = {
             {
                 name = "Beacon of the Righteous",
                 type = "AA",
-                -- tooltip = Tooltips.ExplosionOfSpite,
                 cond = function(self, aaName)
                     if not RGMercUtils.GetSetting('AETauntAA') then return false end
                     return RGMercUtils.AAReady(aaName) and self.ClassConfig.HelperFunctions.AETauntCheck(true)
@@ -1296,7 +1214,6 @@ local _ClassConfig = {
             {
                 name = "Hallowed Lodestar",
                 type = "AA",
-                -- tooltip = Tooltips.ExplosionOfSpite,
                 cond = function(self, aaName)
                     if not RGMercUtils.GetSetting('AETauntAA') then return false end
                     return RGMercUtils.AAReady(aaName) and self.ClassConfig.HelperFunctions.AETauntCheck(true)
@@ -1305,7 +1222,6 @@ local _ClassConfig = {
             {
                 name = "Projection of Piety",
                 type = "AA",
-                -- tooltip = Tooltips.ProjectionofDoom,
                 cond = function(self, aaName)
                     ---@diagnostic disable-next-line: undefined-field
                     return RGMercUtils.AAReady(aaName) and RGMercUtils.IsNamed(mq.TLO.Target) and (mq.TLO.Target.SecondaryPctAggro() or 0) > 80
@@ -1314,7 +1230,6 @@ local _ClassConfig = {
             {
                 name = "Taunt",
                 type = "Ability",
-                -- tooltip = Tooltips.Taunt,
                 cond = function(self, abilityName)
                     return mq.TLO.Me.AbilityReady(abilityName)() and mq.TLO.Me.TargetOfTarget.ID() ~= mq.TLO.Me.ID() and RGMercUtils.GetTargetID() > 0 and
                         RGMercUtils.GetTargetDistance() < 30
@@ -1323,7 +1238,6 @@ local _ClassConfig = {
             {
                 name = "ForHonor",
                 type = "Spell",
-                -- tooltip = Tooltips.ForPower,
                 cond = function(self, spell, target)
                     return RGMercUtils.NPCSpellReady(spell, target.ID()) and RGMercUtils.DetSpellCheck(spell)
                 end,
@@ -1347,7 +1261,6 @@ local _ClassConfig = {
             {
                 name = "Intensity of the Resolute",
                 type = "AA",
-                -- tooltip = Tooltips.ThoughtLeech,
                 cond = function(self, aaName)
                     return RGMercUtils.AAReady(aaName) and RGMercUtils.GetSetting('DoVetAA')
                 end,
@@ -1355,7 +1268,6 @@ local _ClassConfig = {
             {
                 name = "Spire of Chivalry",
                 type = "AA",
-                -- tooltip = Tooltips.SpireoftheReavers,
                 cond = function(self, aaName)
                     return
                         RGMercUtils.AAReady(aaName)
@@ -1368,15 +1280,6 @@ local _ClassConfig = {
                     return RGMercUtils.AAReady(aaName)
                 end,
             },
-            -- not sure about this one yet, more homework
-            -- {
-            -- name = "SpiteStrike",
-            -- type = "Disc",
-            -- tooltip = Tooltips.SpikeStrike,
-            -- cond = function(self)
-            -- return RGMercUtils.IsNamed(mq.TLO.Target)
-            -- end,
-            -- },
             --add this back in with tanking Check
             -- {
             -- name = "Inquisitor's Judgment",
@@ -1390,7 +1293,6 @@ local _ClassConfig = {
             {
                 name = "MeleeMit",
                 type = "Disc",
-                -- tooltip = Tooltips.MeleeMit,
                 cond = function(self, discSpell)
                     return RGMercUtils.PCDiscReady(discSpell) and RGMercUtils.IsTanking() and not (discSpell.Level() < 108 and mq.TLO.Me.ActiveDisc.ID())
                 end,
@@ -1398,7 +1300,6 @@ local _ClassConfig = {
             {
                 name = "Armor",
                 type = "Disc",
-                -- tooltip = Tooltips.Carapace,
                 cond = function(self, discSpell)
                     return RGMercUtils.PCDiscReady(discSpell) and RGMercUtils.IsTanking() and not mq.TLO.Me.ActiveDisc.ID() and
                         (RGMercUtils.IsNamed(mq.TLO.Target) or self.ClassConfig.HelperFunctions.DefensiveDiscCheck(true)) and
@@ -1408,7 +1309,6 @@ local _ClassConfig = {
             {
                 name = "Mantle",
                 type = "Disc",
-                -- tooltip = Tooltips.Mantle,
                 cond = function(self, discSpell)
                     return RGMercUtils.PCDiscReady(discSpell) and RGMercUtils.IsTanking() and not mq.TLO.Me.ActiveDisc.ID() and
                         (RGMercUtils.IsNamed(mq.TLO.Target) or self.ClassConfig.HelperFunctions.DefensiveDiscCheck(true))
@@ -1417,7 +1317,6 @@ local _ClassConfig = {
             {
                 name = "Guardian",
                 type = "Disc",
-                -- tooltip = Tooltips.Guardian,
                 cond = function(self, discSpell)
                     return RGMercUtils.PCDiscReady(discSpell) and RGMercUtils.IsTanking() and not mq.TLO.Me.ActiveDisc.ID() and
                         (RGMercUtils.IsNamed(mq.TLO.Target) or self.ClassConfig.HelperFunctions.DefensiveDiscCheck(true))
@@ -1435,7 +1334,6 @@ local _ClassConfig = {
             {
                 name = "Dicho",
                 type = "Spell",
-                -- tooltip = Tooltips.Dicho,
                 cond = function(self, spell, target)
                     if not RGMercUtils.GetSetting('DoDicho') then return false end
                     local myHP = mq.TLO.Me.PctHPs()
@@ -1472,7 +1370,6 @@ local _ClassConfig = {
             { --Used if the group could benefit from the heal
                 name = "ReflexStrike",
                 type = "Disc",
-                -- tooltip = Tooltips.ReflexStrike,
                 cond = function(self, discSpell)
                     return RGMercUtils.NPCDiscReady(discSpell) and (mq.TLO.Group.Injured(80)() or 0) > 2
                 end,
@@ -1480,7 +1377,6 @@ local _ClassConfig = {
             {
                 name = "CombatEndRegen",
                 type = "Disc",
-                -- tooltip = Tooltips.CombatEndRegen,
                 cond = function(self, discSpell)
                     return RGMercUtils.PCDiscReady(discSpell) and mq.TLO.Me.PctEndurance() < 15
                 end,
@@ -1495,7 +1391,6 @@ local _ClassConfig = {
             {
                 name = "Bash",
                 type = "Ability",
-                -- tooltip = Tooltips.Bash,
                 cond = function(self, abilityName, target)
                     return mq.TLO.Me.AbilityReady(abilityName)() and RGMercUtils.GetTargetDistance() <= (target.MaxRangeTo() or 0) and
                         (RGMercUtils.ShieldEquipped() or RGMercUtils.CanUseAA("Improved Bash"))
@@ -1504,7 +1399,6 @@ local _ClassConfig = {
             {
                 name = "Slam",
                 type = "Ability",
-                -- tooltip = Tooltips.Slam,
                 cond = function(self, abilityName, target)
                     return mq.TLO.Me.AbilityReady(abilityName)() and RGMercUtils.GetTargetDistance() <= (target.MaxRangeTo() or 0)
                 end,
@@ -1897,11 +1791,11 @@ local _ClassConfig = {
             DisplayName = "Use AE Taunt AA",
             Category = "Hate Tools",
             Index = 4,
-            Tooltip = "Use Explosions of Hatred and Spite.",
+            Tooltip = "Use AE Taunt AA.",
             Default = true,
             ConfigType = "Advanced",
-            FAQ = "Why do we treat the Explosions the same? One is targeted, one is PBAE",
-            Answer = "There are currently no scripted conditions where Hatred would be used at long range, thus, for ease of use, we can treat them similarly.",
+            FAQ = "Placeholder question aobout AE taunt",
+            Answer = "Yes.",
         },
         ['AETauntCnt']        = {
             DisplayName = "AE Taunt Count",
@@ -2070,7 +1964,7 @@ local _ClassConfig = {
             Answer = "To avoid deletion of settings when moving between configs, our beta or experimental configs keep placeholders for live settings\n" ..
                 "These tabs or settings will be removed if and when the config is made the default.",
         },
-		['FlashHP']       = {
+        ['FlashHP']           = {
             DisplayName = "Orphaned",
             Type = "Custom",
             Category = "Orphaned",
