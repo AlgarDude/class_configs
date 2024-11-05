@@ -437,7 +437,6 @@ local _ClassConfig = {
             {
                 name = "Ageless Enmity",
                 type = "AA",
-                tooltip = Tooltips.AgelessEnmity,
                 cond = function(self, aaName, target)
                     return RGMercUtils.NPCAAReady(aaName, target.ID()) and RGMercUtils.GetTargetPctHPs() < 90 and mq.TLO.Me.PctAggro() < 100
                 end,
@@ -478,7 +477,6 @@ local _ClassConfig = {
             {
                 name = "Taunt",
                 type = "Ability",
-                tooltip = Tooltips.Taunt,
                 cond = function(self, abilityName)
                     return mq.TLO.Me.AbilityReady(abilityName)() and mq.TLO.Me.TargetOfTarget.ID() ~= mq.TLO.Me.ID() and RGMercUtils.GetTargetID() > 0 and
                         RGMercUtils.GetTargetDistance() < 30
@@ -527,7 +525,6 @@ local _ClassConfig = {
             {
                 name = "Armor of Experience",
                 type = "AA",
-                tooltip = Tooltips.ArmorofExperience,
                 cond = function(self, aaName)
                     return RGMercUtils.AAReady(aaName) and mq.TLO.Me.PctHPs() < 25 and RGMercUtils.GetSetting('DoVetAA')
                 end,
@@ -642,7 +639,6 @@ local _ClassConfig = {
             { --shares effect with AbsorbDisc, offset from StandDisc for automation flow/coverage
                 name = "OoW_Chest",
                 type = "Item",
-                tooltip = Tooltips.OoW_BP,
                 cond = function(self, itemName)
                     local absorbDisc = self:GetResolvedActionMapItem('AbsorbDisc')
                     local standDisc = self:GetResolvedActionMapItem('StandDisc')
@@ -727,7 +723,7 @@ local _ClassConfig = {
                 end,
             },
         },
-        ['DPS'] = {
+        ['Combat'] = {
             {
                 name = "ShieldHit",
                 type = "Disc",
@@ -821,7 +817,7 @@ local _ClassConfig = {
             RequiresLoadoutChange = true,
             Default = 1,
             Min = 1,
-            Max = 2,
+            Max = 1,
             FAQ = "What do the different Modes Do?",
             Answer = "Tank Mode is for when you are the main tank. DPS Mode is for when you are not the main tank and want to focus on damage.",
         },
