@@ -80,7 +80,7 @@ local _ClassConfig = {
             "Dissident Shield",
             "Dichotomic Shield",
         },
-        ['aeroar'] = {
+        ['AERoar'] = {
             "Roar of Challenge",
             "Rallying Roar",
         },
@@ -103,7 +103,7 @@ local _ClassConfig = {
             "Concordant Precision",
             "Harmonious Precision",
         },
-        ['aehitall'] = {
+        ['AEBlades'] = {
             "Tempest Blades",
             "Dragonstrike Blades",
             "Stormstrike Blades",
@@ -196,7 +196,7 @@ local _ClassConfig = {
         ['AgroPet'] = {
             "Phantom Aggressor",
         },
-        ['OnslaughtDisc'] = {
+        ['Onslaught'] = {
             "Savage Onslaught Discipline",
             "Brutal Onslaught Discipline",
             "Brightfeld's Onslaught Discipline",
@@ -262,7 +262,8 @@ local _ClassConfig = {
         end,
         DiscOverwriteCheck = function(self)
             local defenseBuff = self:GetResolvedActionMapItem('DefenseACBuff')
-            return mq.TLO.ActiveDisc.Name(defenseBuff)() or not mq.TLO.Me.ActiveDisc.ID()
+            if mq.TLO.Me.ActiveDisc.ID() and mq.TLO.Me.ActiveDisc.Name() ~= defenseBuff.RankName() then return false end
+            return true
         end,
 
     },
@@ -310,8 +311,8 @@ local _ClassConfig = {
             targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
             cond = function(self, combat_state)
                 --need to look at rotation and decide if it should fire during emergencies. leaning towards no
-                return combat_state == "Combat" and mq.TLO.Me.PctHPs() > RGMercUtils.GetSetting('EmergencyLockout') and
-                    (RGMercUtils.IsNamed(mq.TLO.Target) or self.ClassConfig.HelperFunctions.DefensiveDiscCheck(true))
+                return combat_state == "Combat" and mq.TLO.Me.PctHPs() < RGMercUtils.GetSetting('EmergencyStart') or
+                    RGMercUtils.IsNamed(mq.TLO.Target) or self.ClassConfig.HelperFunctions.DefensiveDiscCheck(true)
             end,
         },
         { --Offensive actions to temporarily boost damage dealt
@@ -489,14 +490,6 @@ local _ClassConfig = {
                     return RGMercUtils.NPCDiscReady(discSpell)
                 end,
             },
-            -- { todo: AE options
-            --     name = "aeroar",
-            --     type = "Disc",
-            --     cond = function(self, discSpell)
-            --         return RGMercUtils.IsModeActive("Tank") and RGMercUtils.PCDiscReady(discSpell) and RGMercUtils.GetXTHaterCount() >= RGMercUtils.GetSetting('BurnMobCount') and
-            --             RGMercUtils.GetSetting('DoAEAgro')
-            --     end,
-            -- },
             {
                 name = "AddHate1",
                 type = "Disc",
@@ -518,6 +511,14 @@ local _ClassConfig = {
                     return RGMercUtils.NPCDiscReady(discSpell) and RGMercUtils.IsNamed(mq.TLO.Target)
                 end,
             },
+            -- { todo: AE options
+            --     name = "AERoar",
+            --     type = "Disc",
+            --     cond = function(self, discSpell)
+            --         return RGMercUtils.IsModeActive("Tank") and RGMercUtils.PCDiscReady(discSpell) and RGMercUtils.GetXTHaterCount() >= RGMercUtils.GetSetting('BurnMobCount') and
+            --             RGMercUtils.GetSetting('DoAEAgro')
+            --     end,
+            -- },
         },
         ['EmergencyDefenses'] = {
             --Note that in Tank Mode, defensive discs are preemptively cycled on named in the (non-emergency) Defenses rotation
@@ -573,6 +574,13 @@ local _ClassConfig = {
                     return RGMercUtils.PCAAReady(aaName)
                 end,
             },
+            { --here for use in emergencies regarldless of ability staggering below
+                name = "StandDisc",
+                type = "Disc",
+                cond = function(self, discSpell)
+                    return RGMercUtils.PCDiscReady(discSpell) and self.ClassConfig.HelperFunctions.DiscOverwriteCheck(self)
+                end,
+            },
         },
         ['Weapon Management'] = {
             {
@@ -606,8 +614,8 @@ local _ClassConfig = {
                 name = "DichoShield",
                 type = "Disc",
                 cond = function(self, discSpell)
-                    ---@diagnostic disable-next-line: param-type-mismatch
-                    return RGMercUtils.PCDiscReady(discSpell) and not (mq.TLO.Me.Inventory("Chest").Spell() and mq.TLO.Me.Buff(mq.TLO.Me.Inventory("Chest").Spell()))
+                    local itemSpell = mq.TLO.Me.Inventory("Chest").Spell()
+                    return RGMercUtils.PCDiscReady(discSpell) and not (itemSpell and mq.TLO.Me.Buff(itemSpell)())
                 end,
             },
             { --shares effect with Dicho Shield
@@ -625,7 +633,7 @@ local _ClassConfig = {
                 type = "Disc",
                 cond = function(self, discSpell)
                     local absorbDisc = self:GetResolvedActionMapItem('AbsorbDisc')
-                    return RGMercUtils.PCDiscReady(discSpell) and not mq.TLO.Me.Song(absorbDisc) and self.ClassConfig.HelperFunctions.DiscOverwriteCheck()
+                    return RGMercUtils.PCDiscReady(discSpell) and not mq.TLO.Me.Song(absorbDisc) and self.ClassConfig.HelperFunctions.DiscOverwriteCheck(self)
                 end,
             },
             { --shares effect with OoW Chest and Warlord's Bravery, offset from AbsorbDisc for automation flow/coverage
@@ -633,7 +641,7 @@ local _ClassConfig = {
                 type = "Disc",
                 cond = function(self, discSpell)
                     local standDisc = self:GetResolvedActionMapItem('StandDisc')
-                    return RGMercUtils.PCDiscReady(discSpell) and not mq.TLO.ActiveDisc.Name(standDisc)()
+                    return RGMercUtils.PCDiscReady(discSpell) and mq.TLO.Me.ActiveDisc.Name() ~= standDisc.RankName()
                 end,
             },
             { --shares effect with AbsorbDisc, offset from StandDisc for automation flow/coverage
@@ -642,8 +650,8 @@ local _ClassConfig = {
                 cond = function(self, itemName)
                     local absorbDisc = self:GetResolvedActionMapItem('AbsorbDisc')
                     local standDisc = self:GetResolvedActionMapItem('StandDisc')
-                    return mq.TLO.FindItemCount(itemName)() ~= 0 and mq.TLO.FindItem(itemName).TimerReady() == 0 and not mq.TLO.ActiveDisc.Name(standDisc)() and
-                        not mq.TLO.ActiveDisc.Name(absorbDisc)()
+                    return mq.TLO.FindItemCount(itemName)() ~= 0 and mq.TLO.FindItem(itemName).TimerReady() == 0 and mq.TLO.Me.ActiveDisc.Name() ~= standDisc.RankName() and
+                        mq.TLO.Me.ActiveDisc.Name() ~= absorbDisc.RankName()
                 end,
             },
             { --See above entries for notes
@@ -652,8 +660,9 @@ local _ClassConfig = {
                 cond = function(self, aaName)
                     local absorbDisc = self:GetResolvedActionMapItem('AbsorbDisc')
                     local standDisc = self:GetResolvedActionMapItem('StandDisc')
-                    return RGMercUtils.PCAAReady(aaName) and not mq.TLO.ActiveDisc.Name(standDisc)() and
-                        not mq.TLO.ActiveDisc.Name(absorbDisc)() and not RGMercUtils.BuffActiveByName("Guardian's Boon") and not RGMercUtils.BuffActiveByName("Guardian's Bravery")
+                    return RGMercUtils.PCAAReady(aaName) and mq.TLO.Me.ActiveDisc.Name() ~= standDisc.RankName() and
+                        mq.TLO.Me.ActiveDisc.Name() ~= absorbDisc.RankName() and not RGMercUtils.BuffActiveByName("Guardian's Boon") and
+                        not RGMercUtils.BuffActiveByName("Guardian's Bravery")
                 end,
             },
         },
@@ -765,7 +774,7 @@ local _ClassConfig = {
                 type = "AA",
                 cond = function(self, aaName, target)
                     if not RGMercUtils.GetSetting('DoSnare') then return false end
-                    return RGMercUtils.NPCAAReady(aaName, target.ID()) and RGMercUtils.DetAACheck(aaName.ID())
+                    return RGMercUtils.NPCAAReady(aaName, target.ID()) and RGMercUtils.DetAACheck(mq.TLO.Me.AltAbility(aaName).ID())
                 end,
             },
             {
@@ -804,6 +813,16 @@ local _ClassConfig = {
                     return RGMercUtils.NPCDiscReady(discSpell) and
                         RGMercUtils.GetTargetDistance() < RGMercUtils.GetTargetMaxRangeTo() and
                         RGMercUtils.GetTargetPctHPs() <= 20
+                end,
+            },
+            {
+                name = "DefenseACBuff",
+                type = "Disc",
+                active_cond = function(self, discSpell)
+                    return mq.TLO.Me.ActiveDisc.ID() == discSpell.ID()
+                end,
+                cond = function(self, discSpell)
+                    return not mq.TLO.Me.ActiveDisc.ID() and RGMercUtils.PCDiscReady(discSpell)
                 end,
             },
         },
