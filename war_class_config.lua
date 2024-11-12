@@ -10,7 +10,7 @@ local _ClassConfig = {
     ['Modes']           = {
         'Tank',
     },
-    ['ItemSets']        = { --todo: Add blood drinkers and NoS version, add epic rotation entry
+    ['ItemSets']        = {
         ['Epic'] = {
             "Kreljnok's Sword of Eternal Power",
             "Champion's Sword of Eternal Power",
@@ -18,6 +18,10 @@ local _ClassConfig = {
         ['OoW_Chest'] = {
             "Armsmaster's Breastplate",
             "Gladiator's Plate Chestguard of War",
+        },
+        ['Coating'] = {
+            "Spirit Drinker's Coating",
+            "Blood Drinker's Coating",
         },
     },
     ['AbilitySets']     = {
@@ -698,6 +702,22 @@ local _ClassConfig = {
                         not RGMercUtils.BuffActiveByName("Guardian's Bravery")
                 end,
             },
+            { --used as available outside of any dependency
+                name = "Coating",
+                type = "Item",
+                cond = function(self, itemName)
+                    if not RGMercUtils.GetSetting('DoCoating') then return false end
+                    local item = mq.TLO.FindItem(itemName)
+                    return item() and item.TimerReady() == 0 and RGMercUtils.SelfBuffCheck(item.Spell)
+                end,
+            },
+            { --incredibly weak at high level, but low opportunity cost for use
+                name = "Epic",
+                type = "Item",
+                cond = function(self, itemName)
+                    return mq.TLO.FindItem(itemName).TimerReady() == 0
+                end,
+            },
         },
         ['Burn'] = {
             {
@@ -1084,10 +1104,19 @@ local _ClassConfig = {
             FAQ = "Why is my Shadow Knight not clicking his charm?",
             Answer = "Charm clicks won't happen if you are in combat.",
         },
+        ['DoCoating']        = {
+            DisplayName = "Use Coating",
+            Category = "Equipment",
+            Index = 3,
+            Tooltip = "Click your Blood/Spirit Drinker's Coating when defenses are triggered.",
+            Default = false,
+            FAQ = "What is a Coating?",
+            Answer = "Blood Drinker's Coating is a clickable lifesteal effect added in CotF. Spirit Drinker's Coating is an upgrade added in NoS.",
+        },
         ['UseBandolier']     = {
             DisplayName = "Dynamic Weapon Swap",
             Category = "Equipment",
-            Index = 3,
+            Index = 4,
             Tooltip = "Enable 1H+S/2H swapping based off of current health. ***YOU MUST HAVE BANDOLIER ENTRIES NAMED \"Shield\" and \"DW\" TO USE THIS FUNCTION.***",
             Default = false,
             FAQ = "Why is my Warrior not using Dynamic Weapon Swapping?",
@@ -1097,7 +1126,7 @@ local _ClassConfig = {
         ['EquipShield']      = {
             DisplayName = "Equip Shield",
             Category = "Equipment",
-            Index = 4,
+            Index = 5,
             Tooltip = "Under this HP%, you will swap to your \"Shield\" bandolier entry. (Dynamic Bandolier Enabled Only)",
             Default = 50,
             Min = 1,
@@ -1110,7 +1139,7 @@ local _ClassConfig = {
         ['EquipDW']          = {
             DisplayName = "Equip DW",
             Category = "Equipment",
-            Index = 5,
+            Index = 6,
             Tooltip = "Over this HP%, you will swap to your \"DW\" bandolier entry. (Dynamic Bandolier Enabled Only)",
             Default = 75,
             Min = 1,
@@ -1123,7 +1152,7 @@ local _ClassConfig = {
         ['NamedShieldLock']  = {
             DisplayName = "Shield on Named",
             Category = "Equipment",
-            Index = 6,
+            Index = 7,
             Tooltip = "Keep Shield equipped for Named mobs(must be in SpawnMaster or named.lua)",
             Default = true,
             FAQ = "Why does my SHD switch to a Shield on puny gray named?",
