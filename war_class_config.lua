@@ -2,13 +2,14 @@ local mq           = require('mq')
 local RGMercUtils  = require("utils.rgmercs_utils")
 
 local _ClassConfig = {
-    _version            = "1.2 - Experimental",
+    _version            = "1.2 - Beta", --BIG TODO: Add dps burn abilities and cycling logic
     _author             = "Algar, Derple",
     ['ModeChecks']      = {
         IsTanking = function() return RGMercUtils.IsModeActive("Tank") end,
     },
     ['Modes']           = {
         'Tank',
+        'DPS',
     },
     ['ItemSets']        = {
         ['Epic'] = {
@@ -279,14 +280,6 @@ local _ClassConfig = {
             end
             return #haters >= RGMercUtils.GetSetting('DiscCount')
         end,
-        --function to space out Epic and Omens Chest with Mortal Coil old-school swarm style. Epic has an override condition to fire anyway on named.
-        LeechCheck = function(self)
-            local LeechEffects = { "Leechcurse Discipline", "Mortal Coil", "Lich Sting Recourse", "Leeching Embrace", "Reaper Strike Recourse", "Leeching Touch", }
-            for _, buffName in ipairs(LeechEffects) do
-                if mq.TLO.Me.Buff(buffName)() or mq.TLO.Me.Song(buffName)() then return false end
-            end
-            return true
-        end,
         DiscOverwriteCheck = function(self)
             local defenseBuff = self:GetResolvedActionMapItem('DefenseACBuff')
             if mq.TLO.Me.ActiveDisc.ID() and mq.TLO.Me.ActiveDisc.Name() ~= defenseBuff.RankName() then return false end
@@ -338,8 +331,8 @@ local _ClassConfig = {
             targetId = function(self) return mq.TLO.Target.ID() == RGMercConfig.Globals.AutoTargetID and { RGMercConfig.Globals.AutoTargetID, } or {} end,
             cond = function(self, combat_state)
                 --need to look at rotation and decide if it should fire during emergencies. leaning towards no
-                return combat_state == "Combat" and mq.TLO.Me.PctHPs() < RGMercUtils.GetSetting('EmergencyStart') or
-                    RGMercUtils.IsNamed(mq.TLO.Target) or self.ClassConfig.HelperFunctions.DefensiveDiscCheck(true)
+                return combat_state == "Combat" and RGMercUtils.IsTanking() and (mq.TLO.Me.PctHPs() < RGMercUtils.GetSetting('EmergencyStart') or
+                    RGMercUtils.IsNamed(mq.TLO.Target) or self.ClassConfig.HelperFunctions.DefensiveDiscCheck(true))
             end,
         },
         { --Offensive actions to temporarily boost damage dealt
@@ -407,7 +400,7 @@ local _ClassConfig = {
                     return mq.TLO.Me.ActiveDisc.ID() == discSpell.ID()
                 end,
                 cond = function(self, discSpell)
-                    return not mq.TLO.Me.ActiveDisc.ID() and RGMercUtils.PCDiscReady(discSpell)
+                    return RGMercUtils.IsTanking() and not mq.TLO.Me.ActiveDisc.ID() and RGMercUtils.PCDiscReady(discSpell)
                 end,
             },
             {
@@ -422,7 +415,7 @@ local _ClassConfig = {
                 type = "Disc",
                 cond = function(self, discSpell)
                     if not RGMercUtils.GetSetting('DoAETaunt') or RGMercUtils.GetSetting('SafeAETaunt') then return false end
-                    return RGMercUtils.PCDiscReady(discSpell) and not RGMercUtils.BuffActiveByID(discSpell.ID())
+                    return RGMercUtils.IsTanking() and RGMercUtils.PCDiscReady(discSpell) and not RGMercUtils.BuffActiveByID(discSpell.ID())
                 end,
             },
             {
@@ -430,7 +423,7 @@ local _ClassConfig = {
                 type = "Disc",
                 cond = function(self, discSpell)
                     if RGMercUtils.GetSetting('DoAETaunt') and not RGMercUtils('SafeAETaunt') then return false end
-                    return RGMercUtils.PCDiscReady(discSpell) and not RGMercUtils.BuffActiveByID(discSpell.ID())
+                    return RGMercUtils.IsTanking() and RGMercUtils.PCDiscReady(discSpell) and not RGMercUtils.BuffActiveByID(discSpell.ID())
                 end,
             },
             {
@@ -662,7 +655,7 @@ local _ClassConfig = {
                     if not RGMercUtils.GetSetting('DoChestClick') then return false end
                     local item = mq.TLO.Me.Inventory("Chest")
                     local dichoShield = self:GetResolvedActionMapItem('DichoShield')
-                    return item() and item.TimerReady() == 0 and RGMercUtils.SpellStacksOnMe(item.Spell) and not mq.TLO.Me.Buff(dichoShield)
+                    return item() and item.TimerReady() == 0 and RGMercUtils.SpellStacksOnMe(item.Spell) and not 
                 end,
             },
             { --shares effect with OoW Chest and Warlord's Bravery, offset from AbsorbDisc for automation flow/coverage
@@ -702,7 +695,7 @@ local _ClassConfig = {
                         not RGMercUtils.BuffActiveByName("Guardian's Bravery")
                 end,
             },
-            { --used as available outside of any dependency
+            {
                 name = "Coating",
                 type = "Item",
                 cond = function(self, itemName)
@@ -734,11 +727,11 @@ local _ClassConfig = {
                     return RGMercUtils.PCAAReady(aaName)
                 end,
             },
-            {
-                name = "Warlord's Fury",
-                type = "AA",
-                cond = function(self, aaName, target)
-                    return RGMercUtils.NPCAAReady(aaName, target.ID())
+             {
+                name = "Onslaught",
+                type = "Disc",
+                cond = function(self, discSpell)
+                    return not RGMercUtils.IsTanking() and RGMercUtils.PCDiscReady(discSpell)
                 end,
             },
             {
@@ -746,6 +739,14 @@ local _ClassConfig = {
                 type = "AA",
                 cond = function(self, aaName)
                     return RGMercUtils.AAReady(aaName)
+                end,
+            },
+            {
+                name = "Warlord's Fury",
+                type = "AA",
+                cond = function(self, aaName, target)
+                    local dichoShield = self:GetResolvedActionMapItem('DichoShield')
+                    return RGMercUtils.IsTanking() and RGMercUtils.NPCAAReady(aaName, target.ID()) and not mq.TLO.Me.Buff(dichoShield)
                 end,
             },
             {
@@ -760,7 +761,7 @@ local _ClassConfig = {
                 type = "Disc",
                 cond = function(self, discSpell)
                     if not RGMercUtils.GetSetting('DoAETaunt') or RGMercUtils.GetSetting('SafeAETaunt') then return false end
-                    return RGMercUtils.PCDiscReady(discSpell)
+                    return RGMercUtils.IsTanking() and RGMercUtils.PCDiscReady(discSpell)
                 end,
             },
             {
@@ -768,21 +769,21 @@ local _ClassConfig = {
                 type = "Disc",
                 cond = function(self, discSpell)
                     if RGMercUtils.GetSetting('DoAETaunt') and not RGMercUtils('SafeAETaunt') then return false end
-                    return RGMercUtils.PCDiscReady(discSpell)
+                    return RGMercUtils.IsTanking() and RGMercUtils.PCDiscReady(discSpell)
                 end,
             },
             {
                 name = "TongueDisc",
                 type = "Disc",
                 cond = function(self, discSpell)
-                    return RGMercUtils.PCDiscReady(discSpell)
+                    return RGMercUtils.IsTanking() and RGMercUtils.PCDiscReady(discSpell)
                 end,
             },
             {
                 name = "Resplendent Glory",
                 type = "AA",
                 cond = function(self, aaName)
-                    return RGMercUtils.PCAAReady(aaName)
+                    return RGMercUtils.IsTanking() and RGMercUtils.PCAAReady(aaName)
                 end,
             },
             {
@@ -821,7 +822,7 @@ local _ClassConfig = {
                 name = "Gut Punch",
                 type = "AA",
                 cond = function(self, aaName, target)
-                    return RGMercUtils.NPCAAReady(aaName, target.ID())
+                    return RGMercUtils.IsTanking() and RGMercUtils.NPCAAReady(aaName, target.ID())
                 end,
             },
             {
@@ -892,7 +893,7 @@ local _ClassConfig = {
                     return mq.TLO.Me.ActiveDisc.ID() == discSpell.ID()
                 end,
                 cond = function(self, discSpell)
-                    return not mq.TLO.Me.ActiveDisc.ID() and RGMercUtils.PCDiscReady(discSpell)
+                    return RGMercUtils.IsTanking() and not mq.TLO.Me.ActiveDisc.ID() and RGMercUtils.PCDiscReady(discSpell)
                 end,
             },
         },
@@ -906,7 +907,7 @@ local _ClassConfig = {
             RequiresLoadoutChange = true,
             Default = 1,
             Min = 1,
-            Max = 1,
+            Max = 2,
             FAQ = "What do the different Modes Do?",
             Answer = "Tank Mode is for when you are the main tank. DPS Mode is for when you are not the main tank and want to focus on damage.",
         },
