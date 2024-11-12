@@ -2,7 +2,7 @@ local mq           = require('mq')
 local RGMercUtils  = require("utils.rgmercs_utils")
 
 local _ClassConfig = {
-    _version            = "1.1 - Experimental", --Todo: Add AE abilities/options back in: Blades, Wade, Expanse and Rampage
+    _version            = "1.2 - Experimental",
     _author             = "Algar, Derple",
     ['ModeChecks']      = {
         IsTanking = function() return RGMercUtils.IsModeActive("Tank") end,
@@ -80,7 +80,7 @@ local _ClassConfig = {
             "Dissident Shield",
             "Dichotomic Shield",
         },
-        ['AERoar'] = {
+        ['AERoar'] = { --does not appear to be worthwhile, very limited level range and low hate value
             "Roar of Challenge",
             "Rallying Roar",
         },
@@ -91,13 +91,13 @@ local _ClassConfig = {
         ['SelfBuffSingle'] = {
             "Determined Reprisal",
         },
-        ['HealHateSingle'] = {
+        ['HealHateAE'] = {
             "Penumbral Expanse",
             "Confluent Expanse",
             "Concordant Expanse",
             "Harmonious Expanse",
         },
-        ['HealHateAE'] = {
+        ['HealHateSingle'] = {
             "Penumbral Precision",
             "Confluent Precision",
             "Concordant Precision",
@@ -236,23 +236,27 @@ local _ClassConfig = {
             end
             return #tauntme > 0 and not (RGMercUtils.GetSetting('SafeAETaunt') and #tauntme < mobs)
         end,
-        AEDamageCheck = function(printDebug)
+        --function to make sure we don't have non-hostiles in range before we use AE damage or non-taunt AE hate abilities
+        AETargetCheck = function(printDebug)
             local mobs = mq.TLO.SpawnCount("NPC radius 50 zradius 50")()
             local xtCount = mq.TLO.Me.XTarget() or 0
+
+            if (mobs or xtCount) < RGMercUtils.GetSetting('AETargetCnt') then return false end
+
             local targets = {}
             for i = 1, xtCount do
                 local xtarg = mq.TLO.Me.XTarget(i)
-                --this won't work becuse .Mezzed requires targetting for cache
+                --this won't work becuse .Mezzed requires targeting for cache, left more as a note for others.
                 --if RGMercUtils.GetSetting('SafeAEDamage') and xtarg.Mezzed() then return false end
                 if xtarg and xtarg.ID() > 0 and ((xtarg.Aggressive() or xtarg.TargetType():lower() == "auto hater")) and (xtarg.Distance() or 999) <= 50 then
                     if printDebug then
-                        RGMercsLogger.log_verbose("AEDamageCheck(): XT(%d) Counting %s(%d) as an eligible target.", i, xtarg.CleanName() or "None",
+                        RGMercsLogger.log_verbose("AETargetCheck(): XT(%d) Counting %s(%d) as an eligible target.", i, xtarg.CleanName() or "None",
                             xtarg.ID())
                     end
                     table.insert(targets, xtarg.ID())
                 end
             end
-            return #targets > 1 and not (RGMercUtils.GetSetting('SafeAEDamage') and #targets < mobs)
+            return #targets >= RGMercUtils.GetSetting('AETargetCt') and not (RGMercUtils.GetSetting('SafeAEDamage') and #targets < mobs)
         end,
 
         --function to determine if we have enough mobs in range to use a defensive disc
@@ -410,19 +414,21 @@ local _ClassConfig = {
                 end,
             },
             {
-                name = "HealHateSingle",
+                name = "HealHateAE",
                 type = "Disc",
                 cond = function(self, discSpell)
+                    if not RGMercUtils.GetSetting('DoAETaunt') or RGMercUtils.GetSetting('SafeAETaunt') then return false end
                     return RGMercUtils.PCDiscReady(discSpell) and not RGMercUtils.BuffActiveByID(discSpell.ID())
                 end,
             },
-            -- { --todo: AE options
-            --     name = "HealHateAE",
-            --     type = "Disc",
-            --     cond = function(self, discSpell)
-            --         return RGMercUtils.PCDiscReady(discSpell) and not RGMercUtils.BuffActiveByID(discSpell.ID())
-            --     end,
-            -- },
+            {
+                name = "HealHateSingle",
+                type = "Disc",
+                cond = function(self, discSpell)
+                    if RGMercUtils.GetSetting('DoAETaunt') and not RGMercUtils('SafeAETaunt') then return false end
+                    return RGMercUtils.PCDiscReady(discSpell) and not RGMercUtils.BuffActiveByID(discSpell.ID())
+                end,
+            },
             {
                 name = "Blade Guardian",
                 type = "AA",
@@ -507,6 +513,14 @@ local _ClassConfig = {
                 type = "Disc",
                 cond = function(self, discSpell)
                     return RGMercUtils.NPCDiscReady(discSpell)
+                end,
+            },
+            {
+                name = "AEBlades",
+                type = "Disc",
+                cond = function(self, discSpell)
+                    if not RGMercUtils.GetSetting('DoAEDamage') then return false end
+                    return RGMercUtils.NPCDiscReady(discSpell) and self.ClassConfig.HelperFunctions.AETargetCheck(true)
                 end,
             },
             {
@@ -722,9 +736,18 @@ local _ClassConfig = {
                 end,
             },
             {
+                name = "SelfBuffAE",
+                type = "Disc",
+                cond = function(self, discSpell)
+                    if not RGMercUtils.GetSetting('DoAETaunt') or RGMercUtils.GetSetting('SafeAETaunt') then return false end
+                    return RGMercUtils.PCDiscReady(discSpell)
+                end,
+            },
+            {
                 name = "SelfBuffSingle",
                 type = "Disc",
                 cond = function(self, discSpell)
+                    if RGMercUtils.GetSetting('DoAETaunt') and not RGMercUtils('SafeAETaunt') then return false end
                     return RGMercUtils.PCDiscReady(discSpell)
                 end,
             },
@@ -786,6 +809,14 @@ local _ClassConfig = {
                 type = "AA",
                 cond = function(self, aaName, target)
                     return RGMercUtils.NPCAAReady(aaName, target.ID())
+                end,
+            },
+            {
+                name = "Rampage",
+                type = "AA",
+                cond = function(self, aaName, target)
+                    if not RGMercUtils.GetSetting("DoAEDamage") then return false end
+                    return RGMercUtils.NPCAAReady(aaName, target.ID()) and self.ClassConfig.HelperFunctions.AETargetCheck(true)
                 end,
             },
             {
@@ -909,7 +940,7 @@ local _ClassConfig = {
         },
         ['DoBattleLeap']     = {
             DisplayName = "Do Battle Leap",
-            Category = "Buffs/Debuffs",
+            Category = "Abilities",
             Tooltip = "Do Battle Leap",
             Default = true,
             FAQ = "How do I use Battle Leap?",
@@ -917,7 +948,7 @@ local _ClassConfig = {
         },
         ['DoSnare']          = {
             DisplayName = "Use Snares",
-            Category = "Buffs/Debuffs",
+            Category = "Abilities",
             Tooltip = "Enable casting Snare abilities.",
             Default = true,
             FAQ = "How do I use Snares?",
@@ -925,18 +956,59 @@ local _ClassConfig = {
         },
         ['DoVetAA']          = {
             DisplayName = "Use Vet AA",
-            Category = "Buffs/Debuffs",
+            Category = "Abilities",
             Index = 8,
             Tooltip = "Use Veteran AA's in emergencies or during Burn. (See FAQ)",
             Default = true,
-            FAQ = "What Vet AA's does SHD use?",
+            FAQ = "What Vet AA's does WAR use?",
             Answer = "If Use Vet AA is enabled, Intensity of the Resolute will be used on burns and Armor of Experience will be used in emergencies.",
+        },
+        ['DoAEDamage']       = {
+            DisplayName = "Do AE Damage",
+            Category = "Abilities",
+            Index = 1,
+            Tooltip = "**WILL BREAK MEZ** Use AE damage Discs and AA. **WILL BREAK MEZ**",
+            Default = false,
+            FAQ = "Why am I using AE damage when there are mezzed mobs around?",
+            Answer = "It is not currently possible to properly determine Mez status without direct targeting. If you are mezzing, consider turning this option off.",
+        },
+        ['AETargetCnt']      = {
+            DisplayName = "AE Target Count",
+            Category = "Abilities",
+            Index = 2,
+            Tooltip = "Minimum number of valid targets before using AE Disciplines or AA.",
+            Default = 2,
+            Min = 1,
+            Max = 10,
+            FAQ = "Why am I using AE abilities on only a couple of targets?",
+            Answer =
+            "You can adjust the AE Target Count to control when you will use actions with AE damage attached.",
+        },
+        ['SafeAEDamage']     = {
+            DisplayName = "AE Proximity Check",
+            Category = "Abilities",
+            Index = 3,
+            Tooltip = "Limit unintended pulls with AE Disciplines or AA. May result in non-use due to false positives.",
+            Default = false,
+            FAQ = "Can you better explain the AE Proximity Check?",
+            Answer = "If the option is enabled, the script will use various checks to determine if a non-hostile or not-aggroed NPC is present and avoid use of the AE action.\n" ..
+                "Unfortunately, the script currently does not discern whether an NPC is (un)attackable, so at times this may lead to the action not being used when it is safe to do so.\n" ..
+                "PLEASE NOTE THAT THIS OPTION HAS NOTHING TO DO WITH MEZ!",
+        },
+        ['DoAETaunt']        = {
+            DisplayName = "Do AE Taunts",
+            Category = "Hate Tools",
+            Index = 1,
+            Tooltip = "Use AE hatred Discs and AA.",
+            Default = false,
+            FAQ = "Why am I using AE damage when there are mezzed mobs around?",
+            Answer = "It is not currently possible to properly determine Mez status without direct targeting. If you are mezzing, consider turning this option off.",
         },
         ['AETauntCnt']       = {
             DisplayName = "AE Taunt Count",
             Category = "Hate Tools",
-            Index = 6,
-            Tooltip = "Minimum number of haters before using AE Taunt Spells or AA.",
+            Index = 2,
+            Tooltip = "Minimum number of haters before using AE Taunt Discs or AA.",
             Default = 2,
             Min = 1,
             Max = 10,
@@ -947,7 +1019,7 @@ local _ClassConfig = {
         ['SafeAETaunt']      = {
             DisplayName = "AE Taunt Safety Check",
             Category = "Hate Tools",
-            Index = 7,
+            Index = 3,
             Tooltip = "Limit unintended pulls with AE Taunt Spells or AA. May result in non-use due to false positives.",
             Default = false,
             FAQ = "Can you better explain the AE Taunt Safety Check?",
