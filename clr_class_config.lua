@@ -729,17 +729,6 @@ local _ClassConfig = {
                     (not RGMercUtils.IsModeActive('Heal') or RGMercUtils.OkayToNotHeal())
             end,
         },
-        {
-            name = 'TwinHeal',
-            state = 1,
-            steps = 1,
-            targetId = function(self) return { RGMercUtils.GetMainAssistId(), } end,
-            cond = function(self, combat_state)
-                if not (RGMercUtils.IsModeActive("Heal") and RGMercUtils.GetSetting('DoTwinHeal')) then return false end
-                return combat_state == "Combat" and not RGMercUtils.Feigning() and RGMercUtils.OkayToNotHeal()
-            end,
-        },
-
     },
     ['Rotations']         = {
         ['ManaRestore'] = {
@@ -760,18 +749,14 @@ local _ClassConfig = {
                 end,
             },
         },
-        ['TwinHeal'] = {
+        ['CombatBuff'] = {
             {
-                name = "TwinHealNuke",
+                name = "ReverseDS",
                 type = "Spell",
-                retries = 0,
-                cond = function(self, spell)
-                    return RGMercUtils.CastReady(spell.RankName) and RGMercUtils.PCSpellReady(spell) and
-                        not RGMercUtils.SongActiveByName("Healing Twincast")
+                cond = function(self, spell, target)
+                    return RGMercUtils.CastReady(spell.RankName) and RGMercUtils.NPCSpellReady(spell, target.ID(), true) and RGMercUtils.GroupBuffCheck(spell, target)
                 end,
             },
-        },
-        ['CombatBuff'] = {
             {
                 name = "WardBuff",
                 type = "Spell",
@@ -862,10 +847,13 @@ local _ClassConfig = {
         },
         ['DPS'] = {
             {
-                name = "ReverseDS",
+                name = "TwinHealNuke",
                 type = "Spell",
-                cond = function(self, spell, target)
-                    return RGMercUtils.CastReady(spell.RankName) and RGMercUtils.NPCSpellReady(spell, target.ID()) and RGMercUtils.DetSpellCheck(spell)
+                retries = 0,
+                cond = function(self, spell)
+                    if not RGMercUtils.GetSetting('DoTwinHeal') then return false end
+                    return RGMercUtils.CastReady(spell.RankName) and RGMercUtils.PCSpellReady(spell) and
+                        not RGMercUtils.SongActiveByName("Healing Twincast")
                 end,
             },
             {
@@ -1037,28 +1025,28 @@ local _ClassConfig = {
             gem = 10,
             cond = function(self) return mq.TLO.Me.NumGems() >= 11 end,
             spells = {
-                { name = "ReverseDS", },
+                { name = "TwinHealNuke", },
             },
         },
         { --80, we will leave this gem open for buffing until we have 12
             gem = 11,
             cond = function(self) return mq.TLO.Me.NumGems() >= 12 end,
             spells = {
-                { name = "WardBuff", },
+                { name = "ReverseDS", },
             },
         },
         { --80, we will allow this gem to be filled for the convenience of buffing at the risk of having it overwritten due to a pause, etc.
             gem = 12,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
-                { name = "TwinHealNuke", },
+                { name = "WardBuff", },
             },
         },
         { --105, we will allow this gem to be filled for the convenience of buffing (or an extra nuke) at the risk of having it overwritten due to a pause, etc.
             gem = 13,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
-                { name = "ShiningBuff", },
+                { name = "DivineBuff", },
 
             },
         },
@@ -1120,6 +1108,15 @@ local _ClassConfig = {
             FAQ = "Why am I using the Twin Heal Nuke?",
             Answer =
             "Due to the nature of automation, we are likely to have the time to do so, and it helps hedge our bets against spike damage. Drivers that manually target switch may wish to disable this setting to allow for more cross-dotting. ",
+        },
+        ['DoVetAA']        = {
+            DisplayName = "Use Vet AA",
+            Category = "Buffs/Debuffs",
+            Index = 8,
+            Tooltip = "Use Veteran AA's in emergencies or during Burn. (See FAQ)",
+            Default = true,
+            FAQ = "What Vet AA's does SHD use?",
+            Answer = "If Use Vet AA is enabled, Intensity of the Resolute will be used on burns and Armor of Experience will be used in emergencies.",
         },
         -- ['DoHOT']           = {
         --     DisplayName = "Cast HOTs",

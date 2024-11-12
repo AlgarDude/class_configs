@@ -236,6 +236,25 @@ local _ClassConfig = {
             end
             return #tauntme > 0 and not (RGMercUtils.GetSetting('SafeAETaunt') and #tauntme < mobs)
         end,
+        AEDamageCheck = function(printDebug)
+            local mobs = mq.TLO.SpawnCount("NPC radius 50 zradius 50")()
+            local xtCount = mq.TLO.Me.XTarget() or 0
+            local targets = {}
+            for i = 1, xtCount do
+                local xtarg = mq.TLO.Me.XTarget(i)
+                --this won't work becuse .Mezzed requires targetting for cache
+                --if RGMercUtils.GetSetting('SafeAEDamage') and xtarg.Mezzed() then return false end
+                if xtarg and xtarg.ID() > 0 and ((xtarg.Aggressive() or xtarg.TargetType():lower() == "auto hater")) and (xtarg.Distance() or 999) <= 50 then
+                    if printDebug then
+                        RGMercsLogger.log_verbose("AEDamageCheck(): XT(%d) Counting %s(%d) as an eligible target.", i, xtarg.CleanName() or "None",
+                            xtarg.ID())
+                    end
+                    table.insert(targets, xtarg.ID())
+                end
+            end
+            return #targets > 1 and not (RGMercUtils.GetSetting('SafeAEDamage') and #targets < mobs)
+        end,
+
         --function to determine if we have enough mobs in range to use a defensive disc
         DefensiveDiscCheck = function(printDebug)
             local xtCount = mq.TLO.Me.XTarget() or 0
@@ -849,40 +868,48 @@ local _ClassConfig = {
             Answer = "If you are at least level 90, keep a Huntsman's Ethereal Quiver in your inventory and enable its use in the options.",
         },
         ['DoAEAgro']         = {
-            DisplayName = "Do AE Agro",
-            Category = "Combat",
-            Tooltip = "Enable AoE Agro (Tank Mode Only)",
-            Default = true,
-            FAQ = "How do use AOE Agro abilities?",
-            Answer = "Enable [DoAEAgro] in the settings and you will use AOE Agro abilities when you have enough mobs TANK MODE ONLY.",
+            DisplayName = "Orphaned",
+            Type = "Custom",
+            Category = "Orphaned",
+            Tooltip = "Orphaned setting from live, no longer used in this config.",
+            Default = false,
+            FAQ = "Why do I see orphaned settings?",
+            Answer = "To avoid deletion of settings when moving between configs, our beta or experimental configs keep placeholders for live settings\n" ..
+                "These tabs or settings will be removed if and when the config is made the default.",
         },
         ['DoAEHate']         = {
-            DisplayName = "Do AE Hate",
-            Category = "Combat",
-            Tooltip = "Enable AoE Hate (Tank Mode Only)",
-            Default = true,
-            FAQ = "How do use AOE Hate abilities?",
-            Answer = "Enable [DoAEHate] in the settings and you will use AOE Hate abilities when you have enough mobs TANK MODE ONLY.",
+            DisplayName = "Orphaned",
+            Type = "Custom",
+            Category = "Orphaned",
+            Tooltip = "Orphaned setting from live, no longer used in this config.",
+            Default = false,
+            FAQ = "Why do I see orphaned settings?",
+            Answer = "To avoid deletion of settings when moving between configs, our beta or experimental configs keep placeholders for live settings\n" ..
+                "These tabs or settings will be removed if and when the config is made the default.",
         },
         ['DoBandolier']      = {
-            DisplayName = "Use Bandolier",
-            Category = "Equipment",
-            Tooltip = "Enable Swapping of items using the bandolier.",
+            DisplayName = "Orphaned",
+            Type = "Custom",
+            Category = "Orphaned",
+            Tooltip = "Orphaned setting from live, no longer used in this config.",
             Default = false,
-            FAQ = "How do I use Bandolier?",
-            Answer = "Enable [DoBandolier] in the settings and you will swap items using the bandolier.",
+            FAQ = "Why do I see orphaned settings?",
+            Answer = "To avoid deletion of settings when moving between configs, our beta or experimental configs keep placeholders for live settings\n" ..
+                "These tabs or settings will be removed if and when the config is made the default.",
         },
         ['DoDefense']        = {
-            DisplayName = "Do Defense",
-            Category = "Combat",
-            Tooltip = "Do Defense",
-            Default = true,
-            FAQ = "How do I use Defense abilities?",
-            Answer = "Enable [DoDefense] in the settings and you will use Defense abilities.",
+            DisplayName = "Orphaned",
+            Type = "Custom",
+            Category = "Orphaned",
+            Tooltip = "Orphaned setting from live, no longer used in this config.",
+            Default = false,
+            FAQ = "Why do I see orphaned settings?",
+            Answer = "To avoid deletion of settings when moving between configs, our beta or experimental configs keep placeholders for live settings\n" ..
+                "These tabs or settings will be removed if and when the config is made the default.",
         },
         ['DoBattleLeap']     = {
             DisplayName = "Do Battle Leap",
-            Category = "Combat",
+            Category = "Buffs/Debuffs",
             Tooltip = "Do Battle Leap",
             Default = true,
             FAQ = "How do I use Battle Leap?",
@@ -890,7 +917,7 @@ local _ClassConfig = {
         },
         ['DoSnare']          = {
             DisplayName = "Use Snares",
-            Category = "Combat",
+            Category = "Buffs/Debuffs",
             Tooltip = "Enable casting Snare abilities.",
             Default = true,
             FAQ = "How do I use Snares?",
@@ -991,7 +1018,7 @@ local _ClassConfig = {
             Index = 3,
             Tooltip = "Enable 1H+S/2H swapping based off of current health. ***YOU MUST HAVE BANDOLIER ENTRIES NAMED \"Shield\" and \"DW\" TO USE THIS FUNCTION.***",
             Default = false,
-            FAQ = "Why is my Shadow Knight not using Dynamic Weapon Swapping?",
+            FAQ = "Why is my Warrior not using Dynamic Weapon Swapping?",
             Answer = "Make sure you have [UseBandolier] enabled in your class settings.\n" ..
                 "You must also have Bandolier entries named \"Shield\" and \"DW\" to use this function.",
         },
