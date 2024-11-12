@@ -673,7 +673,7 @@ local _ClassConfig = {
                     if not RGMercUtils.GetSetting('DoChestClick') then return false end
                     local item = mq.TLO.Me.Inventory("Chest")
                     local dichoShield = self:GetResolvedActionMapItem('DichoShield')
-                    return item() and item.TimerReady() == 0 and RGMercUtils.SpellStacksOnMe(item.Spell) and not 
+                    return item() and item.TimerReady() == 0 and RGMercUtils.SpellStacksOnMe(item.Spell) and not mq.TLO.Me.Buff(dichoShield)
                 end,
             },
             { --shares effect with OoW Chest and Warlord's Bravery, offset from AbsorbDisc for automation flow/coverage
