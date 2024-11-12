@@ -2,7 +2,7 @@ local mq           = require('mq')
 local RGMercUtils  = require("utils.rgmercs_utils")
 
 local _ClassConfig = {
-    _version            = "1.2 - Beta", --BIG TODO: Add dps burn abilities and cycling logic
+    _version            = "1.2 - Beta",
     _author             = "Algar, Derple",
     ['ModeChecks']      = {
         IsTanking = function() return RGMercUtils.IsModeActive("Tank") end,
@@ -219,6 +219,15 @@ local _ClassConfig = {
             "Biting Tongue Discipline",
             "Barbed Tongue Discipline",
         },
+        ['ChargeDisc'] = {
+            "Charge Discipline",
+        },
+        ['OffensiveDisc'] = {
+            "Offensive Discipline",
+        },
+        ['MightyStrike'] = {
+            "Mighty Strike Discipline",
+        },
     },
     ['HelperFunctions'] = {
         --function to determine if we should AE taunt and optionally, if it is safe to do so
@@ -283,6 +292,15 @@ local _ClassConfig = {
         DiscOverwriteCheck = function(self)
             local defenseBuff = self:GetResolvedActionMapItem('DefenseACBuff')
             if mq.TLO.Me.ActiveDisc.ID() and mq.TLO.Me.ActiveDisc.Name() ~= defenseBuff.RankName() then return false end
+            return true
+        end,
+        BurnDiscCheck = function(self)
+            if mq.TLO.Me.ActiveDisc.Name() == "Fortitude Discipline" or mq.TLO.Me.PctHPs() < RGMercUtils.GetSetting('EmergencyStart') then return false end
+            local burnDisc = { "Onslaught", "MightyStrike", "ChargeDisc", "OffensiveDisc", }
+            for _, buffName in ipairs(burnDisc) do
+                local resolvedDisc = self:GetResolvedActionMapItem(burnDisc)
+                if mq.TLO.Me.ActiveDisc.Name() == resolvedDisc.RankName() then return false end
+            end
             return true
         end,
 
@@ -608,7 +626,7 @@ local _ClassConfig = {
                 name = "StandDisc",
                 type = "Disc",
                 cond = function(self, discSpell)
-                    return RGMercUtils.PCDiscReady(discSpell) and self.ClassConfig.HelperFunctions.DiscOverwriteCheck(self)
+                    return RGMercUtils.IsTanking() and RGMercUtils.PCDiscReady(discSpell) and self.ClassConfig.HelperFunctions.DiscOverwriteCheck(self)
                 end,
             },
         },
@@ -727,11 +745,32 @@ local _ClassConfig = {
                     return RGMercUtils.PCAAReady(aaName)
                 end,
             },
-             {
+            {
                 name = "Onslaught",
                 type = "Disc",
                 cond = function(self, discSpell)
-                    return not RGMercUtils.IsTanking() and RGMercUtils.PCDiscReady(discSpell)
+                    return not RGMercUtils.IsTanking() and RGMercUtils.PCDiscReady(discSpell) and self.ClassConfig.HelperFunctions.BurnDiscCheck(self)
+                end,
+            },
+            {
+                name = "MightyStrike",
+                type = "Disc",
+                cond = function(self, discSpell)
+                    return not RGMercUtils.IsTanking() and RGMercUtils.PCDiscReady(discSpell) and self.ClassConfig.HelperFunctions.BurnDiscCheck(self)
+                end,
+            },
+            {
+                name = "OffensiveDisc",
+                type = "Disc",
+                cond = function(self, discSpell)
+                    return not RGMercUtils.IsTanking() and RGMercUtils.PCDiscReady(discSpell) and self.ClassConfig.HelperFunctions.BurnDiscCheck(self)
+                end,
+            },
+            {
+                name = "Vehement Rage",
+                type = "AA",
+                cond = function(self, aaName)
+                    return not RGMercUtils.IsTanking() and RGMercUtils.PCAAReady(aaName)
                 end,
             },
             {
