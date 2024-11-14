@@ -1108,7 +1108,7 @@ local _ClassConfig = {
             Min = 1,
             Max = 100,
             ConfigType = "Advanced",
-            FAQ = "My SHD health spikes up and down a lot and abilities aren't being triggered, what gives?",
+            FAQ = "My WAR health spikes up and down a lot and abilities aren't being triggered, what gives?",
             Answer = "You may need to tailor the emergency thresholds to your current survivability and target choice.",
         },
         ['EmergencyLockout'] = {
@@ -1133,7 +1133,7 @@ local _ClassConfig = {
             Tooltip = "Click your equipped chest.",
             Default = false,
             FAQ = "What the heck is a chest click?",
-            Answer = "Most classes have useful abilities on their equipped chest after level 75 or so. The SHD's is generally a healing tool (a lifetapping pet).",
+            Answer = "Most classes have useful abilities on their equipped chest after level 75 or so. The WAR's is generally an absorbe rune for large hits.",
         },
         ['DoCharmClick']     = {
             DisplayName = "Do Charm Click",
@@ -1141,7 +1141,7 @@ local _ClassConfig = {
             Index = 2,
             Tooltip = "Click your charm for Geomantra.",
             Default = false,
-            FAQ = "Why is my Shadow Knight not clicking his charm?",
+            FAQ = "Why is my Warrior not clicking his charm?",
             Answer = "Charm clicks won't happen if you are in combat.",
         },
         ['DoCoating']        = {
@@ -1172,7 +1172,7 @@ local _ClassConfig = {
             Min = 1,
             Max = 100,
             ConfigType = "Advanced",
-            FAQ = "Why is my Shadow Knight not using a shield?",
+            FAQ = "Why is my Warrior not using a shield?",
             Answer = "Make sure you have [UseBandolier] enabled in your class settings.\n" ..
                 "You must also have Bandolier entries named \"Shield\" and \"DW\" to use this function.",
         },
@@ -1185,7 +1185,7 @@ local _ClassConfig = {
             Min = 1,
             Max = 100,
             ConfigType = "Advanced",
-            FAQ = "Why is my Shadow Knight not using a DW?",
+            FAQ = "Why is my Warrior not using DW?",
             Answer = "Make sure you have [UseBandolier] enabled in your class settings.\n" ..
                 "You must also have Bandolier entries named \"Shield\" and \"DW\" to use this function.",
         },
@@ -1195,7 +1195,7 @@ local _ClassConfig = {
             Index = 7,
             Tooltip = "Keep Shield equipped for Named mobs(must be in SpawnMaster or named.lua)",
             Default = true,
-            FAQ = "Why does my SHD switch to a Shield on puny gray named?",
+            FAQ = "Why does my WAR switch to a Shield on puny gray named?",
             Answer = "The Shield on Named option doesn't check levels, so feel free to disable this setting (or Bandolier swapping entirely) if you are farming fodder.",
         },
     },
