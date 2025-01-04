@@ -9,14 +9,13 @@ local DanNet      = require('lib.dannet.helpers')
 local Logger      = require("utils.logger")
 
 _ClassConfig      = {
-    _version            = "0.2B Modified",
+    _version            = "Live - Experimental (100+)",
     _author             = "Algar, Derple, Morisato",
     -- ['ModeChecks']        = {
     --     IsTanking = function() return Core.IsModeActive("PetTank") end,
     -- },
     ['Modes']           = {
-        'Fire',
-        'PetTank',
+        'Experimental',
     },
     -- ['OnModeChange']      = function(self, mode)
     --     if mode == "PetTank" then
@@ -857,6 +856,9 @@ _ClassConfig      = {
             "Malaisement",
             "Malaise",
         },
+        ['GroupCotH'] = {
+            "Call of the Heroes",
+        },
     },
     ['RotationOrder']   = {
         { --Summon pet even when buffs are off on emu
@@ -1562,61 +1564,37 @@ _ClassConfig      = {
             {
                 name = "SwarmPet",
                 type = "Spell",
-                cond = function(self, spell)
-                    return Core.IsModeActive("Fire") and (Casting.HaveManaToNuke() or Casting.BurnCheck())
+                cond = function(self, spell, target)
+                    return (Casting.HaveManaToNuke() or Casting.BurnCheck()) and Casting.TargetedSpellReady(spell, target.ID())
                 end,
             },
             {
                 name = "VolleyNuke",
                 type = "Spell",
-                cond = function(self, spell)
-                    return Core.IsModeActive("Fire")
+                cond = function(self, spell, target)
+                    return (Casting.HaveManaToNuke() or Casting.BurnCheck()) and Casting.TargetedSpellReady(spell, target.ID())
                 end,
             },
             {
                 name = "ChaoticNuke",
                 type = "Spell",
-                cond = function(self, _)
-                    return Core.IsModeActive("Fire")
+                cond = function(self, spell, target)
+                    return (Casting.HaveManaToNuke() or Casting.BurnCheck()) and Casting.TargetedSpellReady(spell, target.ID())
                 end,
             },
             {
                 name = "SpearNuke1",
                 type = "Spell",
-                cond = function(self, spell)
-                    return Core.IsModeActive("Fire")
+                cond = function(self, spell, target)
+                    return (Casting.HaveManaToNuke() or Casting.BurnCheck()) and Casting.TargetedSpellReady(spell, target.ID())
                 end,
-            },
-            -- {
-            --     name = "FireNuke1",
-            --     type = "Spell",
-            --     cond = function(self) return mq.TLO.Me.Level() < 70 or Core.IsModeActive("PetTank") end,
-            -- },
-            -- {
-            --     name = "FireNuke2",
-            --     type = "Spell",
-            --     cond = function(self) return mq.TLO.Me.Level() < 70 or Core.IsModeActive("PetTank") end,
-            -- },
-            -- {
-            --     name = "FireBoltNuke",
-            --     type = "Spell",
-            --     cond = function(self) return mq.TLO.Me.Level() < 70 or Core.IsModeActive("PetTank") end,
-            -- },
-            {
-                name = "MagicNuke1",
-                type = "Spell",
-                cond = function(self) return mq.TLO.Me.Level() < 70 and Core.IsModeActive("Fire") end,
-            },
-            {
-                name = "MagicNuke2",
-                type = "Spell",
-                cond = function(self) return mq.TLO.Me.Level() < 70 and Core.IsModeActive("Fire") end,
             },
             {
                 name = "Turned Summoned",
                 type = "AA",
-                cond = function(self, aaName)
-                    return mq.TLO.Target.ID() > 0 and mq.TLO.Target.Body.Name():lower() == "undead pet" and Casting.AAReady(aaName)
+                cond = function(self, aaName, target)
+                    if not Targeting.TargetBodyIs(target, "Undead Pet") then return false end
+                    return Casting.TargetedAAReady(aaName, target.ID())
                 end,
             },
             {
@@ -1624,14 +1602,6 @@ _ClassConfig      = {
                 type = "Spell",
                 cond = function(self, spell) return Casting.SelfBuffCheck(spell) and not Casting.BuffActiveByName("Improved Twincast") end,
             },
-            --   {
-            --       name = "AllianceBuff",
-            --       type = "Spell",
-            --      cond = function(self, spell)
-            --           return RGMercUtils.IsNamed(mq.TLO.Target) and not Casting.TargetHasBuff(spell) and
-            --               Config:GetSetting('DoAlliance') and RGMercUtils.CanAlliance()
-            --       end,
-            --    },
         },
         ['Debuff'] = {
             {
@@ -1914,6 +1884,13 @@ _ClassConfig      = {
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
                 { name = "LongDurDmgShield", },
+            },
+        },
+        {
+            gem = 13,
+            cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
+            spells = {
+                { name = "GroupCotH", },
             },
         },
     },
