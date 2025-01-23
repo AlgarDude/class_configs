@@ -6,8 +6,8 @@ local Logger       = require("utils.logger")
 local Core         = require("utils.core")
 
 local _ClassConfig = {
-    _version            = "1.0 - Live",
-    _author             = "Derple",
+    _version            = "1.1 Custom (Testing)",
+    _author             = "Algar, Derple",
     ['Modes']           = {
         'DPS',
     },
@@ -326,7 +326,7 @@ local _ClassConfig = {
                 name = "Mend",
                 type = "Ability",
                 cond = function(self, abilityName)
-                    return mq.TLO.Me.AbilityReady(abilityName)() and mq.TLO.Me.PctHPs() < 85
+                    return mq.TLO.Me.AbilityReady(abilityName)() and mq.TLO.Me.PctHPs() < 50
                 end,
             },
         },
@@ -360,6 +360,13 @@ local _ClassConfig = {
                 type = "Ability",
                 cond = function(self, abilityName)
                     return mq.TLO.Me.AbilityReady(abilityName)()
+                end,
+            },
+            {
+                name = "Epic",
+                type = "Item",
+                cond = function(self, itemName)
+                    return mq.TLO.FindItem(itemName).TimerReady() == 0
                 end,
             },
         },
