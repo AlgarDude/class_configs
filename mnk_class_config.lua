@@ -269,7 +269,25 @@ local _ClassConfig = {
             end,
         },
         {
+            name = 'CombatBuff',
+            state = 1,
+            steps = 1,
+            targetId = function(self) return mq.TLO.Target.ID() == Config.Globals.AutoTargetID and { Config.Globals.AutoTargetID, } or {} end,
+            cond = function(self, combat_state)
+                return combat_state == "Combat" and not Casting.IAmFeigning()
+            end,
+        },
+        {
             name = 'DPS',
+            state = 1,
+            steps = 1,
+            targetId = function(self) return mq.TLO.Target.ID() == Config.Globals.AutoTargetID and { Config.Globals.AutoTargetID, } or {} end,
+            cond = function(self, combat_state)
+                return combat_state == "Combat" and not Casting.IAmFeigning()
+            end,
+        },
+        {
+            name = 'Precision',
             state = 1,
             steps = 1,
             targetId = function(self) return mq.TLO.Target.ID() == Config.Globals.AutoTargetID and { Config.Globals.AutoTargetID, } or {} end,
@@ -466,7 +484,7 @@ local _ClassConfig = {
                 end,
             },
         },
-        ['DPS'] = {
+        ['CombatBuff'] = {
             {
                 name = "EndRegen",
                 type = "Disc",
@@ -478,14 +496,7 @@ local _ClassConfig = {
                 name = "Drunken",
                 type = "Disc",
                 cond = function(self, discSpell)
-                    return Casting.DiscReady(discSpell) and Casting.BuffActive(discSpell)
-                end,
-            },
-            {
-                name = "Synergy",
-                type = "Disc",
-                cond = function(self, discSpell)
-                    return Casting.TargetedDiscReady(discSpell)
+                    return Casting.DiscReady(discSpell) and Casting.SelfBuffCheck(discSpell)
                 end,
             },
             {
@@ -493,6 +504,45 @@ local _ClassConfig = {
                 type = "AA",
                 cond = function(self, aaName)
                     return Casting.AAReady(aaName) and Casting.SelfBuffAACheck(aaName)
+                end,
+            },
+            {
+                name = "Storm",
+                type = "Disc",
+                cond = function(self, discSpell)
+                    return Casting.DiscReady(discSpell) and not mq.TLO.Me.ActiveDisc.ID()
+                end,
+            },
+            {
+                name = "EarthForce",
+                type = "Disc",
+                cond = function(self, discSpell)
+                    return Casting.DiscReady(discSpell) and not mq.TLO.Me.ActiveDisc.ID()
+                end,
+            },
+            {
+                name = "FistsOfWu",
+                type = "Disc",
+                cond = function(self, discSpell)
+                    if mq.TLO.Me.Level() >= 100 then return false end
+                    return Casting.DiscReady(discSpell) and Casting.SelfBuffCheck(discSpell)
+                end,
+            },
+            {
+                name = "Alliance",
+                type = "Disc",
+                cond = function(self, discSpell)
+                    if not Config:GetSetting('DoAlliance') then return false end
+                    return Casting.TargetedDiscReady(discSpell) and not Casting.TargetHasBuffByName(discSpell.Trigger(1))
+                end,
+            },
+        },
+        ['DPS'] = {
+            {
+                name = "Synergy",
+                type = "Disc",
+                cond = function(self, discSpell)
+                    return Casting.TargetedDiscReady(discSpell)
                 end,
             },
             {
@@ -510,13 +560,65 @@ local _ClassConfig = {
                 end,
             },
             {
-                name = "Alliance",
+                name = "Fists",
                 type = "Disc",
                 cond = function(self, discSpell)
-                    if not Config:GetSetting('DoAlliance') then return false end
-                    return Casting.TargetedDiscReady(discSpell) and not Casting.TargetHasBuffByName(discSpell.Trigger(1))
+                    return Casting.TargetedDiscReady(discSpell)
                 end,
             },
+            {
+                name = "Fang",
+                type = "Disc",
+                cond = function(self, discSpell)
+                    return Casting.TargetedDiscReady(discSpell)
+                end,
+            },
+            {
+                name = "Shuriken",
+                type = "Disc",
+                cond = function(self, discSpell)
+                    return Casting.TargetedDiscReady(discSpell)
+                end,
+            },
+            {
+                name = "Five Point Palm",
+                type = "AA",
+                cond = function(self, aaName)
+                    return Casting.TargetedAAReady(aaName)
+                end,
+            },
+            {
+                name = "Intimidation",
+                type = "Ability",
+                cond = function(self, abilityName)
+                    if (mq.TLO.Me.AltAbility("Intimidation").Rank() or 0) < 2 then return false end
+                    return mq.TLO.Me.AbilityReady(abilityName)()
+                end,
+            },
+            {
+                name = "Flying Kick",
+                type = "Ability",
+                cond = function(self, abilityName, target)
+                    return mq.TLO.Me.AbilityReady(abilityName)() and Casting.AbilityRangeCheck(target)
+                end,
+            },
+            {
+                name = "Eagle Strike",
+                type = "Ability",
+                cond = function(self, abilityName, target)
+                    if not mq.TLO.Me.PctEndurance() < 25 then return false end
+                    return mq.TLO.Me.AbilityReady(abilityName)() and Casting.AbilityRangeCheck(target)
+                end,
+            },
+            {
+                name = "Tiger Claw",
+                type = "Ability",
+                cond = function(self, abilityName, target)
+                    return mq.TLO.Me.AbilityReady(abilityName)() and Casting.AbilityRangeCheck(target)
+                end,
+            },
+        },
+        ['Precision'] = {
             {
                 name = "Precision5",
                 type = "Disc",
@@ -552,86 +654,6 @@ local _ClassConfig = {
                     return Casting.TargetedDiscReady(discSpell)
                 end,
             },
-            {
-                name = "Fists",
-                type = "Disc",
-                cond = function(self, discSpell)
-                    return Casting.TargetedDiscReady(discSpell)
-                end,
-            },
-            {
-                name = "Fang",
-                type = "Disc",
-                cond = function(self, discSpell)
-                    return Casting.TargetedDiscReady(discSpell)
-                end,
-            },
-            {
-                name = "Shuriken",
-                type = "Disc",
-                cond = function(self, discSpell)
-                    return Casting.TargetedDiscReady(discSpell)
-                end,
-            },
-            {
-                name = "Five Point Palm",
-                type = "AA",
-                cond = function(self, aaName)
-                    return Casting.TargetedAAReady(aaName)
-                end,
-            },
-            {
-                name = "Storm",
-                type = "Disc",
-                cond = function(self, discSpell)
-                    return Casting.DiscReady(discSpell) and not mq.TLO.Me.ActiveDisc.ID()
-                end,
-            },
-            {
-                name = "EarthForce",
-                type = "Disc",
-                cond = function(self, discSpell)
-                    return Casting.DiscReady(discSpell) and not mq.TLO.Me.ActiveDisc.ID()
-                end,
-            },
-            {
-                name = "FistsOfWu",
-                type = "Disc",
-                cond = function(self, discSpell)
-                    if mq.TLO.Me.Level() >= 100 then return false end
-                    return Casting.DiscReady(discSpell) and Casting.SelfBuffCheck(discSpell)
-                end,
-            },
-            {
-                name = "Intimidation",
-                type = "Ability",
-                cond = function(self, abilityName)
-                    if (mq.TLO.Me.AltAbility("Intimidation").Rank() or 0) < 2 then return false end
-                    return mq.TLO.Me.AbilityReady(abilityName)()
-                end,
-            },
-            {
-                name = "Flying Kick",
-                type = "Ability",
-                cond = function(self, abilityName, target)
-                    return mq.TLO.Me.AbilityReady(abilityName)() and Casting.AbilityRangeCheck(target)
-                end,
-            },
-            {
-                name = "Eagle Strike",
-                type = "Ability",
-                cond = function(self, abilityName, target)
-                    if not mq.TLO.Me.PctEndurance() < 25 then return false end
-                    return mq.TLO.Me.AbilityReady(abilityName)() and Casting.AbilityRangeCheck(target)
-                end,
-            },
-            {
-                name = "Tiger Claw",
-                type = "Ability",
-                cond = function(self, abilityName, target)
-                    return mq.TLO.Me.AbilityReady(abilityName)() and Casting.AbilityRangeCheck(target)
-                end,
-            },
         },
     },
     ['PullAbilities']   = {
@@ -657,15 +679,91 @@ local _ClassConfig = {
             Min = 1,
             Max = 1,
             FAQ = "What do the different Modes Do?",
-            Answer = "Currently there is only DPS mode for Monks, More modes may be added in the future.",
+            Answer = "Currently there is only DPS mode for Monks, more modes may be added in the future.",
         },
         ['DoIntimidation'] = {
-            DisplayName = "Do Intimidation",
-            Category = "Combat",
-            Tooltip = "Select Use Intimidation",
+            DisplayName = "Orphaned",
+            Type = "Custom",
+            Category = "Orphaned",
+            Tooltip = "Orphaned setting from live, no longer used in this config.",
             Default = false,
-            FAQ = "Why am I not using Intimidation?",
-            Answer = "Adjust your [DoIntimidation] setting to true.",
+            FAQ = "Why do I see orphaned settings?",
+            Answer = "To avoid deletion of settings when moving between configs, our beta or experimental configs keep placeholders for live settings\n" ..
+                "These tabs or settings will be removed if and when the config is made the default.",
+        },
+        ['DoVetAA']        = {
+            DisplayName = "Use Vet AA",
+            Category = "Abilities",
+            Index = 8,
+            Tooltip = "Use Veteran AA's in emergencies or during Burn. (See FAQ)",
+            Default = true,
+            FAQ = "What Vet AA's does MNK use?",
+            Answer = "If Use Vet AA is enabled, Intensity of the Resolute will be used on burns and Armor of Experience will be used in emergencies.",
+        },
+        ['DoAEDamage']     = {
+            DisplayName = "Do AE Damage",
+            Category = "Abilities",
+            Index = 1,
+            Tooltip = "**WILL BREAK MEZ** Use AE damage Discs and AA. **WILL BREAK MEZ**",
+            Default = false,
+            FAQ = "Why am I using AE damage when there are mezzed mobs around?",
+            Answer = "It is not currently possible to properly determine Mez status without direct Targeting. If you are mezzing, consider turning this option off.",
+        },
+        ['AETargetCnt']    = {
+            DisplayName = "AE Target Count",
+            Category = "Abilities",
+            Index = 2,
+            Tooltip = "Minimum number of valid targets before using AE Disciplines or AA.",
+            Default = 2,
+            Min = 1,
+            Max = 10,
+            FAQ = "Why am I using AE abilities on only a couple of targets?",
+            Answer =
+            "You can adjust the AE Target Count to control when you will use actions with AE damage attached.",
+        },
+        ['SafeAEDamage']   = {
+            DisplayName = "AE Proximity Check",
+            Category = "Abilities",
+            Index = 3,
+            Tooltip = "Check to ensure there aren't neutral mobs in range we could aggro if AE damage is used. May result in non-use due to false positives.",
+            Default = false,
+            FAQ = "Can you better explain the AE Proximity Check?",
+            Answer = "If the option is enabled, the script will use various checks to determine if a non-hostile or not-aggroed NPC is present and avoid use of the AE action.\n" ..
+                "Unfortunately, the script currently does not discern whether an NPC is (un)attackable, so at times this may lead to the action not being used when it is safe to do so.\n" ..
+                "PLEASE NOTE THAT THIS OPTION HAS NOTHING TO DO WITH MEZ!",
+        },
+        ['AggroFeign']     = {
+            DisplayName = "Emergency Feign",
+            Category = "Spells and Abilities",
+            Index = 8,
+            Tooltip = "Use your Feign AA when you have aggro at low health or aggro on a RGMercsNamed/SpawnMaster mob.",
+            Default = true,
+            FAQ = "How do I use my Feign Death?",
+            Answer = "Make sure you have [AggroFeign] enabled.\n" ..
+                "This will use your Feign Death AA when you have aggro at low health or aggro on a RGMercsNamed/SpawnMaster mob.",
+        },
+        ['EmergencyStart'] = {
+            DisplayName = "Emergency HP%",
+            Category = "Spells and Abilities",
+            Index = 9,
+            Tooltip = "Your HP % before we begin to use emergency mitigation abilities.",
+            Default = 50,
+            Min = 1,
+            Max = 100,
+            ConfigType = "Advanced",
+            FAQ = "How do I use my Emergency Mitigation Abilities?",
+            Answer = "Make sure you have [EmergencyStart] set to the HP % before we begin to use emergency mitigation abilities.",
+        },
+        ['DoChestClick']   = {
+            DisplayName = "Do Chest Click",
+            Category = "Spells and Abilities",
+            Index = 7,
+            Tooltip = "Click your chest item during burns.",
+            Default = true,
+            ConfigType = "Advanced",
+            FAQ = "What is a Chest Click?",
+            Answer = "Most Chest slot items after level 75ish have a clickable effect.\n" ..
+                "MNK is set to use theirs during burns, so long as the item equipped has a clicky effect.",
         },
     },
 }
