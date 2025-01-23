@@ -11,31 +11,10 @@ local Logger      = require("utils.logger")
 _ClassConfig      = {
     _version            = "Live - Experimental (100+)",
     _author             = "Algar, Derple, Morisato",
-    -- ['ModeChecks']        = {
-    --     IsTanking = function() return Core.IsModeActive("PetTank") end,
-    -- },
     ['Modes']           = {
         'Experimental',
+        'PetTank',
     },
-    -- ['OnModeChange']      = function(self, mode)
-    --     if mode == "PetTank" then
-    --         Core.DoCmd("/pet taunt on")
-    --         Core.DoCmd("/pet resume on")
-    --         Config:GetSettings().AutoAssistAt         = 100
-    --         Config:GetSettings().StayOnTarget         = false
-    --         Config:GetSettings().DoAutoEngage         = true
-    --         Config:GetSettings().DoAutoTarget         = true
-    --         Config:GetSettings().AllowMezBreak        = true
-    --         Config:GetSettings().WaitOnGlobalCooldown = false
-    --     else
-    --         Core.DoCmd("/pet taunt off")
-    --         if Config:GetSetting('AutoAssistAt') == 100 then
-    --             Config:GetSettings().AutoAssistAt = 98
-    --         end
-    --         Config:GetSettings().WaitOnGlobalCooldown = false
-    --         Config:GetSettings().StayOnTarget = true
-    --     end
-    -- end,
     ['ItemSets']        = {
         ['Epic'] = {
             "Focus of Primal Elements",
@@ -894,15 +873,7 @@ _ClassConfig      = {
             name = 'GroupBuff',
             timer = 60, -- only run every 60 seconds top.
             targetId = function(self)
-                local groupIds = { mq.TLO.Me.ID(), }
-                local count = mq.TLO.Group.Members()
-                for i = 1, count do
-                    local rezSearch = string.format("pccorpse %s radius 100 zradius 50", mq.TLO.Group.Member(i).DisplayName())
-                    if Config:GetSetting('BuffRezables') or mq.TLO.SpawnCount(rezSearch)() == 0 then
-                        table.insert(groupIds, mq.TLO.Group.Member(i).ID())
-                    end
-                end
-                return groupIds
+                return Casting.GetBuffableGroupIDs()
             end,
             cond = function(self, combat_state)
                 return combat_state == "Downtime" and Casting.DoBuffCheck()
@@ -918,12 +889,13 @@ _ClassConfig      = {
             end,
         },
         {
-            name = 'Debuff',
+            name = 'Malo',
             state = 1,
             steps = 1,
             targetId = function(self) return mq.TLO.Target.ID() == Config.Globals.AutoTargetID and { Config.Globals.AutoTargetID, } or {} end,
             cond = function(self, combat_state)
-                return combat_state == "Combat" and not Casting.IAmFeigning() and Casting.DebuffConCheck()
+                if not Config:GetSetting('DoMalo') then return false end
+                return combat_state == "Combat" and not Casting.IAmFeigning() and mq.TLO.Me.PctMana() >= Config:GetSetting('ManaToDebuff')
             end,
         },
         {
@@ -1603,29 +1575,28 @@ _ClassConfig      = {
                 cond = function(self, spell) return Casting.SelfBuffCheck(spell) and not Casting.BuffActiveByName("Improved Twincast") end,
             },
         },
-        ['Debuff'] = {
+        ['Malo'] = {
             {
                 name = "Malaise",
                 type = "AA",
                 cond = function(self, aaName, target)
-                    return Config:GetSetting('DoMalo') and Casting.DetAACheck(aaName) and
-                        Casting.TargetedAAReady(aaName, target.ID())
+                    return Casting.TargetedAAReady(aaName, target.ID()) and Casting.DetAACheck(aaName)
                 end,
             },
             {
                 name = "MaloDebuff",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    return Config:GetSetting('DoMalo') and Casting.DetSpellCheck(spell) and
-                        Casting.TargetedSpellReady(spell, target.ID())
+                    if Casting.CanUseAA("Malaise") then return false end
+                    return Casting.TargetedSpellReady(spell, target.ID()) and Casting.DetSpellCheck(spell)
                 end,
             },
             {
-                name = "Malaise",
-                type = "Wind of Malaise",
+                name = "Wind of Malaise",
+                type = "AA",
                 cond = function(self, aaName, target)
-                    return Config:GetSetting('DoMalo') and Config:GetSetting('DoAEMalo') and Casting.DetAACheck(aaName) and
-                        Casting.TargetedAAReady(aaName, target.ID())
+                    if not Config:GetSetting('DoAEMalo') then return false end
+                    return Casting.TargetedAAReady(aaName, target.ID()) and Casting.DetAACheck(aaName)
                 end,
             },
         },
@@ -1637,7 +1608,7 @@ _ClassConfig      = {
                     return Casting.BuffActive(spell)
                 end,
                 cond = function(self, spell, target)
-                    return not Casting.TargetHasBuff(spell, target) and Casting.SpellStacksOnTarget(spell)
+                    return Casting.GroupBuffCheck(spell, target)
                 end,
             },
             {
