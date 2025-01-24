@@ -6,7 +6,7 @@ local Logger       = require("utils.logger")
 local Core         = require("utils.core")
 
 local _ClassConfig = {
-    _version            = "1.1 Custom (Testing)",
+    _version            = "1.1 Experimental",
     _author             = "Algar, Derple",
     ['Modes']           = {
         'DPS',
@@ -15,6 +15,10 @@ local _ClassConfig = {
         ['Epic'] = {
             "Transcended Fistwraps of Immortality",
             "Fistwraps of Celestial Discipline",
+        },
+        ['Coating'] = {
+            "Spirit Drinker's Coating",
+            "Blood Drinker's Coating",
         },
     },
     ['AbilitySets']     = {
@@ -360,6 +364,15 @@ local _ClassConfig = {
                 type = "Ability",
                 cond = function(self, abilityName)
                     return mq.TLO.Me.AbilityReady(abilityName)()
+                end,
+            },
+            {
+                name = "Coating",
+                type = "Item",
+                cond = function(self, itemName)
+                    if not Config:GetSetting('DoCoating') then return false end
+                    local item = mq.TLO.FindItem(itemName)
+                    return item() and item.TimerReady() == 0 and Casting.SelfBuffCheck(item.Spell)
                 end,
             },
             {
@@ -741,7 +754,7 @@ local _ClassConfig = {
         },
         ['AggroFeign']     = {
             DisplayName = "Emergency Feign",
-            Category = "Spells and Abilities",
+            Category = "Abilities",
             Index = 8,
             Tooltip = "Use your Feign AA when you have aggro at low health or aggro on a RGMercsNamed/SpawnMaster mob.",
             Default = true,
@@ -751,7 +764,7 @@ local _ClassConfig = {
         },
         ['EmergencyStart'] = {
             DisplayName = "Emergency HP%",
-            Category = "Spells and Abilities",
+            Category = "Abilities",
             Index = 9,
             Tooltip = "Your HP % before we begin to use emergency mitigation abilities.",
             Default = 50,
@@ -763,7 +776,7 @@ local _ClassConfig = {
         },
         ['DoChestClick']   = {
             DisplayName = "Do Chest Click",
-            Category = "Spells and Abilities",
+            Category = "Abilities",
             Index = 7,
             Tooltip = "Click your chest item during burns.",
             Default = true,
@@ -771,6 +784,15 @@ local _ClassConfig = {
             FAQ = "What is a Chest Click?",
             Answer = "Most Chest slot items after level 75ish have a clickable effect.\n" ..
                 "MNK is set to use theirs during burns, so long as the item equipped has a clicky effect.",
+        },
+        ['DoCoating']      = {
+            DisplayName = "Use Coating",
+            Category = "Equipment",
+            Index = 5,
+            Tooltip = "Click your Blood/Spirit Drinker's Coating in an emergency.",
+            Default = false,
+            FAQ = "What is a Coating?",
+            Answer = "Blood Drinker's Coating is a clickable lifesteal effect added in CotF. Spirit Drinker's Coating is an upgrade added in NoS.",
         },
     },
 }
