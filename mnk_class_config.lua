@@ -23,14 +23,18 @@ local _ClassConfig = {
     },
     ['AbilitySets']     = {
         ['EndRegen'] = {
-            -- Fast Endurance regen - No Update
-            "Second Wind",
+            --Timer 13, can't be used in combat
+            "Second Wind", -- Level 72
             "Third Wind",
             "Fourth Wind",
             "Respite",
             "Reprieve",
             "Rest",
-            "Breather",
+            "Breather", --Level 101
+        },
+        ['CombatEndRegen'] = {
+            --Timer 13, can be used in combat.
+            "Hiatus", --Level 106
             "Relax",
             "Night's Calming",
             "Convalesce",
@@ -214,6 +218,7 @@ local _ClassConfig = {
     },
     ['HelperFunctions'] = {
         BurnDiscCheck = function(self)
+            if mq.TLO.Me.PctHPs() < Config:GetSetting('EmergencyStart') then return false end
             local burnDisc = { "Heel", "Speed", "Ironfist", "Palm", }
             for _, buffName in ipairs(burnDisc) do
                 local resolvedDisc = self:GetResolvedActionMapItem(buffName)
@@ -242,13 +247,11 @@ local _ClassConfig = {
         end,
     },
     ['RotationOrder']   = {
-        -- Downtime doesn't have state because we run the whole rotation at once.
         {
             name = 'Downtime',
             targetId = function(self) return { mq.TLO.Me.ID(), } end,
             cond = function(self, combat_state)
-                return combat_state == "Downtime" and
-                    Casting.DoBuffCheck() and Casting.AmIBuffable()
+                return combat_state == "Downtime" and Casting.DoBuffCheck() and Casting.AmIBuffable()
             end,
         },
         {
@@ -268,8 +271,7 @@ local _ClassConfig = {
             steps = 1,
             targetId = function(self) return mq.TLO.Target.ID() == Config.Globals.AutoTargetID and { Config.Globals.AutoTargetID, } or {} end,
             cond = function(self, combat_state)
-                return combat_state == "Combat" and
-                    Casting.BurnCheck() and not Casting.IAmFeigning()
+                return combat_state == "Combat" and Casting.BurnCheck() and not Casting.IAmFeigning()
             end,
         },
         {
@@ -314,6 +316,14 @@ local _ClassConfig = {
             },
             {
                 name = "EndRegen",
+                type = "Disc",
+                cond = function(self, discSpell)
+                    if self:GetResolvedActionMapItem("CombatEndRegen") then return false end
+                    return Casting.DiscReady(discSpell) and mq.TLO.Me.PctEndurance() < 15
+                end,
+            },
+            {
+                name = "CombatEndRegen",
                 type = "Disc",
                 cond = function(self, discSpell)
                     return Casting.DiscReady(discSpell) and mq.TLO.Me.PctEndurance() < 15
@@ -363,7 +373,7 @@ local _ClassConfig = {
                 name = "Mend",
                 type = "Ability",
                 cond = function(self, abilityName)
-                    return mq.TLO.Me.AbilityReady(abilityName)()
+                    return mq.TLO.Me.AbilityReady(abilityName)() and mq.TLO.Me.PctHPs() < Config:GetSetting('EmergencyStart')
                 end,
             },
             {
@@ -372,7 +382,7 @@ local _ClassConfig = {
                 cond = function(self, itemName)
                     if not Config:GetSetting('DoCoating') then return false end
                     local item = mq.TLO.FindItem(itemName)
-                    return item() and item.TimerReady() == 0 and Casting.SelfBuffCheck(item.Spell)
+                    return item() and item.TimerReady() == 0 and Casting.SelfBuffCheck(item.Spell) and mq.TLO.Me.PctHPs() < Config:GetSetting('EmergencyStart')
                 end,
             },
             {
@@ -469,7 +479,7 @@ local _ClassConfig = {
                 cond = function(self, aaName)
                     local speedDisc = self:GetResolvedActionMapItem("Speed")
                     if not Config:GetSetting("DoAEDamage") or not speedDisc then return false end
-                    return Casting.AAReady(aaName) and mq.TLO.Me.ActiveDisc.Name() == speedDisc.RankName()
+                    return Casting.AAReady(aaName) and mq.TLO.Me.ActiveDisc.Name() == speedDisc.RankName() and self.ClassConfig.HelperFunctions.AETargetCheck()
                 end,
             },
             { --pairs with Speed Focus Disc, single target, T2
@@ -506,7 +516,7 @@ local _ClassConfig = {
         },
         ['CombatBuff'] = {
             {
-                name = "EndRegen",
+                name = "CombatEndRegen",
                 type = "Disc",
                 cond = function(self, discSpell)
                     return Casting.DiscReady(discSpell) and mq.TLO.Me.PctEndurance() < 15
