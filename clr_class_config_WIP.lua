@@ -56,7 +56,7 @@ local _ClassConfig = {
         },
     },
     ['AbilitySets']       = {
-        ['WardBuff'] = {
+        ['WardBuff'] = { -- Level 97+
             "Ward of Certitude",
             "Ward of Surety",
             "Ward of Assurance",
@@ -64,7 +64,7 @@ local _ClassConfig = {
             "Ward of Persistence",
             "Ward of Commitment",
         },
-        ['MainHeal'] = {
+        ['HealingLight'] = {
             "Minor Healing",
             "Light Healing",
             "Healing",
@@ -108,14 +108,6 @@ local _ClassConfig = {
             "Avowed Remedy",
         },
         ['RemedyHeal2'] = {
-            "Ethereal Remedy",
-            "Supernal Remedy",
-            "Pious Remedy",
-            "Sacred Remedy",
-            "Solemn Remedy",
-            "Devout Remedy",
-            "Earnest Remedy",
-            "Faithful Remedy",
             "Graceful Remedy",
             "Spiritual Remedy",
             "Merciful Remedy",
@@ -147,6 +139,18 @@ local _ClassConfig = {
             "Determined Renewal",
             "Heroic Renewal",
         },
+        ['Renewal3'] = { -- Level 70 +, large heal, slower cast
+            "Desperate Renewal",
+            "Frantic Renewal",
+            "Frenetic Renewal",
+            "Frenzied Renewal",
+            "Fervent Renewal",
+            "Fraught Renewal",
+            "Furial Renewal",
+            "Dire Renewal",
+            "Determined Renewal",
+            "Heroic Renewal",
+        },
         ['DichoHeal'] = {
             "Undying Life",
             "Dissident Blessing",
@@ -154,8 +158,7 @@ local _ClassConfig = {
             "Ecliptic Blessing",
             "Reciprocal Blessing",
         },
-        ['GroupFastHeal'] = {
-            -----Group Fast Heal 98+ Only
+        ['GroupFastHeal'] = { -- Level 98
             "Syllable of Acceptance",
             "Syllable of Convalescence",
             "Syllable of Mending",
@@ -164,14 +167,8 @@ local _ClassConfig = {
             "Syllable of Renewal",
         },
         ['GroupHealCure'] = {
-            -----Group Heals Slot 5
-            "Word of Health",
-            "Word of Healing",
-            "Word of Vigor",
-            "Word of Restoration",
-            -- 12 second Cast makes this Spell Unfeasible
-            -- [] = "Word of Redemption",
-            "Word of Replenishment",
+            "Word of Restoration",   -- Poi/Dis
+            "Word of Replenishment", -- Poi/Dis/Curse
             "Word of Vivification",
             "Word of Vivacity",
             "Word of Recovery",
@@ -189,8 +186,12 @@ local _ClassConfig = {
             "Word of Health",
             "Word of Healing",
             "Word of Vigor",
-            "Word of Redemption",
-            "Word of Awakening",
+            "Word of Restoration", -- No good NoCure in these level ranges using w/Cure... Note Word of Redemption omitted (12sec cast)
+            "Word of Replenishment",
+            "Word of Vivification",
+            "Word of Vivacity",
+            "Word of Recovery",
+            "Word of Awakening", --86, back to no cures
             "Word of Recuperation",
             "Word of Renewal",
             "Word of Convalescence",
@@ -211,7 +212,43 @@ local _ClassConfig = {
             "Atoned Intervention",
             "Avowed Intervention",
         },
+        ['HealNuke2'] = {
+            -- Heal Tank and Nuke Tanks Target -- Intervention Lines
+            "Holy Intervention",
+            "Celestial Intervention",
+            "Elysian Intervention",
+            "Virtuous Intervention",
+            "Mystical Intervention",
+            "Merciful Intervention",
+            "Sincere Intervention",
+            "Atoned Intervention",
+            "Avowed Intervention",
+        },
+        ['HealNuke3'] = {
+            -- Heal Tank and Nuke Tanks Target -- Intervention Lines
+            "Holy Intervention",
+            "Celestial Intervention",
+            "Elysian Intervention",
+            "Virtuous Intervention",
+            "Mystical Intervention",
+            "Merciful Intervention",
+            "Sincere Intervention",
+            "Atoned Intervention",
+            "Avowed Intervention",
+        },
         ['NukeHeal'] = {
+            -- Nuke Target and Heal Tank -  Dps Heals
+            "Holy Contravention",
+            "Celestial Contravention",
+            "Elysian Contravention",
+            "Virtuous Contravention",
+            "Ardent Contravention",
+            "Merciful Contravention",
+            "Sincere Contravention",
+            "Divine Contravention",
+            "Avowed Contravention",
+        },
+        ['NukeHeal2'] = {
             -- Nuke Target and Heal Tank -  Dps Heals
             "Holy Contravention",
             "Celestial Contravention",
@@ -412,8 +449,25 @@ local _ClassConfig = {
             "Hand of Unyielding Infusion",
             "Hand of Avowed Infusion",
         },
+        ['SingleElixir'] = {
+            "Celestial Remedy", -- Level 19
+            "Celestial Health",
+            "Celestial Healing",
+            "Celestial Elixir",
+            "Supernal Elixir",
+            "Holy Elixir",
+            "Pious Elixir",
+            "Sacred Elixir",
+            "Solemn Elixir",
+            "Devout Elixir",
+            "Earnest Elixir",
+        },
         ['GroupElixir'] = {
             -- Group Hot Line - Elixirs No Cure
+            "Ethereal Elixir", -- Level 59
+            "Elixir of Divinity",
+            "Elixir of Redemption",
+            "Elixir of Atonement",
             "Elixir of Expiation",
             "Elixir of the Ardent",
             "Elixir of the Beneficent",
@@ -490,6 +544,36 @@ local _ClassConfig = {
             "Remove Lesser Curse",
             "Remove Minor Curse",
         },
+        ['YaulpSpell'] = {
+            "Yaulp V", -- Level 56, first rank with haste/mana regen
+            "Yaulp VI",
+            "Yaulp VII",
+            "Yaulp VIII",
+            "Yaulp IX",    -- Level 76, AA starts at 75 with Yaulp IX
+        },
+        ['StunTimer6'] = { -- Timer 6 Stun, Fast Cast, Level 63+ (with ToT Heal 88+)
+            "Sound of Heroism",
+            "Sound of Providence",
+            "Sound of Rebuke",
+            "Sound of Wrath",
+            "Sound of Thunder",
+            "Sound of Plangency",
+            "Sound of Fervor",
+            "Sound of Fury",
+            "Sound of Reverberance",
+            "Sound of Resonance",
+            "Sound of Zeal",
+            "Sound of Divinity",
+            "Sound of Might",
+            --Filler before this
+            "Tarnation",     -- Timer 4, up to Level 65
+            "Force",         -- No Timer, up to Level 58
+            "Holy Might",    -- No Timer, up to Level 55
+        },
+        ['LowLevelStun'] = { --Adding a second stun at low levels
+            "Stun",
+        },
+
     }, -- end AbilitySets
     ['HelperFunctions']   = {
         DoRez = function(self, corpseId)
@@ -1049,86 +1133,122 @@ local _ClassConfig = {
         {
             gem = 1,
             spells = {
-                { name = "RemedyHeal", },
+                { name = "RemedyHeal",   function(self) return mq.TLO.Me.Level() >= 96 end, }, -- Level 96+
+                { name = "Renewal", },                                                         -- Level 70+
+                { name = "HealingLight", },                                                    -- Main Heal, Level 1-69
             },
         },
         {
             gem = 2,
             spells = {
-                { name = "RemedyHeal2", },
+                { name = "RemedyHeal2", },  -- Level 101+
+                { name = "Renewal", },      -- Level 96-100 (When we only have one Remedy)
+                { name = "Renewal2", },     -- Level 75+
+                { name = "HealingLight", }, -- Fallback, Level 70-74
+                { name = "RemedyHeal", },   -- Emergency/fallback, 59-69, these aren't good until 96
             },
         },
         {
             gem = 3,
             spells = {
-                { name = "ClutchHeal", },
+                { name = "HealNuke2", },    -- Level 88+
+                { name = "Renewal3", },     -- Level 80+
+                { name = "SingleElixir", }, -- Level 19-79
+
             },
         },
         {
             gem = 4,
             spells = {
-                { name = "DichoHeal", },
+                { name = "HealNuke", },                                                       -- Level 83+
+                { name = "HealingLight", },                                                   -- Fallback, Level 75-82
+                { name = "LowLevelStun", function(self) return mq.TLO.Me.Level() < 60 end, }, -- Level 2-60
             },
         },
         {
             gem = 5,
             spells = {
-                { name = "GroupHealCure", },
+                { name = "ClutchHeal", }, -- Level 77+
+                { name = "StunTimer6", }, -- Level 16 - 76 (moved gems after)
+
             },
         },
         {
             gem = 6,
             spells = {
-                { name = "GroupFastHeal", },
+                { name = "GroupFastHeal", },   -- Syllable, 98+
+                { name = "GroupHealNoCure", }, -- Level 30-97
             },
         },
         {
             gem = 7,
             spells = {
-                { name = "GroupElixir", },
+                { name = "DivineBuff", function(self) return mq.TLO.Me.Gems() == 8 end, }, -- Level 51+
+
+
             },
         },
         { --We will leave this gem open for buffing until we have 9
             gem = 8,
             cond = function(self) return mq.TLO.Me.NumGems() >= 9 end,
             spells = {
-                { name = "HealNuke", },
+                { name = "YaulpSpell", function(self) return not Casting.CanUseAA(Yaulp) end, }, -- Level 56-75
+                { name = "StunTimer6", },                                                        -- 88+ has ToT heal
             },
         },
-        { --55, we will leave this gem open for buffing until we have 10
+        { --55, we will use this and allow GroupElixir to be poofed by buffing if it happens from 60-74.
             gem = 9,
-            cond = function(self) return mq.TLO.Me.NumGems() >= 10 end,
+            cond = function(self) return mq.TLO.Me.NumGems() >= 9 end,
             spells = {
-                { name = "NukeHeal", },
+                -- Leve 56-59 free
+                { name = "GroupElixir", }, -- Level 60+, gets better from 70 on, this may be overwritten before 75
             },
         },
-        { --75, we will leave this gem open for buffing until we have 11
+        { --75, we will use this from level 77 and risk losing a stun until level 80
             gem = 10,
             cond = function(self) return mq.TLO.Me.NumGems() >= 11 end,
             spells = {
-                { name = "TwinHealNuke", },
+                { name = "ReverseDS", }, -- Level 85+
+
             },
         },
-        { --80, we will leave this gem open for buffing until we have 12
+        { --80, we will use this immediately if we buy both AA ranks.
             gem = 11,
             cond = function(self) return mq.TLO.Me.NumGems() >= 12 end,
             spells = {
-                { name = "ReverseDS", },
+                { name = "WardBuff",      function(self) return mq.TLO.Me.Gems() == 14 end, },          -- Level 97
+                { name = "TwinHealNuke",  function(self) return Config:GetSetting('DoTwinHeal') end, }, -- 84+
+                { name = "GroupHealCure", function(self) return Config:GetSetting('DoGroupHealCure') end, },
+                { name = "CureAll", },
             },
         },
         { --80, we will allow this gem to be filled for the convenience of buffing at the risk of having it overwritten due to a pause, etc.
             gem = 12,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
-                { name = "WardBuff", },
+                { name = "DichoHeal", },                                                                -- Level 101+ --may be overwritten from 101-104
+                { name = "TwinHealNuke",  function(self) return Config:GetSetting('DoTwinHeal') end, }, -- 84+
+                { name = "GroupHealCure", function(self) return Config:GetSetting('DoGroupHealCure') end, },
+                { name = "CureAll", },
+
             },
         },
         { --105, we will allow this gem to be filled for the convenience of buffing (or an extra nuke) at the risk of having it overwritten due to a pause, etc.
             gem = 13,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
-                { name = "DivineBuff", },
-
+                { name = "TwinHealNuke",  function(self) return Config:GetSetting('DoTwinHeal') end, }, -- 84+
+                { name = "GroupHealCure", function(self) return Config:GetSetting('DoGroupHealCure') end, },
+                { name = "CureAll", },
+            },
+        },
+        { --125, we will allow this gem to be filled for the convenience of buffing (or an extra nuke) at the risk of having it overwritten due to a pause, etc.
+            gem = 14,
+            cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
+            spells = {
+                { name = "TwinHealNuke",  function(self) return Config:GetSetting('DoTwinHeal') end, }, -- 84+
+                { name = "GroupHealCure", function(self) return Config:GetSetting('DoGroupHealCure') end, },
+                { name = "CureAll", },
             },
         },
     },
