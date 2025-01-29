@@ -1134,35 +1134,39 @@ local _ClassConfig = {
             gem = 1,
             spells = {
                 { name = "RemedyHeal",   function(self) return mq.TLO.Me.Level() >= 96 end, }, -- Level 96+
-                { name = "Renewal", },                                                         -- Level 70+
+                { name = "Renewal", },                                                         -- Level 70-95
                 { name = "HealingLight", },                                                    -- Main Heal, Level 1-69
             },
         },
         {
             gem = 2,
             spells = {
-                { name = "RemedyHeal2", },  -- Level 101+
-                { name = "Renewal", },      -- Level 96-100 (When we only have one Remedy)
-                { name = "Renewal2", },     -- Level 75+
-                { name = "HealingLight", }, -- Fallback, Level 70-74
-                { name = "RemedyHeal", },   -- Emergency/fallback, 59-69, these aren't good until 96
+                { name = "RemedyHeal2", },                                                    -- Level 101+
+                { name = "Renewal", },                                                        -- Level 96-100 (When we only have one Remedy)
+                { name = "Renewal2", },                                                       -- Level 75+
+                { name = "HealingLight", },                                                   -- Fallback, Level 70-74
+                { name = "RemedyHeal", },                                                     -- Emergency/fallback, 59-69, these aren't good until 96
+                { name = "LowLevelStun", function(self) return mq.TLO.Me.Level() < 60 end, }, -- Level 2-60
             },
         },
         {
             gem = 3,
             spells = {
                 { name = "HealNuke2", },    -- Level 88+
-                { name = "Renewal3", },     -- Level 80+
+                { name = "Renewal3", },     -- Level 80-87
                 { name = "SingleElixir", }, -- Level 19-79
+                -- Level 1-18 free
 
             },
         },
         {
             gem = 4,
             spells = {
-                { name = "HealNuke", },                                                       -- Level 83+
-                { name = "HealingLight", },                                                   -- Fallback, Level 75-82
-                { name = "LowLevelStun", function(self) return mq.TLO.Me.Level() < 60 end, }, -- Level 2-60
+                { name = "HealNuke", },     -- Level 83+
+                { name = "HealingLight", }, -- Fallback, Level 75-82
+                -- Level 65-74 free
+                { name = "RezSpell", },     -- Level 1-64 (AA at 65)
+
             },
         },
         {
@@ -1178,14 +1182,14 @@ local _ClassConfig = {
             spells = {
                 { name = "GroupFastHeal", },   -- Syllable, 98+
                 { name = "GroupHealNoCure", }, -- Level 30-97
+                -- Level 1-29 free
             },
         },
         {
             gem = 7,
             spells = {
                 { name = "DivineBuff", function(self) return mq.TLO.Me.Gems() == 8 end, }, -- Level 51+
-
-
+                -- Level 1-50 free
             },
         },
         { --We will leave this gem open for buffing until we have 9
@@ -1198,23 +1202,23 @@ local _ClassConfig = {
         },
         { --55, we will use this and allow GroupElixir to be poofed by buffing if it happens from 60-74.
             gem = 9,
-            cond = function(self) return mq.TLO.Me.NumGems() >= 9 end,
+            cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
                 -- Leve 56-59 free
                 { name = "GroupElixir", }, -- Level 60+, gets better from 70 on, this may be overwritten before 75
             },
         },
-        { --75, we will use this from level 77 and risk losing a stun until level 80
+        { --75
             gem = 10,
-            cond = function(self) return mq.TLO.Me.NumGems() >= 11 end,
+            cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
                 { name = "ReverseDS", }, -- Level 85+
 
             },
         },
-        { --80, we will use this immediately if we buy both AA ranks.
+        { --80
             gem = 11,
-            cond = function(self) return mq.TLO.Me.NumGems() >= 12 end,
+            cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
                 { name = "WardBuff",      function(self) return mq.TLO.Me.Gems() == 14 end, },          -- Level 97
                 { name = "TwinHealNuke",  function(self) return Config:GetSetting('DoTwinHeal') end, }, -- 84+
