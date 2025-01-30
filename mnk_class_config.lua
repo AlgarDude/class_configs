@@ -636,7 +636,7 @@ local _ClassConfig = {
                 name = "Eagle Strike",
                 type = "Ability",
                 cond = function(self, abilityName, target)
-                    if not mq.TLO.Me.PctEndurance() < 25 then return false end
+                    if mq.TLO.Me.PctEndurance() > 25 then return false end
                     return mq.TLO.Me.AbilityReady(abilityName)() and Casting.AbilityRangeCheck(target)
                 end,
             },
