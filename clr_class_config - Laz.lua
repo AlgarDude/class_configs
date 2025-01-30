@@ -7,8 +7,8 @@ local Casting      = require("utils.casting")
 local DanNet       = require('lib.dannet.helpers')
 
 local _ClassConfig = {
-    _version              = "1.2 - Experimental Beta",
-    _author               = "Algar, Derple",
+    _version              = "1.2 - Experimental Beta (Laz)",
+    _author               = "Algar, Derple, Robban",
     ['ModeChecks']        = {
         IsHealing = function() return true end,
         IsCuring = function() return true end,
@@ -1360,14 +1360,38 @@ local _ClassConfig = {
                 end,
             },
             {
+                name = "Spirit Mastery",
+                type = "AA",
+                pre_activate = function(self, spell) --remove the old aura if we just purchased the AA, otherwise we will be spammed because of no focus.
+                    ---@diagnostic disable-next-line: undefined-field
+                    if mq.TLO.Me.Aura(1)() then mq.TLO.Me.Aura(1).Remove() end
+                end,
+                cond = function(self, aaName)
+                    return not Casting.AuraActiveByName("Aura of Pious Divinity") and Casting.AAReady(aaName)
+                end,
+            },
+            {
+                name = "AbsorbAura",
+                type = "Spell",
+                pre_activate = function(self, spell) --remove the old aura if we leveled up (or the other aura if we just changed options), otherwise we will be spammed because of no focus.
+                    ---@diagnostic disable-next-line: undefined-field
+                    if not Casting.AuraActiveByName(spell.BaseName()) then mq.TLO.Me.Aura(1).Remove() end
+                end,
+                cond = function(self, spell)
+                    if Casting.CanUseAA('Spirit Mastery') then return false end
+                    return not Casting.AuraActiveByName(spell.BaseName()) and Config:GetSetting('UseAura') == 1
+                end,
+            },
+            {
                 name = "HPAura",
                 type = "Spell",
                 pre_activate = function(self, spell) --remove the old aura if we leveled up (or the other aura if we just changed options), otherwise we will be spammed because of no focus.
                     ---@diagnostic disable-next-line: undefined-field
-                    if not Casting.CanUseAA('Spirit Mastery') and not Casting.AuraActiveByName(spell.BaseName()) then mq.TLO.Me.Aura(1).Remove() end
+                    if not Casting.AuraActiveByName(spell.BaseName()) then mq.TLO.Me.Aura(1).Remove() end
                 end,
                 cond = function(self, spell)
-                    return not Casting.AuraActiveByName(spell.BaseName()) and (Config:GetSetting('UseAura') == 2 or Casting.CanUseAA('Spirit Mastery'))
+                    if Casting.CanUseAA('Spirit Mastery') then return false end
+                    return not Casting.AuraActiveByName(spell.BaseName()) and Config:GetSetting('UseAura') == 2
                 end,
             },
         },
