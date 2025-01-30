@@ -4,12 +4,10 @@ local Config       = require('utils.config')
 local Core         = require("utils.core")
 local Targeting    = require("utils.Targeting")
 local Casting      = require("utils.casting")
-local ItemManager  = require("utils.item_manager")
 local DanNet       = require('lib.dannet.helpers')
-local Logger       = require("utils.logger")
 
 local _ClassConfig = {
-    _version              = "1.1 - Experimental",
+    _version              = "1.2 - Experimental Beta",
     _author               = "Algar, Derple",
     ['ModeChecks']        = {
         IsHealing = function() return true end,
@@ -25,23 +23,30 @@ local _ClassConfig = {
                 return Casting.UseAA("Group Purify Soul", targetId)
             elseif Casting.AAReady("Radiant Cure") then
                 return Casting.UseAA("Radiant Cure", targetId)
+            elseif targetId == mq.TLO.Me.ID() and Casting.AAReady("Purified Spirits") then
+                return Casting.UseAA("Purified Spirits", targetId)
             elseif Casting.AAReady("Purify Soul") then
                 return Casting.UseAA("Purify Soul", targetId)
             end
 
-            local cureSpell = Config:GetSetting('DoGroupHealCure') and Core.GetResolvedActionMapItem('GroupHealCure') or Core.GetResolvedActionMapItem('CureAll')
+            local cureSpell = Config:GetSetting('KeepCureLoaded') == 3 and Core.GetResolvedActionMapItem('GroupHealCure') or Core.GetResolvedActionMapItem('CureAll')
 
-            if not cureSpell then
-                if type:lower() == "disease" then
+            if type:lower() == "disease" then
+                if not cureSpell then
                     cureSpell = Core.GetResolvedActionMapItem('CureDisease')
-                elseif type:lower() == "poison" then
-                    cureSpell = Core.GetResolvedActionMapItem('CurePoison')
-                elseif type:lower() == "curse" then
-                    cureSpell = Core.GetResolvedActionMapItem('CureCurse')
-                elseif type:lower() == "corruption" then
-                    cureSpell = Core.GetResolvedActionMapItem('CureCorrupt')
                 end
+            elseif type:lower() == "poison" then
+                if not cureSpell then
+                    cureSpell = Core.GetResolvedActionMapItem('CurePoison')
+                end
+            elseif type:lower() == "curse" then
+                if not cureSpell or cureSpell.Level() == (51 or 57 or 84) then --First two group cures and first cureall don't cure curse
+                    cureSpell = Core.GetResolvedActionMapItem('CureCurse')
+                end
+            elseif type:lower() == "corruption" then
+                cureSpell = Core.GetResolvedActionMapItem('CureCorrupt')
             end
+
             if not cureSpell or not cureSpell() then return false end
             return Casting.UseSpell(cureSpell.RankName.Name(), targetId, true)
         end,
@@ -620,39 +625,63 @@ local _ClassConfig = {
     -- of just slamming through the base ordered list.
     -- These will run in order and exit after the first valid spell to cast
     ['HealRotationOrder'] = {
-        -- {
-        --     name = 'LowLevelHealPoint',
-        --     state = 1,
-        --     steps = 1,
-        --     cond = function(self, target)
-        --         return mq.TLO.Me.Level() < 65 and (target.PctHPs() or 999) <= Config:GetSetting('MainHealPoint')
-        --     end,
-        -- },
-        {
-            name = 'GroupHealPoint',
+        { -- Level 98+
+            name = 'GroupHeal(98+)',
             state = 1,
             steps = 1,
             cond = function(self, target)
+                if not Targeting.GroupedWithTarget(target) or not mq.TLO.Me.Level() > 97 then return false end
                 return (mq.TLO.Group.Injured(Config:GetSetting('GroupHealPoint'))() or 0) >= Config:GetSetting('GroupInjureCnt')
             end,
         },
-        {
-            name  = 'BigHealPoint',
+        { -- Level 70+
+            name  = 'BigHeal(70+)',
             state = 1,
             steps = 1,
-            cond  = function(self, target) return (target.PctHPs() or 999) < Config:GetSetting('BigHealPoint') end,
+            cond  = function(self, target)
+                if not mq.TLO.Me.Level() > 69 then return false end
+                return (target.PctHPs() or 999) < Config:GetSetting('BigHealPoint')
+            end,
         },
-        {
-            name = 'MainHealPoint',
+        { -- Level 101+
+            name = 'MainHeal(101+)',
             state = 1,
             steps = 1,
-            cond = function(self, target) return (target.PctHPs() or 999) < Config:GetSetting('MainHealPoint') end,
+            cond = function(self, target)
+                if not mq.TLO.Me.Level() > 100 then return false end
+                return (target.PctHPs() or 999) < Config:GetSetting('MainHealPoint')
+            end,
+        },
+        { -- Level 1-97
+            name = 'GroupHeal(1-97)',
+            state = 1,
+            steps = 1,
+            cond = function(self, target)
+                if not Targeting.GroupedWithTarget(target) or not mq.TLO.Me.Level() < 98 then return false end
+                return (mq.TLO.Group.Injured(Config:GetSetting('GroupHealPoint'))() or 0) >= Config:GetSetting('GroupInjureCnt')
+            end,
+        },
+        { -- Level 70-100
+            name = 'MainHeal(70-100)',
+            state = 1,
+            steps = 1,
+            cond = function(self, target)
+                if not mq.TLO.Me.Level() > 69 and mq.TLO.Me.Level() < 101 then return false end
+                return (target.PctHPs() or 999) <= Config:GetSetting('MainHealPoint')
+            end,
+        },
+        { -- Level 1-69, includes BigHeal
+            name = 'Heal(1-69)',
+            state = 1,
+            steps = 1,
+            cond = function(self, target)
+                if not mq.TLO.Me.Level() < 70 then return false end
+                return (target.PctHPs() or 999) <= Config:GetSetting('MainHealPoint')
+            end,
         },
     },
     ['HealRotations']     = {
-        -- ["LowLevelHealPoint"] = {
-        -- },
-        ["GroupHealPoint"] = {
+        ["GroupHeal(98+)"] = {
             {
                 name = "DichoHeal",
                 type = "Spell",
@@ -700,12 +729,12 @@ local _ClassConfig = {
                 name = "GroupElixir",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    --if not Config:GetSetting('DoHealOverTime') then return false end
+                    if not Config:GetSetting('DoHealOverTime') then return false end
                     return Casting.CastReady(spell.RankName) and Casting.GroupBuffCheck(spell, target)
                 end,
             },
         },
-        ["BigHealPoint"] = {
+        ["BigHeal(70+)"] = {
             {
                 name = "ClutchHeal",
                 type = "Spell",
@@ -740,6 +769,13 @@ local _ClassConfig = {
                 type = "AA",
                 cond = function(self, aaName, target)
                     return Casting.TargetedAAReady(aaName, target.ID(), true)
+                end,
+            },
+            {
+                name = "Epic",
+                type = "Item",
+                cond = function(self, itemName)
+                    return mq.TLO.FindItemCount(itemName)() ~= 0 and mq.TLO.FindItem(itemName).TimerReady() == 0 and target.ID() == Core.GetMainAssistId
                 end,
             },
             {
@@ -778,7 +814,7 @@ local _ClassConfig = {
                 end,
             },
         },
-        ["MainHealPoint"] = {
+        ["MainHeal(101+)"] = {
             {
                 name = "Focused Celestial Regeneration",
                 type = "AA",
@@ -815,6 +851,148 @@ local _ClassConfig = {
                 end,
             },
         },
+        ["GroupHeal(1-97)"] = { --Level 1-97
+            {
+                name = "GroupHealNoCure",
+                type = "Spell",
+                cond = function(self, spell)
+                    if not Targeting.GroupedWithTarget(target) then return false end
+                    return Casting.CastReady(spell.RankName) and Casting.SpellReady(spell)
+                end,
+            },
+            {
+                name = "GroupElixir",
+                type = "Spell",
+                cond = function(self, spell, target)
+                    if not Config:GetSetting('DoHealOverTime') then return false end
+                    return Casting.CastReady(spell.RankName) and Casting.GroupBuffCheck(spell, target)
+                end,
+            },
+            {
+                name = "Celestial Regeneration",
+                type = "AA",
+                cond = function(self, aaName)
+                    if not Targeting.GroupedWithTarget(target) then return false end
+                    return Casting.AAReady(aaName)
+                end,
+            },
+            {
+                name = "Exquisite Benediction",
+                type = "AA",
+                cond = function(self, aaName)
+                    return Casting.AAReady(aaName)
+                end,
+            },
+        },
+        ["MainHeal(70-100)"] = { --Level 70-100
+            {
+                name = "Focused Celestial Regeneration",
+                type = "AA",
+                cond = function(self, aaName, target)
+                    return Casting.TargetedAAReady(aaName, target.ID(), true) and target.ID() == Core.GetMainAssistId
+                end,
+            },
+            {
+                name = "HealNuke",
+                type = "Spell",
+                cond = function(self, spell, target)
+                    return Casting.CastReady(spell) and Casting.TargetedSpellReady(spell, target.ID(), true) and mq.TLO.Me.CombatState():lower() == "combat"
+                end,
+            },
+            {
+                name = "HealNuke2",
+                type = "Spell",
+                cond = function(self, spell, target)
+                    return Casting.CastReady(spell) and Casting.TargetedSpellReady(spell, target.ID(), true) and mq.TLO.Me.CombatState():lower() == "combat"
+                end,
+            },
+            {
+                name = "RemedyHeal",
+                type = "Spell",
+                cond = function(self, spell, target)
+                    return Casting.CastReady(spell) and Casting.TargetedSpellReady(spell, target.ID(), true)
+                end,
+            },
+            {
+                name = "Renewal",
+                type = "Spell",
+                cond = function(self, spell, target)
+                    return Casting.CastReady(spell) and Casting.TargetedSpellReady(spell, target.ID(), true)
+                end,
+            },
+            {
+                name = "Renewal2",
+                type = "Spell",
+                cond = function(self, spell, target)
+                    return Casting.CastReady(spell) and Casting.TargetedSpellReady(spell, target.ID(), true)
+                end,
+            },
+            {
+                name = "Renewal3",
+                type = "Spell",
+                cond = function(self, spell, target)
+                    return Casting.CastReady(spell) and Casting.TargetedSpellReady(spell, target.ID(), true)
+                end,
+            },
+            {
+                name = "SingleElixir",
+                type = "Spell",
+                cond = function(self, spell, target)
+                    if not Config:GetSetting('DoHealOverTime') then return false end
+                    return Casting.CastReady(spell.RankName) and Casting.GroupBuffCheck(spell, target)
+                end,
+            },
+            {
+                name = "HealingLight",
+                type = "Spell",
+                cond = function(self, spell, target)
+                    return Casting.CastReady(spell) and Casting.TargetedSpellReady(spell, target.ID(), true)
+                end,
+            },
+        },
+        ["Heal(1-69)"] = { --Level 1-69, includes Main and Big Healing
+            {
+                name = "Divine Arbitration",
+                type = "AA",
+                cond = function(self, aaName, target)
+                    if not Targeting.GroupedWithTarget(target) then return false end
+                    return Casting.TargetedAAReady(aaName, target.ID(), true) and target.ID() == Core.GetMainAssistId and
+                        (target.PctHPs() or 999) <= Config:GetSetting('BigHealPoint')
+                end,
+            },
+            {
+                name = "Epic",
+                type = "Item",
+                cond = function(self, itemName)
+                    if mq.TLO.FindItemCount(itemName)() == 0 or not Targeting.GroupedWithTarget(target) then return false end
+                    return mq.TLO.FindItem(itemName).TimerReady() == 0 and target.ID() == Core.GetMainAssistId and
+                        (target.PctHPs() or 999) <= Config:GetSetting('BigHealPoint')
+                end,
+            },
+            {
+                name = "RemedyHeal",
+                type = "Spell",
+                cond = function(self, spell, target)
+                    return Casting.CastReady(spell) and Casting.TargetedSpellReady(spell, target.ID(), true) and (target.PctHPs() or 999) <= Config:GetSetting('BigHealPoint')
+                end,
+            },
+            {
+                name = "SingleElixir",
+                type = "Spell",
+                cond = function(self, spell, target)
+                    if not Config:GetSetting('DoHealOverTime') then return false end
+                    return Casting.CastReady(spell.RankName) and Casting.GroupBuffCheck(spell, target)
+                end,
+            },
+            {
+                name = "HealingLight",
+                type = "Spell",
+                cond = function(self, spell, target)
+                    return Casting.CastReady(spell) and Casting.TargetedSpellReady(spell, target.ID(), true)
+                end,
+            },
+        },
+
     },
     ['RotationOrder']     = {
         -- Downtime doesn't have state because we run the whole rotation at once.
@@ -822,8 +1000,7 @@ local _ClassConfig = {
             name = 'Downtime',
             targetId = function(self) return { mq.TLO.Me.ID(), } end,
             cond = function(self, combat_state)
-                return combat_state == "Downtime" and (not Core.IsModeActive('Heal') or Core.OkayToNotHeal()) and Casting.DoBuffCheck() and
-                    Casting.AmIBuffable()
+                return combat_state == "Downtime" and (not Core.IsModeActive('Heal') or Core.OkayToNotHeal()) and Casting.DoBuffCheck() and Casting.AmIBuffable()
             end,
         },
         { --Spells that should be checked on group members
@@ -842,19 +1019,20 @@ local _ClassConfig = {
             steps = 1,
             targetId = function(self) return mq.TLO.Target.ID() == Config.Globals.AutoTargetID and { Config.Globals.AutoTargetID, } or {} end,
             cond = function(self, combat_state)
-                return combat_state == "Combat" and Casting.BurnCheck() and not Casting.IAmFeigning() and
-                    (not Core.IsModeActive('Heal') or Core.OkayToNotHeal())
+                return combat_state == "Combat" and Casting.BurnCheck() and not Casting.IAmFeigning() and (not Core.IsModeActive('Heal') or Core.OkayToNotHeal())
             end,
         },
         {
             name = 'ManaRestore',
             timer = 30,
+            state = 1,
+            steps = 1,
             targetId = function(self)
                 return { Combat.FindWorstHurtManaGroupMember(Config:GetSetting('ManaRestorePct')),
                     Combat.FindWorstHurtManaXT(Config:GetSetting('ManaRestorePct')), }
             end,
             cond = function(self, combat_state)
-                if not Config:GetSetting('DoManaRestore') then return false end
+                if not Config:GetSetting('DoManaRestore') or mq.TLO.Me.Level() < 95 then return false end
                 local downtime = combat_state == "Downtime" and Casting.DoBuffCheck()
                 local combat = combat_state == "Combat" and not Casting.IAmFeigning()
                 return (downtime or combat) and (not Core.IsModeActive('Heal') or Core.OkayToNotHeal())
@@ -867,8 +1045,8 @@ local _ClassConfig = {
             steps = 1,
             targetId = function(self) return { Core.GetMainAssistId(), } or {} end,
             cond = function(self, combat_state)
-                return combat_state == "Combat" and not Casting.IAmFeigning() and
-                    (not Core.IsModeActive('Heal') or Core.OkayToNotHeal())
+                if mq.TLO.Me.Level() < 85 then return false end
+                return combat_state == "Combat" and not Casting.IAmFeigning() and (not Core.IsModeActive('Heal') or Core.OkayToNotHeal())
             end,
         },
         {
@@ -877,8 +1055,7 @@ local _ClassConfig = {
             steps = 1,
             targetId = function(self) return mq.TLO.Target.ID() == Config.Globals.AutoTargetID and { Config.Globals.AutoTargetID, } or {} end,
             cond = function(self, combat_state)
-                return combat_state == "Combat" and not Casting.IAmFeigning() and
-                    (not Core.IsModeActive('Heal') or Core.OkayToNotHeal())
+                return combat_state == "Combat" and not Casting.IAmFeigning() and (not Core.IsModeActive('Heal') or Core.OkayToNotHeal())
             end,
         },
     },
@@ -1009,11 +1186,36 @@ local _ClassConfig = {
                 end,
             },
             {
+                name = "StunTimer6",
+                type = "Spell",
+                cond = function(self, spell, target)
+                    if spell.Level() > 85 and not Core.GetMainAssistPctHPs() < Config:GetSetting('LightHealPoint') then return false end
+                    return Casting.CastReady(spell.RankName) and Casting.DetSpellCheck(spell) and (Casting.HaveManaToNuke() or Casting.BurnCheck()) and
+                        Casting.TargetedSpellReady(spell, target.ID())
+                end,
+            },
+            {
                 name = "NukeHeal",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    return Core.GetMainAssistPctHPs() < Config:GetSetting('LightHealPoint') and (Casting.HaveManaToNuke() or Casting.BurnCheck()) and
-                        Casting.TargetedSpellReady(spell, target.ID())
+                    if not Core.GetMainAssistPctHPs() < Config:GetSetting('LightHealPoint') then return false end
+                    return Casting.CastReady(spell.RankName) and (Casting.HaveManaToNuke() or Casting.BurnCheck()) and Casting.TargetedSpellReady(spell, target.ID())
+                end,
+            },
+            {
+                name = "NukeHeal2",
+                type = "Spell",
+                cond = function(self, spell, target)
+                    if not Core.GetMainAssistPctHPs() < Config:GetSetting('LightHealPoint') then return false end
+                    return Casting.CastReady(spell.RankName) and (Casting.HaveManaToNuke() or Casting.BurnCheck()) and Casting.TargetedSpellReady(spell, target.ID())
+                end,
+            },
+            {
+                name = "NukeHeal3",
+                type = "Spell",
+                cond = function(self, spell, target)
+                    if not Core.GetMainAssistPctHPs() < Config:GetSetting('LightHealPoint') then return false end
+                    return Casting.CastReady(spell.RankName) and (Casting.HaveManaToNuke() or Casting.BurnCheck()) and Casting.TargetedSpellReady(spell, target.ID())
                 end,
             },
             {
@@ -1032,11 +1234,28 @@ local _ClassConfig = {
                 end,
             },
             {
+                name = "YaulpSpell",
+                type = "Spell",
+                cond = function(self, spell)
+                    if Casting.CanUseAA("Yaulp") then return false end
+                    return Casting.CastReady(spell) and Casting.SelfBuffCheck(spell)
+                end,
+            },
+            {
                 name = "GroupElixir",
                 type = "Spell",
                 allowDead = true,
                 cond = function(self, spell)
+                    if (mq.TLO.Me.Level() < 101 and not Casting.DetGOMCheck()) then return false end
                     return Casting.SpellStacksOnMe(spell.RankName) and (mq.TLO.Me.Song(spell).Duration.TotalSeconds() or 0) < 15
+                end,
+            },
+            {
+                name = "LowLevelStun",
+                type = "Spell",
+                cond = function(self, spell, target)
+                    return Casting.CastReady(spell.RankName) and Casting.DetSpellCheck(spell) and (Casting.HaveManaToNuke() or Casting.BurnCheck()) and
+                        Casting.TargetedSpellReady(spell, target.ID())
                 end,
             },
         },
@@ -1146,34 +1365,34 @@ local _ClassConfig = {
                 { name = "Renewal2", },                                                       -- Level 75+
                 { name = "HealingLight", },                                                   -- Fallback, Level 70-74
                 { name = "RemedyHeal", },                                                     -- Emergency/fallback, 59-69, these aren't good until 96
-                { name = "LowLevelStun", function(self) return mq.TLO.Me.Level() < 60 end, }, -- Level 2-60
+                { name = "LowLevelStun", function(self) return mq.TLO.Me.Level() < 59 end, }, -- Level 2-58
             },
         },
         {
             gem = 3,
             spells = {
-                { name = "HealNuke2", },    -- Level 88+
-                { name = "Renewal3", },     -- Level 80-87
-                { name = "SingleElixir", }, -- Level 19-79
+                { name = "HealNuke2",    function(self) return Config.GetSetting('InterContraChoice') == 1 end, }, -- Level 88+
+                { name = "NukeHeal", },                                                                            -- Level 85+
+                { name = "Renewal3", },                                                                            -- Level 80-85/87
+                { name = "SingleElixir", },                                                                        -- Level 19-79
                 -- Level 1-18 free
-
             },
         },
         {
             gem = 4,
             spells = {
-                { name = "HealNuke", },     -- Level 83+
-                { name = "HealingLight", }, -- Fallback, Level 75-82
+                { name = "NukeHeal2",    function(self) return Config.GetSetting('InterContraChoice') == 3 end, }, -- Level 90+
+                { name = "HealNuke", },                                                                            -- Level 83+
+                { name = "HealingLight", },                                                                        -- Fallback, Level 75-82
                 -- Level 65-74 free
-                { name = "RezSpell", },     -- Level 1-64 (AA at 65)
-
+                { name = "RezSpell", },                                                                            -- Level 1-64 (AA at 65)
             },
         },
         {
             gem = 5,
             spells = {
-                { name = "ClutchHeal", }, -- Level 77+
-                { name = "StunTimer6", }, -- Level 16 - 76 (moved gems after)
+                { name = "ClutchHeal", },                                                         -- Level 77+
+                { name = "StunTimer6", function(self) return Config:GetSettings('DoStun') end, }, -- Level 16 - 76 (moved gems after)
 
             },
         },
@@ -1196,8 +1415,16 @@ local _ClassConfig = {
             gem = 8,
             cond = function(self) return mq.TLO.Me.NumGems() >= 9 end,
             spells = {
-                { name = "YaulpSpell", function(self) return not Casting.CanUseAA(Yaulp) end, }, -- Level 56-75
-                { name = "StunTimer6", },                                                        -- 88+ has ToT heal
+                { name = "YaulpSpell",    function(self) return not Casting.CanUseAA(Yaulp) end, },     -- Level 56-75
+                { name = "StunTimer6",    function(self) return Config:GetSettings('DoStun') end, },    -- 88+ has ToT heal
+                { name = "TwinHealNuke",  function(self) return Config:GetSetting('DoTwinHeal') end, }, -- 84+
+                { name = "GroupHealCure", function(self) return Config:GetSetting('DoGroupHealCure') end, },
+                { name = "HealNuke3",     function(self) return Config.GetSetting('InterContraChoice') == 1 end, },
+                { name = "NukeHeal2",     function(self) return Config.GetSetting('InterContraChoice') == 2 end, },
+                { name = "NukeHeal3",     function(self) return Config.GetSetting('InterContraChoice') == 3 end, },
+                { name = "NukeHeal", },
+                { name = "HealNuke", },
+                { name = "CureAll", },
             },
         },
         { --55, we will use this and allow GroupElixir to be poofed by buffing if it happens from 60-74.
@@ -1205,7 +1432,15 @@ local _ClassConfig = {
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
                 -- Leve 56-59 free
-                { name = "GroupElixir", }, -- Level 60+, gets better from 70 on, this may be overwritten before 75
+                { name = "GroupElixir",   function(self) return Config:GetSetting('DoHealOverTime') end, }, -- Level 60+, gets better from 70 on, this may be overwritten before 75
+                { name = "TwinHealNuke",  function(self) return Config:GetSetting('DoTwinHeal') end, },     -- 84+
+                { name = "GroupHealCure", function(self) return Config:GetSetting('DoGroupHealCure') end, },
+                { name = "HealNuke3",     function(self) return Config.GetSetting('InterContraChoice') == 1 end, },
+                { name = "NukeHeal2",     function(self) return Config.GetSetting('InterContraChoice') == 2 end, },
+                { name = "NukeHeal3",     function(self) return Config.GetSetting('InterContraChoice') == 3 end, },
+                { name = "NukeHeal", },
+                { name = "HealNuke", },
+                { name = "CureAll", },
             },
         },
         { --75
@@ -1213,16 +1448,22 @@ local _ClassConfig = {
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
                 { name = "ReverseDS", }, -- Level 85+
-
+                { name = "GroupHealCure", function(self) return Config:GetSetting('DoGroupHealCure') end, },
+                { name = "NukeHeal", },
+                { name = "HealNuke", },
+                { name = "CureAll", },
             },
         },
         { --80
             gem = 11,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
-                { name = "WardBuff",      function(self) return mq.TLO.Me.Gems() == 14 end, },          -- Level 97
+                { name = "WardBuff", },                                                                 -- Level 97
                 { name = "TwinHealNuke",  function(self) return Config:GetSetting('DoTwinHeal') end, }, -- 84+
                 { name = "GroupHealCure", function(self) return Config:GetSetting('DoGroupHealCure') end, },
+                { name = "HealNuke3",     function(self) return Config.GetSetting('InterContraChoice') == 1 end, },
+                { name = "NukeHeal2",     function(self) return Config.GetSetting('InterContraChoice') == 2 end, },
+                { name = "NukeHeal3",     function(self) return Config.GetSetting('InterContraChoice') == 3 end, },
                 { name = "CureAll", },
             },
         },
@@ -1233,8 +1474,10 @@ local _ClassConfig = {
                 { name = "DichoHeal", },                                                                -- Level 101+ --may be overwritten from 101-104
                 { name = "TwinHealNuke",  function(self) return Config:GetSetting('DoTwinHeal') end, }, -- 84+
                 { name = "GroupHealCure", function(self) return Config:GetSetting('DoGroupHealCure') end, },
+                { name = "HealNuke3",     function(self) return Config.GetSetting('InterContraChoice') == 1 end, },
+                { name = "NukeHeal2",     function(self) return Config.GetSetting('InterContraChoice') == 2 end, },
+                { name = "NukeHeal3",     function(self) return Config.GetSetting('InterContraChoice') == 3 end, },
                 { name = "CureAll", },
-
             },
         },
         { --105, we will allow this gem to be filled for the convenience of buffing (or an extra nuke) at the risk of having it overwritten due to a pause, etc.
@@ -1243,6 +1486,9 @@ local _ClassConfig = {
             spells = {
                 { name = "TwinHealNuke",  function(self) return Config:GetSetting('DoTwinHeal') end, }, -- 84+
                 { name = "GroupHealCure", function(self) return Config:GetSetting('DoGroupHealCure') end, },
+                { name = "HealNuke3",     function(self) return Config.GetSetting('InterContraChoice') == 1 end, },
+                { name = "NukeHeal2",     function(self) return Config.GetSetting('InterContraChoice') == 2 end, },
+                { name = "NukeHeal3",     function(self) return Config.GetSetting('InterContraChoice') == 3 end, },
                 { name = "CureAll", },
             },
         },
@@ -1252,12 +1498,15 @@ local _ClassConfig = {
             spells = {
                 { name = "TwinHealNuke",  function(self) return Config:GetSetting('DoTwinHeal') end, }, -- 84+
                 { name = "GroupHealCure", function(self) return Config:GetSetting('DoGroupHealCure') end, },
+                { name = "HealNuke3",     function(self) return Config.GetSetting('InterContraChoice') == 1 end, },
+                { name = "NukeHeal2",     function(self) return Config.GetSetting('InterContraChoice') == 2 end, },
+                { name = "NukeHeal3",     function(self) return Config.GetSetting('InterContraChoice') == 3 end, },
                 { name = "CureAll", },
             },
         },
     },
     ['DefaultConfig']     = {
-        ['Mode']           = {
+        ['Mode']              = {
             DisplayName = "Mode",
             Category = "Combat",
             Tooltip = "Select the Combat Mode for this Toon",
@@ -1268,14 +1517,14 @@ local _ClassConfig = {
             Max = 1,
             FAQ = "What is the difference between Heal and Hybrid Modes?",
             Answer = "Heal Mode is for when you are the primary healer in a group.\n" ..
-                "Hybrid Mode is for when you are the secondary healer in a group and need to do some DPS.",
+                "Hybrid Mode is for when you are the secondary healer in a group and need to do some DPS. (Temp Disabled)",
         },
-        ['AegoSymbol']     = {
+        --Buffs/Debuffs
+        ['AegoSymbol']        = {
             DisplayName = "Aego/Symbol Choice:",
             Category = "Buffs/Debuffs",
             Index = 1,
             Tooltip = "Choose whether to use the Aegolism or Symbol Line of HP Buffs.",
-            RequiresLoadoutChange = true,
             Type = "Combo",
             ComboOptions = { 'Aegolism', 'Symbol', 'None', },
             Default = 1,
@@ -1284,207 +1533,279 @@ local _ClassConfig = {
             FAQ = "Why aren't I using Aego and/or Symbol buffs?",
             Answer = "Please set which buff you would like to use on the Buffs/Debuffs tab.",
         },
-        ['DoManaRestore']  = {
-            DisplayName = "Use Mana Restore AAs",
-            Category = "Spells and Abilities",
-            Tooltip = "Use Veturika's Prescence (on self) or Quiet Prayer (on others) at critically low mana.",
-            Default = true,
-            FAQ = "WIP?",
-            Answer = "WIP.",
-        },
-        ['ManaRestorePct'] = {
-            DisplayName = "Mana Restore Pct",
-            Category = "Spells and Abilities",
-            Tooltip = "Min Mana to use restore AA.",
-            Default = 10,
-            Min = 1,
-            Max = 99,
-            FAQ = "WIP?",
-            Answer = "WIP.",
-        },
-        ['DoTwinHeal']     = {
-            DisplayName = "Twin Heal Nuke",
-            Category = "Spells and Abilities",
-            Index = 3,
-            Tooltip = "Heal Mode: Use Twin Heal Nuke Spells",
-            RequiresLoadoutChange = true,
-            Default = true,
-            ConfigType = "Advanced",
-            FAQ = "Why am I using the Twin Heal Nuke?",
-            Answer =
-            "Due to the nature of automation, we are likely to have the time to do so, and it helps hedge our bets against spike damage. Drivers that manually target switch may wish to disable this setting to allow for more cross-dotting. ",
-        },
-        ['DoVetAA']        = {
-            DisplayName = "Use Vet AA",
-            Category = "Buffs/Debuffs",
-            Index = 8,
-            Tooltip = "Use Veteran AA's in emergencies or during Burn. (See FAQ)",
-            Default = true,
-            FAQ = "What Vet AA's does SHD use?",
-            Answer = "If Use Vet AA is enabled, Intensity of the Resolute will be used on burns and Armor of Experience will be used in emergencies.",
-        },
-        ['UseAura']        = {
+        ['UseAura']           = {
             DisplayName = "Aura Spell Choice:",
             Category = "Buffs/Debuffs",
-            Index = 1,
+            Index = 2,
             Tooltip = "Select the Aura to be used, prior to purchasing the Spirit Mastery AA.",
             Type = "Combo",
             ComboOptions = { 'Absorb', 'HP', 'None', },
-            RequiresLoadoutChange = true,
             Default = 1,
             Min = 1,
             Max = 3,
             FAQ = "Why am I not using the aura I prefer?",
             Answer = "You can select which aura to use (prior to purchase of Spirit Mastery) by changing your Aura Spell Choice option.",
         },
-        -- ['DoHOT']           = {
-        --     DisplayName = "Cast HOTs",
-        --     Category = "Spells and Abilities",
-        --     Tooltip = "Use Heal Over Time Spells",
-        --     Default = true,
-        --     FAQ = "Why is my cleric not using his Heal over Time Spells?",
-        --     Answer = "Make sure you have [DoHOT] enabled in your settings, and ajust your thresholds for when to use them.",
-        -- },
-        -- ['DoHOT']           = {
-        --     DisplayName = "Cast HOTs",
-        --     Category = "Spells and Abilities",
-        --     Tooltip = "Use Heal Over Time Spells",
-        --     Default = true,
-        --     FAQ = "Why is my cleric not using his Heal over Time Spells?",
-        --     Answer = "Make sure you have [DoHOT] enabled in your settings, and ajust your thresholds for when to use them.",
-        -- },
-        -- ['DoCure']          = {
-        --     DisplayName = "Cast Cure SPells",
-        --     Category = "Spells and Abilities",
-        --     Tooltip = "Use Cure Spells",
-        --     Default = true,
-        --     FAQ = "Why is my cleric not using his Cure Spells?",
-        --     Answer = "Make sure you have [DoCure] enabled in your settings.",
-        -- },
-        -- ['DoProm']          = {
-        --     DisplayName = "Cast Promised Heal Spells",
-        --     Category = "Spells and Abilities",
-        --     Tooltip = "Use Prom Spells",
-        --     Default = true,
-        --     FAQ = "Can I use Promised Heal Spells as well as normal heals?",
-        --     Answer = "Yes, you can use Promised Heal Spells as well as normal heals. Enable them with the [DoProm] setting.",
-        -- },
-        -- ['DoClutchHeal']    = {
-        --     DisplayName = "Do Clutch Heal",
-        --     Category = "Spells and Abilities",
-        --     Tooltip = "Use Spells",
-        --     Default = true,
-        --     FAQ = "My squishies in the group keep dying - how can I help them?",
-        --     Answer = "Enable [DoClutchHeal] in your settings to use clutch heals on low health targets.",
-        -- },
-        -- ['CompHealPoint']   = {
-        --     DisplayName = "Comp Heal Point",
-        --     Category = "Spells and Abilities",
-        --     Tooltip = "Min PctHPs to use Complete Healing.",
-        --     Default = 65,
-        --     Min = 1,
-        --     Max = 99,
-        --     FAQ = "I am using Complete Heal and my tank is still dying - what can I do?",
-        --     Answer = "You can adjust the [CompHealPoint] setting to increase the health percentage at which Complete Heal is used.",
-        -- },
-        -- ['RemedyHealPoint'] = {
-        --     DisplayName = "Remedy Heal Point",
-        --     Category = "Spells and Abilities",
-        --     Tooltip = "Min PctHPs to use Remedy Heals.",
-        --     Default = 80,
-        --     Min = 1,
-        --     Max = 99,
-        --     FAQ = "My casters keep dying to fast, which heal do I need to adjust?",
-        --     Answer = "You can adjust the [RemedyHealPoint] setting to increase the health percentage at which Remedy Heals are used.",
-        -- },
-        -- ['DoAutoWard']      = {
-        --     DisplayName = "Do Auto Ward",
-        --     Category = "Spells and Abilities",
-        --     Tooltip = "Use Spells",
-        --     Default = true,
-        --     FAQ = "I like to use Wards can I set them to auto cast?",
-        --     Answer = "Yes, you can enable [DoAutoWard] in your settings to use Wards automatically.",
-        -- },
-        -- ['ClutchHealPoint'] = {
-        --     DisplayName = "Clutch Heal Point",
-        --     Category = "Spells and Abilities",
-        --     Tooltip = "Use Spells",
-        --     Default = 34,
-        --     Min = 1,
-        --     Max = 99,
-        --     FAQ = "My squishies in the group keep dying - how can I help them?",
-        --     Answer = "You can adjust the [ClutchHealPoint] setting to increase the health percentage at which clutch heals are used.",
-        -- },
-        -- ['DoNuke']          = {
-        --     DisplayName = "Do Nuke",
-        --     Category = "Spells and Abilities",
-        --     Tooltip = "Use Spells",
-        --     Default = true,
-        --     FAQ = "Why is my cleric not using his Nuke Spells?",
-        --     Answer = "Make sure you have [DoNuke] enabled in your settings.",
-        -- },
-        -- ['NukePct']         = {
-        --     DisplayName = "Nuke Pct",
-        --     Category = "Spells and Abilities",
-        --     Tooltip = "Use Spells",
-        --     Default = 90,
-        --     Min = 1,
-        --     Max = 100,
-        --     FAQ = "I am running out of mana?",
-        --     Answer = "You can adjust the [NukePct] setting to a higher mana requirement before nuke spells are used.",
-        -- },
-        -- ['DoReverseDS']     = {
-        --     DisplayName = "Do ReverseDS",
-        --     Category = "Spells and Abilities",
-        --     Tooltip = "Use Spells",
-        --     Default = true,
-        --     FAQ = "Why is my cleric not using his Reverse Damage Shield Spells?",
-        --     Answer = "Make sure you have [DoReverseDS] enabled in your settings.",
-        -- },
-        -- ['DoQp']            = {
-        --     DisplayName = "Do Qp",
-        --     Category = "Spells and Abilities",
-        --     Tooltip = "Use Spells",
-        --     Default = true,
-        --     FAQ = "Why is my cleric not using his Quickening of the Prophet Spells?",
-        --     Answer = "Make sure you have [DoQp] enabled in your settings.",
-        -- },
-        -- ['QPManaPCT']       = {
-        --     DisplayName = "QP Mana PCT",
-        --     Category = "Spells and Abilities",
-        --     Tooltip = "Use Spells",
-        --     Default = 40,
-        --     Min = 1,
-        --     Max = 99,
-        --     FAQ = "I am running out of mana?",
-        --     Answer = "You can adjust the [QPManaPCT] setting to a higher mana requirement before Quickening of the Prophet spells are used.",
-        -- },
-        -- ['VetManaPCT']      = {
-        --     DisplayName = "Vet Mana PCT",
-        --     Category = "Spells and Abilities",
-        --     Tooltip = "Use Spells",
-        --     Default = 70,
-        --     Min = 1,
-        --     Max = 99,
-        --     FAQ = "I am running out of mana?",
-        --     Answer = "You can adjust the [VetManaPCT] setting to a higher mana requirement before Veteran's Wrath spells are used.",
-        -- },
-        -- ['DivineBuffOn']    = {
-        --     DisplayName = "Divine Buff On",
-        --     Category = "Spells and Abilities",
-        --     Tooltip = "Use Spells",
-        --     Default = false,
-        --     FAQ = "Why is my cleric not using his Divine Buff Spells?",
-        --     Answer = "Make sure you have [DivineBuffOn] enabled in your settings.",
-        -- },
-        -- ['DoCH']            = {
-        --     DisplayName = "Do CH",
-        --     Category = "Heals",
-        --     Tooltip = "Use Complete Heal Spell",
-        --     Default = false,
-        --     FAQ = "Why is my cleric not using his Complete Heal Spells?",
-        --     Answer = "Make sure you have [DoCH] enabled in your settings.",
-        -- },
+        ['DoVetAA']           = {
+            DisplayName = "Use Vet AA",
+            Category = "Buffs/Debuffs",
+            Index = 3,
+            Tooltip = "Use Veteran AA's in emergencies or during Burn. (See FAQ)",
+            Default = true,
+            FAQ = "What Vet AA's does CLR use?",
+            Answer = "If Use Vet AA is enabled, Intensity of the Resolute will be used on burns. Clerics have tools that largely leave Armor of Experience unused.",
+        },
+        --Spells and Abilities
+        ['InterContraChoice'] = {
+            DisplayName = "Inter/Contra:",
+            Category = "Spells and Abilities",
+            Index = 1,
+            Tooltip = "Select your preference between the Intervention and Contravention lines.",
+            RequiresLoadoutChange = true,
+            Type = "Combo",
+            ComboOptions = { 'Prefer Intervention', 'Balanced (usually one of each)', 'Prefer Contravention', },
+            Default = 1,
+            Min = 1,
+            Max = 3,
+            ConfigType = "Advanced",
+            FAQ = "Why am I not using the \"correct\" number of Intervention or Contravention spells?",
+            Answer = "Please set your spell preference on the Spells and Abilities tab.\n" ..
+                "Note that there are certain level ranges where additional spells may be loaded to fill available gems.",
+        },
+        ['KeepCureLoaded']    = {
+            DisplayName = "Mem Cure:",
+            Category = "Spells and Abilities",
+            Index = 2,
+            Tooltip = "Select your preference of a Cure spell to keep loaded (if a gem is availabe). \n" ..
+                "Please note that we will still memorize a cure out-of-combat if needed, and AA will always be used if available.",
+            RequiresLoadoutChange = true,
+            Type = "Combo",
+            ComboOptions = { 'None (Suggested for most cases)', 'Mem Cure-All (\"Blood\" line) when possible', 'Mem GroupHealCure (\"Word of\" Line) when possible', },
+            Default = 1,
+            Min = 1,
+            Max = 3,
+            ConfigType = "Advanced",
+            FAQ = "Why don't the Mem Cure options include low-level cures?",
+            Answer =
+            "This would add an undesired level of complexity to the config. Before the \"Blood\" line is learned, feel free to memorize any cure you'd like in an open gem! It will be used, if appropriate.",
+        },
+        ['DoHealOverTime']    = {
+            DisplayName = "Use HoTs",
+            Category = "Spells and Abilities",
+            Index = 3,
+            Tooltip = "Use the Elixir Line (Low Level: Single, Mid-Level: Both (situationally), High Level: Group).",
+            Default = true,
+            ConfigType = "Advanced",
+            FAQ = "Why isn't my Cleric using the Group Elixir HoT?",
+            Answer = "Before Level 100, we will only use the Group Elixir if we have a GOM proc or the if the \"Group Injured Count\" is met (See Heal settings in RGMain config).",
+        },
+        ['DoTwinHeal']        = {
+            DisplayName = "Twin Heal Nuke",
+            Category = "Spells and Abilities",
+            Index = 4,
+            Tooltip = "Use Twin Heal Nuke Spells",
+            RequiresLoadoutChange = true,
+            Default = true,
+            ConfigType = "Advanced",
+            FAQ = "Why am I using the Twin Heal Nuke?",
+            Answer =
+            "You can turn off the Twin Heal Nuke in the Spells and Abilities tab.",
+        },
+        ['DoManaRestore']     = {
+            DisplayName = "Use Mana Restore AAs",
+            Category = "Spells and Abilities",
+            Index = 5,
+            Tooltip = "Use Veturika's Prescence (on self) or Quiet Prayer (on others) at critically low mana.",
+            Default = true,
+            ConfigType = "Advanced",
+            FAQ = "WIP?",
+            Answer = "WIP.",
+        },
+        ['ManaRestorePct']    = {
+            DisplayName = "Mana Restore Pct",
+            Category = "Spells and Abilities",
+            Index = 6,
+            Tooltip = "Min Mana to use restore AA.",
+            Default = 10,
+            Min = 1,
+            Max = 99,
+            ConfigType = "Advanced",
+            FAQ = "WIP?",
+            Answer = "WIP.",
+        },
+        ['DoStun']            = {
+            DisplayName = "Twin Heal Nuke",
+            Category = "Spells and Abilities",
+            Index = 7,
+            Tooltip = "Use Stun spells.",
+            RequiresLoadoutChange = true,
+            Default = true,
+            FAQ = "Which stun spells does the Cleric use?",
+            Answer =
+                "At low levels, we will use the \"Stun\" spell (until 58) and either \"Holy Might\", \"Force\", or \"Tarnation\" until level 65.\n" ..
+                "After that, we transition to the Timer 6 stuns (\"Sound of\" line), which have a ToT heal from Level 88.",
+        },
+        --Orphaned: Not used in this config, to be deleted when config is default. Only here so we don't delete settings for the current default config in case people switch back and forth.
+        ['DoHOT']             = {
+            DisplayName = "Orphaned",
+            Type = "Custom",
+            Category = "Orphaned",
+            Tooltip = "Orphaned setting from live, no longer used in this config.",
+            Default = false,
+            FAQ = "Why do I see orphaned settings?",
+            Answer = "To avoid deletion of settings when moving between configs, our beta or experimental configs keep placeholders for live settings\n" ..
+                "These tabs or settings will be removed if and when the config is made the default.",
+        },
+        ['DoCure']            = {
+            DisplayName = "Orphaned",
+            Type = "Custom",
+            Category = "Orphaned",
+            Tooltip = "Orphaned setting from live, no longer used in this config.",
+            Default = false,
+            FAQ = "Why do I see orphaned settings?",
+            Answer = "To avoid deletion of settings when moving between configs, our beta or experimental configs keep placeholders for live settings\n" ..
+                "These tabs or settings will be removed if and when the config is made the default.",
+        },
+        ['DoProm']            = {
+            DisplayName = "Orphaned",
+            Type = "Custom",
+            Category = "Orphaned",
+            Tooltip = "Orphaned setting from live, no longer used in this config.",
+            Default = false,
+            FAQ = "Why do I see orphaned settings?",
+            Answer = "To avoid deletion of settings when moving between configs, our beta or experimental configs keep placeholders for live settings\n" ..
+                "These tabs or settings will be removed if and when the config is made the default.",
+        },
+        ['DoClutchHeal']      = {
+            DisplayName = "Orphaned",
+            Type = "Custom",
+            Category = "Orphaned",
+            Tooltip = "Orphaned setting from live, no longer used in this config.",
+            Default = false,
+            FAQ = "Why do I see orphaned settings?",
+            Answer = "To avoid deletion of settings when moving between configs, our beta or experimental configs keep placeholders for live settings\n" ..
+                "These tabs or settings will be removed if and when the config is made the default.",
+        },
+        ['CompHealPoint']     = {
+            DisplayName = "Orphaned",
+            Type = "Custom",
+            Category = "Orphaned",
+            Tooltip = "Orphaned setting from live, no longer used in this config.",
+            Default = false,
+            FAQ = "Why do I see orphaned settings?",
+            Answer = "To avoid deletion of settings when moving between configs, our beta or experimental configs keep placeholders for live settings\n" ..
+                "These tabs or settings will be removed if and when the config is made the default.",
+        },
+        ['RemedyHealPoint']   = {
+            DisplayName = "Orphaned",
+            Type = "Custom",
+            Category = "Orphaned",
+            Tooltip = "Orphaned setting from live, no longer used in this config.",
+            Default = false,
+            FAQ = "Why do I see orphaned settings?",
+            Answer = "To avoid deletion of settings when moving between configs, our beta or experimental configs keep placeholders for live settings\n" ..
+                "These tabs or settings will be removed if and when the config is made the default.",
+        },
+        ['DoAutoWard']        = {
+            DisplayName = "Orphaned",
+            Type = "Custom",
+            Category = "Orphaned",
+            Tooltip = "Orphaned setting from live, no longer used in this config.",
+            Default = false,
+            FAQ = "Why do I see orphaned settings?",
+            Answer = "To avoid deletion of settings when moving between configs, our beta or experimental configs keep placeholders for live settings\n" ..
+                "These tabs or settings will be removed if and when the config is made the default.",
+        },
+        ['ClutchHealPoint']   = {
+            DisplayName = "Orphaned",
+            Type = "Custom",
+            Category = "Orphaned",
+            Tooltip = "Orphaned setting from live, no longer used in this config.",
+            Default = false,
+            FAQ = "Why do I see orphaned settings?",
+            Answer = "To avoid deletion of settings when moving between configs, our beta or experimental configs keep placeholders for live settings\n" ..
+                "These tabs or settings will be removed if and when the config is made the default.",
+        },
+        ['DoNuke']            = {
+            DisplayName = "Orphaned",
+            Type = "Custom",
+            Category = "Orphaned",
+            Tooltip = "Orphaned setting from live, no longer used in this config.",
+            Default = false,
+            FAQ = "Why do I see orphaned settings?",
+            Answer = "To avoid deletion of settings when moving between configs, our beta or experimental configs keep placeholders for live settings\n" ..
+                "These tabs or settings will be removed if and when the config is made the default.",
+        },
+        ['NukePct']           = {
+            DisplayName = "Orphaned",
+            Type = "Custom",
+            Category = "Orphaned",
+            Tooltip = "Orphaned setting from live, no longer used in this config.",
+            Default = false,
+            FAQ = "Why do I see orphaned settings?",
+            Answer = "To avoid deletion of settings when moving between configs, our beta or experimental configs keep placeholders for live settings\n" ..
+                "These tabs or settings will be removed if and when the config is made the default.",
+        },
+        ['DoReverseDS']       = {
+            DisplayName = "Orphaned",
+            Type = "Custom",
+            Category = "Orphaned",
+            Tooltip = "Orphaned setting from live, no longer used in this config.",
+            Default = false,
+            FAQ = "Why do I see orphaned settings?",
+            Answer = "To avoid deletion of settings when moving between configs, our beta or experimental configs keep placeholders for live settings\n" ..
+                "These tabs or settings will be removed if and when the config is made the default.",
+        },
+        ['DoQp']              = {
+            DisplayName = "Orphaned",
+            Type = "Custom",
+            Category = "Orphaned",
+            Tooltip = "Orphaned setting from live, no longer used in this config.",
+            Default = false,
+            FAQ = "Why do I see orphaned settings?",
+            Answer = "To avoid deletion of settings when moving between configs, our beta or experimental configs keep placeholders for live settings\n" ..
+                "These tabs or settings will be removed if and when the config is made the default.",
+        },
+        ['QPManaPCT']         = {
+            DisplayName = "Orphaned",
+            Type = "Custom",
+            Category = "Orphaned",
+            Tooltip = "Orphaned setting from live, no longer used in this config.",
+            Default = false,
+            FAQ = "Why do I see orphaned settings?",
+            Answer = "To avoid deletion of settings when moving between configs, our beta or experimental configs keep placeholders for live settings\n" ..
+                "These tabs or settings will be removed if and when the config is made the default.",
+        },
+        ['VetManaPCT']        = {
+            DisplayName = "Orphaned",
+            Type = "Custom",
+            Category = "Orphaned",
+            Tooltip = "Orphaned setting from live, no longer used in this config.",
+            Default = false,
+            FAQ = "Why do I see orphaned settings?",
+            Answer = "To avoid deletion of settings when moving between configs, our beta or experimental configs keep placeholders for live settings\n" ..
+                "These tabs or settings will be removed if and when the config is made the default.",
+        },
+        ['DivineBuffOn']      = {
+            DisplayName = "Orphaned",
+            Type = "Custom",
+            Category = "Orphaned",
+            Tooltip = "Orphaned setting from live, no longer used in this config.",
+            Default = false,
+            FAQ = "Why do I see orphaned settings?",
+            Answer = "To avoid deletion of settings when moving between configs, our beta or experimental configs keep placeholders for live settings\n" ..
+                "These tabs or settings will be removed if and when the config is made the default.",
+        },
+        ['DoCH']              = {
+            DisplayName = "Orphaned",
+            Type = "Custom",
+            Category = "Orphaned",
+            Tooltip = "Orphaned setting from live, no longer used in this config.",
+            Default = false,
+            FAQ = "Why do I see orphaned settings?",
+            Answer = "To avoid deletion of settings when moving between configs, our beta or experimental configs keep placeholders for live settings\n" ..
+                "These tabs or settings will be removed if and when the config is made the default.",
+        },
     },
 }
 
