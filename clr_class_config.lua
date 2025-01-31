@@ -1322,7 +1322,7 @@ local _ClassConfig = {
                 cond = function(self, aaName)
                     if Config:GetSetting('AegoSymbol') == 2 then return false end
                     local hpSpell = Core.GetResolvedActionMapItem('SelfHPBuff')
-                    local aaSpell = mq.TLO.Me.AltAbility(aaName)
+                    local aaSpell = mq.TLO.Me.AltAbility(aaName).Spell
                     if (hpSpell and hpSpell.Level() or 1) > (aaSpell and aaSpell.Level() or 0) then return false end
                     return Casting.SelfBuffAACheck(aaName)
                 end,
@@ -1418,79 +1418,79 @@ local _ClassConfig = {
         {
             gem = 1,
             spells = {
-                { name = "RemedyHeal",   function(self) return mq.TLO.Me.Level() >= 96 end, }, -- Level 96+
-                { name = "Renewal", },                                                         -- Level 70-95
-                { name = "HealingLight", },                                                    -- Main Heal, Level 1-69
+                { name = "RemedyHeal",   cond = function(self) return mq.TLO.Me.Level() >= 96 end, }, -- Level 96+
+                { name = "Renewal", },                                                                -- Level 70-95
+                { name = "HealingLight", },                                                           -- Main Heal, Level 1-69
             },
         },
         {
             gem = 2,
             spells = {
-                { name = "RemedyHeal2", },                                                    -- Level 101+
-                { name = "Renewal", },                                                        -- Level 96-100 (When we only have one Remedy)
-                { name = "Renewal2", },                                                       -- Level 75+
-                { name = "HealingLight", },                                                   -- Fallback, Level 70-74
-                { name = "RemedyHeal", },                                                     -- Emergency/fallback, 59-69, these aren't good until 96
-                { name = "LowLevelStun", function(self) return mq.TLO.Me.Level() < 59 end, }, -- Level 2-58
+                { name = "RemedyHeal2", },                                                           -- Level 101+
+                { name = "Renewal", },                                                               -- Level 96-100 (When we only have one Remedy)
+                { name = "Renewal2", },                                                              -- Level 75+
+                { name = "HealingLight", },                                                          -- Fallback, Level 70-74
+                { name = "RemedyHeal", },                                                            -- Emergency/fallback, 59-69, these aren't good until 96
+                { name = "LowLevelStun", cond = function(self) return mq.TLO.Me.Level() < 59 end, }, -- Level 2-58
             },
         },
         {
             gem = 3,
             spells = {
-                { name = "HealNuke2",    function(self) return Config.GetSetting('InterContraChoice') == 1 end, }, -- Level 88+
-                { name = "NukeHeal", },                                                                            -- Level 85+
-                { name = "Renewal3", },                                                                            -- Level 80-85/87
-                { name = "SingleElixir", },                                                                        -- Level 19-79
+                { name = "HealNuke2",    cond = function(self) return Config:GetSetting('InterContraChoice') == 1 end, }, -- Level 88+
+                { name = "NukeHeal", },                                                                                   -- Level 85+
+                { name = "Renewal3", },                                                                                   -- Level 80-85/87
+                { name = "SingleElixir", },                                                                               -- Level 19-79
                 -- Level 1-18 free
             },
         },
         {
             gem = 4,
             spells = {
-                { name = "NukeHeal2",    function(self) return Config.GetSetting('InterContraChoice') == 3 end, }, -- Level 90+
-                { name = "HealNuke", },                                                                            -- Level 83+
-                { name = "HealingLight", },                                                                        -- Fallback, Level 75-82
+                { name = "NukeHeal2",    cond = function(self) return Config:GetSetting('InterContraChoice') == 3 end, }, -- Level 90+
+                { name = "HealNuke", },                                                                                   -- Level 83+
+                { name = "HealingLight", },                                                                               -- Fallback, Level 75-82
                 -- Level 65-74 free, Rez will just stay here and cast if the AA is down.
-                { name = "RezSpell", },                                                                            -- Level 1-64 (AA at 65)
+                { name = "RezSpell", },                                                                                   -- Level 1-64 (AA at 65)
             },
         },
         {
             gem = 5,
             spells = {
-                { name = "ClutchHeal", },                                                         -- Level 77+
-                { name = "StunTimer6", function(self) return Config:GetSettings('DoStun') end, }, -- Level 16 - 76 (moved gems after)
+                { name = "ClutchHeal", },                                                                -- Level 77+
+                { name = "StunTimer6", cond = function(self) return Config:GetSettings('DoStun') end, }, -- Level 16 - 76 (moved gems after)
 
             },
         },
         {
             gem = 6,
             spells = {
-                { name = "GroupFastHeal", },                                                               -- Syllable, 98+
-                { name = "GroupHealNoCure", },                                                             -- Level 30-97
-                { name = "MagicNuke",       function(self) return Config:GetSetting('DoMagicNuke') end, }, -- Level 4-29
+                { name = "GroupFastHeal", },                                                                      -- Syllable, 98+
+                { name = "GroupHealNoCure", },                                                                    -- Level 30-97
+                { name = "MagicNuke",       cond = function(self) return Config:GetSetting('DoMagicNuke') end, }, -- Level 4-29
             },
         },
         {
             gem = 7,
             spells = {
-                { name = "DivineBuff", function(self) return mq.TLO.Me.Gems() == 8 end, },             -- Level 51+
-                { name = "UndeadNuke", function(self) return Config:GetSetting('DoUndeadNuke') end, }, -- Level 4-50
-                { name = "MagicNuke",  function(self) return Config:GetSetting('DoMagicNuke') end, },  -- Level 4-50
+                { name = "DivineBuff", cond = function(self) return mq.TLO.Me.Gems() == 8 end, },             -- Level 51+
+                { name = "UndeadNuke", cond = function(self) return Config:GetSetting('DoUndeadNuke') end, }, -- Level 4-50
+                { name = "MagicNuke",  cond = function(self) return Config:GetSetting('DoMagicNuke') end, },  -- Level 4-50
             },
         },
         {
             gem = 8,
             spells = {
-                { name = "YaulpSpell",    function(self) return not Casting.CanUseAA(Yaulp) end, },       -- Level 56-75
-                { name = "StunTimer6",    function(self) return Config:GetSettings('DoStun') end, },      -- 88+ has ToT heal
-                { name = "UndeadNuke",    function(self) return Config:GetSetting('DoUndeadNuke') end, }, -- 51+, 1-50 elsewhere
-                { name = "TwinHealNuke",  function(self) return Config:GetSetting('DoTwinHeal') end, },   -- 84+
-                { name = "MagicNuke",     function(self) return Config:GetSetting('DoMagicNuke') end, },  -- 51+, 1-50 elsewhere
-                { name = "CureAll",       function(self) return Config:GetSetting('KeepCureMemmed') == 2 end, },
-                { name = "GroupHealCure", function(self) return Config:GetSetting('KeepCureMemmed') == 3 end, },
-                { name = "HealNuke3",     function(self) return Config.GetSetting('InterContraChoice') == 1 end, },
-                { name = "NukeHeal2",     function(self) return Config.GetSetting('InterContraChoice') == 2 end, },
-                { name = "NukeHeal3",     function(self) return Config.GetSetting('InterContraChoice') == 3 end, },
+                { name = "YaulpSpell",    cond = function(self) return not Casting.CanUseAA("Yaulp") end, },     -- Level 56-75
+                { name = "StunTimer6",    cond = function(self) return Config:GetSettings('DoStun') end, },      -- 88+ has ToT heal
+                { name = "UndeadNuke",    cond = function(self) return Config:GetSetting('DoUndeadNuke') end, }, -- 51+, 1-50 elsewhere
+                { name = "TwinHealNuke",  cond = function(self) return Config:GetSetting('DoTwinHeal') end, },   -- 84+
+                { name = "MagicNuke",     cond = function(self) return Config:GetSetting('DoMagicNuke') end, },  -- 51+, 1-50 elsewhere
+                { name = "CureAll",       cond = function(self) return Config:GetSetting('KeepCureMemmed') == 2 end, },
+                { name = "GroupHealCure", cond = function(self) return Config:GetSetting('KeepCureMemmed') == 3 end, },
+                { name = "HealNuke3",     cond = function(self) return Config:GetSetting('InterContraChoice') == 1 end, },
+                { name = "NukeHeal2",     cond = function(self) return Config:GetSetting('InterContraChoice') == 2 end, },
+                { name = "NukeHeal3",     cond = function(self) return Config:GetSetting('InterContraChoice') == 3 end, },
                 { name = "NukeHeal", }, -- fallback
                 { name = "HealNuke", }, -- fallback
             },
@@ -1500,15 +1500,15 @@ local _ClassConfig = {
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
                 -- Leve 56-59 free
-                { name = "GroupElixir",   function(self) return Config:GetSetting('DoHealOverTime') end, }, -- Level 60+, gets better from 70 on, this may be overwritten before 75
-                { name = "UndeadNuke",    function(self) return Config:GetSetting('DoUndeadNuke') end, },   -- 51+, 1-50 elsewhere
-                { name = "TwinHealNuke",  function(self) return Config:GetSetting('DoTwinHeal') end, },     -- 84+
-                { name = "MagicNuke",     function(self) return Config:GetSetting('DoMagicNuke') end, },    -- 51+, 1-50 elsewhere
-                { name = "CureAll",       function(self) return Config:GetSetting('KeepCureMemmed') == 2 end, },
-                { name = "GroupHealCure", function(self) return Config:GetSetting('KeepCureMemmed') == 3 end, },
-                { name = "HealNuke3",     function(self) return Config.GetSetting('InterContraChoice') == 1 end, },
-                { name = "NukeHeal2",     function(self) return Config.GetSetting('InterContraChoice') == 2 end, },
-                { name = "NukeHeal3",     function(self) return Config.GetSetting('InterContraChoice') == 3 end, },
+                { name = "GroupElixir",   cond = function(self) return Config:GetSetting('DoHealOverTime') end, }, -- Level 60+, gets better from 70 on, this may be overwritten before 75
+                { name = "UndeadNuke",    cond = function(self) return Config:GetSetting('DoUndeadNuke') end, },   -- 51+, 1-50 elsewhere
+                { name = "TwinHealNuke",  cond = function(self) return Config:GetSetting('DoTwinHeal') end, },     -- 84+
+                { name = "MagicNuke",     cond = function(self) return Config:GetSetting('DoMagicNuke') end, },    -- 51+, 1-50 elsewhere
+                { name = "CureAll",       cond = function(self) return Config:GetSetting('KeepCureMemmed') == 2 end, },
+                { name = "GroupHealCure", cond = function(self) return Config:GetSetting('KeepCureMemmed') == 3 end, },
+                { name = "HealNuke3",     cond = function(self) return Config:GetSetting('InterContraChoice') == 1 end, },
+                { name = "NukeHeal2",     cond = function(self) return Config:GetSetting('InterContraChoice') == 2 end, },
+                { name = "NukeHeal3",     cond = function(self) return Config:GetSetting('InterContraChoice') == 3 end, },
                 { name = "NukeHeal", }, -- fallback
                 { name = "HealNuke", }, -- fallback
             },
@@ -1517,11 +1517,11 @@ local _ClassConfig = {
             gem = 10,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
-                { name = "ReverseDS", },                                                                  -- Level 85+
-                { name = "UndeadNuke",    function(self) return Config:GetSetting('DoUndeadNuke') end, }, -- 51+, 1-50 elsewhere
-                { name = "MagicNuke",     function(self) return Config:GetSetting('DoMagicNuke') end, },  -- 51+, 1-50 elsewhere
-                { name = "CureAll",       function(self) return Config:GetSetting('KeepCureMemmed') == 2 end, },
-                { name = "GroupHealCure", function(self) return Config:GetSetting('KeepCureMemmed') == 3 end, },
+                { name = "ReverseDS", },                                                                         -- Level 85+
+                { name = "UndeadNuke",    cond = function(self) return Config:GetSetting('DoUndeadNuke') end, }, -- 51+, 1-50 elsewhere
+                { name = "MagicNuke",     cond = function(self) return Config:GetSetting('DoMagicNuke') end, },  -- 51+, 1-50 elsewhere
+                { name = "CureAll",       cond = function(self) return Config:GetSetting('KeepCureMemmed') == 2 end, },
+                { name = "GroupHealCure", cond = function(self) return Config:GetSetting('KeepCureMemmed') == 3 end, },
                 { name = "NukeHeal", }, -- fallback
                 { name = "HealNuke", }, -- fallback
             },
@@ -1530,15 +1530,15 @@ local _ClassConfig = {
             gem = 11,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
-                { name = "WardBuff", },                                                                   -- Level 97
-                { name = "UndeadNuke",    function(self) return Config:GetSetting('DoUndeadNuke') end, }, -- 51+, 1-50 elsewhere
-                { name = "TwinHealNuke",  function(self) return Config:GetSetting('DoTwinHeal') end, },   -- 84+
-                { name = "MagicNuke",     function(self) return Config:GetSetting('DoMagicNuke') end, },  -- 51+, 1-50 elsewhere
-                { name = "CureAll",       function(self) return Config:GetSetting('KeepCureMemmed') == 2 end, },
-                { name = "GroupHealCure", function(self) return Config:GetSetting('KeepCureMemmed') == 3 end, },
-                { name = "HealNuke3",     function(self) return Config.GetSetting('InterContraChoice') == 1 end, },
-                { name = "NukeHeal2",     function(self) return Config.GetSetting('InterContraChoice') == 2 end, },
-                { name = "NukeHeal3",     function(self) return Config.GetSetting('InterContraChoice') == 3 end, },
+                { name = "WardBuff", },                                                                          -- Level 97
+                { name = "UndeadNuke",    cond = function(self) return Config:GetSetting('DoUndeadNuke') end, }, -- 51+, 1-50 elsewhere
+                { name = "TwinHealNuke",  cond = function(self) return Config:GetSetting('DoTwinHeal') end, },   -- 84+
+                { name = "MagicNuke",     cond = function(self) return Config:GetSetting('DoMagicNuke') end, },  -- 51+, 1-50 elsewhere
+                { name = "CureAll",       cond = function(self) return Config:GetSetting('KeepCureMemmed') == 2 end, },
+                { name = "GroupHealCure", cond = function(self) return Config:GetSetting('KeepCureMemmed') == 3 end, },
+                { name = "HealNuke3",     cond = function(self) return Config:GetSetting('InterContraChoice') == 1 end, },
+                { name = "NukeHeal2",     cond = function(self) return Config:GetSetting('InterContraChoice') == 2 end, },
+                { name = "NukeHeal3",     cond = function(self) return Config:GetSetting('InterContraChoice') == 3 end, },
                 { name = "NukeHeal", },  -- fallback
                 { name = "HealNuke", },  -- fallback
                 { name = "HealNuke2", }, -- fallback
@@ -1549,15 +1549,15 @@ local _ClassConfig = {
             gem = 12,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
-                { name = "DichoHeal", },                                                                  -- Level 101+ --may be overwritten from 101-104
-                { name = "UndeadNuke",    function(self) return Config:GetSetting('DoUndeadNuke') end, }, -- 51+, 1-50 elsewhere
-                { name = "TwinHealNuke",  function(self) return Config:GetSetting('DoTwinHeal') end, },   -- 84+
-                { name = "MagicNuke",     function(self) return Config:GetSetting('DoMagicNuke') end, },  -- 51+, 1-50 elsewhere
-                { name = "CureAll",       function(self) return Config:GetSetting('KeepCureMemmed') == 2 end, },
-                { name = "GroupHealCure", function(self) return Config:GetSetting('KeepCureMemmed') == 3 end, },
-                { name = "HealNuke3",     function(self) return Config.GetSetting('InterContraChoice') == 1 end, },
-                { name = "NukeHeal2",     function(self) return Config.GetSetting('InterContraChoice') == 2 end, },
-                { name = "NukeHeal3",     function(self) return Config.GetSetting('InterContraChoice') == 3 end, },
+                { name = "DichoHeal", },                                                                         -- Level 101+ --may be overwritten from 101-104
+                { name = "UndeadNuke",    cond = function(self) return Config:GetSetting('DoUndeadNuke') end, }, -- 51+, 1-50 elsewhere
+                { name = "TwinHealNuke",  cond = function(self) return Config:GetSetting('DoTwinHeal') end, },   -- 84+
+                { name = "MagicNuke",     cond = function(self) return Config:GetSetting('DoMagicNuke') end, },  -- 51+, 1-50 elsewhere
+                { name = "CureAll",       cond = function(self) return Config:GetSetting('KeepCureMemmed') == 2 end, },
+                { name = "GroupHealCure", cond = function(self) return Config:GetSetting('KeepCureMemmed') == 3 end, },
+                { name = "HealNuke3",     cond = function(self) return Config:GetSetting('InterContraChoice') == 1 end, },
+                { name = "NukeHeal2",     cond = function(self) return Config:GetSetting('InterContraChoice') == 2 end, },
+                { name = "NukeHeal3",     cond = function(self) return Config:GetSetting('InterContraChoice') == 3 end, },
                 { name = "HealNuke2", }, -- fallback
                 { name = "NukeHeal2", }, -- fallback
             },
@@ -1566,14 +1566,14 @@ local _ClassConfig = {
             gem = 13,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
-                { name = "UndeadNuke",    function(self) return Config:GetSetting('DoUndeadNuke') end, }, -- 51+, 1-50 elsewhere
-                { name = "TwinHealNuke",  function(self) return Config:GetSetting('DoTwinHeal') end, },   -- 84+
-                { name = "MagicNuke",     function(self) return Config:GetSetting('DoMagicNuke') end, },  -- 51+, 1-50 elsewhere
-                { name = "CureAll",       function(self) return Config:GetSetting('KeepCureMemmed') == 2 end, },
-                { name = "GroupHealCure", function(self) return Config:GetSetting('KeepCureMemmed') == 3 end, },
-                { name = "HealNuke3",     function(self) return Config.GetSetting('InterContraChoice') == 1 end, },
-                { name = "NukeHeal2",     function(self) return Config.GetSetting('InterContraChoice') == 2 end, },
-                { name = "NukeHeal3",     function(self) return Config.GetSetting('InterContraChoice') == 3 end, },
+                { name = "UndeadNuke",    cond = function(self) return Config:GetSetting('DoUndeadNuke') end, }, -- 51+, 1-50 elsewhere
+                { name = "TwinHealNuke",  cond = function(self) return Config:GetSetting('DoTwinHeal') end, },   -- 84+
+                { name = "MagicNuke",     cond = function(self) return Config:GetSetting('DoMagicNuke') end, },  -- 51+, 1-50 elsewhere
+                { name = "CureAll",       cond = function(self) return Config:GetSetting('KeepCureMemmed') == 2 end, },
+                { name = "GroupHealCure", cond = function(self) return Config:GetSetting('KeepCureMemmed') == 3 end, },
+                { name = "HealNuke3",     cond = function(self) return Config:GetSetting('InterContraChoice') == 1 end, },
+                { name = "NukeHeal2",     cond = function(self) return Config:GetSetting('InterContraChoice') == 2 end, },
+                { name = "NukeHeal3",     cond = function(self) return Config:GetSetting('InterContraChoice') == 3 end, },
                 { name = "HealNuke2", }, -- fallback
                 { name = "NukeHeal2", }, -- fallback
             },
@@ -1582,14 +1582,14 @@ local _ClassConfig = {
             gem = 14,
             cond = function(self, gem) return mq.TLO.Me.NumGems() >= gem end,
             spells = {
-                { name = "UndeadNuke",    function(self) return Config:GetSetting('DoUndeadNuke') end, }, -- 51+, 1-50 elsewhere
-                { name = "TwinHealNuke",  function(self) return Config:GetSetting('DoTwinHeal') end, },   -- 84+
-                { name = "MagicNuke",     function(self) return Config:GetSetting('DoMagicNuke') end, },  -- 51+, 1-50 elsewhere
-                { name = "CureAll",       function(self) return Config:GetSetting('KeepCureMemmed') == 2 end, },
-                { name = "GroupHealCure", function(self) return Config:GetSetting('KeepCureMemmed') == 3 end, },
-                { name = "HealNuke3",     function(self) return Config.GetSetting('InterContraChoice') == 1 end, },
-                { name = "NukeHeal2",     function(self) return Config.GetSetting('InterContraChoice') == 2 end, },
-                { name = "NukeHeal3",     function(self) return Config.GetSetting('InterContraChoice') == 3 end, },
+                { name = "UndeadNuke",    cond = function(self) return Config:GetSetting('DoUndeadNuke') end, }, -- 51+, 1-50 elsewhere
+                { name = "TwinHealNuke",  cond = function(self) return Config:GetSetting('DoTwinHeal') end, },   -- 84+
+                { name = "MagicNuke",     cond = function(self) return Config:GetSetting('DoMagicNuke') end, },  -- 51+, 1-50 elsewhere
+                { name = "CureAll",       cond = function(self) return Config:GetSetting('KeepCureMemmed') == 2 end, },
+                { name = "GroupHealCure", cond = function(self) return Config:GetSetting('KeepCureMemmed') == 3 end, },
+                { name = "HealNuke3",     cond = function(self) return Config:GetSetting('InterContraChoice') == 1 end, },
+                { name = "NukeHeal2",     cond = function(self) return Config:GetSetting('InterContraChoice') == 2 end, },
+                { name = "NukeHeal3",     cond = function(self) return Config:GetSetting('InterContraChoice') == 3 end, },
                 { name = "HealNuke2", }, -- fallback
                 { name = "NukeHeal2", }, -- fallback
             },
@@ -1724,7 +1724,7 @@ local _ClassConfig = {
             Answer = "WIP.",
         },
         ['DoStun']            = {
-            DisplayName = "Twin Heal Nuke",
+            DisplayName = "Use Stuns",
             Category = "Spells and Abilities",
             Index = 7,
             Tooltip = "Use Stun spells.",
