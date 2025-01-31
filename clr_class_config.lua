@@ -669,7 +669,7 @@ local _ClassConfig = {
             state = 1,
             steps = 1,
             cond = function(self, target)
-                if not Targeting.GroupedWithTarget(target) or not mq.TLO.Me.Level() > 97 then return false end
+                if mq.TLO.Me.Level() < 98 or not Targeting.GroupedWithTarget(target) then return false end
                 return (mq.TLO.Group.Injured(Config:GetSetting('GroupHealPoint'))() or 0) >= Config:GetSetting('GroupInjureCnt')
             end,
         },
@@ -678,7 +678,7 @@ local _ClassConfig = {
             state = 1,
             steps = 1,
             cond  = function(self, target)
-                if not mq.TLO.Me.Level() > 69 then return false end
+                if mq.TLO.Me.Level() < 70 then return false end
                 return (target.PctHPs() or 999) < Config:GetSetting('BigHealPoint')
             end,
         },
@@ -687,7 +687,7 @@ local _ClassConfig = {
             state = 1,
             steps = 1,
             cond = function(self, target)
-                if not mq.TLO.Me.Level() > 100 then return false end
+                if mq.TLO.Me.Level() < 101 then return false end
                 return (target.PctHPs() or 999) < Config:GetSetting('MainHealPoint')
             end,
         },
@@ -696,7 +696,7 @@ local _ClassConfig = {
             state = 1,
             steps = 1,
             cond = function(self, target)
-                if not Targeting.GroupedWithTarget(target) or not mq.TLO.Me.Level() < 98 then return false end
+                if mq.TLO.Me.Level() > 97 or not Targeting.GroupedWithTarget(target) then return false end
                 return (mq.TLO.Group.Injured(Config:GetSetting('GroupHealPoint'))() or 0) >= Config:GetSetting('GroupInjureCnt')
             end,
         },
@@ -705,7 +705,7 @@ local _ClassConfig = {
             state = 1,
             steps = 1,
             cond = function(self, target)
-                if not mq.TLO.Me.Level() > 69 and mq.TLO.Me.Level() < 101 then return false end
+                if mq.TLO.Me.Level() < 70 or mq.TLO.Me.Level() > 100 then return false end
                 return (target.PctHPs() or 999) <= Config:GetSetting('MainHealPoint')
             end,
         },
@@ -714,7 +714,7 @@ local _ClassConfig = {
             state = 1,
             steps = 1,
             cond = function(self, target)
-                if not mq.TLO.Me.Level() < 70 then return false end
+                if mq.TLO.Me.Level() > 69 then return false end
                 return (target.PctHPs() or 999) <= Config:GetSetting('MainHealPoint')
             end,
         },
@@ -1128,6 +1128,7 @@ local _ClassConfig = {
             {
                 name = "WardBuff",
                 type = "Spell",
+                allowDead = true,
                 cond = function(self, spell, target)
                     return Casting.CastReady(spell.RankName) and Casting.SpellReady(spell) and Casting.GroupBuffCheck(spell, target)
                 end,
@@ -1228,7 +1229,7 @@ local _ClassConfig = {
                 name = "StunTimer6",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    if not Config:GetSetting('DoStun') or (spell.Level() > 85 and not Core.GetMainAssistPctHPs() < Config:GetSetting('LightHealPoint')) then return false end
+                    if not Config:GetSetting('DoStun') or (spell.Level() > 85 and Core.GetMainAssistPctHPs() > Config:GetSetting('LightHealPoint')) then return false end
                     return Casting.CastReady(spell.RankName) and Casting.DetSpellCheck(spell) and (Casting.HaveManaToNuke() or Casting.BurnCheck()) and
                         Casting.TargetedSpellReady(spell, target.ID())
                 end,
@@ -1237,7 +1238,7 @@ local _ClassConfig = {
                 name = "NukeHeal",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    if not Core.GetMainAssistPctHPs() < Config:GetSetting('LightHealPoint') then return false end
+                    if Core.GetMainAssistPctHPs() > Config:GetSetting('LightHealPoint') then return false end
                     return Casting.CastReady(spell.RankName) and (Casting.HaveManaToNuke() or Casting.BurnCheck()) and Casting.TargetedSpellReady(spell, target.ID())
                 end,
             },
@@ -1245,7 +1246,7 @@ local _ClassConfig = {
                 name = "NukeHeal2",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    if not Core.GetMainAssistPctHPs() < Config:GetSetting('LightHealPoint') then return false end
+                    if Core.GetMainAssistPctHPs() > Config:GetSetting('LightHealPoint') then return false end
                     return Casting.CastReady(spell.RankName) and (Casting.HaveManaToNuke() or Casting.BurnCheck()) and Casting.TargetedSpellReady(spell, target.ID())
                 end,
             },
@@ -1253,7 +1254,7 @@ local _ClassConfig = {
                 name = "NukeHeal3",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    if not Core.GetMainAssistPctHPs() < Config:GetSetting('LightHealPoint') then return false end
+                    if Core.GetMainAssistPctHPs() > Config:GetSetting('LightHealPoint') then return false end
                     return Casting.CastReady(spell.RankName) and (Casting.HaveManaToNuke() or Casting.BurnCheck()) and Casting.TargetedSpellReady(spell, target.ID())
                 end,
             },
@@ -1268,6 +1269,7 @@ local _ClassConfig = {
             {
                 name = "YaulpSpell",
                 type = "Spell",
+                allowDead = true,
                 cond = function(self, spell)
                     if Casting.CanUseAA("Yaulp") then return false end
                     return Casting.CastReady(spell) and Casting.SelfBuffCheck(spell)
@@ -1279,7 +1281,7 @@ local _ClassConfig = {
                 allowDead = true,
                 cond = function(self, spell)
                     if (mq.TLO.Me.Level() < 101 and not Casting.DetGOMCheck()) then return false end
-                    return Casting.SpellStacksOnMe(spell.RankName) and (mq.TLO.Me.Song(spell).Duration.TotalSeconds() or 0) < 15
+                    return Casting.CastReady(spell.RankName) and Casting.SpellStacksOnMe(spell.RankName) and (mq.TLO.Me.Song(spell).Duration.TotalSeconds() or 0) < 15
                 end,
             },
             {
