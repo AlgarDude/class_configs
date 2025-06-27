@@ -190,7 +190,7 @@ local _ClassConfig = {
             "Blood of Pain", -- Level 41
             "Arel's Blood of Hate",
             "Arel's Blood of Discord",
-            "Blood of Inruku",
+            "Arel's Blood of Inruku",
         },
         ['SpearNuke'] = {
             "Arel's Spike of Disease", -- Level 1
@@ -260,7 +260,7 @@ local _ClassConfig = {
         },
         ['PowerTapAC'] = {
             "Theft of Agony",
-            "Theft of Pain",
+            "Arel's Theft of Pain",
             "Arel's Aura of Pain",
             "Torrent of Pain",
             "Shroud of Pain",

@@ -28,8 +28,7 @@ return {
     ['AbilitySets']       = { --TODO/Under Consideration: Add AoE Roar line, add rotation entry (tie it to Do AoE setting), swap in instead of lance 2, especially since the last lance2 is level 112
         ['SwarmPet'] = {
             -- Swarm Pet
-            "Reptilian Venom",
-            "Amphibious Toxin",
+            "Bestial Empathy",
         },
         ['Icelance1'] = {
             -- Lance 1 Timer 7 Ice Nuke Fast Cast

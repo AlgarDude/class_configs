@@ -74,7 +74,7 @@ local _ClassConfig = {
             "Staar's Ethereal Light",
             "Staar's Supernal Light",
             "Staar's Holy Light",
-            "Pious Light",
+            "Staar's Pious Light",
             "Ancient: Hallowed Light",
         },
         ['RemedyHeal'] = { -- Not great until 96/RoF (Graceful)
