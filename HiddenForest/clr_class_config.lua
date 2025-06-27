@@ -176,7 +176,7 @@ local _ClassConfig = {
             "Reanimation",
         },
         ['SingleElixir'] = {
-            "Pious Elixir",
+            "Staar's Pious Elixir",
             "Staar's Holy Elixir",
             "Staar's Supernal Elixir",
             "Staar's Celestial Elixir",
@@ -248,7 +248,7 @@ local _ClassConfig = {
         ['MagicNuke'] = {
             "Chromastrike", --Laz specific
             -- "Calamity", -- Chroma is better
-            "Reproach",
+            "Staar's Reproach",
             "Staar's Order",
             "Staar's Condemnation",
             "Staar's Judgment",

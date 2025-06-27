@@ -138,6 +138,7 @@ local _ClassConfig = {
 
         ['PetSpell'] = {
             "Son of Decay",
+            "Emissary of Thule",
             "Minion of Shadows",
             "Servant of Bones",
             "Invoke Death",
@@ -207,7 +208,7 @@ local _ClassConfig = {
         },
         ['LifeTap'] = {
             "Touch of the Devourer",
-            "Touch of Inruku",
+            "Arel's Touch of Inruku",
             "Arel's Touch of Innoruuk",
             "Arel's Touch of Volatis",
             "Drained Soul",
@@ -237,9 +238,8 @@ local _ClassConfig = {
             "Grasp of Lhranc",
         },
         ['BiteTap'] = {
-            "Arels's Bite", -- Level 62
+            "Arels's Bite", -- Level 62...and 67?!?
             "Arel's Ancient: Bite of Chaos",
-            "Inruku's Bite",
             "Ancient: Bite of Muram",
         },
         ['Terror'] = {

@@ -100,7 +100,7 @@ local _ClassConfig = {
             "Aura of Insight",
         },
         ['GroupRegenSong'] = {
-            "Cantata of Life",                  -- 67
+            "Znoth's Cantata of Life",          -- 67
             "Znoth's Wind of Marr",             -- 62
             "Znoth's Cantata of Replenishment", -- 55
             "Znoth's Cantata of Soothing",      -- 34 start hp/mana. Slightly less mana. They can custom if it they want the 2 mana/tick
@@ -132,7 +132,7 @@ local _ClassConfig = {
             "Selo`s Consonant Chain",   --snare/slow
         },
         ['AESlowSong'] = {
-            "Zuriki's Song of Shenanigans",
+            "Znoth's Song of Shenanigans",
             "Largo's Melodic Binding",
         },
         ['FireDotSong'] = {
@@ -141,9 +141,8 @@ local _ClassConfig = {
             "Tuyen's Chant of Flame",
         },
         ['IceDotSong'] = {
-            "Vulka's Chant of Frost",
             "Znoth's Chant of Ice",
-            "Znoth's Chant of Frost",
+            "Znoth's Chant of Frost", -- seems like its repeated twice, which will ruin this
         },
         ['PoisonDotSong'] = {
             "Vulka's Chant of Poison",
