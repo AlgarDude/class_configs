@@ -138,6 +138,8 @@ local _ClassConfig = {
 
         ['PetSpell'] = {
             "Son of Decay",
+            "Minion of Shadows",
+            "Servant of Bones",
             "Invoke Death",
             "Cackling Bones",
             "Leering Corpse",
@@ -170,6 +172,7 @@ local _ClassConfig = {
         ['SelfDS'] = {
             "Banshee Aura I",
             "Banshee Aura II",
+            "Banshee Aura III",
         },
         ['CloakHP'] = {
             "Cloak of the Akheva",
@@ -185,7 +188,7 @@ local _ClassConfig = {
         ['PoisonDot'] = {
             "Blood of Pain", -- Level 41
             "Arel's Blood of Hate",
-            "Blood of Discord",
+            "Arel's Blood of Discord",
             "Blood of Inruku",
         },
         ['SpearNuke'] = {
@@ -193,11 +196,8 @@ local _ClassConfig = {
             "Arel's Spear of Disease",
             "Arel's Spear of Pain",
             "Arel's Spear of Plague",
-        },
-        ['AESpearNuke'] = {
-            "Spear of Decay",
-            "Miasmic Spear",
-            "Spear of Muram",
+            "Arel's Spear of Decay",
+            "Arel's Miasmic Spear", --timer 5, may be able to use two spears here, check again at endgame
         },
         ['BondTap'] = {
             "Bond of Inruku",
@@ -208,7 +208,7 @@ local _ClassConfig = {
         ['LifeTap'] = {
             "Touch of the Devourer",
             "Touch of Inruku",
-            "Touch of Innoruuk",
+            "Arel's Touch of Innoruuk",
             "Arel's Touch of Volatis",
             "Drained Soul",
             "Greevel's Drain Spirit",
@@ -222,7 +222,7 @@ local _ClassConfig = {
         ['LifeTap2'] = {
             "Touch of the Devourer",
             "Touch of Inruku",
-            "Touch of Innoruuk",
+            "Arel's Touch of Innoruuk",
             "Arel's Touch of Volatis",
             "Drained Soul",
             "Greevel's Drain Spirit",
@@ -238,6 +238,7 @@ local _ClassConfig = {
         },
         ['BiteTap'] = {
             "Arels's Bite", -- Level 62
+            "Arel's Ancient: Bite of Chaos",
             "Inruku's Bite",
             "Ancient: Bite of Muram",
         },
@@ -267,7 +268,7 @@ local _ClassConfig = {
         },
         ['PowerTapAtk'] = {
             "Theft of Hate",
-            "Aura of Hate",
+            "Arel's Aura of Hate",
             "Torrent of Hate",
             "Shroud of Hate",
             "Scream of Hate",
@@ -280,7 +281,7 @@ local _ClassConfig = {
             "Greevel's Clinging Darkness", -- Level 11
         },
         ['DireDot'] = {
-            "Dark Constriction",
+            "Arel's Dark Constriction",
             "Greevel's Asystole",
             "Greevel's Heart Flutter",
             "Greevel's Disease Cloud",

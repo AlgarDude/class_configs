@@ -51,7 +51,7 @@ return {
             -- Disease DoT Instant Cast
             "Murg's Sicken",    -- Level 14
             "Murg's Malaria",   -- Level 40
-            "Plague",           -- Level 65
+            "Murg's Plague",    -- Level 65
             "Festering Malady", -- Level 70
         },
         ['BloodDot'] = {
@@ -60,8 +60,8 @@ return {
             "Murg's Envenomed Breath",   -- Level 35
             "Murg's Venom of the Snake", -- Level 52
             "Murg's Scorpion Venom",     -- Level 61
-            "Turepta Blood",             -- Level 65
-            "Chimera Blood",             -- Level 66
+            "Murg's Turepta Blood",      -- Level 65
+            "Murg's Chimera Blood",      -- Level 66
         },
         ['SlowSpell'] = {
             -- Slow Spell

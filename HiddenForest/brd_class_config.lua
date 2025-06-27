@@ -83,6 +83,8 @@ local _ClassConfig = {
             "Ancient: Call of Power",
             "Eriki's Psalm of Power",
             "Yelhun's Mystic Call",
+            "Echo of the Trusik",
+            -- "Call of the Muse", -- Lower value than trusik
             "Rizlona's Call of Flame",   -- overhaste/spell damage
             "Battlecry of the Vah Shir", -- overhaste only
             "Warsong of the Vah Shir",   -- overhaste only
@@ -108,7 +110,7 @@ local _ClassConfig = {
         },
         ['AreaRegenSong'] = {
             "Chorus of Life",                  -- 69
-            "Chorus of Marr",                  -- 64
+            "Znoth's Chorus of Marr",          -- 64
             "Znoth's Ancient: Lament",         -- 60
             "Znoth's Chorus of Replenishment", -- 58
         },
@@ -135,7 +137,7 @@ local _ClassConfig = {
         },
         ['FireDotSong'] = {
             "Vulka's Chant of Flame",
-            "Tuyen's Chant of Fire",
+            "Znoth's Tuyen`s Chant of Fire",
             "Tuyen's Chant of Flame",
         },
         ['IceDotSong'] = {
@@ -214,7 +216,7 @@ local _ClassConfig = {
             "Echoes of the Past",
         },
         ['ResistDebuff'] = {
-            "Harmony of Sound",
+            "Znoth's Harmony of Sound",
         },
     },
     ['HelperFunctions'] = {

@@ -73,7 +73,7 @@ local _ClassConfig = {
             "Staar's Divine Light",
             "Staar's Ethereal Light",
             "Staar's Supernal Light",
-            "Holy Light",
+            "Staar's Holy Light",
             "Pious Light",
             "Ancient: Hallowed Light",
         },
@@ -81,7 +81,7 @@ local _ClassConfig = {
             "Staar's Remedy",
             "Staar's Ethereal Remedy",
             "Staar's Supernal Remedy",
-            "Pious Remedy",
+            "Staar's Pious Remedy",
         },
         ['Renewal'] = { -- Level 70 +, large heal, slower cast
             "Desperate Renewal",
@@ -92,7 +92,7 @@ local _ClassConfig = {
             "Staar's Word of Healing",
             "Word of Vigor",
             "Staar's Word of Restoration", -- No good NoCure in these level ranges using w/Cure... Note Word of Redemption omitted (12sec cast)
-            "Word of Replenishment",
+            "Staar's Word of Replenishment",
             "Word of Vivification",
             "Word of Vivacity",
         },
@@ -177,7 +177,7 @@ local _ClassConfig = {
         },
         ['SingleElixir'] = {
             "Pious Elixir",
-            "Holy Elixir",
+            "Staar's Holy Elixir",
             "Staar's Supernal Elixir",
             "Staar's Celestial Elixir",
             "Staar's Celestial Healing",
@@ -237,7 +237,7 @@ local _ClassConfig = {
         },
         ['UndeadNuke'] = { -- Level 4+
             "Desolate Undead",
-            "Destroy Undead",
+            "Staar's Destroy Undead",
             "Staar's Exile Undead",
             "Staar's Banish Undead",
             "Staar's Expel Undead",
@@ -249,7 +249,7 @@ local _ClassConfig = {
             "Chromastrike", --Laz specific
             -- "Calamity", -- Chroma is better
             "Reproach",
-            "Order",
+            "Staar's Order",
             "Staar's Condemnation",
             "Staar's Judgment",
             "Staar's Retribution",
@@ -268,11 +268,11 @@ local _ClassConfig = {
         },
         ['PBAENuke'] = { --This isn't worthwhile before these spells come around.
             "Calamity",
-            "Catastrophe",
+            "Staar's Catastrophe",
         },
         ['PBAEStun'] = { --This isn't worthwhile before these spells come around. The stun won't land in many cases (level) but the damage is okay.
             "Silent Dictation",
-            "The Silent Command",
+            "Staar's The Silent Command",
         },
     }, -- end AbilitySets
     ['HelperFunctions']   = {
