@@ -55,8 +55,7 @@ local _ClassConfig = {
     },
     ['ItemSets']          = {
         ['Epic'] = {
-            "Harmony of the Soul",
-            "Aegis of Superior Divinity",
+            "Ancient Shield of the Divine (Tier 1)",
         },
     },
     ['AbilitySets']       = {
@@ -246,8 +245,7 @@ local _ClassConfig = {
             "Staar's Ward Undead",
         },
         ['MagicNuke'] = {
-            "Chromastrike", --Laz specific
-            -- "Calamity", -- Chroma is better
+            "Staar's Chromastrike",
             "Staar's Reproach",
             "Staar's Order",
             "Staar's Condemnation",
@@ -267,7 +265,7 @@ local _ClassConfig = {
             "Complete Heal",
         },
         ['PBAENuke'] = { --This isn't worthwhile before these spells come around.
-            "Calamity",
+            "Staar's Calamity",
             "Staar's Catastrophe",
         },
         ['PBAEStun'] = { --This isn't worthwhile before these spells come around. The stun won't land in many cases (level) but the damage is okay.

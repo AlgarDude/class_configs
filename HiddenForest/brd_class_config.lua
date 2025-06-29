@@ -63,8 +63,7 @@ local _ClassConfig = {
     },
     ['ItemSets']        = {
         ['Epic'] = {
-            "Blade of Vesagran",
-            "Prismatic Dragon Blade",
+            "Ancient Blade of the Singer (Tier 1)",
         },
     },
     ['AbilitySets']     = {
@@ -109,7 +108,7 @@ local _ClassConfig = {
             "Znoth's Hymn of Restoration",      -- 7, hp only
         },
         ['AreaRegenSong'] = {
-            "Chorus of Life",                  -- 69
+            "Znoth's Chorus of Life",          -- 69
             "Znoth's Chorus of Marr",          -- 64
             "Znoth's Ancient: Lament",         -- 60
             "Znoth's Chorus of Replenishment", -- 58

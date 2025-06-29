@@ -15,10 +15,9 @@ return {
     ['ModeChecks']        = {
         IsHealing = function() return true end,
     },
-    ['ItemSets']          = {                  --TODO: Add Omens Chest
+    ['ItemSets']          = {                --TODO: Add Omens Chest
         ['Epic'] = {
-            "Savage Lord's Totem",             -- Epic    -- Epic 1.5
-            "Spiritcaller Totem of the Feral", -- Epic    -- Epic 2.0
+            "Ancient Lord's Totem (Tier 1)", -- Epic    -- Epic 1.5
         },
         ['OoW_Chest'] = {
             "Beast Tamer's Jerkin",
@@ -107,6 +106,7 @@ return {
             "Spirit of Sorsha",    -- Level 64
             "Spirit of Alladnu",   -- Level 68
             "Spirit of Rashara",   -- Level 70
+            "Wild Companion",
         },
         ['PetHaste'] = {
             "Yekan's Quickening",
@@ -235,10 +235,6 @@ return {
             },
         },
         ['BigHealPoint'] = {
-            {
-                name = "Leather Chestwraps of the Fallen",
-                type = "Item",
-            },
             {
                 name = "HealSpell",
                 type = "Spell",

@@ -14,8 +14,7 @@ return {
     },
     ['ItemSets']        = {
         ['Epic'] = {
-            "Fatestealer",
-            "Nightshade, Blade of Entropy",
+            "Ancient Tool of the Thieves (Tier 1)",
         },
         ['Coating'] = {
             "Spirit Drinker's Coating",

@@ -108,8 +108,7 @@ local _ClassConfig = {
     },
     ['ItemSets']        = {
         ['Epic'] = {
-            "Innoruuk's Dark Blessing",
-            "Innoruuk's Voice",
+            "Ancient Doombringer (Tier 1)",
         },
         ['OoW_Chest'] = {
             "Heartstiller's Mail Chestguard",
@@ -137,6 +136,8 @@ local _ClassConfig = {
         ['UnholyAura'] = { 'Unholy Aura Discipline', },
 
         ['PetSpell'] = {
+            "Decaying Minion",
+            "Legacy of Zek",
             "Son of Decay",
             "Emissary of Thule",
             "Minion of Shadows",
@@ -184,7 +185,7 @@ local _ClassConfig = {
             "Call of Darkness",
         },
         ['AETaunt'] = {
-            "Dread Gaze", -- Level 69
+            "Arel's Dread Gaze", -- Level 69
         },
         ['PoisonDot'] = {
             "Blood of Pain", -- Level 41
@@ -198,7 +199,8 @@ local _ClassConfig = {
             "Arel's Spear of Pain",
             "Arel's Spear of Plague",
             "Arel's Spear of Decay",
-            "Arel's Miasmic Spear", --timer 5, may be able to use two spears here, check again at endgame
+            "Arel's Miasmic Spear",  --timer 5, may be able to use two spears here, check again at endgame
+            "Arel's Spear of Muram", -- also timer 5, disregard
         },
         ['BondTap'] = {
             "Bond of Inruku",
@@ -207,7 +209,7 @@ local _ClassConfig = {
             "Greevel's Leach",
         },
         ['LifeTap'] = {
-            "Touch of the Devourer",
+            "Arel's Touch of Draygun",
             "Arel's Touch of Inruku",
             "Arel's Touch of Innoruuk",
             "Arel's Touch of Volatis",
@@ -221,8 +223,8 @@ local _ClassConfig = {
             "Greevel's Lifetap",   -- Level 8
         },
         ['LifeTap2'] = {
-            "Touch of the Devourer",
-            "Touch of Inruku",
+            "Arel's Touch of Draygun",
+            "Arel's Touch of Inruku",
             "Arel's Touch of Innoruuk",
             "Arel's Touch of Volatis",
             "Drained Soul",
@@ -296,6 +298,12 @@ local _ClassConfig = {
         },
         ['TapProc'] = {
             "Vampiric Embrace",
+        },
+        ['ProcBuff'] = {
+            "Knight's Storm",
+        },
+        ['Anger'] = {
+            "Seething Anger Rk. I",
         },
     },
     ['HelperFunctions'] = {
@@ -583,7 +591,14 @@ local _ClassConfig = {
             {
                 name = "TapBuff",
                 type = "Spell",
-                tooltip = Tooltips.Skin,
+                active_cond = function(self, spell) return Casting.IHaveBuff(spell) end,
+                cond = function(self, spell)
+                    return Casting.SelfBuffCheck(spell)
+                end,
+            },
+            {
+                name = "ProcBuff",
+                type = "Spell",
                 active_cond = function(self, spell) return Casting.IHaveBuff(spell) end,
                 cond = function(self, spell)
                     return Casting.SelfBuffCheck(spell)
@@ -949,12 +964,11 @@ local _ClassConfig = {
                 end,
             },
             {
-                name = "AESpearNuke",
+                name = "Anger",
                 type = "Spell",
-                tooltip = Tooltips.AESpearNuke,
+                tooltip = Tooltips.SpearNuke,
                 cond = function(self, spell, target)
-                    if not (Config:GetSetting('DoAESpearNuke') and Config:GetSetting('DoAEDamage')) then return false end
-                    return Casting.HaveManaToNuke() and Targeting.InSpellRange(spell, target)
+                    return Core.IsTanking()
                 end,
             },
             {
@@ -1071,6 +1085,7 @@ local _ClassConfig = {
                 { name = "SnareDot",    cond = function(self) return Config:GetSetting('DoSnare') and not Casting.CanUseAA("Encroaching Darkness") end, },
                 { name = "Terror",      cond = function(self) return Config:GetSetting('DoTerror') end, },
                 { name = "AETaunt",     cond = function(self) return Config:GetSetting('AETauntSpell') end, },
+                { name = "Anger",       cond = function(self) return Core.IsTanking() end, },
                 { name = "BiteTap", },
                 { name = "BondTap",     cond = function(self) return Config:GetSetting('DoBondTap') end, },
                 { name = "PoisonDot",   cond = function(self) return Config:GetSetting('DoPoisonDot') end, },

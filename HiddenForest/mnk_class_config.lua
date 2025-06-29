@@ -13,8 +13,7 @@ local _ClassConfig = {
     },
     ['ItemSets']        = {
         ['Epic'] = {
-            "Transcended Fistwraps of Immortality",
-            "Fistwraps of Celestial Discipline",
+            "Ancient Fistwraps of Eternity (Tier 1)",
         },
         ['Coating'] = {
             "Spirit Drinker's Coating",
