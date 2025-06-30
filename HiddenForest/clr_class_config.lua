@@ -245,6 +245,7 @@ local _ClassConfig = {
             "Staar's Ward Undead",
         },
         ['MagicNuke'] = {
+            "Ancient: Pious Concscience",
             "Staar's Chromastrike",
             "Staar's Reproach",
             "Staar's Order",

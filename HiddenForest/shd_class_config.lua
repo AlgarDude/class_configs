@@ -300,6 +300,7 @@ local _ClassConfig = {
             "Vampiric Embrace",
         },
         ['ProcBuff'] = {
+            "Power of the Shadows",
             "Knight's Storm",
         },
         ['Anger'] = {
@@ -879,6 +880,13 @@ local _ClassConfig = {
             },
         },
         ['Defenses'] = {
+            {
+                name = "Rayin's Guantlets of Abhorrence (Tier 1)",
+                type = "Item",
+                cond = function(self, item, target)
+                    return Casting.NoDiscActive()
+                end,
+            },
             {
                 name = "Mantle",
                 type = "Disc",
