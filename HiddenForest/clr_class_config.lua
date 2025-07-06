@@ -224,6 +224,7 @@ local _ClassConfig = {
             "Yaulp V",     -- Level 56, first rank with haste/mana regen. We won't use it before this.
         },
         ['StunTimer6'] = { -- Timer 6 Stun, Fast Cast, Level 63+ (with ToT Heal 88+)
+            "Ancient: Divine Admiration",
             "Sound of Divinity",
             "Sound of Might",
             --Filler before this

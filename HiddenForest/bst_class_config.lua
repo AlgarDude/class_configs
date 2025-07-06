@@ -190,6 +190,9 @@ return {
         ['VigorBuff'] = {
             "Feral Vigor",
         },
+        ['ProcSpell'] = {
+            "Call of the BeastMaster",
+        },
     },
     ['HealRotationOrder'] = {
         {
@@ -650,6 +653,13 @@ return {
                     return Casting.SelfBuffAACheck(aaName)
                 end,
             },
+            {
+                name = "ProcSpell",
+                type = "Spell",
+                cond = function(self, spell)
+                    return Casting.SelfBuffCheck(spell)
+                end,
+            },
         },
         ['PetBuff'] = {
             {
@@ -741,11 +751,11 @@ return {
                 { name = "EndemicDot",    cond = function(self) return Config:GetSetting('DoDot') end, },
                 { name = "SwarmPet", },
                 { name = "AtkBuff", },
-                { name = "VigorBuff", },
                 { name = "PetGrowl", },
-                { name = "PetBlockSpell", },
                 { name = "PetSpell",      cond = function(self) return Config:GetSetting('KeepPetMemmed') end, },
+                { name = "PetBlockSpell", },
                 --filler
+                { name = "VigorBuff", },
                 { name = "PetHaste", },
                 { name = "PetDamageProc", },
                 { name = "RunSpeedBuff",  cond = function(self) return Config:GetSetting('DoRunSpeed') end, },

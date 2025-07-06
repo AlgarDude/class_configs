@@ -584,6 +584,27 @@ local _ClassConfig = {
                 end,
             },
             {
+                name = "GroupRegenSong",
+                type = "Song",
+                cond = function(self, songSpell)
+                    if Config:GetSetting('RegenSong') ~= 2 then return false end
+                    local pct = Config:GetSetting('GroupManaPct')
+                    return self.ClassConfig.HelperFunctions.RefreshBuffSong(songSpell) and
+                        ((Config:GetSetting('UseRegen') == 1 and (mq.TLO.Group.LowMana(pct)() or 999) >= Config:GetSetting('GroupManaCt'))
+                            or (Config:GetSetting('UseRegen') > 1 and self.ClassConfig.HelperFunctions.CheckSongStateUse(self, "UseRegen")))
+                end,
+            },
+            {
+                name = "AreaRegenSong",
+                type = "Song",
+                cond = function(self, songSpell)
+                    if Config:GetSetting('RegenSong') ~= 3 then return false end
+                    local pct = Config:GetSetting('GroupManaPct')
+                    return self.ClassConfig.HelperFunctions.RefreshBuffSong(songSpell) and
+                        not (mq.TLO.Me.Combat() and (mq.TLO.Group.LowMana(pct)() or 999) < Config:GetSetting('GroupManaCt'))
+                end,
+            },
+            {
                 name = "Jonthan",
                 type = "Song",
                 cond = function(self, songSpell)
@@ -616,27 +637,6 @@ local _ClassConfig = {
                 end,
             },
             {
-                name = "GroupRegenSong",
-                type = "Song",
-                cond = function(self, songSpell)
-                    if Config:GetSetting('RegenSong') ~= 2 then return false end
-                    local pct = Config:GetSetting('GroupManaPct')
-                    return self.ClassConfig.HelperFunctions.RefreshBuffSong(songSpell) and
-                        ((Config:GetSetting('UseRegen') == 1 and (mq.TLO.Group.LowMana(pct)() or 999) >= Config:GetSetting('GroupManaCt'))
-                            or (Config:GetSetting('UseRegen') > 1 and self.ClassConfig.HelperFunctions.CheckSongStateUse(self, "UseRegen")))
-                end,
-            },
-            {
-                name = "AreaRegenSong",
-                type = "Song",
-                cond = function(self, songSpell)
-                    if Config:GetSetting('RegenSong') ~= 3 then return false end
-                    local pct = Config:GetSetting('GroupManaPct')
-                    return self.ClassConfig.HelperFunctions.RefreshBuffSong(songSpell) and
-                        not (mq.TLO.Me.Combat() and (mq.TLO.Group.LowMana(pct)() or 999) < Config:GetSetting('GroupManaCt'))
-                end,
-            },
-            {
                 name = "AmpSong",
                 type = "Song",
                 cond = function(self, songSpell)
@@ -662,7 +662,7 @@ local _ClassConfig = {
                 targetId = function(self) return { mq.TLO.Me.ID(), } end,
                 cond = function(self, songSpell)
                     if Casting.CanUseAA("Selo's Sonata") or not Config:GetSetting('UseRunBuff') then return false end
-                    return self.ClassConfig.HelperFunctions.RefreshBuffSong(songSpell)
+                    return not mq.TLO.Zone.Indoor() and self.ClassConfig.HelperFunctions.RefreshBuffSong(songSpell)
                 end,
             },
             {

@@ -181,9 +181,9 @@ local _ClassConfig = {
             "Cloak of Luclin",
             "Cloak of Discord",
         },
-        ['CallAtk'] = {
-            "Call of Darkness",
-        },
+        -- ['CallAtk'] = {
+        --     "Call of Darkness",
+        -- },
         ['AETaunt'] = {
             "Arel's Dread Gaze", -- Level 69
         },
@@ -209,6 +209,7 @@ local _ClassConfig = {
             "Greevel's Leach",
         },
         ['LifeTap'] = {
+            "Touch of the Devourer",
             "Arel's Touch of Draygun",
             "Arel's Touch of Inruku",
             "Arel's Touch of Innoruuk",
@@ -537,15 +538,15 @@ local _ClassConfig = {
                     return Casting.SelfBuffCheck(spell) and Casting.ReagentCheck(spell)
                 end,
             },
-            {
-                name = "CallAtk",
-                type = "Spell",
-                tooltip = Tooltips.CallAtk,
-                active_cond = function(self, spell) return Casting.IHaveBuff(spell) end,
-                cond = function(self, spell)
-                    return Casting.SelfBuffCheck(spell) and not Casting.IHaveBuff("Howl of the Predator") --fix for bad stacking check
-                end,
-            },
+            -- { -- doesn't stack with procbuff, spam results
+            --     name = "CallAtk",
+            --     type = "Spell",
+            --     tooltip = Tooltips.CallAtk,
+            --     active_cond = function(self, spell) return Casting.IHaveBuff(spell) end,
+            --     cond = function(self, spell)
+            --         return Casting.SelfBuffCheck(spell) and not Casting.IHaveBuff("Howl of the Predator") --fix for bad stacking check
+            --     end,
+            -- },
             --You'll notice my use of TotalSeconds, this is to keep as close to 100% uptime as possible on these buffs, rebuffing early to decrease the chance of them falling off in combat
             --I considered creating a function (helper or utils) to govern this as I use it on multiple classes but the difference between buff window/song window/aa/spell etc makes it unwieldy
             -- if using duration checks, dont use SelfBuffCheck() (as it could return false when the effect is still on)
@@ -881,7 +882,7 @@ local _ClassConfig = {
         },
         ['Defenses'] = {
             {
-                name = "Rayin's Guantlets of Abhorrence (Tier 1)",
+                name = "Rayin's Infused Gauntlets of Abhorrence (Tier 1)",
                 type = "Item",
                 cond = function(self, item, target)
                     return Casting.NoDiscActive()

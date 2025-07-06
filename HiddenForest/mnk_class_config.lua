@@ -403,6 +403,13 @@ local _ClassConfig = {
             },
         },
         ['Burn'] = {
+            {
+                name = "Fordel Star Ring (Tier 1)",
+                type = "Item",
+                cond = function(self, itemName, target)
+                    return Casting.SelfBuffItemCheck(itemName) and Casting.NoDiscActive()
+                end,
+            },
             { -- 5m reuse
                 name = "Dicho",
                 type = "Disc",
