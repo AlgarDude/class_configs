@@ -111,8 +111,7 @@ local _ClassConfig = {
             "Ancient Doombringer (Tier 1)",
         },
         ['OoW_Chest'] = {
-            "Heartstiller's Mail Chestguard",
-            "Duskbringer's Plate Chestguard of the Hateful",
+            "Frozen Duskbringer's Chestguard (Tier 2)",
         },
         ['Coating'] = {
             "Spirit Drinker's Coating",
@@ -1103,7 +1102,7 @@ local _ClassConfig = {
                 { name = "PowerTapAtk", cond = function(self) return Config:GetSetting('DoAtkTap') end, },
                 { name = "AELifeTap",   cond = function(self) return Config:GetSetting('DoAELifeTap') end, },
                 { name = "Skin", },
-                { name = "HateBuff",    cond = function(self) return Config:GetSetting('DoHateBuff') end, },
+                { name = "HateBuff",    cond = function(self) return Config:GetSetting('DoHateBuff') and not Casting.CanUseAA("Voice of Thule") end, },
                 { name = "LifeTap2", },
                 { name = "Terror2",     cond = function(self) return Config:GetSetting('DoTerror') end, },
             },

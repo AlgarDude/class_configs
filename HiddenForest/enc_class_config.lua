@@ -21,8 +21,7 @@ local _ClassConfig = {
     },
     ['ItemSets']        = {
         ['Epic'] = {
-            "Staff of Eternal Eloquence",
-            "Oculus of Persuasion",
+            "Ancient Entrancers Staff (Tier 1)",
         },
     },
     ['AbilitySets']     = {
@@ -71,7 +70,7 @@ local _ClassConfig = {
         },
         ['NdtBuff'] = {
             "Boon of the Legion",
-            "Night's Dark Terror",
+            "Night`s Dark Terror",
             "Boon of the Garou",
         },
         ['SelfHPBuff'] = {
@@ -101,8 +100,9 @@ local _ClassConfig = {
             "Rune I",
         },
         ['GroupRune'] = {
-            "Rune of Rikkukin",
-            "Rune of the Scale",
+            "Guardian's Rune",
+            -- "Rune of Rikkukin",
+            -- "Rune of the Scale",
         },
         -- ['AggroBuff'] = {
         --     "Horrifying Visage",
@@ -184,19 +184,20 @@ local _ClassConfig = {
             "Tashina",
         },
         ['AETashSpell'] = {
+            "Wind of Tashanian",
             "Wind of Tashani",
         },
         -- ['ManaDrainNuke'] = {
-        --     "Torment of Scio",
+        --     "Ivone's Torment of Scio",
         --     "Ivone's Torment of Argli",
         --     "Scryer's Trespass",
         --     "Wandering Mind",
         --     "Mana Sieve",
         -- },
         ['StrangleDot'] = {
-            "Arcane Noose",
-            "Strangle",
-            "Asphyxiate",
+            "Ivone's Arcane Noose",
+            "Ivone's Strangle",
+            "Ivone's Asphyxiate",
             "Gasping Embrace",
             "Ivone's Suffocate",
             "Ivone's Choke",
@@ -208,12 +209,12 @@ local _ClassConfig = {
         },
         ['MagicNuke'] = {
             "Ancient: Neurosis",
-            "Psychosis",
+            "Ivone's Psychosis",
             "Ancient: Chaos Madness",
             "Madness of Ikkibi",
             "Insanity",
-            "Ancient: Chaotic Visions",
-            "Dementing Visions",
+            "Ivone's Ancient: Chaotic Visions",
+            "Ivone's Dementing Visions",
             "Ivone's Dementia",
             "Discordant Mind",
             "Anarchy",
@@ -223,6 +224,7 @@ local _ClassConfig = {
             "Chromarcana",
         },
         ['PetSpell'] = {
+            "Adrianne's Animation",
             "Salik's Animation",
             "Aeldorb's Animation",
             "Zumaik's Animation",
@@ -241,6 +243,7 @@ local _ClassConfig = {
         },
         ['MezAESpell'] = {
             "Wake of Felicity",
+            "Bliss of the Nihil",
             "Apathy of the Nihil",
             "Fascination",
             "Mesmerization",
@@ -307,7 +310,7 @@ local _ClassConfig = {
             "Unified Alacrity",
         },
         ['ColoredNuke'] = {
-            "Colored Chaos",
+            "Ivone's Coloured Chaos",
         },
         ['Chromaburst'] = {
             "Chromaburst",
@@ -922,18 +925,27 @@ local _ClassConfig = {
         },
         ['Tash'] = {
             {
-                name = "Bite of Tashani",
-                type = "AA",
-                cond = function(self, aaName)
+                name = "AETashSpell",
+                type = "Spell",
+                cond = function(self, spell)
                     if Targeting.GetXTHaterCount() < Config:GetSetting('AECount') then return false end
-                    return Casting.DetAACheck(aaName)
+                    return Casting.DetSpellCheck(spell)
                 end,
+            },
+            {
+                {
+                    name = "Epic",
+                    type = "Item",
+                    cond = function(self, itemName, target)
+                        return Casting.DetItemCheck(itemName, target) and (not Casting.TargetHasBuff("Wind of Tashani") or Targeting.IsNamed(target))
+                    end,
+                },
             },
             {
                 name = "TashSpell",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    return Casting.DetSpellCheck(spell) and (not Casting.TargetHasBuff("Bite of Tashani") or Targeting.IsNamed(target))
+                    return Casting.DetSpellCheck(spell) and (not Casting.TargetHasBuff("Wind of Tashani") or Targeting.IsNamed(target))
                 end,
             },
         },
@@ -996,7 +1008,8 @@ local _ClassConfig = {
                 { name = "MezAESpell",       cond = function(self) return Config:GetSetting('DoAEMez') end, },
                 { name = "CharmSpell",       cond = function(self) return Config:GetSetting('CharmOn') end, },
                 { name = "TashSpell",        cond = function(self) return Config:GetSetting('DoTash') end, },
-                { name = "SlowSpell",        cond = function(self) return Config:GetSetting('DoSlow') and not Casting.CanUseAA("Dreary Deeds") end, },
+                { name = "AETashSpell",      cond = function(self) return Config:GetSetting('DoTashAE') end, },
+                { name = "SlowSpell",        cond = function(self) return Config:GetSetting('DoSlow') end, },
                 { name = "CrippleSpell",     cond = function(self) return Config:GetSetting('DoCrippleSpell') end, },
                 { name = "PBAEStunSpell",    cond = function(self) return Config:GetSetting('DoAEStun') > 1 end, },
                 { name = "NdtBuff",          cond = function(self) return Config:GetSetting('DoNDTBuff') end, },
@@ -1133,6 +1146,16 @@ local _ClassConfig = {
             DisplayName = "Do Tash",
             Category = "Debuffs",
             Tooltip = "Cast Tash Spells",
+            RequiresLoadoutChange = true,
+            Default = true,
+            FAQ = "Why am I not Tashing?",
+            Answer = "The [DoTash] setting determines whether or not your PC will cast Tash Spells.\n" ..
+                "If you are not Tashing, you may need to Enable the [DoTash] setting.",
+        },
+        ['DoTashAE']           = {
+            DisplayName = "Do AE Tash",
+            Category = "Debuffs",
+            Tooltip = "Cast AE Tash Spells",
             RequiresLoadoutChange = true,
             Default = true,
             FAQ = "Why am I not Tashing?",
