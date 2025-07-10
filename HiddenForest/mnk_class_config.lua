@@ -410,6 +410,13 @@ local _ClassConfig = {
                     return Casting.SelfBuffItemCheck(itemName) and Casting.NoDiscActive()
                 end,
             },
+            {
+                name = "Incarnadine Chestwraps (Tier 1)",
+                type = "Item",
+                cond = function(self, aaName, target)
+                    return Targeting.IsNamed(target)
+                end,
+            },
             { -- 5m reuse
                 name = "Dicho",
                 type = "Disc",

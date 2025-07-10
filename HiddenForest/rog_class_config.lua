@@ -324,6 +324,13 @@ return {
                 end,
             },
             {
+                name = "Fordel Star Ring (Tier 1)",
+                type = "Item",
+                cond = function(self, itemName, target)
+                    return Casting.SelfBuffItemCheck(itemName) and Casting.NoDiscActive()
+                end,
+            },
+            {
                 name = "Rogue's Fury",
                 type = "AA",
             },

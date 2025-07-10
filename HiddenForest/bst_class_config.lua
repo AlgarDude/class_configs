@@ -394,6 +394,20 @@ return {
                 type = "AA",
             },
             {
+                name = "Fordel Star Ring (Tier 1)",
+                type = "Item",
+                cond = function(self, itemName, target)
+                    return Casting.SelfBuffItemCheck(itemName) and Casting.NoDiscActive()
+                end,
+            },
+            {
+                name = "Incarnadine Chestwraps (Tier 1)",
+                type = "Item",
+                cond = function(self, aaName, target)
+                    return Targeting.IsNamed(target)
+                end,
+            },
+            {
                 name = "DmgModDisc",
                 type = "Disc",
                 cond = function(self, discSpell)

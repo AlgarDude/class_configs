@@ -176,9 +176,10 @@ local _ClassConfig = {
             "Banshee Aura III",
         },
         ['CloakHP'] = {
-            "Cloak of the Akheva",
-            "Cloak of Luclin",
+            "Cloak of Cazic",
             "Cloak of Discord",
+            "Cloak of Luclin",
+            "Cloak of the Akheva",
         },
         -- ['CallAtk'] = {
         --     "Call of Darkness",
@@ -825,6 +826,13 @@ local _ClassConfig = {
                     return Config:GetSetting('DoLeechTouch') ~= 1
                 end,
             },
+            -- { --3s cast too slow
+            --     name = "Incarnadine Breastplate (Tier 1)",
+            --     type = "Item",
+            --     cond = function(self, aaName, target)
+            --         return Targeting.IsNamed(target)
+            --     end,
+            -- },
             {
                 name = "Chattering Bones",
                 type = "AA",
