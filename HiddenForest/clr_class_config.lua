@@ -368,8 +368,11 @@ local _ClassConfig = {
     ['HealRotations']     = {
         ['GroupHeal'] = {
             {
-                name = "Beacon of Life",
-                type = "AA",
+                name = "Frozen Faithbringer's Breastplate (Tier 2)",
+                type = "Item",
+                cond = function(self, itemName, target)
+                    return Targeting.BigHealsNeeded(target) -- if multiples are hurt with at least one needing big heals
+                end,
             },
             {
                 name = "Celestial Regeneration",
@@ -737,17 +740,6 @@ local _ClassConfig = {
                 end,
             },
             {
-                name = "Spirit Mastery",
-                type = "AA",
-                pre_activate = function(self, aaName) --remove the old aura if we just purchased the AA, otherwise we will be spammed because of no focus.
-                    ---@diagnostic disable-next-line: undefined-field
-                    if not Casting.AuraActiveByName("Aura of Pious Divinity") then mq.TLO.Me.Aura(1).Remove() end
-                end,
-                cond = function(self, aaName)
-                    return not Casting.AuraActiveByName("Aura of Pious Divinity")
-                end,
-            },
-            {
                 name = "AbsorbAura",
                 type = "Spell",
                 pre_activate = function(self, spell) --remove the old aura if we leveled up (or the other aura if we just changed options), otherwise we will be spammed because of no focus.
@@ -773,14 +765,6 @@ local _ClassConfig = {
             },
         },
         ['GroupBuff'] = {
-            {
-                name = "Divine Guardian",
-                type = "AA",
-                cond = function(self, aaName, target)
-                    if not Targeting.TargetIsMA(target) then return false end
-                    return Casting.GroupBuffAACheck(aaName, target)
-                end,
-            },
             {
                 name = "AegoBuff",
                 type = "Spell",
@@ -819,6 +803,13 @@ local _ClassConfig = {
                 cond = function(self, spell, target)
                     if not Config:GetSetting('DoVieBuff') or self:GetResolvedActionMapItem('GroupVieBuff') or not Targeting.TargetIsMA(target) then return false end
                     return Casting.GroupBuffCheck(spell, target)
+                end,
+            },
+            {
+                name = "Frozen Faithbringer's Leggings (Tier 2)",
+                type = "Item",
+                cond = function(self, itemName, target)
+                    return Casting.GroupBuffItemCheck(itemName, target)
                 end,
             },
             {

@@ -435,6 +435,10 @@ return {
                     return Config:GetSetting('DoVetAA')
                 end,
             },
+            {
+                name = "Frozen Savagesoul Jerkin (Tier 2)",
+                type = "Item",
+            },
         },
         ['Slow'] = {
             {
@@ -587,6 +591,15 @@ return {
                 cond = function(self, spell, target)
                     if not Config:GetSetting('DoRunSpeed') then return false end
                     return Casting.GroupBuffCheck(spell, target)
+                end,
+            },
+            {
+                name = "Frozen Savagesoul Legguards (Tier 2)",
+                type = "Item",
+                cond = function(self, itemName, target)
+                    -- Make sure this is gemmed due to long refresh, and only use the single target versions on classes that need it.
+                    if not Targeting.TargetIsAMelee(target) then return false end
+                    return true --Casting.GroupBuffItemCheck(itemName, target)
                 end,
             },
             {

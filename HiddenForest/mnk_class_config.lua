@@ -347,6 +347,14 @@ local _ClassConfig = {
         },
         ['Emergency'] = {
             {
+                name = "Frozen Fiercehand Shroud (Tier 2)",
+                type = "Item",
+                cond = function(self, itemName, target)
+                    return (mq.TLO.Me.PctHPs() <= 40 and Targeting.IHaveAggro(100)) or (Targeting.IsNamed(target) and mq.TLO.Me.PctAggro() > 99)
+                        and not Core.IAmMA
+                end,
+            },
+            {
                 name = "Imitate Death",
                 type = "AA",
                 cond = function(self, aaName, target)
