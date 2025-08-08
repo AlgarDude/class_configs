@@ -491,7 +491,15 @@ return {
                 type = "AA",
                 cond = function(self, aaName)
                     if not Config:GetSetting('DoParagon') then return false end
-                    return (mq.TLO.Group.LowMana(Config:GetSetting('ParaPct'))() or -1) > 0
+                    return Casting.GroupLowManaCount(Config:GetSetting('ParaPct')) > 0
+                end,
+            },
+            {
+                name = "Tome of Nife's Mercy",
+                type = "Item",
+                load_cond = function(self) return mq.TLO.FindItem("=Tome of Nife's Mercy")() end,
+                cond = function(self, itemName, target)
+                    return Casting.GroupLowManaCount(Config:GetSetting('ParaPct')) > 1
                 end,
             },
             {
@@ -602,7 +610,9 @@ return {
                 cond = function(self, spell, target)
                     -- Only use the single target versions on classes that need it
                     if (spell.TargetType() or ""):lower() ~= "group v2" and not Targeting.TargetIsAMelee(target) then return false end
-                    return Casting.GroupBuffCheck(spell, target) and not Casting.TargetHasBuff("Brell's Vibrant Barricade", target, true)
+                    return Casting.GroupBuffCheck(spell, target)
+                        --laz specific deconflict with brell's vibrant barricade
+                        and Casting.PeerBuffCheck(40583, target)
                 end,
             },
             {
@@ -807,7 +817,7 @@ return {
             Category = "Mana Mgmt.",
             Index = 2,
             Tooltip = "Minimum mana % before we use Paragon of Spirit.",
-            Default = 80,
+            Default = 50,
             Min = 1,
             Max = 99,
             ConfigType = "Advanced",

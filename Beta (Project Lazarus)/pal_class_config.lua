@@ -61,7 +61,7 @@ return {
         },
     },
     ['AbilitySets']       = {
-        ["Preservation"] = {
+        ["WardProc"] = {
             -- Timer 12 - Preservation
             "Ward of Tunare", -- Level 70
         },
@@ -121,6 +121,14 @@ return {
             "Brell's Steadfast Aegis",
         },
         ["WaveHeal"] = {
+            "Wave of Piety",
+            "Wave of Trushar",
+            "Wave of Marr",
+            "Healing Wave of Prexus",
+            "Wave of Healing",
+            "Wave of Life",
+        },
+        ["WaveHeal2"] = {
             "Wave of Piety",
             "Wave of Trushar",
             "Wave of Marr",
@@ -209,9 +217,6 @@ return {
             "Hallowforge Discipline",
             "Holyforge Discipline",
         },
-        -- ["Spellblock"] = {
-        --     "Sanctification Discipline",
-        -- },
         ['RezSpell'] = {
             'Resurrection',
             'Restoration',
@@ -232,7 +237,10 @@ return {
             "Rampart Discipline",
             "Deflection Discipline",
         },
-        ['TwincastNuke'] = {
+        ['SancDisc'] = {
+            "Sanctification Discipline",
+        },
+        ['TwinHealNuke'] = {
             "Justice of Marr",
         },
         ['GuardDisc'] = {
@@ -252,21 +260,22 @@ return {
             name = "Default",
             -- cond = function(self) return true end, --Kept here for illustration, this line could be removed in this instance since we aren't using conditions.
             spells = {
-                { name = "TouchHeal", },
+                { name = "TouchHeal",    cond = function(self) return Config:GetSetting('DoTouchHeal') < 3 end, },
                 { name = "LightHeal", },
-                { name = "WaveHeal", },
+                { name = "WaveHeal",     cond = function(self) return Config:GetSetting('DoWaveHeal') < 3 end, },
+                { name = "WaveHeal2",    cond = function(self) return Config:GetSetting('DoWaveHeal') == 2 end, },
                 { name = "Cleansing",    cond = function(self) return Config:GetSetting('DoCleansing') end, },
-                { name = "TwincastNuke", },
+                { name = "TwinHealNuke", cond = function(self) return Config:GetSetting('DoTwinHealNuke') end, },
                 { name = "SereneStun", },
                 { name = "StunTimer4",   cond = function(self) return Core.IsTanking() end, },
                 { name = "StunTimer5",   cond = function(self) return Core.IsTanking() end, },
-                { name = "AEStun",       cond = function(self) return Config:GetSetting('DoAEStun') end, },
                 { name = "PBAEStun",     cond = function(self) return Config:GetSetting('DoPBAEStun') end, },
+                { name = "AEStun",       cond = function(self) return Config:GetSetting('DoAEStun') end, },
                 { name = "CureCurse",    cond = function(self) return Config:GetSetting('KeepCurseMemmed') end, },
                 { name = "PurityCure",   cond = function(self) return Config:GetSetting('KeepPurityMemmed') end, },
                 { name = "UndeadNuke",   cond = function(self) return Config:GetSetting('DoUndeadNuke') end, },
                 { name = "DebuffNuke",   cond = function(self) return Config:GetSetting('DoUndeadNuke') end, },
-                { name = "Preservation", },
+                { name = "WardProc", },
             },
         },
     },
@@ -345,20 +354,31 @@ return {
     },
     ['HealRotationOrder'] = {
         {
-            name = 'GroupHealPoint',
+            name = 'GroupHeal',
             state = 1,
             steps = 1,
-            cond = function(self, target) return Targeting.GroupHealsNeeded() end,
+            cond = function(self, target) Targeting.GroupHealsNeeded() end,
         },
         {
-            name = 'MainHealPoint',
+            name = 'BigHeal',
             state = 1,
             steps = 1,
-            cond = function(self, target) return Targeting.MainHealsNeeded(target) end,
+            cond = function(self, target)
+                return Targeting.BigHealsNeeded(target)
+            end,
+        },
+        {
+            name = 'MainHeal',
+            state = 1,
+            steps = 1,
+            load_cond = function(self) return Config:GetSetting('DoCleansing') or Config:GetSetting("DoTouchHeal") == 2 end,
+            cond = function(self, target)
+                return Targeting.MainHealsNeeded(target)
+            end,
         },
     },
     ['HealRotations']     = {
-        ["GroupHealPoint"] = {
+        ["GroupHeal"] = {
             {
                 name = "Hand of Piety",
                 type = "AA",
@@ -367,11 +387,22 @@ return {
                 end,
             },
             {
+                name = "Imbued Rune of Piety",
+                type = "Item",
+                load_cond = function(self) return mq.TLO.FindItem("=Imbued Rune of Piety")() end,
+            },
+            {
                 name = "WaveHeal",
                 type = "Spell",
+                load_cond = function(self) return Config:GetSetting('DoWaveHeal') < 3 end,
+            },
+            {
+                name = "WaveHeal2",
+                type = "Spell",
+                load_cond = function(self) return Config:GetSetting('DoWaveHeal') == 2 end,
             },
         },
-        ["MainHealPoint"] = {
+        ["BigHeal"] = {
             {
                 name = "Lay on Hands",
                 type = "AA",
@@ -383,20 +414,58 @@ return {
                 name = "Hand of Piety",
                 type = "AA",
                 cond = function(self, aaName, target)
-                    return self.CombatState == "Combat" and Targeting.BigHealsNeeded(target) and Targeting.TargetIsMyself(target)
+                    return self.CombatState == "Combat" and (Targeting.TargetIsMyself(target) or Targeting.GetTargetPctHPs() < Config:GetSetting('HPCritical'))
                 end,
             },
             {
-                name = "Cleansing",
+                name = "Imbued Rune of Piety",
+                type = "Item",
+                load_cond = function(self) return mq.TLO.FindItem("=Imbued Rune of Piety")() and Config:GetSetting('WaveHealUse') == 1 end,
+            },
+            {
+                name = "WaveHeal",
                 type = "Spell",
-                cond = function(self, spell, target)
-                    if not Config:GetSetting('DoCleansing') then return false end
-                    return Casting.GroupBuffCheck(spell, target)
-                end,
+                load_cond = function(self) return Config:GetSetting('DoWaveHeal') < 3 and Config:GetSetting('WaveHealUse') == 1 end,
+            },
+            {
+                name = "WaveHeal2",
+                type = "Spell",
+                load_cond = function(self) return Config:GetSetting('DoWaveHeal') == 2 and Config:GetSetting('WaveHealUse') == 1 end,
             },
             {
                 name = "TouchHeal",
                 type = "Spell",
+                load_cond = function() return Config:GetSetting("DoTouchHeal") == 1 end,
+            },
+        },
+        ["MainHeal"] = {
+            {
+                name = "Cleansing",
+                type = "Spell",
+                load_cond = function() return Config:GetSetting('DoCleansing') end,
+                cond = function(self, spell, target)
+                    return Casting.GroupBuffCheck(spell, target)
+                end,
+            },
+            {
+                name = "Imbued Rune of Piety",
+                type = "Item",
+                load_cond = function(self) return mq.TLO.FindItem("=Imbued Rune of Piety")() and Config:GetSetting('WaveHealUse') == 2 end,
+            },
+            {
+                name = "WaveHeal",
+                type = "Spell",
+                load_cond = function(self) return Config:GetSetting('DoWaveHeal') < 3 and Config:GetSetting('WaveHealUse') == 2 end,
+            },
+            {
+                name = "WaveHeal2",
+                type = "Spell",
+                load_cond = function(self) return Config:GetSetting('DoWaveHeal') == 2 and Config:GetSetting('WaveHealUse') == 2 end,
+            },
+            {
+                name = "TouchHeal",
+                type = "Spell",
+                load_cond = function() return Config:GetSetting("DoTouchHeal") == 2 end,
             },
         },
     },
@@ -457,7 +526,7 @@ return {
             end,
             targetId = function(self) return Targeting.CheckForAutoTargetID() end,
             cond = function(self, combat_state)
-                if (Config:GetSetting('AEStu') == 2 and Core.GetMainAssistPctHPs() > Config:GetSetting('EmergencyStart')) or Config:GetSetting('DoAEStun') == 1 then return false end
+                if (Config:GetSetting('AEStunUse') == 2 and Core.GetMainAssistPctHPs() > Config:GetSetting('EmergencyStart')) or Config:GetSetting('AEStunUse') == 1 then return false end
                 return combat_state == "Combat" and self.ClassConfig.HelperFunctions.AETargetCheck(true)
             end,
         },
@@ -511,18 +580,6 @@ return {
                 return combat_state == "Combat" and Casting.BurnCheck()
             end,
         },
-        {
-            name = 'Debuff(Undead)',
-            state = 1,
-            steps = 1,
-            load_cond = function(self) return Config:GetSetting('DebuffUndead') and Casting.CanUseAA("Helix of the Undying") end,
-            targetId = function(self) return Targeting.CheckForAutoTargetID() end,
-            cond = function(self, combat_state)
-                if mq.TLO.Me.PctHPs() <= Config:GetSetting('EmergencyStart') then return false end
-                return combat_state == "Combat" and (mq.TLO.Target.ID() == Targeting.GetAutoTargetID() and Targeting.TargetBodyIs(mq.TLO.Target, "Undead"))
-            end,
-
-        },
         { --DPS Spells, includes recourse/gift maintenance
             name = 'Combat',
             state = 1,
@@ -540,7 +597,7 @@ return {
                 name = "Yaulp",
                 type = "AA",
                 cond = function(self, aaName, target)
-                    return Casting.SelfBuffAACheck()
+                    return Casting.SelfBuffAACheck(aaName)
                 end,
             },
             {
@@ -555,8 +612,9 @@ return {
             --I considered creating a function (helper or utils) to govern this as I use it on multiple classes but the difference between buff window/song window/aa/spell etc makes it unwieldy
             -- if using duration checks, dont use SelfBuffCheck() (as it could return false when the effect is still on)
             {
-                name = "Preservation",
+                name = "WardProc",
                 type = "Spell",
+                load_cond = function(self) return Config:GetSetting('DoWardProc') end,
                 active_cond = function(self, spell) return Casting.IHaveBuff(spell) end,
                 cond = function(self, spell)
                     return spell.RankName.Stacks() and (mq.TLO.Me.Buff(spell).Duration.TotalSeconds() or 0) < 60
@@ -580,42 +638,42 @@ return {
                 type = "Spell",
                 active_cond = function(self, spell) return Casting.IHaveBuff(spell) end,
                 cond = function(self, spell)
-                    if not Core.GetResolvedActionMapItem(spell) then return false end
                     return Casting.SelfBuffCheck(spell)
                 end,
             },
-
         },
         ['GroupBuff'] = {
             {
                 name = "AegoBuff",
                 type = "Spell",
+                load_cond = function() return Config:GetSetting('AegoSymbol') < 3 end,
                 cond = function(self, spell, target)
-                    if Config:GetSetting('AegoSymbol') > 2 then return false end
                     return Casting.GroupBuffCheck(spell, target)
                 end,
             },
             {
                 name = "SymbolBuff",
                 type = "Spell",
+                load_cond = function() return Config:GetSetting('AegoSymbol') == 3 or Config:GetSetting('AegoSymbol') == 3 end,
                 cond = function(self, spell, target)
-                    if Config:GetSetting('AegoSymbol') == (1 or 4) or ((spell.TargetType() or ""):lower() == "single" and target.ID() ~= Core.GetMainAssistId()) then return false end
+                    if (spell.TargetType() or ""):lower() == "single" and target.ID() ~= Core.GetMainAssistId() then return false end
                     return Casting.GroupBuffCheck(spell, target)
                 end,
             },
             {
                 name = "ACBuff",
                 type = "Spell",
+                load_cond = function() return Config:GetSetting('DoACBuff') end,
                 cond = function(self, spell, target)
-                    if not Config:GetSetting('DoACBuff') or ((spell.TargetType() or ""):lower() == "single" and target.ID() ~= Core.GetMainAssistId()) then return false end
+                    if (spell.TargetType() or ""):lower() == "single" and target.ID() ~= Core.GetMainAssistId() then return false end
                     return Casting.GroupBuffCheck(spell, target)
                 end,
             },
             {
                 name = "Marr's Salvation",
                 type = "AA",
+                load_cond = function() return Config:GetSetting('DoSalvation') end,
                 cond = function(self, aaName, target)
-                    if not Config:GetSetting('DoSalvation') then return false end
                     return not Targeting.TargetIsATank(target) and Casting.GroupBuffAACheck(aaName, target)
                 end,
             },
@@ -652,6 +710,15 @@ return {
                 end,
                 cond = function(self, discSpell)
                     return Casting.NoDiscActive()
+                end,
+            },
+            { -- use this only when we have no better active disc to use
+                name = "SancDisc",
+                type = "Disc",
+                cond = function(self, discSpell)
+                    local blockReady = mq.TLO.Me.CombatAbilityReady(Core.GetResolvedActionMapItem('BlockDisc') or "")()
+                    local guardReady = mq.TLO.Me.CombatAbilityReady(Core.GetResolvedActionMapItem('GuardDisc') or "")()
+                    return Casting.NoDiscActive() and not blockReady and not guardReady
                 end,
             },
         },
@@ -697,18 +764,25 @@ return {
                 type = "AA",
             },
             {
-                name = "AEStun",
-                type = "Spell",
-                cond = function(self, spell, target)
-                    return Config:GetSetting('DoAEDamage') or spell.Name() ~= "The Sacred Word" -- Sacred Word does damage
+                name = "Forsaken Fayguard Bladecatcher",
+                type = "Item",
+                cond = function(self, itemName, target)
+                    return Config:GetSetting('DoAEDamage')
                 end,
-
             },
             {
                 name = "PBAEStun",
                 type = "Spell",
+                allowDead = true,
                 cond = function(self, spell, target)
                     return Config:GetSetting('DoAEDamage')
+                end,
+            },
+            {
+                name = "AEStun",
+                type = "Spell",
+                cond = function(self, spell, target)
+                    return Config:GetSetting('DoAEDamage') or spell.Name() ~= "The Sacred Word" -- Sacred Word does damage
                 end,
             },
         },
@@ -724,6 +798,7 @@ return {
             {
                 name = "PBAEStun",
                 type = "Spell",
+                allowDead = true,
                 cond = function(self, spell, target)
                     return Config:GetSetting('DoAEDamage')
                 end,
@@ -743,22 +818,19 @@ return {
             {
                 name = "Valorous Rage",
                 type = "AA",
-                cond = function(self, aaName, target)
-                    return Config:GetSetting('DoValorousRage')
-                end,
+                load_cond = function(self) return Config:GetSetting('DoValorousRage') end,
             },
             {
                 name = "Intensity of the Resolute",
                 type = "AA",
-                cond = function(self, aaName)
-                    return Config:GetSetting('DoVetAA')
-                end,
+                load_cond = function(self) return Config:GetSetting('DoVetAA') end,
             },
             {
-                name = "Preservation",
+                name = "WardProc",
                 type = "Spell",
+                load_cond = function(self) return Config:GetSetting('DoWardProc') and Core.IsTanking() end,
                 cond = function(self, spell, target)
-                    if not Core.IsTanking() or not Targeting.IsNamed(target) then return false end
+                    if not Targeting.IsNamed(target) then return false end
                     return Casting.SelfBuffCheck(spell)
                         --laz specific deconflict
                         and not Casting.IHaveBuff("Necrotic Pustules")
@@ -767,8 +839,9 @@ return {
             { -- for DPS mode
                 name = "ForgeDisc",
                 type = "Disc",
+                load_cond = function(self) return not Core.IsTanking() end,
                 cond = function(self, discSpell, target)
-                    if Core.IsTanking() or not Targeting.TargetBodyIs(target, "Undead") then return false end
+                    if not Targeting.TargetBodyIs(target, "Undead") then return false end
                     return Targeting.IsNamed(target) and Casting.NoDiscActive() and not mq.TLO.Me.Song("Rampart")()
                 end,
             },
@@ -777,16 +850,16 @@ return {
             {
                 name = "GuardDisc",
                 type = "Disc",
+                load_cond = function(self) return Core.IsTanking() end,
                 cond = function(self, discSpell, target)
-                    if not Core.IsTanking() then return false end
                     return Casting.NoDiscActive() and not mq.TLO.Me.Song("Rampart")()
                 end,
             },
             {
                 name = "Coating",
                 type = "Item",
+                load_cond = function(self) return Config:GetSetting('DoCoating') end,
                 cond = function(self, itemName, target)
-                    if not Config:GetSetting('DoCoating') then return false end
                     return Casting.SelfBuffItemCheck(itemName)
                 end,
             },
@@ -817,19 +890,30 @@ return {
                 end,
             },
             {
-                name = "TwincastNuke",
+                name = "TwinHealNuke",
                 type = "Spell",
+                load_cond = function(self) return Config:GetSetting('DoTwinHealNuke') end,
             },
             {
                 name = "Yaulp",
                 type = "AA",
                 cond = function(self, aaName, target)
-                    return Casting.SelfBuffAACheck()
+                    return Casting.SelfBuffAACheck(aaName)
                 end,
             },
             {
                 name = "SereneStun",
                 type = "Spell",
+            },
+            {
+                name = "PBAEStun",
+                type = "Spell",
+                load_cond = function(self) return Core.IsTanking() end,
+                allowDead = true,
+                cond = function(self, spell, target)
+                    if not Config:GetSetting('DoAEDamage') then return false end
+                    return self.ClassConfig.HelperFunctions.AETargetCheck(true)
+                end,
             },
             {
                 name = "StunTimer5",
@@ -849,16 +933,16 @@ return {
             {
                 name = "DebuffNuke",
                 type = "Spell",
+                load_cond = function(self) return Config:GetSetting('DoUndeadNuke') end,
                 cond = function(self, aaName, target)
-                    if not Config:GetSetting('DoUndeadNuke') then return false end
                     return Targeting.TargetBodyIs(target, "Undead")
                 end,
             },
             {
                 name = "UndeadNuke",
                 type = "Spell",
+                load_cond = function(self) return Config:GetSetting('DoUndeadNuke') end,
                 cond = function(self, aaName, target)
-                    if not Config:GetSetting('DoUndeadNuke') then return false end
                     return Targeting.TargetBodyIs(target, "Undead")
                 end,
             },
@@ -931,11 +1015,11 @@ return {
         {
             id = 'Force of Disruption',
             Type = "AA",
-            DisplayName = function() return Casting.CanUseAA("Force of Disruption") or "" end,
-            AbilityName = function() return Casting.CanUseAA("Force of Disruption") or "" end,
+            DisplayName = function() return Casting.CanUseAA("Force of Disruption") and "Force of Disruption" or "" end,
+            AbilityName = function() return Casting.CanUseAA("Force of Disruption") and "Force of Disruption" or "" end,
             AbilityRange = 150,
             cond = function(self)
-                return Casting.CanUseAA("Force of Disruption")
+                return Casting.CanUseAA("Force of Disruption") and "Force of Disruption"
             end,
         },
     },
@@ -1197,10 +1281,55 @@ return {
         },
 
         --Heals/Cures
+        ['DoTouchHeal']      = {
+            DisplayName = "Touch Heal Use:",
+            Category = "Heals/Cures",
+            Index = 1,
+            Tooltip = "Choose when the Paladin will use the single-target Touch-line healing spell.",
+            RequiresLoadoutChange = true,
+            Type = "Combo",
+            ComboOptions = { 'Emergency Use(BigHeal)', 'Standard Use(MainHeal)', 'Never', },
+            Default = 1,
+            Min = 1,
+            Max = 3,
+            ConfigType = "Advanced",
+            FAQ = "Why is my paladin changing targets to heal so often?",
+            Answer = "You can control when a Paladin will use their single target heals on the Heals/Cures tab in Class options.",
+        },
+        ['DoWaveHeal']       = {
+            DisplayName = "Wave Heal Use:",
+            Category = "Heals/Cures",
+            Index = 2,
+            Tooltip = "Choose how many group heals to keep memorized, if any.",
+            RequiresLoadoutChange = true,
+            Type = "Combo",
+            ComboOptions = { 'Current Tier', 'Current Tier + Last Tier', 'Never', },
+            Default = 1,
+            Min = 1,
+            Max = 3,
+            ConfigType = "Advanced",
+            FAQ = "Why is my paladin changing targets to heal so often?",
+            Answer = "You can control when a Paladin will use their group heals on the Heals/Cures tab in Class options.",
+        },
+        ['WaveHealUse']      = {
+            DisplayName = "Use Waves for ST:",
+            Category = "Heals/Cures",
+            Index = 3,
+            Tooltip = "Use your Wave Heals as single-target heals as needed.",
+            RequiresLoadoutChange = true,
+            Type = "Combo",
+            ComboOptions = { 'Emergency Use(BigHeal)', 'Standard Use(MainHeal)', 'Never', },
+            Default = 1,
+            Min = 1,
+            Max = 3,
+            ConfigType = "Advanced",
+            FAQ = "Why is my paladin changing targets to heal so often?",
+            Answer = "You can control when a Paladin will use their heals on the Heals/Cures tab in Class options.",
+        },
         ['DoCleansing']      = {
             DisplayName = "Do Cleansing HoT",
             Category = "Heals/Cures",
-            Index = 1,
+            Index = 4,
             Tooltip = "Use your single-target HoT line.",
             RequiresLoadoutChange = true,
             Default = false,
@@ -1210,7 +1339,7 @@ return {
         ['KeepPurityMemmed'] = {
             DisplayName = "Mem Crusader's Cure",
             Category = "Heals/Cures",
-            Index = 2,
+            Index = 5,
             Tooltip = "Memorize your Crusader's xxx line (Cure poi/dis/curse) when possible (depending on other selected options). \n" ..
                 "Please note that we will still memorize a cure out-of-combat if needed, and AA will always be used if enabled.",
             RequiresLoadoutChange = true,
@@ -1222,7 +1351,7 @@ return {
         ['KeepCurseMemmed']  = {
             DisplayName = "Mem Remove Curse",
             Category = "Heals/Cures",
-            Index = 3,
+            Index = 6,
             Tooltip = "Memorize remove curse spell when possible (depending on other selected options). \n" ..
                 "Please note that we will still memorize a cure out-of-combat if needed, and AA will always be used if enabled.",
             RequiresLoadoutChange = true,
@@ -1233,15 +1362,45 @@ return {
         },
 
         --Combat
+        ['DoTwinHealNuke']   = {
+            DisplayName = "Twin Heal Nuke",
+            Category = "Combat",
+            Index = 1,
+            Tooltip = "Use Twin Heal Nuke Spells",
+            RequiresLoadoutChange = true,
+            Default = true,
+            ConfigType = "Advanced",
+            FAQ = "Why am I using the Twin Heal Nuke?",
+            Answer =
+            "You can turn off the Twin Heal Nuke in the Spells and Abilities tab.",
+        },
         ['DoUndeadNuke']     = {
             DisplayName = "Do Undead Nuke",
             Category = "Combat",
-            Index = 3,
+            Index = 2,
             Tooltip = "Use the Undead nuke line (standard and timed w/debuff component).",
             RequiresLoadoutChange = true,
             Default = true,
             FAQ = "How can I use my Undead Nuke?",
             Answer = "You can enable the undead nuke line in the Spells and Abilities tab.",
+        },
+        ['DoValorousRage']   = {
+            DisplayName = "Valorous Rage",
+            Category = "Combat",
+            Index = 3,
+            Tooltip = "Use the Valorous Rage AA during burns.",
+            Default = false,
+            FAQ = "What is Valorous Rage and how can I use it?",
+            Answer = "Valorous Rage is an AA that increases your damage output while hurting your ability to heal and can be toggled in the Combat tab of the Class options.",
+        },
+        ['DoVetAA']          = {
+            DisplayName = "Use Vet AA",
+            Category = "Combat",
+            Index = 4,
+            Tooltip = "Use Veteran AA's in emergencies or during Burn. (See FAQ)",
+            Default = true,
+            FAQ = "What Vet AA's does PAL use?",
+            Answer = "If Use Vet AA is enabled, Intensity of the Resolute will be used on burns and Armor of Experience will be used in emergencies.",
         },
 
         --Buffs
@@ -1282,10 +1441,19 @@ return {
             FAQ = "Why am I not casting Brells?",
             Answer = "Make sure you have the [DoBrells] setting enabled.",
         },
+        ['DoWardProc']       = {
+            DisplayName = "Do Ward Proc",
+            Category = "Buffs",
+            Index = 4,
+            Tooltip = "Use your Ward of Tunare defensive proc buff.",
+            Default = true,
+            FAQ = "I'd rather use Reptile, how do I turn off my Ward of Tunare?",
+            Answer = "Select the option in the Buffs tab to disable the ward proc buff, it is enabled by default.",
+        },
         ['DoSalvation']      = {
             DisplayName = "Marr's Salvation",
             Category = "Buffs",
-            Index = 4,
+            Index = 5,
             Tooltip = "Use your group hatred reduction buff AA.",
             Default = true,
             FAQ = "Why is Marr's Salvation being used?",
@@ -1294,7 +1462,7 @@ return {
         ['ProcChoice']       = {
             DisplayName = "Proc Buff Choice:",
             Category = "Buffs",
-            Index = 5,
+            Index = 6,
             Tooltip =
                 "Choose which DD proc buff you prefer. The Undead proc does higher damage but is restricted to that target type.\n" ..
                 "Please note that we will use the undead proc at low levels if you select Standard and it is not yet available.",
