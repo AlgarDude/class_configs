@@ -405,7 +405,7 @@ return {
                 name = "Epic",
                 type = "Item",
                 cond = function(self)
-                    return not Casting.IHaveBuff("Twincast")
+                    return not mq.TLO.Me.Buff("Twincast")()
                 end,
             },
             {
@@ -425,10 +425,15 @@ return {
                 type = "AA",
             },
             {
+                name = "Forsaken Sorceror's Shoes",
+                type = "Item",
+                load_cond = function(self) return mq.TLO.FindItem("=Forsaken Sorceror's Shoes")() end,
+            },
+            {
                 name = "Improved Twincast",
                 type = "AA",
                 cond = function(self)
-                    return not Casting.IHaveBuff("Twincast")
+                    return not mq.TLO.Me.Buff("Twincast")()
                 end,
             },
             { --Crit Chance AA, will use the first(best) one found

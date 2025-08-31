@@ -22,31 +22,54 @@ return {
         'DPS',
     },
     ['Cures']             = {
+        GetCureSpells = function(self)
+            --(re)initialize the table for loadout changes
+            self.TempSettings.CureSpells = {}
+
+            -- Find the map for each cure spell we need
+            -- Curse is convoluted: If Keepmemmed, always use cure, if not, use groupheal if available and fallback to cure
+            local neededCures = {
+                ['Poison'] = 'PurityCure',
+                ['Disease'] = 'PurityCure',
+                ['Curse'] = not Config:GetSetting('KeepCurseMemmed') and ('PurityCure' or 'CureCurse') or 'CureCurse',
+                -- ['Corruption'] = -- Project Lazarus does not currently have any Corruption Cures.
+            }
+
+            -- iterate to actually resolve the selected map item, if it is valid, add it to the cure table
+            for k, v in pairs(neededCures) do
+                local cureSpell = Core.GetResolvedActionMapItem(v)
+                if cureSpell then
+                    self.TempSettings.CureSpells[k] = cureSpell
+                end
+            end
+        end,
         CureNow = function(self, type, targetId)
+            local targetSpawn = mq.TLO.Spawn(targetId)
+            if not targetSpawn and targetSpawn then return false end
+
             if Config:GetSetting('DoCureAA') then
-                if Casting.AAReady("Radiant Cure") then
-                    return Casting.UseAA("Radiant Cure", Targeting.GetAutoTarget().ID() or targetId, true)
-                elseif targetId == mq.TLO.Me.ID() and Casting.AAReady("Purification") then
-                    return Casting.UseAA("Purification", Targeting.GetAutoTarget().ID() or targetId, true)
+                local cureAA = Casting.AAReady("Radiant Cure") and "Radiant Cure"
+
+                if not cureAA and targetId == mq.TLO.Me.ID() and Casting.AAReady("Purification") then
+                    cureAA = "Purification"
+                end
+
+                if cureAA then
+                    Logger.log_debug("CureNow: Using %s for %s on %s.", cureAA, type:lower() or "unknown", targetSpawn.CleanName() or "Unknown")
+                    return Casting.UseAA(cureAA, targetId)
                 end
             end
 
             if Config:GetSetting('DoCureSpells') then
-                local cureSpell --we need to make sure we only assign a spell for types that spell can effect
-
-                if type:lower() == "disease" then
-                    cureSpell = Core.GetResolvedActionMapItem('PurityCure')
-                elseif type:lower() == "poison" then
-                    cureSpell = Core.GetResolvedActionMapItem('PurityCure')
-                elseif type:lower() == "curse" then
-                    --if we selected to keep it memmed, prioritize it over purity, since RGC clears a LOT more counters
-                    cureSpell = Core.GetResolvedActionMapItem((not Config:GetSetting('KeepCurseMemmed') and ('PurityCure' or 'CureCurse') or 'CureCurse'))
+                for effectType, cureSpell in pairs(self.TempSettings.CureSpells) do
+                    if type:lower() == effectType:lower() then
+                        Logger.log_debug("CureNow: Using %s for %s on %s.", cureSpell.RankName(), type:lower() or "unknown", targetSpawn.CleanName() or "Unknown")
+                        return Casting.UseSpell(cureSpell.RankName(), targetId, true)
+                    end
                 end
-
-                if not cureSpell or not cureSpell() then return false end
-                return Casting.UseSpell(cureSpell.RankName.Name(), targetId, true)
             end
 
+            Logger.log_debug("CureNow: No valid cure at this time for %s on %s.", type:lower() or "unknown", targetSpawn.CleanName() or "Unknown")
             return false
         end,
     },
@@ -65,8 +88,8 @@ return {
             -- Timer 12 - Preservation
             "Ward of Tunare", -- Level 70
         },
-        ["DebuffNuke"] = {
-            -- Undead DebuffNuke
+        ["QuickUndeadNuke"] = {
+            -- Undead Quick Nuke with chance to snare and reduce AC
             "Last Rites", -- Level 68 - Timer 7
         },
         ["DDProc"] = {
@@ -74,7 +97,7 @@ return {
             "Divine Might", -- Level 45, 65pt
             "Pious Might",  -- Level 63, 150pt
             "Holy Order",   -- Level 65, 180pt
-            "Pious Fury",   -- Level 68, 250pt
+            "Pious Fury",   -- Level 68, 250pt, + 250pt if undead
         },
         ["UndeadProc"] = {
             --- Undead Proc Strike : does not stack with Fury Proc, will be used until Fury is available even if setting not enabled.
@@ -181,6 +204,13 @@ return {
             "Light of Order", -- Level 65
             "Light of Piety", -- Level 68
         },
+        ["LightHeal2"] = {
+            -- ToT Light Heal
+            "Light of Life",  -- Level 52
+            "Light of Nife",  -- Level 63
+            "Light of Order", -- Level 65
+            "Light of Piety", -- Level 68
+        },
         -- ["Pacify"] = {
         --     "Pacify",
         --     "Calm",
@@ -192,7 +222,7 @@ return {
             "Crusader's Purity",
             "Crusader's Touch",
         },
-        ["Aura"] = {
+        ["HealReceivedAura"] = {
             -- Aura Buffs
             "Blessed Aura",
             "Holy Aura",
@@ -260,21 +290,22 @@ return {
             name = "Default",
             -- cond = function(self) return true end, --Kept here for illustration, this line could be removed in this instance since we aren't using conditions.
             spells = {
-                { name = "TouchHeal",    cond = function(self) return Config:GetSetting('DoTouchHeal') < 3 end, },
-                { name = "LightHeal", },
-                { name = "WaveHeal",     cond = function(self) return Config:GetSetting('DoWaveHeal') < 3 end, },
-                { name = "WaveHeal2",    cond = function(self) return Config:GetSetting('DoWaveHeal') == 2 end, },
-                { name = "Cleansing",    cond = function(self) return Config:GetSetting('DoCleansing') end, },
-                { name = "TwinHealNuke", cond = function(self) return Config:GetSetting('DoTwinHealNuke') end, },
-                { name = "SereneStun",   cond = function(self) return Config:GetSetting('DoSereneStun') end, },
-                { name = "StunTimer4",   cond = function(self) return Core.IsTanking() end, },
-                { name = "StunTimer5",   cond = function(self) return Core.IsTanking() end, },
-                { name = "PBAEStun",     cond = function(self) return Config:GetSetting('DoPBAEStun') end, },
-                { name = "AEStun",       cond = function(self) return Config:GetSetting('DoAEStun') end, },
-                { name = "CureCurse",    cond = function(self) return Config:GetSetting('KeepCurseMemmed') end, },
-                { name = "PurityCure",   cond = function(self) return Config:GetSetting('KeepPurityMemmed') end, },
-                { name = "UndeadNuke",   cond = function(self) return Config:GetSetting('DoUndeadNuke') end, },
-                { name = "DebuffNuke",   cond = function(self) return Config:GetSetting('DoUndeadNuke') end, },
+                { name = "TouchHeal",       cond = function(self) return Config:GetSetting('DoTouchHeal') < 3 end, },
+                { name = "LightHeal",       cond = function(self) return Config:GetSetting('DoLightHeal') < 3 end, },
+                { name = "LightHeal2",      cond = function(self) return Config:GetSetting('DoLightHeal') == 2 end, },
+                { name = "WaveHeal",        cond = function(self) return Config:GetSetting('DoWaveHeal') < 3 end, },
+                { name = "WaveHeal2",       cond = function(self) return Config:GetSetting('DoWaveHeal') == 2 end, },
+                { name = "Cleansing",       cond = function(self) return Config:GetSetting('DoCleansing') < 3 end, },
+                { name = "TwinHealNuke",    cond = function(self) return Config:GetSetting('DoTwinHealNuke') end, },
+                { name = "SereneStun",      cond = function(self) return Config:GetSetting('DoSereneStun') end, },
+                { name = "StunTimer4",      cond = function(self) return Core.IsTanking() end, },
+                { name = "StunTimer5",      cond = function(self) return Core.IsTanking() end, },
+                { name = "PBAEStun",        cond = function(self) return Config:GetSetting('DoPBAEStun') end, },
+                { name = "AEStun",          cond = function(self) return Config:GetSetting('DoAEStun') end, },
+                { name = "CureCurse",       cond = function(self) return Config:GetSetting('KeepCurseMemmed') end, },
+                { name = "PurityCure",      cond = function(self) return Config:GetSetting('KeepPurityMemmed') end, },
+                { name = "UndeadNuke",      cond = function(self) return Config:GetSetting('DoUndeadNuke') end, },
+                { name = "QuickUndeadNuke", cond = function(self) return Config:GetSetting('DoQuickUndeadNuke') end, },
                 { name = "WardProc", },
             },
         },
@@ -371,7 +402,7 @@ return {
             name = 'MainHeal',
             state = 1,
             steps = 1,
-            load_cond = function(self) return Config:GetSetting('DoCleansing') or Config:GetSetting("DoTouchHeal") == 2 end,
+            load_cond = function(self) return Config:GetSetting('DoCleansing') == 1 or Config:GetSetting("DoTouchHeal") == 2 or Config:GetSetting('WaveHealUse') == 2 end,
             cond = function(self, target)
                 return Targeting.MainHealsNeeded(target)
             end,
@@ -414,6 +445,7 @@ return {
                 name = "Hand of Piety",
                 type = "AA",
                 cond = function(self, aaName, target)
+                    if not Targeting.GroupedWithTarget(target) then return false end
                     return self.CombatState == "Combat" and (Targeting.TargetIsMyself(target) or Targeting.GetTargetPctHPs() < Config:GetSetting('HPCritical'))
                 end,
             },
@@ -429,16 +461,25 @@ return {
                 name = "Imbued Rune of Piety",
                 type = "Item",
                 load_cond = function(self) return mq.TLO.FindItem("=Imbued Rune of Piety")() and Config:GetSetting('WaveHealUse') == 1 end,
+                cond = function(self, itemName, target)
+                    return Targeting.GroupedWithTarget(target)
+                end,
             },
             {
                 name = "WaveHeal",
                 type = "Spell",
                 load_cond = function(self) return Config:GetSetting('DoWaveHeal') < 3 and Config:GetSetting('WaveHealUse') == 1 end,
+                cond = function(self, spell, target)
+                    return Targeting.GroupedWithTarget(target)
+                end,
             },
             {
                 name = "WaveHeal2",
                 type = "Spell",
                 load_cond = function(self) return Config:GetSetting('DoWaveHeal') == 2 and Config:GetSetting('WaveHealUse') == 1 end,
+                cond = function(self, spell, target)
+                    return Targeting.GroupedWithTarget(target)
+                end,
             },
             {
                 name = "TouchHeal",
@@ -450,7 +491,7 @@ return {
             {
                 name = "Cleansing",
                 type = "Spell",
-                load_cond = function() return Config:GetSetting('DoCleansing') end,
+                load_cond = function() return Config:GetSetting('DoCleansing') == 1 end,
                 cond = function(self, spell, target)
                     return Casting.GroupBuffCheck(spell, target)
                 end,
@@ -459,16 +500,25 @@ return {
                 name = "Imbued Rune of Piety",
                 type = "Item",
                 load_cond = function(self) return mq.TLO.FindItem("=Imbued Rune of Piety")() and Config:GetSetting('WaveHealUse') == 2 end,
+                cond = function(self, spell, target)
+                    return Targeting.GroupedWithTarget(target)
+                end,
             },
             {
                 name = "WaveHeal",
                 type = "Spell",
                 load_cond = function(self) return Config:GetSetting('DoWaveHeal') < 3 and Config:GetSetting('WaveHealUse') == 2 end,
+                cond = function(self, spell, target)
+                    return Targeting.GroupedWithTarget(target)
+                end,
             },
             {
                 name = "WaveHeal2",
                 type = "Spell",
                 load_cond = function(self) return Config:GetSetting('DoWaveHeal') == 2 and Config:GetSetting('WaveHealUse') == 2 end,
+                cond = function(self, spell, target)
+                    return Targeting.GroupedWithTarget(target)
+                end,
             },
             {
                 name = "TouchHeal",
@@ -482,7 +532,7 @@ return {
             name = 'Downtime',
             targetId = function(self) return { mq.TLO.Me.ID(), } end,
             cond = function(self, combat_state)
-                return combat_state == "Downtime" and Casting.OkayToBuff() and Casting.AmIBuffable()
+                return combat_state == "Downtime" and Casting.OkayToBuff() and Core.OkayToNotHeal() and Casting.AmIBuffable()
             end,
         },
         {
@@ -492,7 +542,7 @@ return {
                 return Casting.GetBuffableGroupIDs()
             end,
             cond = function(self, combat_state)
-                return combat_state == "Downtime" and Casting.OkayToBuff()
+                return combat_state == "Downtime" and Casting.OkayToBuff() and Core.OkayToNotHeal()
             end,
         },
         { --Actions that establish or maintain hatred
@@ -521,21 +571,6 @@ return {
             cond = function(self, combat_state)
                 if mq.TLO.Me.PctHPs() <= Config:GetSetting('HPCritical') then return false end
                 return combat_state == "Combat" and self.ClassConfig.HelperFunctions.AETauntCheck(true)
-            end,
-        },
-        { --Stun enemies per your settings
-            name = 'AEStun(DPS Mode)',
-            state = 1,
-            steps = 1,
-            load_cond = function()
-                local aeSpell = Config:GetSetting('DoAEStun') and Core.GetResolvedActionMapItem('AEStun')
-                local pbaeSpell = Config:GetSetting('DoPBAEStun') and Core.GetResolvedActionMapItem('PBAEStun')
-                return not Core.IsTanking() and (aeSpell or pbaeSpell)
-            end,
-            targetId = function(self) return Targeting.CheckForAutoTargetID() end,
-            cond = function(self, combat_state)
-                if (Config:GetSetting('AEStunUse') == 2 and Core.GetMainAssistPctHPs() > Config:GetSetting('EmergencyStart')) or Config:GetSetting('AEStunUse') == 1 then return false end
-                return combat_state == "Combat" and self.ClassConfig.HelperFunctions.AETargetCheck(true)
             end,
         },
         { --Dynamic weapon swapping if UseBandolier is toggled
@@ -585,7 +620,22 @@ return {
             targetId = function(self) return Targeting.CheckForAutoTargetID() end,
             cond = function(self, combat_state)
                 if mq.TLO.Me.PctHPs() <= Config:GetSetting('EmergencyStart') then return false end
-                return combat_state == "Combat" and Casting.BurnCheck()
+                return combat_state == "Combat" and Casting.BurnCheck() and Core.OkayToNotHeal()
+            end,
+        },
+        { --Stun and damage enemies per your settings
+            name = 'AECombat',
+            state = 1,
+            steps = 1,
+            load_cond = function()
+                local aeSpell = Config:GetSetting('DoAEStun') and Core.GetResolvedActionMapItem('AEStun')
+                local pbaeSpell = Config:GetSetting('DoPBAEStun') and Core.GetResolvedActionMapItem('PBAEStun')
+                return (Core.IsTanking() or Config:GetSetting('AEStunUse') > 1) and (aeSpell or pbaeSpell)
+            end,
+            targetId = function(self) return Targeting.CheckForAutoTargetID() end,
+            cond = function(self, combat_state)
+                if not Config:GetSetting('DoAEDamage') or (Core.IsTanking() and mq.TLO.Me.PctHPs() <= Config:GetSetting('HPCritical')) then return false end
+                return combat_state == "Combat" and self.ClassConfig.HelperFunctions.AETargetCheck(true)
             end,
         },
         { --DPS Spells, includes recourse/gift maintenance
@@ -595,7 +645,7 @@ return {
             targetId = function(self) return Targeting.CheckForAutoTargetID() end,
             cond = function(self, combat_state)
                 if mq.TLO.Me.PctHPs() <= Config:GetSetting('EmergencyStart') then return false end
-                return combat_state == "Combat"
+                return combat_state == "Combat" and Core.OkayToNotHeal()
             end,
         },
     },
@@ -626,8 +676,6 @@ return {
                 active_cond = function(self, spell) return Casting.IHaveBuff(spell) end,
                 cond = function(self, spell)
                     return spell.RankName.Stacks() and (mq.TLO.Me.Buff(spell).Duration.TotalSeconds() or 0) < 60
-                        --laz specific deconflict
-                        and not Casting.IHaveBuff("Necrotic Pustules")
                 end,
             },
             {
@@ -666,6 +714,22 @@ return {
                 cond = function(self, spell, target)
                     if (spell.TargetType() or ""):lower() == "single" and target.ID() ~= Core.GetMainAssistId() then return false end
                     return Casting.GroupBuffCheck(spell, target)
+                end,
+            },
+            {
+                name = "Brells",
+                type = "Spell",
+                load_cond = function() return Config:GetSetting('DoBrells') end,
+                cond = function(self, spell, target)
+                    return Casting.GroupBuffCheck(spell, target)
+                end,
+            },
+            {
+                name = "HealReceivedAura",
+                type = "Spell",
+                active_cond = function(self, spell) return Casting.AuraActiveByName(spell.BaseName()) end,
+                cond = function(self, spell)
+                    return (spell and spell() and not Casting.AuraActiveByName(spell.BaseName()))
                 end,
             },
             {
@@ -773,13 +837,6 @@ return {
                 type = "AA",
             },
             {
-                name = "Forsaken Fayguard Bladecatcher",
-                type = "Item",
-                cond = function(self, itemName, target)
-                    return Config:GetSetting('DoAEDamage')
-                end,
-            },
-            {
                 name = "PBAEStun",
                 type = "Spell",
                 allowDead = true,
@@ -795,12 +852,12 @@ return {
                 end,
             },
         },
-        ['AEStun(DPS Mode)'] = {
+        ['AECombat'] = {
             {
                 name = "AEStun",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    return Config:GetSetting('DoAEDamage') or spell.Name() ~= "The Sacred Word" -- Sacred Word does damage
+                    return Core.IsTanking() or Config:GetSetting('AEStunUse') == 3 or Core.GetMainAssistPctHPs() > Config:GetSetting('EmergencyStart')
                 end,
 
             },
@@ -809,8 +866,13 @@ return {
                 type = "Spell",
                 allowDead = true,
                 cond = function(self, spell, target)
-                    return Config:GetSetting('DoAEDamage')
+                    return Core.IsTanking() or Config:GetSetting('AEStunUse') == 3 or Core.GetMainAssistPctHPs() > Config:GetSetting('EmergencyStart')
                 end,
+            },
+            {
+                name = "Forsaken Fayguard Bladecatcher",
+                type = "Item",
+                load_cond = function(self) return mq.TLO.FindItem("=Forsaken Fayguard Bladecatcher")() end,
             },
         },
         ['Burn'] = {
@@ -839,10 +901,7 @@ return {
                 type = "Spell",
                 load_cond = function(self) return Config:GetSetting('DoWardProc') and Core.IsTanking() end,
                 cond = function(self, spell, target)
-                    if not Targeting.IsNamed(target) then return false end
                     return Casting.SelfBuffCheck(spell)
-                        --laz specific deconflict
-                        and not Casting.IHaveBuff("Necrotic Pustules")
                 end,
             },
             { -- for DPS mode
@@ -893,9 +952,25 @@ return {
             {
                 name = "LightHeal",
                 type = "Spell",
+                load_cond = function(self) return Config:GetSetting('DoLightHeal') < 3 end,
+            },
+            {
+                name = "LightHeal2",
+                type = "Spell",
+                load_cond = function(self) return Config:GetSetting('DoLightHeal') == 2 end,
             },
         },
         ['Combat'] = {
+            {
+                name = "PBAEStun",
+                type = "Spell",
+                load_cond = function(self) return Core.IsTanking() end,
+                allowDead = true,
+                cond = function(self, spell, target)
+                    if not Config:GetSetting('DoAEDamage') then return false end
+                    return self.ClassConfig.HelperFunctions.AETargetCheck(true)
+                end,
+            },
             {
                 name = "StunTimer4",
                 type = "Spell",
@@ -913,16 +988,6 @@ return {
                 type = "AA",
                 cond = function(self, aaName, target)
                     return Casting.SelfBuffAACheck(aaName)
-                end,
-            },
-            {
-                name = "PBAEStun",
-                type = "Spell",
-                load_cond = function(self) return Core.IsTanking() end,
-                allowDead = true,
-                cond = function(self, spell, target)
-                    if not Config:GetSetting('DoAEDamage') then return false end
-                    return self.ClassConfig.HelperFunctions.AETargetCheck(true)
                 end,
             },
             {
@@ -946,9 +1011,9 @@ return {
                 end,
             },
             {
-                name = "DebuffNuke",
+                name = "QuickUndeadNuke",
                 type = "Spell",
-                load_cond = function(self) return Config:GetSetting('DoUndeadNuke') end,
+                load_cond = function(self) return Config:GetSetting('DoQuickUndeadNuke') end,
                 cond = function(self, aaName, target)
                     return Targeting.TargetBodyIs(target, "Undead")
                 end,
@@ -1047,7 +1112,7 @@ return {
         },
     },
     ['DefaultConfig']     = {
-        ['Mode']       = {
+        ['Mode']              = {
             DisplayName = "Mode",
             Category = "Combat",
             Tooltip = "Select the Combat Mode for this Toon",
@@ -1061,9 +1126,9 @@ return {
         },
 
         --AE(All Modes)
-        ['DoAEDamage'] = {
+        ['DoAEDamage']        = {
             DisplayName = "Do AE Damage",
-            Category = "AE(All Modes)",
+            Category = "AE Damage",
             Index = 1,
             Tooltip = "**WILL BREAK MEZ** Use AE damage Spells and AA. **WILL BREAK MEZ**\n" ..
                 "This is a top-level setting that governs all AE stuns that cause damage, and can be used as a quick-toggle to enable/disable abilities without reloading spells.",
@@ -1071,31 +1136,28 @@ return {
             FAQ = "Why am I using AE damage when there are mezzed mobs around?",
             Answer = "It is not currently possible to properly determine Mez status without direct Targeting. If you are mezzing, consider turning this option off.",
         },
-        ['DoAEStun']   = {
+        ['DoAEStun']          = {
             DisplayName = "Do AE Stun",
-            Category = "AE(All Modes)",
+            Category = "AE Damage",
             Index = 2,
             Tooltip = "Use your Targeted AE Stun (Stun Command or Sacred Word) as needed to maintain AE aggro (tank mode) or help with control (dps mode).",
             Default = true,
             FAQ = "Why am I not using my AE Stun?",
             Answer = "The AE stun is set to be used to reclaim aggro on AE targets when necessary.",
         },
-        ['DoPBAEStun'] = {
+        ['DoPBAEStun']        = {
             DisplayName = "Do PBAE Stun",
-            Category = "AE(All Modes)",
+            Category = "AE Damage",
             Index = 3,
             Tooltip = "Use your PBAE Stun (The Silent Command) as needed to maintain AE aggro (tank mode) or help with control (dps mode).",
             Default = true,
             FAQ = "Why am I memorizing an AE stun as a DPS?",
             Answer = "You can select which AE stuns you will keep memorized (if any) in your class options.",
         },
-
-
-        --AE(DPS Mode)
-        ['AEStunUse']        = {
-            DisplayName = "AEStun Use:",
-            Category = "AE(DPS Mode)",
-            Index = 1,
+        ['AEStunUse']         = {
+            DisplayName = "AEStun Use(DPS Mode):",
+            Category = "AE Damage",
+            Index = 4,
             Tooltip = "When to use your AE Stun Lines in DPS Mode.",
             RequiresLoadoutChange = true,
             Type = "Combo",
@@ -1106,10 +1168,10 @@ return {
             FAQ = "Why am I stunning everything?!??",
             Answer = "You can choose the conditions under which you will use your PBAE Stun on the Combat tab.",
         },
-        ['AETargetCnt']      = {
+        ['AETargetCnt']       = {
             DisplayName = "AE Target Count",
-            Category = "AE(DPS Mode)",
-            Index = 2,
+            Category = "AE Damage",
+            Index = 5,
             Tooltip = "Minimum number of valid targets before using AE Spells, Disciplines or AA.",
             Default = 2,
             Min = 1,
@@ -1118,12 +1180,12 @@ return {
             Answer =
             "You can adjust the AE Target Count to control when you will use actions with AE damage attached.",
         },
-        ['MaxAETargetCnt']   = {
+        ['MaxAETargetCnt']    = {
             DisplayName = "Max AE Targets",
-            Category = "AE(DPS Mode)",
-            Index = 3,
+            Category = "AE Damage",
+            Index = 6,
             Tooltip =
-            "Maximum number of valid targets before using AE Spells, Disciplines or AA.\nUseful for setting up AE Mez at a higher threshold on another character in case you are overwhelmed.",
+            "Maximum number of valid targets to use AE Spells, Disciplines or AA.\nUseful for setting up AE Mez at a higher threshold on another character in case you are overwhelmed.",
             Default = 5,
             Min = 2,
             Max = 30,
@@ -1131,10 +1193,10 @@ return {
             Answer =
             "By limiting your max AE targets, you can set an AE Mez count that is slightly higher, to allow for the possiblity of mezzing if you are being overwhelmed.",
         },
-        ['SafeAEDamage']     = {
+        ['SafeAEDamage']      = {
             DisplayName = "AE Proximity Check",
-            Category = "AE(DPS Mode)",
-            Index = 4,
+            Category = "AE Damage",
+            Index = 7,
             Tooltip = "Check to ensure there aren't neutral mobs in range we could aggro if AE damage is used. May result in non-use due to false positives.",
             Default = false,
             ConfigType = "Advanced",
@@ -1144,22 +1206,20 @@ return {
                 "PLEASE NOTE THAT THIS OPTION HAS NOTHING TO DO WITH MEZ!",
         },
 
-        --AE(Tank Mode)
-        ['AETauntAA']        = {
+        --Hate Tools
+        ['AETauntAA']         = {
             DisplayName = "Use Beacon",
-            Category = "AE(Tank Mode)",
+            Category = "Hate Tools",
             Index = 1,
-            Tooltip = "Use Beacon of the Righteous to maintain AE aggro in Tank Mode.",
+            Tooltip = "Use Beacon of the Righteous to regain AE aggro in Tank Mode.",
             Default = true,
             ConfigType = "Advanced",
-            FAQ = "Why do we treat the Explosions the same? One is targeted, one is PBAE",
-            Answer = "There are currently no scripted conditions where Hatred would be used at long range, thus, for ease of use, we can treat them similarly.",
         },
-        ['AETauntCnt']       = {
-            DisplayName = "AE Stun Count",
-            Category = "AE(Tank Mode)",
+        ['AETauntCnt']        = {
+            DisplayName = "AE Taunt Count",
+            Category = "Hate Tools",
             Index = 2,
-            Tooltip = "Minimum number of haters before using AE Stun Spells or AA.",
+            Tooltip = "Minimum number of haters before using AE Taunt AA or Stuns(when used as taunts).",
             Default = 2,
             Min = 1,
             Max = 30,
@@ -1167,11 +1227,11 @@ return {
             Answer =
             "AE taunts are configured to only be used if a target has less than 100% hate on you, at whatever count you configure, so abilities with similar conditions may be used instead.",
         },
-        ['SafeAETaunt']      = {
-            DisplayName = "AE Stun Safety Check",
-            Category = "AE(Tank Mode)",
+        ['SafeAETaunt']       = {
+            DisplayName = "AE Taunt Safety Check",
+            Category = "Hate Tools",
             Index = 3,
-            Tooltip = "Limit unintended pulls with AE Stun Spells or AA. May result in non-use due to false positives.",
+            Tooltip = "Limit unintended pulls with AE Taunts or Stuns(when used as taunts). May result in non-use due to false positives.",
             Default = false,
             ConfigType = "Advanced",
             FAQ = "Can you better explain the AE Stun Safety Check?",
@@ -1180,7 +1240,7 @@ return {
         },
 
         --Defenses
-        ['DiscCount']        = {
+        ['DiscCount']         = {
             DisplayName = "Def. Disc. Count",
             Category = "Defenses",
             Index = 1,
@@ -1192,7 +1252,7 @@ return {
             FAQ = "What are the Defensive Discs and what order are they triggered in when the Disc Count is met?",
             Answer = "Carapace, Mantle, Guardian, Unholy Aura, in that order. Note some may also be used preemptively on named, or in emergencies.",
         },
-        ['DefenseStart']     = {
+        ['DefenseStart']      = {
             DisplayName = "Defense HP",
             Category = "Defenses",
             Index = 2,
@@ -1204,7 +1264,7 @@ return {
             FAQ = "My SHD health spikes up and down a lot and abilities aren't being triggered, what gives?",
             Answer = "You may need to tailor the emergency thresholds to your current survivability and target choice.",
         },
-        ['EmergencyStart']   = {
+        ['EmergencyStart']    = {
             DisplayName = "Emergency Start",
             Category = "Defenses",
             Index = 3,
@@ -1216,7 +1276,7 @@ return {
             FAQ = "What rotations are cut during emergencies?",
             Answer = "Snare, Burn, Combat Weave and Combat rotations are disabled when your health is at emergency levels.\nAdditionally, we will only use non-spell hate tools.",
         },
-        ['HPCritical']       = {
+        ['HPCritical']        = {
             DisplayName = "HP Critical",
             Category = "Defenses",
             Index = 4,
@@ -1232,7 +1292,7 @@ return {
         },
 
         --Equipment
-        ['UseEpic']          = {
+        ['UseEpic']           = {
             DisplayName = "Epic Use:",
             Category = "Equipment",
             Index = 1,
@@ -1247,7 +1307,7 @@ return {
             Answer = "By default, we use the Epic in any combat, as saving it for burns ends up being a DPS loss over a long frame of time.\n" ..
                 "This can be adjusted in the Buffs tab.",
         },
-        ['DoCoating']        = {
+        ['DoCoating']         = {
             DisplayName = "Use Coating",
             Category = "Equipment",
             Index = 2,
@@ -1256,7 +1316,7 @@ return {
             FAQ = "What is a Coating?",
             Answer = "Blood Drinker's Coating is a clickable lifesteal effect added in CotF. Spirit Drinker's Coating is an upgrade added in NoS.",
         },
-        ['UseBandolier']     = {
+        ['UseBandolier']      = {
             DisplayName = "Dynamic Weapon Swap",
             Category = "Equipment",
             Index = 3,
@@ -1267,7 +1327,7 @@ return {
             Answer = "Make sure you have [UseBandolier] enabled in your class settings.\n" ..
                 "You must also have Bandolier entries named \"Shield\" and \"2Hand\" to use this function.",
         },
-        ['EquipShield']      = {
+        ['EquipShield']       = {
             DisplayName = "Equip Shield",
             Category = "Equipment",
             Index = 4,
@@ -1280,7 +1340,7 @@ return {
             Answer = "Make sure you have [UseBandolier] enabled in your class settings.\n" ..
                 "You must also have Bandolier entries named \"Shield\" and \"2Hand\" to use this function.",
         },
-        ['Equip2Hand']       = {
+        ['Equip2Hand']        = {
             DisplayName = "Equip 2Hand",
             Category = "Equipment",
             Index = 5,
@@ -1293,7 +1353,7 @@ return {
             Answer = "Make sure you have [UseBandolier] enabled in your class settings.\n" ..
                 "You must also have Bandolier entries named \"Shield\" and \"2Hand\" to use this function.",
         },
-        ['NamedShieldLock']  = {
+        ['NamedShieldLock']   = {
             DisplayName = "Shield on Named",
             Category = "Equipment",
             Index = 6,
@@ -1304,7 +1364,7 @@ return {
         },
 
         --Heals/Cures
-        ['DoTouchHeal']      = {
+        ['DoTouchHeal']       = {
             DisplayName = "Touch Heal Use:",
             Category = "Heals/Cures",
             Index = 1,
@@ -1319,10 +1379,25 @@ return {
             FAQ = "Why is my paladin changing targets to heal so often?",
             Answer = "You can control when a Paladin will use their single target heals on the Heals/Cures tab in Class options.",
         },
-        ['DoWaveHeal']       = {
-            DisplayName = "Wave Heal Use:",
+        ['DoLightHeal']       = {
+            DisplayName = "Light Heal Use:",
             Category = "Heals/Cures",
             Index = 2,
+            Tooltip = "Choose how many ToT heals (\"Light of\" line) to keep memorized, if any.",
+            RequiresLoadoutChange = true,
+            Type = "Combo",
+            ComboOptions = { 'Current Tier', 'Current Tier + Last Tier', 'Never', },
+            Default = 2,
+            Min = 1,
+            Max = 3,
+            ConfigType = "Advanced",
+            FAQ = "Why is my paladin memorizing these weak ToT Light of heals?",
+            Answer = "You can control which ToT/Light heals (if any) a Paladin will use on the Heals/Cures tab in Class options.",
+        },
+        ['DoWaveHeal']        = {
+            DisplayName = "Wave Heal Use:",
+            Category = "Heals/Cures",
+            Index = 3,
             Tooltip = "Choose how many group heals to keep memorized, if any.",
             RequiresLoadoutChange = true,
             Type = "Combo",
@@ -1334,10 +1409,10 @@ return {
             FAQ = "Why is my paladin changing targets to heal so often?",
             Answer = "You can control when a Paladin will use their group heals on the Heals/Cures tab in Class options.",
         },
-        ['WaveHealUse']      = {
+        ['WaveHealUse']       = {
             DisplayName = "Use Waves for ST:",
             Category = "Heals/Cures",
-            Index = 3,
+            Index = 4,
             Tooltip = "Use your Wave Heals as single-target heals as needed.",
             RequiresLoadoutChange = true,
             Type = "Combo",
@@ -1349,20 +1424,25 @@ return {
             FAQ = "Why is my paladin changing targets to heal so often?",
             Answer = "You can control when a Paladin will use their heals on the Heals/Cures tab in Class options.",
         },
-        ['DoCleansing']      = {
-            DisplayName = "Do Cleansing HoT",
+        ['DoCleansing']       = {
+            DisplayName = "Cleansing HoT:",
             Category = "Heals/Cures",
-            Index = 4,
-            Tooltip = "Use your single-target HoT line.",
+            Index = 5,
+            Tooltip = "Select your preference for Cleansing HoT use:",
             RequiresLoadoutChange = true,
-            Default = false,
+            Type = "Combo",
+            ComboOptions = { 'Automatic', 'Memorize-Only (Manual Use)', 'Never', },
+            Default = 3,
+            Min = 1,
+            Max = 3,
+            ConfigType = "Advanced",
             FAQ = "Why isn't my Paladin using the his HoT?",
             Answer = "You can adjust this behavior in the class options tabs.",
         },
-        ['KeepPurityMemmed'] = {
+        ['KeepPurityMemmed']  = {
             DisplayName = "Mem Crusader's Cure",
             Category = "Heals/Cures",
-            Index = 5,
+            Index = 6,
             Tooltip = "Memorize your Crusader's xxx line (Cure poi/dis/curse) when possible (depending on other selected options). \n" ..
                 "Please note that we will still memorize a cure out-of-combat if needed, and AA will always be used if enabled.",
             RequiresLoadoutChange = true,
@@ -1371,10 +1451,10 @@ return {
             Answer =
             "You can choose to keep a cure memorized in the class options. If you have selected it, and it isn't being memmed, you may have chosen too many other optional spells to use/memorize.",
         },
-        ['KeepCurseMemmed']  = {
+        ['KeepCurseMemmed']   = {
             DisplayName = "Mem Remove Curse",
             Category = "Heals/Cures",
-            Index = 6,
+            Index = 7,
             Tooltip = "Memorize remove curse spell when possible (depending on other selected options). \n" ..
                 "Please note that we will still memorize a cure out-of-combat if needed, and AA will always be used if enabled.",
             RequiresLoadoutChange = true,
@@ -1385,7 +1465,7 @@ return {
         },
 
         --Combat
-        ['DoTwinHealNuke']   = {
+        ['DoTwinHealNuke']    = {
             DisplayName = "Twin Heal Nuke",
             Category = "Combat",
             Index = 1,
@@ -1396,39 +1476,49 @@ return {
             FAQ = "Why am I using the Twin Heal Nuke?",
             Answer = "You can turn off the Twin Heal Nuke on the Combat tab of your Class options.",
         },
-        ['DoSereneStun']     = {
+        ['DoSereneStun']      = {
             DisplayName = "Do Serene Stun",
             Category = "Combat",
             Index = 3,
             Tooltip = "Use the Quellious/Serene stun line (long duration stun with DD component).",
             RequiresLoadoutChange = true,
-            Default = true,
+            Default = false,
             FAQ = "How can I use my Serene Stun?",
             Answer = "You can enable the Serene stun line on the Combat tab of your Class options.",
         },
-        ['DoUndeadNuke']     = {
+        ['DoUndeadNuke']      = {
             DisplayName = "Do Undead Nuke",
             Category = "Combat",
             Index = 3,
-            Tooltip = "Use the Undead nuke line (standard and timed w/debuff component).",
+            Tooltip = "Use the standard Undead nuke line.",
             RequiresLoadoutChange = true,
             Default = true,
             FAQ = "How can I use my Undead Nuke?",
             Answer = "You can enable the undead nuke line on the Combat tab of your Class options.",
         },
-        ['DoValorousRage']   = {
-            DisplayName = "Valorous Rage",
+        ['DoQuickUndeadNuke'] = {
+            DisplayName = "Do Undead Quick Nuke",
             Category = "Combat",
             Index = 4,
+            Tooltip = "Use the quick undead nuke line (which includes a potential snare and ac debuff trigger).",
+            RequiresLoadoutChange = true,
+            Default = true,
+            FAQ = "How can I use my Undead Nuke?",
+            Answer = "You can enable the undead nuke line on the Combat tab of your Class options.",
+        },
+        ['DoValorousRage']    = {
+            DisplayName = "Valorous Rage",
+            Category = "Combat",
+            Index = 5,
             Tooltip = "Use the Valorous Rage AA during burns.",
             Default = false,
             FAQ = "What is Valorous Rage and how can I use it?",
             Answer = "Valorous Rage is an AA that increases your damage output while hurting your ability to heal and can be toggled in the Combat tab of the Class options.",
         },
-        ['DoVetAA']          = {
+        ['DoVetAA']           = {
             DisplayName = "Use Vet AA",
             Category = "Combat",
-            Index = 5,
+            Index = 6,
             Tooltip = "Use Veteran AA's in emergencies or during Burn. (See FAQ)",
             Default = true,
             FAQ = "What Vet AA's does PAL use?",
@@ -1436,7 +1526,7 @@ return {
         },
 
         --Buffs
-        ['AegoSymbol']       = {
+        ['AegoSymbol']        = {
             DisplayName = "Aego/Symbol Choice:",
             Category = "Buffs",
             Index = 1,
@@ -1450,7 +1540,7 @@ return {
             FAQ = "Why aren't I using Aego and/or Symbol buffs?",
             Answer = "Please set which buff you would like to use on the Buffs/Debuffs tab.",
         },
-        ['DoACBuff']         = {
+        ['DoACBuff']          = {
             DisplayName = "Use AC Buff",
             Category = "Buffs",
             Index = 2,
@@ -1464,7 +1554,7 @@ return {
             Answer =
             "You may need to select the option in Buffs/Debuffs. Alternatively, this line does not stack with Aegolism, and it is automatically included in \"Unified\" Symbol buffs.",
         },
-        ['DoBrells']         = {
+        ['DoBrells']          = {
             DisplayName = "Do Brells",
             Category = "Buffs",
             Index = 3,
@@ -1473,7 +1563,7 @@ return {
             FAQ = "Why am I not casting Brells?",
             Answer = "Make sure you have the [DoBrells] setting enabled.",
         },
-        ['DoWardProc']       = {
+        ['DoWardProc']        = {
             DisplayName = "Do Ward Proc",
             Category = "Buffs",
             Index = 4,
@@ -1482,7 +1572,7 @@ return {
             FAQ = "I'd rather use Reptile, how do I turn off my Ward of Tunare?",
             Answer = "Select the option in the Buffs tab to disable the ward proc buff, it is enabled by default.",
         },
-        ['DoSalvation']      = {
+        ['DoSalvation']       = {
             DisplayName = "Marr's Salvation",
             Category = "Buffs",
             Index = 5,
@@ -1491,7 +1581,7 @@ return {
             FAQ = "Why is Marr's Salvation being used?",
             Answer = "Select the option in the Buffs tab to use this buff, it is enabled by default.",
         },
-        ['ProcChoice']       = {
+        ['ProcChoice']        = {
             DisplayName = "Proc Buff Choice:",
             Category = "Buffs",
             Index = 6,

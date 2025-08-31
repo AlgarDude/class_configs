@@ -839,11 +839,13 @@ _ClassConfig      = {
             end,
         },
         {
-            name = 'PetHealPoint',
+            name = 'PetHealSpell',
             state = 1,
             steps = 1,
-            targetId = function(self) return { mq.TLO.Me.Pet.ID(), } end,
-            cond = function(self, _) return mq.TLO.Me.Pet.ID() > 0 and (mq.TLO.Me.Pet.PctHPs() or 100) < Config:GetSetting('PetHealPct') end,
+            doFullRotation = true,
+            load_cond = function() return Config:GetSetting('DoPetHealSpell') end,
+            targetId = function(self) return mq.TLO.Me.Pet.ID() > 0 and { mq.TLO.Me.Pet.ID(), } or {} end,
+            cond = function(self, target) return (mq.TLO.Me.Pet.PctHPs() or 100) < Config:GetSetting('PetHealPct') end,
         },
         {
             name = 'Downtime',
@@ -1276,7 +1278,7 @@ _ClassConfig      = {
                 custom_func = function(self) return self.ClassConfig.HelperFunctions.pet_management(self) end,
             },
         },
-        ['PetHealPoint'] = {
+        ['PetHealSpell'] = {
             {
                 name = "PetHealSpell",
                 type = "Spell",
@@ -1455,7 +1457,7 @@ _ClassConfig      = {
                 name = "Improved Twincast",
                 type = "AA",
                 cond = function(self)
-                    return not Casting.IHaveBuff("Twincast")
+                    return not mq.TLO.Me.Buff("Twincast")()
                 end,
             },
             {
@@ -1579,7 +1581,7 @@ _ClassConfig      = {
             {
                 name = "TwinCast",
                 type = "Spell",
-                cond = function(self, spell) return not Casting.IHaveBuff("Twincast") end,
+                cond = function(self, spell) return not mq.TLO.Me.Buff("Twincast")() end,
             },
             --   {
             --       name = "AllianceBuff",
