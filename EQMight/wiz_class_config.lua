@@ -5,7 +5,6 @@
 
 local mq        = require('mq')
 local Config    = require('utils.config')
-local Modules   = require("utils.modules")
 local Targeting = require("utils.targeting")
 local Casting   = require("utils.casting")
 local Core      = require("utils.core")
@@ -406,7 +405,7 @@ return {
                 name = "Epic",
                 type = "Item",
                 cond = function(self)
-                    return not Casting.IHaveBuff("Twincast")
+                    return not mq.TLO.Me.Buff("Twincast")()
                 end,
             },
             {
@@ -426,10 +425,15 @@ return {
                 type = "AA",
             },
             {
+                name = "Forsaken Sorceror's Shoes",
+                type = "Item",
+                load_cond = function(self) return mq.TLO.FindItem("=Forsaken Sorceror's Shoes")() end,
+            },
+            {
                 name = "Improved Twincast",
                 type = "AA",
                 cond = function(self)
-                    return not Casting.IHaveBuff("Twincast")
+                    return not mq.TLO.Me.Buff("Twincast")()
                 end,
             },
             { --Crit Chance AA, will use the first(best) one found
@@ -450,9 +454,9 @@ return {
                     return Casting.GetFirstAA({ "Volatile Mana Blaze", "Mana Blaze", "Mana Blast", "Mana Burn", })
                 end,
                 type = "AA",
+                load_cond = function(self) return Config:GetSetting('DoManaBurn') end,
                 cond = function(self, aaName, target)
-                    if not Config:GetSetting('DoManaBurn') then return false end
-                    return Targeting.IsNamed(target) and mq.TLO.Me.PctAggro() < 70 and Casting.HaveManaToNuke() and not mq.TLO.Target.FindBuff("detspa 350")()
+                    return Targeting.IsNamed(target) and mq.TLO.Me.PctAggro() < 70 and Casting.OkayToNuke(true) and not mq.TLO.Target.FindBuff("detspa 350")()
                 end,
             },
             {
@@ -493,8 +497,8 @@ return {
             {
                 name = "JoltSpell",
                 type = "Spell",
+                load_cond = function(self) return not Casting.CanUseAA("Concussive Intuition") end,
                 cond = function(self)
-                    if Casting.CanUseAA("Concussive Intuition") then return false end
                     return mq.TLO.Me.PctAggro() > Config:GetSetting('JoltAggro')
                 end,
             },
@@ -519,16 +523,25 @@ return {
             {
                 name = "StunSpell",
                 type = "Spell",
-                cond = function(self, spell)
-                    return Casting.HaveManaToDebuff() and Casting.DetSpellCheck(spell)
+                cond = function(self, spell, target)
+                    return Casting.HaveManaToDebuff() and Targeting.TargetNotStunned() and not Targeting.IsNamed(target)
                 end,
             },
         },
         ['CombatBuff'] =
         {
             {
+                name = "Forsaken Fungus Covered Scale Tunic",
+                type = "Item",
+                load_cond = function(self) return mq.TLO.FindItem("=Forsaken Fungus Covered Scale Tunic")() end,
+                cond = function(self, itemName, target)
+                    return mq.TLO.Me.PctMana() < Config:GetSetting('CombatHarvestManaPct') or mq.TLO.Me.PctHPs() < 40
+                end,
+            },
+            {
                 name = "Harvest of Druzzil",
                 type = "AA",
+                load_cond = function(self) return Casting.CanUseAA("Harvest of Druzzil") end,
                 allowDead = true,
                 cond = function(self)
                     return mq.TLO.Me.PctMana() < Config:GetSetting('CombatHarvestManaPct')
@@ -537,9 +550,9 @@ return {
             {
                 name = "HarvestSpell",
                 type = "Spell",
+                load_cond = function(self) return not Casting.CanUseAA("Harvest of Druzzil") end,
                 allowDead = true,
                 cond = function(self)
-                    if Casting.CanUseAA("Harvest of Druzzil") then return false end
                     return mq.TLO.Me.PctMana() < Config:GetSetting('CombatHarvestManaPct')
                 end,
             },
@@ -581,19 +594,22 @@ return {
                 type = "Spell",
                 cond = function(self, spell, target)
                     if not self.ClassConfig.HelperFunctions.RainCheck(target) then return false end
-                    return Casting.HaveManaToNuke()
+                    return Targeting.AggroCheckOkay()
                 end,
             },
             {
                 name = "BigFireNuke",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    return Targeting.MobNotLowHP(target)
+                    return Targeting.MobNotLowHP(target) and Targeting.AggroCheckOkay()
                 end,
             },
             {
                 name = "FireNuke",
                 type = "Spell",
+                cond = function(self, spell, target)
+                    return Targeting.AggroCheckOkay()
+                end,
             },
         },
         ['DPS(IceLowLevel)'] = {
@@ -602,19 +618,22 @@ return {
                 type = "Spell",
                 cond = function(self, spell, target)
                     if not self.ClassConfig.HelperFunctions.RainCheck(target) then return false end
-                    return Casting.HaveManaToNuke()
+                    return Targeting.AggroCheckOkay()
                 end,
             },
             {
                 name = "BigIceNuke",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    return Targeting.MobNotLowHP(target)
+                    return Targeting.MobNotLowHP(target) and Targeting.AggroCheckOkay()
                 end,
             },
             {
                 name = "IceNuke",
                 type = "Spell",
+                cond = function(self, spell, target)
+                    return Targeting.AggroCheckOkay()
+                end,
             },
         },
         ['DPS(MagicLowLevel)'] = {
@@ -622,12 +641,15 @@ return {
                 name = "BigMagicNuke",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    return Targeting.MobNotLowHP(target)
+                    return Targeting.MobNotLowHP(target) and Targeting.AggroCheckOkay()
                 end,
             },
             {
                 name = "MagicNuke",
                 type = "Spell",
+                cond = function(self, spell, target)
+                    return Targeting.AggroCheckOkay()
+                end,
             },
         },
         ['DPS(PBAE)'] = {
@@ -636,7 +658,7 @@ return {
                 type = "Spell",
                 allowDead = true,
                 cond = function(self, spell, target)
-                    return Casting.HaveManaToNuke() and Targeting.InSpellRange(spell, target)
+                    return Targeting.AggroCheckOkay() and Targeting.InSpellRange(spell, target)
                 end,
             },
             {
@@ -644,7 +666,7 @@ return {
                 type = "Spell",
                 allowDead = true,
                 cond = function(self, spell, target)
-                    return Casting.HaveManaToNuke() and Targeting.InSpellRange(spell, target)
+                    return Targeting.AggroCheckOkay() and Targeting.InSpellRange(spell, target)
                 end,
             },
             {
@@ -652,7 +674,7 @@ return {
                 type = "Spell",
                 allowDead = true,
                 cond = function(self, spell, target)
-                    return Casting.HaveManaToNuke() and Targeting.InSpellRange(spell, target)
+                    return Targeting.AggroCheckOkay() and Targeting.InSpellRange(spell, target)
                 end,
             },
             {
@@ -660,7 +682,7 @@ return {
                 type = "Spell",
                 allowDead = true,
                 cond = function(self, spell, target)
-                    return Casting.HaveManaToNuke() and Targeting.InSpellRange(spell, target)
+                    return Targeting.AggroCheckOkay() and Targeting.InSpellRange(spell, target)
                 end,
             },
         },
@@ -694,15 +716,16 @@ return {
             {
                 name = "FamiliarBuff",
                 type = "Spell",
+                load_cond = function(self) return not Casting.CanUseAA("Improved Familiar") end,
                 active_cond = function(self, spell) return Casting.IHaveBuff(spell) end,
                 cond = function(self, spell)
-                    if Casting.CanUseAA("Improved Familiar") then return false end
                     return Casting.SelfBuffCheck(spell)
                 end,
             },
             {
                 name = "Harvest of Druzzil",
                 type = "AA",
+                load_cond = function(self) return Casting.CanUseAA("Harvest of Druzzil") end,
                 cond = function(self)
                     return mq.TLO.Me.PctMana() < Config:GetSetting('HarvestManaPct')
                 end,
@@ -710,8 +733,8 @@ return {
             {
                 name = "HarvestSpell",
                 type = "Spell",
+                load_cond = function(self) return not Casting.CanUseAA("Harvest of Druzzil") end,
                 cond = function(self, spell)
-                    if Casting.CanUseAA("Harvest of Druzzil") then return false end
                     return Casting.CastReady(spell) and mq.TLO.Me.PctMana() < Config:GetSetting('HarvestManaPct')
                 end,
             },
@@ -929,6 +952,7 @@ return {
             Category = "Damage",
             Index = 2,
             Tooltip = "Enable usage of the Mana Burn series of AA.",
+            RequiresLoadoutChange = true,
             Default = true,
             FAQ = "Can I use Mana Burn?",
             Answer = "Yes, you can enable [DoManaBurn] to use Mana Burn when it is available.",

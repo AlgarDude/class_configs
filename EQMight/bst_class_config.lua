@@ -13,9 +13,9 @@ return {
         'DPS',
     },
     ['ModeChecks']        = {
-        IsHealing = function() return true end,
+        IsHealing = function() return Config:GetSetting('DoHeals') end,
     },
-    ['ItemSets']          = {                  --TODO: Add Omens Chest
+    ['ItemSets']          = {
         ['Epic'] = {
             "Savage Lord's Totem",             -- Epic    -- Epic 1.5
             "Spiritcaller Totem of the Feral", -- Epic    -- Epic 2.0
@@ -193,20 +193,6 @@ return {
         },
     },
     ['HealRotationOrder'] = {
-        {
-            name = 'PetHealAA',
-            state = 1,
-            steps = 1,
-            load_cond = function() return Casting.CanUseAA("Mend Companion") or Casting.CanUseAA("Replenish Companion") end,
-            cond = function(self, target) return target.ID() == mq.TLO.Me.Pet.ID() and Targeting.BigHealsNeeded(mq.TLO.Me.Pet) end,
-        },
-        {
-            name = 'PetHealSpell',
-            state = 1,
-            steps = 1,
-            load_cond = function() return Config:GetSetting('DoPetHealSpell') end,
-            cond = function(self, target) return target.ID() == mq.TLO.Me.Pet.ID() and Targeting.MainHealsNeeded(mq.TLO.Me.Pet) end,
-        },
         { -- configured as a backup healer, will not cast in the mainpoint
             name = 'BigHealPoint',
             state = 1,
@@ -216,33 +202,7 @@ return {
         },
     },
     ['HealRotations']     = {
-        ['PetHealAA'] = {
-            {
-                name_func = function() return Casting.CanUseAA("Replenish Companion") and "Replenish Companion" or "Mend Companion" end,
-                type = "AA",
-                cond = function(self, aaName, target)
-                    return mq.TLO.Me.Pet.PctHPs() <= Config:GetSetting('BigHealPoint')
-                end,
-            },
-            {
-                name = "Minion's Memento",
-                type = "Item",
-            },
-        },
-        ['PetHealSpell'] = {
-            {
-                name = "PetHealSpell",
-                type = "Spell",
-            },
-        },
         ['BigHealPoint'] = {
-            {
-                name = "VigorBuff",
-                type = "Spell",
-                cond = function(self, spell, target)
-                    return Casting.GroupBuffCheck(spell, target)
-                end,
-            },
             {
                 name = "HealSpell",
                 type = "Spell",
@@ -294,6 +254,14 @@ return {
             end,
         },
         {
+            name = 'PetHealing',
+            state = 1,
+            steps = 1,
+            doFullRotation = true,
+            targetId = function(self) return mq.TLO.Me.Pet.ID() > 0 and { mq.TLO.Me.Pet.ID(), } or {} end,
+            cond = function(self, target) return (mq.TLO.Me.Pet.PctHPs() or 100) < Config:GetSetting('PetHealPct') end,
+        },
+        {
             name = 'FocusedParagon',
             state = 1,
             steps = 1,
@@ -315,7 +283,7 @@ return {
             load_cond = function() return Config:GetSetting('DoSlow') end,
             targetId = function(self) return Targeting.CheckForAutoTargetID() end,
             cond = function(self, combat_state)
-                return combat_state == "Combat" and Casting.OkayToDebuff() and Casting.HaveManaToDebuff()
+                return combat_state == "Combat" and Casting.OkayToDebuff()
             end,
         },
         {
@@ -325,6 +293,17 @@ return {
             targetId = function(self) return Targeting.CheckForAutoTargetID() end,
             cond = function(self, combat_state)
                 return combat_state == "Combat" and Casting.BurnCheck()
+            end,
+        },
+        {
+            name = 'Vigor',
+            timer = 10,
+            load_cond = function() return Core.GetResolvedActionMapItem("VigorBuff") end,
+            targetId = function(self) return { Core.GetMainAssistId(), } or {} end,
+            cond = function(self, combat_state)
+                local downtime = combat_state == "Downtime" and Casting.OkayToBuff()
+                local burning = combat_state == "Combat" and Casting.BurnCheck() and not Casting.IAmFeigning()
+                return downtime or burning
             end,
         },
         {
@@ -342,7 +321,7 @@ return {
             steps = 1,
             targetId = function(self) return Targeting.CheckForAutoTargetID() end,
             cond = function(self, combat_state)
-                return combat_state == "Combat"
+                return combat_state == "Combat" and Targeting.AggroCheckOkay()
             end,
         },
     },
@@ -374,7 +353,7 @@ return {
         end,
     },
     ['Rotations']         = {
-        ['Burn'] = {
+        ['Burn']           = {
             {
                 name = "Bestial Bloodrage",
                 type = "AA",
@@ -427,7 +406,7 @@ return {
                 end,
             },
         },
-        ['Slow'] = {
+        ['Slow']           = {
             {
                 name = "SlowSpell",
                 type = "Spell",
@@ -436,7 +415,7 @@ return {
                 end,
             },
         },
-        ['Emergency'] = {
+        ['Emergency']      = {
             {
                 name = "Armor of Experience",
                 type = "AA",
@@ -472,13 +451,35 @@ return {
                 type = "Discipline",
             },
         },
+        ['PetHealing']     = {
+            {
+                name = "Companion's Blessing",
+                type = "AA",
+                cond = function(self, aaName, target)
+                    return (mq.TLO.Me.Pet.PctHPs() or 999) <= Config:GetSetting('BigHealPoint')
+                end,
+            },
+            {
+                name = "Minion's Memento",
+                type = "Item",
+            },
+            {
+                name_func = function() return Casting.CanUseAA("Replenish Companion") and "Replenish Companion" or "Mend Companion" end,
+                type = "AA",
+            },
+            {
+                name = "PetHealSpell",
+                type = "Spell",
+                load_cond = function(self) Config:GetSetting('DoPetHealSpell') end,
+            },
+        },
         ['FocusedParagon'] = {
             {
                 name = "Focused Paragon of Spirits",
                 type = "AA",
             },
         },
-        ['DPS'] = {
+        ['DPS']            = {
             {
                 name = "PetSpell",
                 type = "Spell",
@@ -491,7 +492,15 @@ return {
                 type = "AA",
                 cond = function(self, aaName)
                     if not Config:GetSetting('DoParagon') then return false end
-                    return (mq.TLO.Group.LowMana(Config:GetSetting('ParaPct'))() or -1) > 0
+                    return Casting.GroupLowManaCount(Config:GetSetting('ParaPct')) > 0
+                end,
+            },
+            {
+                name = "Tome of Nife's Mercy",
+                type = "Item",
+                load_cond = function(self) return mq.TLO.FindItem("=Tome of Nife's Mercy")() end,
+                cond = function(self, itemName, target)
+                    return Casting.GroupLowManaCount(Config:GetSetting('ParaPct')) > 1
                 end,
             },
             {
@@ -518,18 +527,26 @@ return {
                 name = "Icelance1",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    return Casting.HaveManaToNuke()
+                    return Casting.OkayToNuke()
                 end,
             },
             {
                 name = "Icelance2",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    return Casting.HaveManaToNuke()
+                    return Casting.OkayToNuke()
+                end,
+            },
+            {
+                name = "Nature's Salve",
+                type = "AA",
+                cond = function(self, aaName)
+                    ---@diagnostic disable-next-line: undefined-field
+                    return mq.TLO.Me.TotalCounters() > 0
                 end,
             },
         },
-        ['Weaves'] = {
+        ['Weaves']         = {
             {
                 name = "Roar of Thunder",
                 type = "AA",
@@ -562,16 +579,8 @@ return {
                 name = "Chameleon Strike",
                 type = "AA",
             },
-            {
-                name = "Nature's Salve",
-                type = "AA",
-                cond = function(self, aaName)
-                    ---@diagnostic disable-next-line: undefined-field
-                    return mq.TLO.Me.TotalCounters() > 0
-                end,
-            },
         },
-        ['GroupBuff'] = {
+        ['GroupBuff']      = {
             {
                 name = "RunSpeedBuff",
                 type = "Spell",
@@ -602,15 +611,9 @@ return {
                 cond = function(self, spell, target)
                     -- Only use the single target versions on classes that need it
                     if (spell.TargetType() or ""):lower() ~= "group v2" and not Targeting.TargetIsAMelee(target) then return false end
-                    return Casting.GroupBuffCheck(spell, target) and not Casting.TargetHasBuff("Brell's Vibrant Barricade", target, true)
-                end,
-            },
-            {
-                name = "VigorBuff",
-                type = "Spell",
-                cond = function(self, spell, target)
-                    if not Targeting.TargetIsMA() then return false end
                     return Casting.GroupBuffCheck(spell, target)
+                        --laz specific deconflict with brell's vibrant barricade
+                        and Casting.PeerBuffCheck(40583, target, true)
                 end,
             },
             {
@@ -631,7 +634,7 @@ return {
                 end,
             },
         },
-        ['PetSummon'] = {
+        ['PetSummon']      = {
             {
                 name = "PetSpell",
                 type = "Spell",
@@ -646,7 +649,7 @@ return {
                 end,
             },
         },
-        ['Downtime'] = {
+        ['Downtime']       = {
             {
                 name = "Gelid Rending",
                 type = "AA",
@@ -655,11 +658,11 @@ return {
                 name = "Pact of The Wurine",
                 type = "AA",
                 cond = function(self, aaName)
-                    return Casting.SelfBuffAACheck(aaName)
+                    return Casting.SelfBuffAACheck(aaName) and not mq.TLO.Me.Buff("Group Pact of the Wolf")()
                 end,
             },
         },
-        ['PetBuff'] = {
+        ['PetBuff']        = {
             {
                 name = "Epic",
                 type = "Item",
@@ -731,6 +734,15 @@ return {
                 type = "AA",
                 cond = function(self, aaName)
                     return Casting.PetBuffAACheck(aaName)
+                end,
+            },
+        },
+        ['Vigor']          = {
+            {
+                name = "VigorBuff",
+                type = "Spell",
+                cond = function(self, spell, target)
+                    return Casting.GroupBuffCheck(spell, target)
                 end,
             },
         },
@@ -807,7 +819,7 @@ return {
             Category = "Mana Mgmt.",
             Index = 2,
             Tooltip = "Minimum mana % before we use Paragon of Spirit.",
-            Default = 80,
+            Default = 50,
             Min = 1,
             Max = 99,
             ConfigType = "Advanced",
@@ -849,13 +861,25 @@ return {
         ['DoPetHealSpell'] = {
             DisplayName = "Do Pet Heals",
             Category = "Pet Mgmt.",
-            Index = 2,
+            Index = 1,
             Tooltip = "Mem and cast your Pet Heal (Salve) spell. AA Pet Heals are always used in emergencies.",
             Default = true,
             RequiresLoadoutChange = true,
             FAQ = "My Pet Keeps Dying, What Can I Do?",
             Answer = "Make sure you have [DoPetHealSpell] enabled.\n" ..
                 "If your pet is still dying, consider using [PetHealPct] to adjust the pet heal threshold.",
+        },
+        ['PetHealPct']     = {
+            DisplayName = "Pet Heal %",
+            Category = "Pet Mgmt.",
+            Index = 2,
+            Tooltip = "Heal pet at [X]% HPs",
+            Default = 60,
+            Min = 1,
+            Max = 99,
+            FAQ = "My pet keeps dying, how do I keep it alive?",
+            Answer = "You can set the [PetHealPct] to a lower value to heal your pet sooner.\n" ..
+                "Also make sure that [DoPetHeals] is enabled.",
         },
         ['DoPetSlow']      = {
             DisplayName = "Pet Slow Proc",

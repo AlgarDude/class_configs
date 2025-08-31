@@ -9,11 +9,10 @@ local DanNet      = require('lib.dannet.helpers')
 local Logger      = require("utils.logger")
 
 _ClassConfig      = {
-    _version              = "1.3 - EQ Might",
+    _version              = "1.2 - Project Lazarus",
     _author               = "Derple, Morisato, Algar",
     ['ModeChecks']        = {
         IsTanking = function() return Core.IsModeActive("PetTank") end,
-        IsRezing = function() return mq.TLO.FindItem("Legendary Staff of Forbidden Rites")() end,
     },
     ['Modes']             = {
         'DPS',
@@ -357,7 +356,6 @@ _ClassConfig      = {
         },
         ['PetAura'] = {
             -- Mage Pet Aura
-            "Arcane Distillect",
             "Rathe's Strength",
             "Earthen Strength",
         },
@@ -802,6 +800,9 @@ _ClassConfig      = {
         ['Myriad'] = {
             "Shock of Myriad Minions",
         },
+        ['FranticDS'] = {
+            "Frantic Flames",
+        },
     },
     ['HealRotationOrder'] = {
 
@@ -814,13 +815,6 @@ _ClassConfig      = {
                 return combat_state == "Downtime" and Casting.OkayToPetBuff() and (mq.TLO.Me.Pet.ID() == 0 or Config:GetSetting('DoPocketPet'))
                     and Casting.AmIBuffable()
             end,
-        },
-        {
-            name = 'PetHealPoint',
-            state = 1,
-            steps = 1,
-            targetId = function(self) return { mq.TLO.Me.Pet.ID(), } end,
-            cond = function(self, _) return mq.TLO.Me.Pet.ID() > 0 and (mq.TLO.Me.Pet.PctHPs() or 100) < Config:GetSetting('PetHealPct') end,
         },
         {
             name = 'Downtime',
@@ -836,6 +830,14 @@ _ClassConfig      = {
             cond = function(self, combat_state)
                 return combat_state == "Downtime" and mq.TLO.Me.Pet.ID() > 0 and Casting.OkayToPetBuff()
             end,
+        },
+        {
+            name = 'PetHealing',
+            state = 1,
+            steps = 1,
+            doFullRotation = true,
+            targetId = function(self) return mq.TLO.Me.Pet.ID() > 0 and { mq.TLO.Me.Pet.ID(), } or {} end,
+            cond = function(self, target) return (mq.TLO.Me.Pet.PctHPs() or 100) < Config:GetSetting('PetHealPct') end,
         },
         {
             name = 'GroupBuff',
@@ -855,7 +857,7 @@ _ClassConfig      = {
             doFullRotation = true,
             targetId = function(self) return Targeting.CheckForAutoTargetID() end,
             cond = function(self, combat_state)
-                return combat_state == "Combat" and Casting.OkayToDebuff() and Casting.HaveManaToDebuff()
+                return combat_state == "Combat" and Casting.OkayToDebuff()
             end,
         },
         {
@@ -886,7 +888,7 @@ _ClassConfig      = {
             targetId = function(self) return Targeting.CheckForAutoTargetID() end,
             cond = function(self, combat_state)
                 if not Config:GetSetting('DoAEDamage') then return false end
-                return combat_state == "Combat" and self.ClassConfig.HelperFunctions.AETargetCheck(Config:GetSetting('PBAETargetCnt'), true)
+                return combat_state == "Combat" and Targeting.AggroCheckOkay() and self.ClassConfig.HelperFunctions.AETargetCheck(Config:GetSetting('PBAETargetCnt'), true)
             end,
         },
         {
@@ -896,7 +898,7 @@ _ClassConfig      = {
             load_cond = function(self) return not Core.IsModeActive("PetTank") and self:GetResolvedActionMapItem('SpearNuke') end,
             targetId = function(self) return Targeting.CheckForAutoTargetID() end,
             cond = function(self, combat_state)
-                return combat_state == "Combat"
+                return combat_state == "Combat" and Targeting.AggroCheckOkay()
             end,
         },
         {
@@ -906,7 +908,7 @@ _ClassConfig      = {
             load_cond = function(self) return not Core.IsModeActive("PetTank") and not self:GetResolvedActionMapItem('SpearNuke') end,
             targetId = function(self) return Targeting.CheckForAutoTargetID() end,
             cond = function(self, combat_state)
-                return combat_state == "Combat"
+                return combat_state == "Combat" and Targeting.AggroCheckOkay()
             end,
         },
         {
@@ -972,15 +974,6 @@ _ClassConfig      = {
     },
     -- Really the meat of this class.
     ['HelperFunctions']   = {
-        DoRez = function(self, corpseId)
-            if mq.TLO.Me.ItemReady("Legendary Staff of Forbidden Rites")() then
-                if Casting.OkayToRez(corpseId) then
-                    return Casting.UseItem("Legendary Staff of Forbidden Rites", corpseId)
-                end
-            end
-
-            return false
-        end,
         user_tu_spell = function(self, aaName)
             local shroudSpell = self.ResolvedActionMap['ShroudSpell']
             local aaSpell = Casting.GetAASpell(aaName)
@@ -1270,10 +1263,6 @@ _ClassConfig      = {
 
             return true
         end,
-        --function to make sure we don't use single target nukes when we could be AEing in PBAEMode
-        PBAEReady = function(self)
-            return (mq.TLO.Me.GemTimer(self.ResolvedActionMap['PBAE1'])() or -1) == 0 or (mq.TLO.Me.GemTimer(self.ResolvedActionMap['PBAE2'])() or -1) == 0
-        end,
     },
     ['Rotations']         = {
         ['PetSummon'] = {
@@ -1308,12 +1297,12 @@ _ClassConfig      = {
                 custom_func = function(self) return self.ClassConfig.HelperFunctions.pet_management(self) end,
             },
         },
-        ['PetHealPoint'] = {
+        ['PetHealing'] = {
             {
                 name = "Companion's Blessing",
                 type = "AA",
                 cond = function(self, aaName, target)
-                    return mq.TLO.Me.Pet.PctHPs() <= Config:GetSetting('BigHealPoint')
+                    return (mq.TLO.Me.Pet.PctHPs() or 999) <= Config:GetSetting('BigHealPoint')
                 end,
             },
             {
@@ -1321,16 +1310,13 @@ _ClassConfig      = {
                 type = "Item",
             },
             {
-                name = "Replenish Companion",
-                type = "AA",
-            },
-            {
-                name = "Mend Companion",
+                name_func = function() return Casting.CanUseAA("Replenish Companion") and "Replenish Companion" or "Mend Companion" end,
                 type = "AA",
             },
             {
                 name = "PetHealSpell",
                 type = "Spell",
+                load_cond = function(self) Config:GetSetting('DoPetHealSpell') end,
             },
         },
         ['PetBuff'] = {
@@ -1342,14 +1328,14 @@ _ClassConfig      = {
                     return self.ClassConfig.HelperFunctions.handle_pet_toys and self.ClassConfig.HelperFunctions.handle_pet_toys(self) or false
                 end,
             },
-            -- { --this is currently commented out because of numerous stacking check errors (e.g, Talisman of Unification) and issues with the buff being clicked off causing a spam condition until the pet is released
-            --     name = "PetAura",
-            --     type = "Spell",
-            --     cond = function(self, spell)
-            --         local auraBuff = string.format("%s Effect", spell.Name())
-            --         return Casting.PetBuffCheck(spell) and not mq.TLO.Me.PetBuff(auraBuff)()
-            --     end,
-            -- },
+            { --if the buff is removed from the pet, the invisible rathe aura object remains; if we don't check for it, a spam condition could ensue
+                -- buff will be lost on zone
+                name = "PetAura",
+                type = "Spell",
+                cond = function(self, spell)
+                    return Casting.PetBuffCheck(spell) and mq.TLO.SpawnCount("untargetable _strength radius 200 zradius 50")() == 0
+                end,
+            },
             {
                 name = "PetIceFlame",
                 type = "Spell",
@@ -1379,14 +1365,6 @@ _ClassConfig      = {
                 end,
             },
             {
-                name = "Epic",
-                type = "Item",
-                cond = function(self, itemName)
-                    if mq.TLO.Me.Pet.ID() == 0 then return false end
-                    return Casting.PetBuffItemCheck(itemName)
-                end,
-            },
-            {
                 name = "Second Wind Ward",
                 type = "AA",
                 cond = function(self, aaName)
@@ -1397,7 +1375,7 @@ _ClassConfig      = {
                 name = "Host in the Shell",
                 type = "AA",
                 cond = function(self, aaName)
-                    return Casting.PetBuffAACheck(aaName) and Core.IsModeActive("PetTank")
+                    return Casting.PetBuffAACheck(aaName)
                 end,
             },
             {
@@ -1412,13 +1390,6 @@ _ClassConfig      = {
                 type = "AA",
                 cond = function(self, aaName)
                     return Casting.PetBuffAACheck(aaName)
-                end,
-            },
-            {
-                name = "Companion's Intervening Divine Aura",
-                type = "AA",
-                cond = function(self, aaName)
-                    return Casting.PetBuffAACheck(aaName) and Core.IsModeActive("PetTank")
                 end,
             },
         },
@@ -1467,7 +1438,7 @@ _ClassConfig      = {
             {
                 name = "Heart of Flames",
                 type = "AA",
-                cond = function(self, aaName, target) return not Casting.CanUseAA("Fire Core") end,
+                load_cond = function() return not Casting.CanUseAA("Fire Core") end,
             },
             {
                 name = "Focus of Arcanum",
@@ -1478,12 +1449,30 @@ _ClassConfig      = {
                 name = "Improved Twincast",
                 type = "AA",
                 cond = function(self)
-                    return not Casting.IHaveBuff("Twincast")
+                    return not mq.TLO.Me.Buff("Twincast")()
                 end,
+            },
+            {
+                name = "Forsaken Conjurer's Shoes",
+                type = "Item",
+                load_cond = function(self) return mq.TLO.FindItem("=Forsaken Conjurer's Shoes")() end,
             },
             {
                 name = "Servant of Ro",
                 type = "AA",
+            },
+            {
+                name = "FranticDS",
+                type = "CustomFunc",
+                load_cond = function(self) return Config:GetSetting('DoFranticDS') end,
+                cond = function(self, spell, target)
+                    local shieldSpell = Core.GetResolvedActionMapItem("FranticDS")
+                    return Casting.CastReady(shieldSpell)
+                end,
+                custom_func = function(self)
+                    local shieldSpell = Core.GetResolvedActionMapItem("FranticDS")
+                    Casting.UseSpell(shieldSpell.RankName(), Core.GetMainAssistId(), false, false, false, 0)
+                end,
             },
         },
         ['DPS PET'] = {
@@ -1548,12 +1537,15 @@ _ClassConfig      = {
                 cond = function(self, aaName, target)
                     if mq.TLO.Me.Pet.ID() == 0 then return false end
                     local pet = mq.TLO.Me.Pet
-                    return not pet.Combat() and (pet.Distance3D() or 0 > 200)
+                    return not pet.Combat() and (pet.Distance3D() or 0) > 200
                 end,
             },
             {
                 name = "Force of Elements",
                 type = "AA",
+                cond = function(self, aaName, target)
+                    return Targeting.AggroCheckOkay()
+                end,
             },
             {
                 name = "FireOrbItem",
@@ -1568,6 +1560,14 @@ _ClassConfig      = {
                     return false
                 end,
             },
+            {
+                name = "Forsaken Fungus Covered Scale Tunic",
+                type = "Item",
+                load_cond = function(self) return mq.TLO.FindItem("=Forsaken Fungus Covered Scale Tunic")() end,
+                cond = function(self, itemName, target)
+                    return mq.TLO.Me.PctMana() < 40 or mq.TLO.Me.PctHPs() < 40
+                end,
+            },
         },
         ['DPS(PBAE)'] = {
             {
@@ -1575,7 +1575,7 @@ _ClassConfig      = {
                 type = "Spell",
                 allowDead = true,
                 cond = function(self, spell, target)
-                    return Casting.HaveManaToNuke() and Targeting.InSpellRange(spell, target)
+                    return Targeting.InSpellRange(spell, target)
                 end,
             },
             {
@@ -1583,7 +1583,7 @@ _ClassConfig      = {
                 type = "Spell",
                 allowDead = true,
                 cond = function(self, spell, target)
-                    return Casting.HaveManaToNuke() and Targeting.InSpellRange(spell, target)
+                    return Targeting.InSpellRange(spell, target)
                 end,
             },
         },
@@ -1591,38 +1591,26 @@ _ClassConfig      = {
             {
                 name = "SwarmPet",
                 type = "Spell",
+                load_cond = function() return Config:GetSetting('DoSwarmPet') > 1 end,
                 cond = function(self, spell, target)
-                    if Config:GetSetting('DoSwarmPet') == 1 then return false end
                     return Casting.HaveManaToNuke() and not (Config:GetSetting('DoSwarmPet') == 2 and not Targeting.IsNamed(target))
                 end,
             },
             {
                 name = "Bladegusts",
                 type = "Spell",
-                cond = function(self)
-                    return Casting.HaveManaToNuke()
-                end,
             },
             {
                 name = "ChaoticNuke",
                 type = "Spell",
-                cond = function(self)
-                    return Casting.HaveManaToNuke()
-                end,
             },
             {
                 name = "Myriad",
                 type = "Spell",
-                cond = function(self)
-                    return Casting.HaveManaToNuke()
-                end,
             },
             {
                 name = "SpearNuke",
                 type = "Spell",
-                cond = function(self, spell)
-                    return Casting.HaveManaToNuke()
-                end,
             },
             {
                 name = "Turn Summoned",
@@ -1640,26 +1628,23 @@ _ClassConfig      = {
             {
                 name = "BigFireDD",
                 type = "Spell",
+                load_cond = function() return Config:GetSetting('ElementChoice') == 1 end,
                 cond = function(self, spell, target)
-                    if Config:GetSetting('ElementChoice') ~= 1 then return false end
-                    return Casting.HaveManaToNuke() and Targeting.MobNotLowHP(target)
+                    return Targeting.MobNotLowHP(target)
                 end,
             },
             {
                 name = "FireDD",
                 type = "Spell",
+                load_cond = function() return Config:GetSetting('ElementChoice') == 1 end,
                 cond = function(self, spell, target)
-                    if Config:GetSetting('ElementChoice') ~= 1 then return false end
-                    return Casting.HaveManaToNuke() and Targeting.MobHasLowHP(target)
+                    return Targeting.MobHasLowHP(target)
                 end,
             },
             {
                 name = "MagicDD",
                 type = "Spell",
-                cond = function(self)
-                    if Config:GetSetting('ElementChoice') ~= 2 then return false end
-                    return Casting.HaveManaToNuke()
-                end,
+                load_cond = function() return Config:GetSetting('ElementChoice') == 2 end,
             },
             {
                 name = "Turn Summoned",
@@ -1671,30 +1656,25 @@ _ClassConfig      = {
             {
                 name = "Bladegusts",
                 type = "Spell",
-                cond = function(self)
-                    return Casting.HaveManaToNuke()
-                end,
             },
             {
                 name = "ChaoticNuke",
                 type = "Spell",
-                cond = function(self)
-                    return Casting.HaveManaToNuke()
-                end,
             },
         },
         ['Malo'] = {
             {
                 name = "Wind of Malosinete",
                 type = "AA",
+                load_cond = function() return Config:GetSetting('DoAEMalo') end,
                 cond = function(self, aaName)
-                    if not Config:GetSetting('DoAEMalo') then return false end
                     return Targeting.GetXTHaterCount() >= Config:GetSetting('AEMaloCount') and Casting.DetAACheck(aaName)
                 end,
             },
             {
                 name = "Malosinete",
                 type = "AA",
+                load_cond = function() return Casting.CanUseAA("Malosinete") end,
                 cond = function(self, aaName)
                     return Casting.DetAACheck(aaName)
                 end,
@@ -1702,8 +1682,8 @@ _ClassConfig      = {
             {
                 name = "MaloDebuff",
                 type = "Spell",
+                load_cond = function() return not Casting.CanUseAA("Malosinete") end,
                 cond = function(self, spell)
-                    if Casting.CanUseAA("Malosinete") then return false end
                     return Casting.DetSpellCheck(spell)
                 end,
             },
@@ -1724,8 +1704,10 @@ _ClassConfig      = {
                 type = "Spell",
                 cond = function(self, spell, target)
                     if not Targeting.TargetIsMA(target) then return false end
-                    return Casting.GroupBuffCheck(spell, target) and not Casting.TargetHasBuff("Decrepit Skin", target, true) and
-                        not Casting.TargetHasBuff("Necrotic Pustules", target, true) --temp laz workaround
+                    return Casting.GroupBuffCheck(spell, target)
+                        -- workarounds for laz
+                        and not Casting.PeerBuffCheck(19847, target, true) -- necrotic pustules
+                        and not Casting.PeerBuffCheck(8484, target, true)  -- decrepit skin
                 end,
                 post_activate = function(self, spell, success)
                     local petName = mq.TLO.Me.Pet.CleanName() or "None"
@@ -1792,8 +1774,9 @@ _ClassConfig      = {
                     return Casting.GetFirstAA({ "Large Modulation Shard", "Medium Modulation Shard", "Small Modulation Shard", })
                 end,
                 type = "AA",
+                load_cond = function() return Casting.CanUseAA("Small Modulation Shard") end,
                 cond = function(self, aaName, target)
-                    if not Config:GetSetting('SummonModRods') or not Targeting.TargetIsACaster(target) then return false end
+                    if not Targeting.TargetIsACaster(target) then return false end
                     local modRodItem = mq.TLO.Spell(aaName).RankName.Base(1)()
                     return modRodItem and DanNet.query(target.CleanName(), string.format("FindItemCount[%d]", modRodItem), 1000) == "0" and
                         (mq.TLO.Cursor.ID() or 0) == 0
@@ -1807,8 +1790,9 @@ _ClassConfig      = {
             {
                 name = "ManaRodSummon",
                 type = "Spell",
+                load_cond = function() return not Casting.CanUseAA("Small Modulation Shard") end,
                 cond = function(self, spell, target)
-                    if Casting.CanUseAA("Small Modulation Shard") or not Config:GetSetting('SummonModRods') then return false end
+                    if not Targeting.TargetIsACaster(target) then return false end
                     local modRodItem = spell.RankName.Base(1)()
                     return modRodItem and DanNet.query(target.CleanName(), string.format("FindItemCount[%d]", modRodItem), 1000) == "0" and
                         (mq.TLO.Cursor.ID() or 0) == 0
@@ -1856,7 +1840,7 @@ _ClassConfig      = {
                 { name = "PBAE1",            cond = function(self) return Core.IsModeActive("PBAE") end, },
                 { name = "PBAE2",            cond = function(self) return Core.IsModeActive("PBAE") end, },
                 { name = "MaloDebuff",       cond = function(self) return Config:GetSetting('DoMalo') and not Casting.CanUseAA("Malosinete") end, },
-                { name = "PetHealSpell", },
+                { name = "PetHealSpell",     cond = function(self) return Config:GetSetting('DoPetHealSpell') end, },
                 { name = "FireOrbSummon", },
                 { name = "GroupCotH", },
                 { name = "SingleCotH",       cond = function() return not Casting.CanUseAA('Call of the Hero') end, },
@@ -1877,12 +1861,13 @@ _ClassConfig      = {
                 { name = "PBAE1",            cond = function(self) return Core.IsModeActive("PBAE") end, },
                 { name = "PBAE2",            cond = function(self) return Core.IsModeActive("PBAE") end, },
                 { name = "MaloDebuff",       cond = function(self) return Config:GetSetting('DoMalo') and not Casting.CanUseAA("Malosinete") end, },
-                { name = "PetHealSpell", },
+                { name = "PetHealSpell",     cond = function(self) return Config:GetSetting('DoPetHealSpell') end, },
                 { name = "FireOrbSummon", },
+                { name = "FranticDS",        cond = function(self) return Config:GetSetting('DoFranticDS') end, },
                 { name = "GroupCotH", },
                 { name = "SingleCotH",       cond = function() return not Casting.CanUseAA('Call of the Hero') end, },
-                { name = "ManaRodSummon",    cond = function(self) return Config:GetSetting('SummonModRods') and not Casting.CanUseAA("Small Modulation Shard") end, },
                 { name = "FireShroud", },
+                { name = "ManaRodSummon",    cond = function(self) return Config:GetSetting('SummonModRods') and not Casting.CanUseAA("Small Modulation Shard") end, },
                 { name = "LongDurDmgShield", },
             },
         },
@@ -1947,11 +1932,22 @@ _ClassConfig      = {
             FAQ = "I want to make sure my pet is always Heirloomed, how do I do that?",
             Answer = "You can use the [DoPetHeirlooms] feature to summon pet Heirlooms.",
         },
+        ['DoPetHealSpell'] = {
+            DisplayName = "Pet Heal Spell",
+            Category = "Pet",
+            Index = 2,
+            Tooltip = "Mem and cast your Pet Heal spell. AA Pet Heals are always used in emergencies.",
+            Default = true,
+            RequiresLoadoutChange = true,
+            FAQ = "My Pet Keeps Dying, What Can I Do?",
+            Answer = "Make sure you have [DoPetHealSpell] enabled.\n" ..
+                "If your pet is still dying, consider using [PetHealPct] to adjust the pet heal threshold.",
+        },
         ['PetHealPct']     = {
             DisplayName = "Pet Heal %",
             Category = "Pet",
             Tooltip = "Heal pet at [X]% HPs",
-            Default = 80,
+            Default = 60,
             Min = 1,
             Max = 99,
             FAQ = "My pet keeps dying, how do I keep it alive?",
@@ -1963,6 +1959,7 @@ _ClassConfig      = {
             Category = "Mana",
             Index = 1,
             Tooltip = "Summon Mod Rods",
+            RequiresLoadoutChange = true,
             Default = true,
             FAQ = "Can I summon mod rods for my group?",
             Answer = "Yes, you can summon mod rods for your group by setting the [SummonModRods] setting.",
@@ -1993,6 +1990,15 @@ _ClassConfig      = {
             RequiresLoadoutChange = true,
             FAQ = "Why am I not using my swarmp pet?",
             Answer = "Do to mana constraints with fresh level 70's, the swarm pet will only be used on named by default. You can change this in the options.",
+        },
+        ['DoFranticDS']    = {
+            DisplayName = "Frantic Flames",
+            Category = "Spells and Abilities",
+            Tooltip = "Use Frantic Flames during burns.",
+            RequiresLoadoutChange = true, --this setting is used as a load condition
+            Default = true,
+            FAQ = "I want to use Frantic Flames in my rotation, how do I do that?",
+            Answer = "You can enable the Frantic DS in your class options.",
         },
         ['AISelfDelay']    = {
             DisplayName = "Autoinv Delay (Self)",
@@ -2031,6 +2037,7 @@ _ClassConfig      = {
             Category = "Debuffs",
             Index = 2,
             Tooltip = "Do AE Malo Spells/AAs",
+            RequiresLoadoutChange = true, --this setting is used as a load condition
             Default = false,
             FAQ = "I want to use AE Malo in my rotation, how do I do that?",
             Answer = "You can use the [DoAEMalo] feature to use AE Malo in your rotation.",

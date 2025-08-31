@@ -10,43 +10,71 @@ local _ClassConfig = {
     _author               = "Algar",
     ['ModeChecks']        = {
         IsHealing = function() return true end,
-        IsCuring = function() return Core.IsModeActive("Heal") end,
+        IsCuring = function() return Config:GetSetting('DoCureAA') or Config:GetSetting('DoCureSpells') end,
         IsRezing = function() return Config:GetSetting('DoBattleRez') or Targeting.GetXTHaterCount() == 0 end,
     },
     ['Modes']             = {
         'Heal',
     },
     ['Cures']             = {
+        GetCureSpells = function(self)
+            --(re)initialize the table for loadout changes
+            self.TempSettings.CureSpells = {}
+
+            -- Choose whether we should be trying to resolve the groupheal based on our settings and whether it cures at its level
+            local ghealSpell = Core.GetResolvedActionMapItem('GroupHeal')
+            local groupHeal = (Config:GetSetting('GroupHealAsCure') and (ghealSpell and ghealSpell.Level() or 0) >= 70) and "GroupHeal"
+
+            -- Find the map for each cure spell we need, given availability of groupheal, groupcure. fallback to curespell
+            -- Curse is convoluted: If Keepmemmed, always use cure, if not, use groupheal if available and fallback to cure
+            local neededCures = {
+                ['Poison'] = Casting.GetFirstMapItem({ groupHeal, "GroupCure", "CurePoison", }),
+                ['Disease'] = Casting.GetFirstMapItem({ groupHeal, "GroupCure", "CureDisease", }),
+                ['Curse'] = not Config:GetSetting('KeepCurseMemmed') and (groupHeal or 'CureCurse') or 'CureCurse',
+                -- ['Corruption'] = -- Project Lazarus does not currently have any Corruption Cures.
+            }
+
+            -- iterate to actually resolve the selected map item, if it is valid, add it to the cure table
+            for k, v in pairs(neededCures) do
+                local cureSpell = Core.GetResolvedActionMapItem(v)
+                if cureSpell then
+                    self.TempSettings.CureSpells[k] = cureSpell
+                end
+            end
+        end,
         CureNow = function(self, type, targetId)
+            local targetSpawn = mq.TLO.Spawn(targetId)
+            if not targetSpawn and targetSpawn then return false end
+
             if Config:GetSetting('DoCureAA') then
-                if Casting.AAReady("Radiant Cure") then
-                    return Casting.UseAA("Radiant Cure", targetId)
-                elseif targetId == mq.TLO.Me.ID() and Casting.AAReady("Purified Spirits") then
-                    return Casting.UseAA("Purified Spirits", targetId)
+                local cureAA = Casting.AAReady("Radiant Cure") and "Radiant Cure"
+
+                -- I am finding self-cures to be less than helpful when most effects on a healer are group-wide
+                -- if not cureAA and targetId == mq.TLO.Me.ID() and Casting.AAReady("Purified Spirits") then
+                --     cureAA = "Purified Spirits"
+                -- end
+
+                if cureAA then
+                    Logger.log_debug("CureNow: Using %s for %s on %s.", cureAA, type:lower() or "unknown", targetSpawn.CleanName() or "Unknown")
+                    return Casting.UseAA(cureAA, targetId)
                 end
             end
 
             if Config:GetSetting('DoCureSpells') then
-                local cureSpell
-                --If we have Word of Reconstitution, we can use this as our poison/disease/curse cure. Before that, they don't cure or have low counter count
-                local groupHeal = (Config:GetSetting('GroupHealAsCure') and (Core.GetResolvedActionMapItem('GroupHeal').Level() or 0) >= 70) and "GroupHeal"
-
-                if type:lower() == "disease" then
-                    --simply choose the first available option (also based on the groupHeal criteria above)
-                    local diseaseCure = Casting.GetFirstMapItem({ groupHeal, "PureBlood", "CureDisease", })
-                    cureSpell = Core.GetResolvedActionMapItem(diseaseCure)
-                elseif type:lower() == "poison" then
-                    local poisonCure = Casting.GetFirstMapItem({ groupHeal, "PureBlood", "CurePoison", })
-                    cureSpell = Core.GetResolvedActionMapItem(poisonCure)
-                elseif type:lower() == "curse" then
-                    --if we selected to keep it memmed, prioritize it over the group heal, since RGC clears a LOT more counters
-                    cureSpell = Core.GetResolvedActionMapItem((not Config:GetSetting('KeepCurseMemmed') and (groupHeal or 'CureCurse') or 'CureCurse'))
+                for effectType, cureSpell in pairs(self.TempSettings.CureSpells) do
+                    if type:lower() == effectType:lower() then
+                        if cureSpell.TargetType():lower() == "group v1" and not Targeting.GroupedWithTarget(targetSpawn) then
+                            Logger.log_debug("CureNow: We cannot use %s on %s, because it is a group-only spell and they are not in our group!", cureSpell.RankName(),
+                                targetSpawn.CleanName() or "Unknown")
+                            return false
+                        end
+                        Logger.log_debug("CureNow: Using %s for %s on %s.", cureSpell.RankName(), type:lower() or "unknown", targetSpawn.CleanName() or "Unknown")
+                        return Casting.UseSpell(cureSpell.RankName(), targetId, true)
+                    end
                 end
-
-                if not cureSpell or not cureSpell() then return false end
-                return Casting.UseSpell(cureSpell.RankName.Name(), targetId, true)
             end
 
+            Logger.log_debug("CureNow: No valid cure at this time for %s on %s.", type:lower() or "unknown", targetSpawn.CleanName() or "Unknown")
             return false
         end,
     },
@@ -107,7 +135,6 @@ local _ClassConfig = {
         },
         ['ReptileBuff'] = {
             "Skin of the Reptile",
-            "Skin of the Serpent",
         },
         ['SwarmDot'] = { -- Magic Dot, 54s
             "Wasp Swarm",
@@ -356,10 +383,6 @@ local _ClassConfig = {
         },
         ['GroupHealPoint'] = {
             {
-                name = "Fabled Blue Band of the Oak",
-                type = "Item",
-            },
-            {
                 name = "GroupHeal",
                 type = "Spell",
             },
@@ -368,8 +391,8 @@ local _ClassConfig = {
             {
                 name = "Elixir",
                 type = "Spell",
+                load_cond = function() return Config:GetSetting('DoElixir') end,
                 cond = function(self, spell, target)
-                    if not Config:GetSetting('DoElixir') or Targeting.BigHealsNeeded(target) then return false end
                     return Casting.GroupBuffCheck(spell, target)
                 end,
             },
@@ -426,7 +449,7 @@ local _ClassConfig = {
             end,
             targetId = function(self) return Targeting.CheckForAutoTargetID() end,
             cond = function(self, combat_state)
-                return combat_state == "Combat" and Core.OkayToNotHeal() and Casting.OkayToDebuff() and Casting.HaveManaToDebuff()
+                return combat_state == "Combat" and Core.OkayToNotHeal() and Casting.OkayToDebuff()
             end,
         },
         { --Keep things from running
@@ -458,7 +481,8 @@ local _ClassConfig = {
             doFullRotation = true,
             targetId = function(self) return Targeting.CheckForAutoTargetID() end,
             cond = function(self, combat_state)
-                return combat_state == "Combat" and Core.OkayToNotHeal() and Config:GetSetting('DoAEDamage') and
+                if not Config:GetSetting('DoAEDamage') then return false end
+                return combat_state == "Combat" and Core.OkayToNotHeal() and Targeting.AggroCheckOkay() and
                     self.ClassConfig.HelperFunctions.AETargetCheck(Config:GetSetting('AETargetCnt'), true)
             end,
         },
@@ -488,14 +512,17 @@ local _ClassConfig = {
             {
                 name = "Epic",
                 type = "Item",
-                allowDead = true,
-                cond = function(self, itemName, target)
-                    return Casting.SelfBuffItemCheck(itemName)
+                cond = function(self, itemName)
+                    if Config:GetSetting('UseEpic') == 1 then return false end
+                    return (Config:GetSetting('UseEpic') == 3 or (Config:GetSetting('UseEpic') == 2 and Casting.BurnCheck()))
                 end,
             },
             {
                 name = "Storm Strike",
                 type = "AA",
+                cond = function(self, aaName, target)
+                    return Targeting.AggroCheckOkay()
+                end,
             },
             {
                 name = "Nature Walkers Scimitar",
@@ -508,57 +535,60 @@ local _ClassConfig = {
             {
                 name = "FlameLickDot",
                 type = "Spell",
+                load_cond = function() return Config:GetSetting('DoFlameLickDot') end,
                 cond = function(self, spell, target)
-                    if not Config:GetSetting('DoFlameLickDot') or (Config:GetSetting('DotNamedOnly') and not Targeting.IsNamed(target)) then return false end
+                    if Config:GetSetting('DotNamedOnly') and not Targeting.IsNamed(target) then return false end
                     return Casting.DotSpellCheck(spell) and Casting.HaveManaToDot()
                 end,
             },
             {
                 name = "SwarmDot",
                 type = "Spell",
+                load_cond = function() return Config:GetSetting('DoSwarmDot') end,
                 cond = function(self, spell, target)
-                    if not Config:GetSetting('DoSwarmDot') or (Config:GetSetting('DotNamedOnly') and not Targeting.IsNamed(target)) then return false end
+                    if Config:GetSetting('DotNamedOnly') and not Targeting.IsNamed(target) then return false end
                     return Casting.DotSpellCheck(spell) and Casting.HaveManaToDot()
                 end,
             },
             {
                 name = "VengeanceDot",
                 type = "Spell",
+                load_cond = function() return Config:GetSetting('DoVengeanceDot') end,
                 cond = function(self, spell, target)
-                    if not Config:GetSetting('DoVengeanceDot') or (Config:GetSetting('DotNamedOnly') and not Targeting.IsNamed(target)) then return false end
+                    if Config:GetSetting('DotNamedOnly') and not Targeting.IsNamed(target) then return false end
                     return Casting.DotSpellCheck(spell) and Casting.HaveManaToDot()
                 end,
             },
             {
                 name = "StunNuke",
                 type = "Spell",
+                load_cond = function() return Config:GetSetting('DoStunNuke') end,
                 cond = function(self, spell, target)
-                    if not Config:GetSetting('DoStunNuke') then return false end
-                    return Casting.DetSpellCheck(spell) and Casting.HaveManaToNuke()
+                    return Casting.HaveManaToNuke() and Targeting.TargetNotStunned() and not Targeting.IsNamed(target)
                 end,
             },
             { -- in-game description is incorrect, mob must be targeted.
                 name = "TwinHealNuke",
                 type = "Spell",
+                load_cond = function() return Config:GetSetting('DoTwinHealNuke') end,
                 cond = function(self, spell, target)
-                    if not Config:GetSetting('DoTwinHealNuke') then return false end
-                    return Casting.HaveManaToNuke()
+                    return Casting.OkayToNuke() and not mq.TLO.Me.Buff("Twincast")()
                 end,
             },
             {
                 name = "FireNuke",
                 type = "Spell",
+                load_cond = function() return Config:GetSetting('DoFireNuke') end,
                 cond = function(self, spell, target)
-                    if not Config:GetSetting('DoFireNuke') then return false end
-                    return Casting.HaveManaToNuke(true)
+                    return Casting.OkayToNuke(true)
                 end,
             },
             {
                 name = "IceNuke",
                 type = "Spell",
+                load_cond = function() return Config:GetSetting('DoIceNuke') end,
                 cond = function(self, spell, target)
-                    if not Config:GetSetting('DoIceNuke') then return false end
-                    return Casting.HaveManaToNuke(true)
+                    return Casting.OkayToNuke(true)
                 end,
             },
         },
@@ -585,7 +615,7 @@ local _ClassConfig = {
                 name = "Improved Twincast",
                 type = "AA",
                 cond = function(self)
-                    return not Casting.IHaveBuff("Twincast")
+                    return not mq.TLO.Me.Buff("Twincast")()
                 end,
             },
             {
@@ -633,32 +663,32 @@ local _ClassConfig = {
                     return Casting.GetFirstAA({ "Blessing of Ro", "Hand of Ro", })
                 end,
                 type = "AA",
+                load_cond = function() return Config:GetSetting('DoFireDebuff') and Casting.CanUseAA("Hand of Ro") end,
                 cond = function(self, aaName, target)
-                    if not Config:GetSetting('DoFireDebuff') then return false end
                     return Casting.DetAACheck(aaName)
                 end,
             },
             {
                 name = "FireDebuff",
                 type = "Spell",
+                load_cond = function() return Config:GetSetting('DoFireDebuff') and not Casting.CanUseAA("Hand of Ro") end,
                 cond = function(self, spell, target)
-                    if not Config:GetSetting('DoFireDebuff') or Casting.CanUseAA("Hand of Ro") then return false end
                     return Casting.DetSpellCheck(spell)
                 end,
             },
             {
                 name = "ColdDebuff",
                 type = "Spell",
+                load_cond = function() return Config:GetSetting('DoColdDebuff') end,
                 cond = function(self, spell, target)
-                    if not Config:GetSetting('DoColdDebuff') then return false end
                     return Casting.DetSpellCheck(spell)
                 end,
             },
             {
                 name = "ATKDebuff",
                 type = "Spell",
+                load_cond = function() return Config:GetSetting('DoATKDebuff') end,
                 cond = function(self, spell, target)
-                    if not Config:GetSetting('DoATKDebuff') then return false end
                     return Casting.DetSpellCheck(spell)
                 end,
             },
@@ -667,6 +697,7 @@ local _ClassConfig = {
             {
                 name = "Entrap",
                 type = "AA",
+                load_cond = function() return Casting.CanUseAA("Entrap") end,
                 cond = function(self, aaName, target)
                     return Casting.DetAACheck(aaName) and Targeting.MobHasLowHP(target)
                 end,
@@ -674,8 +705,8 @@ local _ClassConfig = {
             {
                 name = "SnareSpell",
                 type = "Spell",
+                load_cond = function() return not Casting.CanUseAA("Entrap") end,
                 cond = function(self, spell, target)
-                    if Casting.CanUseAA("Entrap") then return false end
                     return Casting.DetSpellCheck(spell) and Targeting.MobHasLowHP(target)
                 end,
             },
@@ -684,28 +715,28 @@ local _ClassConfig = {
             {
                 name = "Communion of the Cheetah",
                 type = "AA",
+                load_cond = function() return Config:GetSetting('DoMoveBuffs') end,
                 cond = function(self, aaName, target)
-                    if not Config:GetSetting('DoMoveBuffs') then return false end
                     return Casting.GroupBuffAACheck(aaName)
                 end,
             },
             {
                 name = "Flight of Eagles",
                 type = "AA",
+                load_cond = function() return Config:GetSetting('DoMoveBuffs') and Casting.CanUseAA("Flight of Eagles") end,
                 active_cond = function(self, aaName)
                     return Casting.IHaveBuff(Casting.GetAASpell(aaName))
                 end,
                 cond = function(self, aaName, target)
-                    if not Config:GetSetting('DoMoveBuffs') then return false end
                     return Casting.GroupBuffAACheck(aaName, target)
                 end,
             },
             {
                 name = "MoveSpells",
                 type = "Spell",
+                load_cond = function() return Config:GetSetting('DoMoveBuffs') and not Casting.CanUseAA("Flight of Eagles") end,
                 active_cond = function(self, spell) return Casting.IHaveBuff(spell) end,
                 cond = function(self, spell, target)
-                    if not Config:GetSetting("DoMoveBuffs") or Casting.CanUseAA("Flight of Eagles") then return false end
                     return Casting.GroupBuffCheck(spell, target)
                 end,
             },
@@ -728,27 +759,28 @@ local _ClassConfig = {
             {
                 name = "HPTypeOneGroup",
                 type = "Spell",
+                load_cond = function() return Config:GetSetting('DoHPBuff') end,
                 active_cond = function(self, spell) return Casting.IHaveBuff(spell) end,
                 cond = function(self, spell, target)
-                    if not Config:GetSetting('DoHPBuff') then return false end
                     return Casting.GroupBuffCheck(spell, target)
                 end,
             },
             {
                 name = "GroupRegenBuff",
                 type = "Spell",
+                load_cond = function() return Config:GetSetting('DoGroupRegen') end,
                 active_cond = function(self, spell) return Casting.IHaveBuff(spell) end,
                 cond = function(self, spell, target)
-                    if not Config:GetSetting('DoGroupRegen') then return false end
                     return Casting.GroupBuffCheck(spell, target)
                 end,
             },
             {
                 name = "GroupDmgShield",
                 type = "Spell",
+                load_cond = function() return Config:GetSetting('DoGroupDmgShield') end,
                 active_cond = function(self, spell) return Casting.IHaveBuff(spell) end,
                 cond = function(self, spell, target)
-                    if not Config:GetSetting('DoGroupDmgShield') or ((spell.TargetType() or ""):lower() ~= "group v2" and not Targeting.TargetIsMA(target)) then return false end
+                    if (spell.TargetType() or ""):lower() ~= "group v2" and not Targeting.TargetIsMA(target) then return false end
                     return Casting.GroupBuffCheck(spell, target)
                 end,
             },
@@ -766,8 +798,8 @@ local _ClassConfig = {
             {
                 name = "Communion of the Cheetah",
                 type = "AA",
+                load_cond = function() return Config:GetSetting('DoMoveBuffs') end,
                 cond = function(self, aaName, target)
-                    if not Config:GetSetting('DoMoveBuffs') then return false end
                     return Casting.SelfBuffAACheck(aaName)
                 end,
             },
@@ -776,7 +808,6 @@ local _ClassConfig = {
                 type = "Spell",
                 active_cond = function(self, spell) return Casting.AuraActiveByName(spell.BaseName()) end,
                 cond = function(self, spell)
-                    if self:GetResolvedActionMapItem('IceAura') then return false end
                     return (spell and spell() and not Casting.AuraActiveByName(spell.BaseName()))
                 end,
             },
@@ -915,7 +946,7 @@ local _ClassConfig = {
         },
     },
     ['HelperFunctions']   = {
-        DoRez = function(self, corpseId)
+        DoRez = function(self, corpseId, ownerName)
             local rezAction = false
             local rezSpell = Core.GetResolvedActionMapItem('RezSpell')
             local okayToRez = Casting.OkayToRez(corpseId)
@@ -924,7 +955,7 @@ local _ClassConfig = {
             if combatState == "combat" and Config:GetSetting('DoBattleRez') and Core.OkayToNotHeal() then
                 if mq.TLO.FindItem("Staff of Forbidden Rites")() and mq.TLO.Me.ItemReady("Staff of Forbidden Rites")() then
                     rezAction = okayToRez and Casting.UseItem("Staff of Forbidden Rites", corpseId)
-                elseif Casting.AAReady("Call of the Wild") and corpseId ~= mq.TLO.Me.ID() then
+                elseif Casting.AAReady("Call of the Wild") and not mq.TLO.Spawn(string.format("PC =%s", ownerName))() then
                     rezAction = okayToRez and Casting.UseAA("Call of the Wild", corpseId, true, 1)
                 end
             elseif combatState == "active" or combatState == "resting" then
@@ -978,6 +1009,7 @@ local _ClassConfig = {
             Category = "Buffs",
             Index = 1,
             Tooltip = "Cast Movement Spells/AA.",
+            RequiresLoadoutChange = true,
             Default = false,
             FAQ = "Why am I spamming movement buffs?",
             Answer = "Some move spells freely overwrite those of other classes, so if multiple movebuffs are being used, a buff loop may occur.\n" ..
@@ -988,6 +1020,7 @@ local _ClassConfig = {
             Category = "Buffs",
             Index = 2,
             Tooltip = "Use your group HP Buff. Disable as desired to prevent conflicts with CLR or PAL buffs.",
+            RequiresLoadoutChange = true,
             Default = true,
             FAQ = "Why am I in a buff war with my Paladin or Druid? We are constantly overwriting each other's buffs.",
             Answer = "Disable [DoHPBuff] to prevent issues with Aego/Symbol lines overwriting. Alternatively, you can adjust the settings for the other class instead.",
@@ -997,6 +1030,7 @@ local _ClassConfig = {
             Category = "Buffs",
             Index = 3,
             Tooltip = "Use your Group Regen buff.",
+            RequiresLoadoutChange = true,
             Default = true,
             FAQ = "Why am I spamming my Group Regen buff?",
             Answer = "Certain Shaman and Druid group regen buffs report cross-stacking. You should deselect the option on one of the PCs if they are grouped together.",
@@ -1006,14 +1040,30 @@ local _ClassConfig = {
             Category = "Buffs",
             Index = 4,
             Tooltip = "Use your group damage shield buff.",
+            RequiresLoadoutChange = true,
             Default = true,
             FAQ = "Why do my druid and mage constantly both try to use the damage shield?",
             Answer = "You can disable the group damage shield (DS) buff option on the Buffs tab.",
         },
+        ['UseEpic']           = {
+            DisplayName = "Epic Use:",
+            Category = "Buffs",
+            Index = 5,
+            Tooltip = "Use Epic 1-Never 2-Burns 3-Always",
+            Type = "Combo",
+            ComboOptions = { 'Never', 'Burns Only', 'All Combat', },
+            Default = 3,
+            Min = 1,
+            Max = 3,
+            ConfigType = "Advanced",
+            FAQ = "Why is my DRU using Epic on these trash mobs?",
+            Answer = "By default, we use the Epic in any combat, as saving it for burns ends up being a DPS loss over a long frame of time.\n" ..
+                "This can be adjusted in the Buffs tab.",
+        },
         ['SpireChoice']       = {
             DisplayName = "Spire Choice:",
             Category = "Buffs",
-            Index = 5,
+            Index = 6,
             Tooltip = "Choose which Fundament you would like to use during burns:\n" ..
                 "First Spire: Spell Crit Buff to Self.\n" ..
                 "Second Spire: Healing Power Buff to Self.\n" ..
@@ -1029,7 +1079,7 @@ local _ClassConfig = {
         ['WolfSpiritChoice']  = {
             DisplayName = "Self Wolfbuff Choice:",
             Category = "Buffs",
-            Index = 6,
+            Index = 7,
             Tooltip = "Choose which wolf spirit buff you would like to maintain on yourself:\n" ..
                 "White: Increased healing and reduced mana cost for healing spells. Mana Regeneration and Cold Resist.\n" ..
                 "Black: Increased damage and reduced mana cost for damage spells. Mana Regeneration and Fire Resist.",
@@ -1111,6 +1161,7 @@ local _ClassConfig = {
             Category = "Damage",
             Index = 1,
             Tooltip = "Use your single-target fire nukes.",
+            RequiresLoadoutChange = true,
             Default = true,
             FAQ = "Why am I nuking? A druid is a healer.",
             Answer = "You can disable this in your class settings.",
@@ -1120,6 +1171,7 @@ local _ClassConfig = {
             Category = "Damage",
             Index = 2,
             Tooltip = "Use your single-target cold nukes.",
+            RequiresLoadoutChange = true,
             Default = false,
             FAQ = "Why am I using fire nukes? The mobs are fire-resistant.",
             Answer = "You can change which nukes you are using in your class settings.",
