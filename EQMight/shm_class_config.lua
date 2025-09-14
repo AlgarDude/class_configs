@@ -668,7 +668,7 @@ local _ClassConfig = {
                 name = "Spear of Fate",
                 type = "Item",
                 cond = function(self, itemName, target)
-                    return Targeting.IsNamed(target)
+                    return Targeting.IsNamed(target) and Casting.DotItemCheck(itemName, target)
                 end,
             },
             {
@@ -741,7 +741,7 @@ local _ClassConfig = {
                 type = "Spell",
                 cond = function(self, spell, target)
                     if not Config:GetSetting('DoSTSlow') or (not Config:GetSetting('DoDiseaseSlow') and Casting.CanUseAA("Turgur's Swarm")) then return false end
-                    return Casting.DetSpellCheck(spell)
+                    return Casting.DetSpellCheck(spell) and not Casting.SlowImmuneTarget(target)
                 end,
             },
         },
