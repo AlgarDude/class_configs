@@ -383,6 +383,10 @@ local _ClassConfig = {
         },
         ['GroupHealPoint'] = {
             {
+                name = "Fabled Blue Band of the Oak",
+                type = "Item",
+            },
+            {
                 name = "GroupHeal",
                 type = "Spell",
             },

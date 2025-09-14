@@ -13,6 +13,7 @@ _ClassConfig      = {
     _author               = "Derple, Morisato, Algar",
     ['ModeChecks']        = {
         IsTanking = function() return Core.IsModeActive("PetTank") end,
+        IsRezing = function() return mq.TLO.FindItem("Legendary Staff of Forbidden Rites")() end,
     },
     ['Modes']             = {
         'DPS',
@@ -23,20 +24,20 @@ _ClassConfig      = {
         if mode == "PetTank" then
             Core.DoCmd("/pet taunt on")
             Core.DoCmd("/pet resume on")
-            Config:GetSettings().DoPetCommands        = true
-            Config:GetSettings().AutoAssistAt         = 100
-            Config:GetSettings().StayOnTarget         = false
-            Config:GetSettings().DoAutoEngage         = true
-            Config:GetSettings().DoAutoTarget         = true
-            Config:GetSettings().AllowMezBreak        = true
-            Config:GetSettings().WaitOnGlobalCooldown = false
+            Config:SetSetting('DoPetCommands', true)
+            Config:SetSetting('AutoAssistAt', 100)
+            Config:SetSetting('StayOnTarget', false)
+            Config:SetSetting('DoAutoEngage', true)
+            Config:SetSetting('DoAutoTarget', true)
+            Config:SetSetting('AllowMezBreak', true)
+            Config:SetSetting('WaitOnGlobalCooldown', false)
         else
             Core.DoCmd("/pet taunt off")
             if Config:GetSetting('AutoAssistAt') == 100 then
-                Config:GetSettings().AutoAssistAt = 98
+                Config:SetSetting('AutoAssistAt', 98)
             end
-            Config:GetSettings().WaitOnGlobalCooldown = false
-            Config:GetSettings().StayOnTarget = true
+            Config:SetSetting('WaitOnGlobalCooldown', false)
+            Config:SetSetting('StayOnTarget', true)
         end
     end,
     ['ItemSets']          = {
@@ -974,6 +975,15 @@ _ClassConfig      = {
     },
     -- Really the meat of this class.
     ['HelperFunctions']   = {
+        DoRez = function(self, corpseId)
+            if mq.TLO.Me.ItemReady("Legendary Staff of Forbidden Rites")() then
+                if Casting.OkayToRez(corpseId) then
+                    return Casting.UseItem("Legendary Staff of Forbidden Rites", corpseId)
+                end
+            end
+
+            return false
+        end,
         user_tu_spell = function(self, aaName)
             local shroudSpell = self.ResolvedActionMap['ShroudSpell']
             local aaSpell = Casting.GetAASpell(aaName)
@@ -1140,12 +1150,11 @@ _ClassConfig      = {
                 return Casting.UseSpell(resolvedPetSpell.RankName(), mq.TLO.Me.ID(), self.CombatState == "Downtime")
             else
                 Logger.log_error("\ayYou don't have \agMalachite\ay. And you call yourself a mage?")
-                --Config:GetSettings().DoPet = false
                 return false
             end
         end,
         pet_management = function(self)
-            if not Config:GetSettings().DoPet or (Casting.CanUseAA("Suspended Minion") and not Casting.AAReady("Suspended Minion")) then
+            if not Config:GetSetting('DoPet') or (Casting.CanUseAA("Suspended Minion") and not Casting.AAReady("Suspended Minion")) then
                 return false
             end
 
@@ -1471,7 +1480,7 @@ _ClassConfig      = {
                 end,
                 custom_func = function(self)
                     local shieldSpell = Core.GetResolvedActionMapItem("FranticDS")
-                    Casting.UseSpell(shieldSpell.RankName(), Core.GetMainAssistId(), false, false, false, 0)
+                    Casting.UseSpell(shieldSpell.RankName(), Core.GetMainAssistId(), false, false, 0)
                 end,
             },
         },

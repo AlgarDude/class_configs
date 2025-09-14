@@ -441,6 +441,10 @@ local _ClassConfig = {
                 end,
             },
             {
+                name = "Fabled Blue Band of the Oak",
+                type = "Item",
+            },
+            {
                 name = "GroupHeal",
                 type = "Spell",
             },

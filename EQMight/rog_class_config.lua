@@ -9,6 +9,9 @@ local Logger    = require("utils.logger")
 return {
     _version            = "2.1 - Project Lazarus",
     _author             = "Derple, Algar, mackal",
+    ['ModeChecks']      = {
+        IsRezing = function() return mq.TLO.FindItem("Legendary Staff of Forbidden Rites")() end,
+    },
     ['Modes']           = {
         'DPS',
     },
@@ -351,6 +354,15 @@ return {
         },
     },
     ['HelperFunctions'] = {
+        DoRez = function(self, corpseId)
+            if mq.TLO.Me.ItemReady("Legendary Staff of Forbidden Rites")() then
+                if Casting.OkayToRez(corpseId) then
+                    return Casting.UseItem("Legendary Staff of Forbidden Rites", corpseId)
+                end
+            end
+
+            return false
+        end,
         PreEngage = function(target)
             local openerAbility = Core.GetResolvedActionMapItem('SneakAttack')
 
