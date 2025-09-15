@@ -46,7 +46,7 @@ local _ClassConfig = {
         end,
         CureNow = function(self, type, targetId)
             local targetSpawn = mq.TLO.Spawn(targetId)
-            if not targetSpawn and targetSpawn then return false end
+            if not targetSpawn and targetSpawn then return false, false end
 
             if Config:GetSetting('DoCureAA') then
                 local cureAA = Casting.AAReady("Radiant Cure") and "Radiant Cure"
@@ -58,7 +58,7 @@ local _ClassConfig = {
 
                 if cureAA then
                     Logger.log_debug("CureNow: Using %s for %s on %s.", cureAA, type:lower() or "unknown", targetSpawn.CleanName() or "Unknown")
-                    return Casting.UseAA(cureAA, targetId)
+                    return Casting.UseAA(cureAA, targetId), true
                 end
             end
 
@@ -68,16 +68,16 @@ local _ClassConfig = {
                         if cureSpell.TargetType():lower() == "group v1" and not Targeting.GroupedWithTarget(targetSpawn) then
                             Logger.log_debug("CureNow: We cannot use %s on %s, because it is a group-only spell and they are not in our group!", cureSpell.RankName(),
                                 targetSpawn.CleanName() or "Unknown")
-                            return false
+                        else
+                            Logger.log_debug("CureNow: Using %s for %s on %s.", cureSpell.RankName(), type:lower() or "unknown", targetSpawn.CleanName() or "Unknown")
+                            return Casting.UseSpell(cureSpell.RankName(), targetId, true), true
                         end
-                        Logger.log_debug("CureNow: Using %s for %s on %s.", cureSpell.RankName(), type:lower() or "unknown", targetSpawn.CleanName() or "Unknown")
-                        return Casting.UseSpell(cureSpell.RankName(), targetId, true)
                     end
                 end
             end
 
             Logger.log_debug("CureNow: No valid cure at this time for %s on %s.", type:lower() or "unknown", targetSpawn.CleanName() or "Unknown")
-            return false
+            return false, false
         end,
     },
     ['ItemSets']          = {
@@ -273,9 +273,6 @@ local _ClassConfig = {
             "Cannibalize II",
             "Cannibalize",
         },
-        -- ["CureSpell"] = { --This is not useful in light of the alternatives
-        --     "Blood of Nadox",
-        -- },
         ["TwinHealNuke"] = {
             -- Nuke the MA Not the assist target - Levels 70
             "Frostfall Boon",
@@ -464,6 +461,10 @@ local _ClassConfig = {
                 cond = function(self, aaName, target)
                     return Targeting.TargetIsMyself(target)
                 end,
+            },
+            {
+                name = "Aged Hammer of the Dragonborn",
+                type = "Item",
             },
             {
                 name = "Zun'Muram's Spear of Doom",
