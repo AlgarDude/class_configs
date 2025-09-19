@@ -48,6 +48,7 @@ local _ClassConfig = {
             "Vortex Blade",
             "Cyclone Blade",
             "Whirlwind Blade",
+            "Mayhem Blade",
         },
         ['AddHate'] = {
             "Ancient: Chaos Cry",
@@ -88,9 +89,6 @@ local _ClassConfig = {
         },
         ['ShockDisc'] = { -- Timer 7, defensive stun proc
             "Shocking Defense Discipline",
-        },
-        ['Mayhem'] = {
-            "Mayhem Blade",
         },
     },
     ['HelperFunctions'] = {
@@ -350,13 +348,6 @@ local _ClassConfig = {
             {
                 name_func = function(self) return Casting.GetFirstAA({ "Enhanced Area Taunt", "Area Taunt", }) end,
                 type = "AA",
-            },
-            {
-                name = "Mayhem",
-                type = "Disc",
-                cond = function(self, discSpell)
-                    return Config:GetSetting("DoAEDamage")
-                end,
             },
         },
         ['EmergencyDefenses'] = {
@@ -624,7 +615,9 @@ local _ClassConfig = {
         --Abilities
         ['DoBattleLeap']    = {
             DisplayName = "Do Battle Leap",
-            Category = "Abilities",
+            Group = "Abilities",
+            Header = "Damage",
+            Category = "Direct",
             Tooltip = "Do Battle Leap",
             Default = true,
             FAQ = "How do I use Battle Leap?",
@@ -632,7 +625,9 @@ local _ClassConfig = {
         },
         ['DoPress']         = {
             DisplayName = "Do Press the Attack",
-            Category = "Abilities",
+            Group = "Abilities",
+            Header = "Debuffs",
+            Category = "Stun",
             Tooltip = "Use the Press to Attack stun/push AA.",
             Default = false,
             FAQ = "Why isn't Press the Attack working?",
@@ -640,7 +635,9 @@ local _ClassConfig = {
         },
         ['DoSnare']         = {
             DisplayName = "Use Snares",
-            Category = "Abilities",
+            Group = "Abilities",
+            Header = "Debuffs",
+            Category = "Snare",
             Tooltip = "Use Call of Challenge to snare enemies.",
             Default = true,
             FAQ = "How do I use Snares?",
@@ -648,7 +645,9 @@ local _ClassConfig = {
         },
         ['DoVetAA']         = {
             DisplayName = "Use Vet AA",
-            Category = "Abilities",
+            Group = "Abilities",
+            Header = "Buffs",
+            Category = "Self",
             Index = 8,
             Tooltip = "Use Veteran AA's in emergencies or during Burn. (See FAQ)",
             Default = true,
@@ -659,7 +658,9 @@ local _ClassConfig = {
         --AE Damage
         ['DoAEDamage']      = {
             DisplayName = "Do AE Damage",
-            Category = "AE Damage",
+            Group = "Abilities",
+            Header = "Damage",
+            Category = "AE",
             Index = 1,
             Tooltip = "**WILL BREAK MEZ** Use AE damage Discs and AA. **WILL BREAK MEZ**",
             Default = false,
@@ -668,7 +669,9 @@ local _ClassConfig = {
         },
         ['AETargetCnt']     = {
             DisplayName = "AE Target Count",
-            Category = "AE Damage",
+            Group = "Abilities",
+            Header = "Damage",
+            Category = "AE",
             Index = 2,
             Tooltip = "Minimum number of valid targets before using AE Disciplines or AA.",
             Default = 2,
@@ -680,7 +683,9 @@ local _ClassConfig = {
         },
         ['MaxAETargetCnt']  = {
             DisplayName = "Max AE Targets",
-            Category = "AE Damage",
+            Group = "Abilities",
+            Header = "Damage",
+            Category = "AE",
             Index = 3,
             Tooltip =
             "Maximum number of valid targets before using AE Spells, Disciplines or AA.\nUseful for setting up AE Mez at a higher threshold on another character in case you are overwhelmed.",
@@ -693,7 +698,9 @@ local _ClassConfig = {
         },
         ['SafeAEDamage']    = {
             DisplayName = "AE Proximity Check",
-            Category = "AE Damage",
+            Group = "Abilities",
+            Header = "Damage",
+            Category = "AE",
             Index = 4,
             Tooltip = "Check to ensure there aren't neutral mobs in range we could aggro if AE damage is used. May result in non-use due to false positives.",
             Default = false,
@@ -704,7 +711,9 @@ local _ClassConfig = {
         },
         ['UseRampage']      = {
             DisplayName = "Rampage Use:",
-            Category = "AE Damage",
+            Group = "Abilities",
+            Header = "Damage",
+            Category = "AE",
             Index = 5,
             Tooltip = "Use Rampage 1-Never 2-Burns 3-Always",
             Type = "Combo",
@@ -721,6 +730,8 @@ local _ClassConfig = {
         --Hate Tools
         ['DoAETaunt']       = {
             DisplayName = "Do AE Taunts",
+            Group = "Abilities",
+            Header = "Tanking",
             Category = "Hate Tools",
             Index = 1,
             Tooltip = "Use AE hatred Discs and AA (see FAQ for specifics).",
@@ -731,6 +742,8 @@ local _ClassConfig = {
         },
         ['AETauntCnt']      = {
             DisplayName = "AE Taunt Count",
+            Group = "Abilities",
+            Header = "Tanking",
             Category = "Hate Tools",
             Index = 2,
             Tooltip = "Minimum number of haters before using AE Taunt Discs or AA.",
@@ -743,6 +756,8 @@ local _ClassConfig = {
         },
         ['SafeAETaunt']     = {
             DisplayName = "AE Taunt Safety Check",
+            Group = "Abilities",
+            Header = "Tanking",
             Category = "Hate Tools",
             Index = 3,
             Tooltip =
@@ -755,6 +770,8 @@ local _ClassConfig = {
         --Defenses
         ['DiscCount']       = {
             DisplayName = "Def. Disc. Count",
+            Group = "Abilities",
+            Header = "Tanking",
             Category = "Defenses",
             Index = 1,
             Tooltip = "Number of mobs around you before you use preemptively use Defensive Discs.",
@@ -767,6 +784,8 @@ local _ClassConfig = {
         },
         ['DefenseStart']    = {
             DisplayName = "Defense HP",
+            Group = "Abilities",
+            Header = "Tanking",
             Category = "Defenses",
             Index = 2,
             Tooltip = "The HP % where we will use defensive actions like discs, epics, etc.\nNote that fighting a named will also trigger these actions.",
@@ -779,6 +798,8 @@ local _ClassConfig = {
         },
         ['EmergencyStart']  = {
             DisplayName = "Emergency Start",
+            Group = "Abilities",
+            Header = "Tanking",
             Category = "Defenses",
             Index = 3,
             Tooltip = "The HP % before all but essential rotations are cut in favor of emergency or defensive abilities.",
@@ -791,6 +812,8 @@ local _ClassConfig = {
         },
         ['HPCritical']      = {
             DisplayName = "HP Critical",
+            Group = "Abilities",
+            Header = "Tanking",
             Category = "Defenses",
             Index = 4,
             Tooltip =
@@ -807,7 +830,9 @@ local _ClassConfig = {
         --Equipment
         ['DoEpic']          = {
             DisplayName = "Do Epic",
-            Category = "Equipment",
+            Group = "Items",
+            Header = "Clickies(Pre-Configured)",
+            Category = "Clickies(Pre-Configured)",
             Index = 1,
             Tooltip = "Click your Epic Weapon when AE Threat is needed. Also relies on Do AE Damage setting.",
             Default = false,
@@ -816,7 +841,9 @@ local _ClassConfig = {
         },
         ['DoCoating']       = {
             DisplayName = "Use Coating",
-            Category = "Equipment",
+            Group = "Items",
+            Header = "Clickies(Pre-Configured)",
+            Category = "Clickies(Pre-Configured)",
             Index = 2,
             Tooltip = "Click your Blood/Spirit Drinker's Coating when defenses are triggered.",
             Default = false,
@@ -825,7 +852,9 @@ local _ClassConfig = {
         },
         ['UseBandolier']    = {
             DisplayName = "Dynamic Weapon Swap",
-            Category = "Equipment",
+            Group = "Items",
+            Header = "Bandolier",
+            Category = "Bandolier",
             Index = 3,
             Tooltip = "Enable 1H+S/2H swapping based off of current health. ***YOU MUST HAVE BANDOLIER ENTRIES NAMED \"Shield\" and \"DW\" TO USE THIS FUNCTION.***",
             RequiresLoadoutChange = true,
@@ -836,7 +865,9 @@ local _ClassConfig = {
         },
         ['EquipShield']     = {
             DisplayName = "Equip Shield",
-            Category = "Equipment",
+            Group = "Items",
+            Header = "Bandolier",
+            Category = "Bandolier",
             Index = 4,
             Tooltip = "Under this HP%, you will swap to your \"Shield\" bandolier entry. (Dynamic Bandolier Enabled Only)",
             Default = 50,
@@ -849,7 +880,9 @@ local _ClassConfig = {
         },
         ['EquipDW']         = {
             DisplayName = "Equip DW",
-            Category = "Equipment",
+            Group = "Items",
+            Header = "Bandolier",
+            Category = "Bandolier",
             Index = 5,
             Tooltip = "Over this HP%, you will swap to your \"DW\" bandolier entry. (Dynamic Bandolier Enabled Only)",
             Default = 75,
@@ -862,7 +895,9 @@ local _ClassConfig = {
         },
         ['NamedShieldLock'] = {
             DisplayName = "Shield on Named",
-            Category = "Equipment",
+            Group = "Items",
+            Header = "Bandolier",
+            Category = "Bandolier",
             Index = 6,
             Tooltip = "Keep Shield equipped for Named mobs(must be in SpawnMaster or named.lua)",
             Default = true,

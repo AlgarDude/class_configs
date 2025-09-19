@@ -916,7 +916,9 @@ local _ClassConfig = {
         --Buffs
         ['AegoSymbol']        = {
             DisplayName = "Aego/Symbol Choice:",
-            Category = "Buffs",
+            Group = "Abilities",
+            Header = "Buffs",
+            Category = "Group",
             Index = 1,
             Tooltip =
             "Choose whether to use the Aegolism or Symbol Line of HP Buffs.\nPlease note using both is supported for party members who block buffs, but these buffs do not stack once we transition from using a HP Type-One buff in place of Aegolism.",
@@ -930,7 +932,9 @@ local _ClassConfig = {
         },
         ['DoACBuff']          = {
             DisplayName = "Use AC Buff",
-            Category = "Buffs",
+            Group = "Abilities",
+            Header = "Buffs",
+            Category = "Group",
             Index = 2,
             Tooltip =
                 "Use your single-slot AC Buff on the Main Assist. USE CASES:\n" ..
@@ -944,7 +948,9 @@ local _ClassConfig = {
         },
         ['DoVieBuff']         = {
             DisplayName = "Use Vie Buff",
-            Category = "Buffs",
+            Group = "Abilities",
+            Header = "Buffs",
+            Category = "Group",
             Index = 3,
             Tooltip = "Use your Melee Damage absorb (Vie) line.",
             Default = true,
@@ -954,7 +960,9 @@ local _ClassConfig = {
         },
         ['UseAura']           = {
             DisplayName = "Aura Spell Choice:",
-            Category = "Buffs",
+            Group = "Abilities",
+            Header = "Buffs",
+            Category = "Group",
             Index = 4,
             Tooltip = "Select the Aura to be used, prior to purchasing the Spirit Mastery AA.",
             Type = "Combo",
@@ -967,7 +975,9 @@ local _ClassConfig = {
         },
         ['DoDivineBuff']      = {
             DisplayName = "Do Divine Buff",
-            Category = "Buffs",
+            Group = "Abilities",
+            Header = "Buffs",
+            Category = "Group",
             Index = 5,
             Tooltip = "Use your Divine Intervention line (death save) on the MA.",
             RequiresLoadoutChange = true,
@@ -980,7 +990,9 @@ local _ClassConfig = {
         --Combat
         ['DoTwinHeal']        = {
             DisplayName = "Twin Heal Nuke",
-            Category = "Combat",
+            Group = "Abilities",
+            Header = "Damage",
+            Category = "Direct",
             Index = 1,
             Tooltip = "Use Twin Heal Nuke Spells",
             RequiresLoadoutChange = true,
@@ -992,7 +1004,9 @@ local _ClassConfig = {
         },
         ['DoHealStun']        = {
             DisplayName = "Timer 6 Stun",
-            Category = "Combat",
+            Group = "Abilities",
+            Header = "Debuffs",
+            Category = "Stun",
             Index = 2,
             Tooltip = "Use the Timer 6 Stun (\"Sound of\" Line).",
             RequiresLoadoutChange = true,
@@ -1005,7 +1019,9 @@ local _ClassConfig = {
         },
         ['DoLLStun']          = {
             DisplayName = "Low Level Stun",
-            Category = "Combat",
+            Group = "Abilities",
+            Header = "Debuffs",
+            Category = "Stun",
             Index = 3,
             Tooltip = "Use the Level 2 \"Stun\" spell, as long as it is level-appropriate (works on targets up to Level 58).",
             RequiresLoadoutChange = true,
@@ -1017,7 +1033,9 @@ local _ClassConfig = {
         },
         ['DoUndeadNuke']      = {
             DisplayName = "Do Undead Nuke",
-            Category = "Combat",
+            Group = "Abilities",
+            Header = "Damage",
+            Category = "Direct",
             Index = 4,
             Tooltip = "Use the Undead nuke line.",
             RequiresLoadoutChange = true,
@@ -1027,7 +1045,9 @@ local _ClassConfig = {
         },
         ['DoMagicNuke']       = {
             DisplayName = "Do Magic Nuke",
-            Category = "Combat",
+            Group = "Abilities",
+            Header = "Damage",
+            Category = "Direct",
             Index = 5,
             Tooltip = "Use the Magic nuke line.",
             RequiresLoadoutChange = true,
@@ -1038,7 +1058,9 @@ local _ClassConfig = {
         -- Heals and Cures
         ['DoCompleteHeal']    = {
             DisplayName = "Use Complete Heal",
-            Category = "Heals and Cures",
+            Group = "Abilities",
+            Header = "Recovery",
+            Category = "General Healing",
             Index = 1,
             Tooltip = "Use Complete Heal on the MA (instead of the healing Light line).",
             RequiresLoadoutChange = true,
@@ -1050,7 +1072,9 @@ local _ClassConfig = {
         },
         ['CompleteHealPct']   = {
             DisplayName = "Complete Heal Pct",
-            Category = "Heals and Cures",
+            Group = "Abilities",
+            Header = "Recovery",
+            Category = "Healing Thresholds",
             Index = 2,
             Tooltip = "Pct we will use Complete Heal on the MA.",
             Default = 80,
@@ -1062,7 +1086,9 @@ local _ClassConfig = {
         },
         ['DoSingleElixir']    = {
             DisplayName = "Single Elixir",
-            Category = "Heals and Cures",
+            Group = "Abilities",
+            Header = "Recovery",
+            Category = "General Healing",
             Index = 3,
             Tooltip = "Use your single-target Elixir Line.",
             RequiresLoadoutChange = true,
@@ -1073,7 +1099,9 @@ local _ClassConfig = {
         },
         ['DoGroupElixir']     = {
             DisplayName = "Group Elixir",
-            Category = "Heals and Cures",
+            Group = "Abilities",
+            Header = "Recovery",
+            Category = "General Healing",
             Index = 4,
             Tooltip = "Use your group-wide Elixir Line.",
             RequiresLoadoutChange = true,
@@ -1084,7 +1112,9 @@ local _ClassConfig = {
         },
         ['GroupElixirUptime'] = {
             DisplayName = "Group Elixir Uptime",
-            Category = "Heals and Cures",
+            Group = "Abilities",
+            Header = "Recovery",
+            Category = "General Healing",
             Index = 5,
             Tooltip = "In combat, attempt to keep full uptime on your Group Elixir. Note: There are scenarios where single elixirs could interfere with uptime.",
             Default = true,
@@ -1094,7 +1124,9 @@ local _ClassConfig = {
         },
         ['KeepPoisonMemmed']  = {
             DisplayName = "Mem Cure Poison",
-            Category = "Heals and Cures",
+            Group = "Abilities",
+            Header = "Recovery",
+            Category = "Cures",
             Index = 6,
             Tooltip = "Memorize cure poison spell when possible (depending on other selected options). \n" ..
                 "Please note that we will still memorize a cure out-of-combat if needed, and AA will always be used if available.",
@@ -1107,7 +1139,9 @@ local _ClassConfig = {
         },
         ['KeepDiseaseMemmed'] = {
             DisplayName = "Mem Cure Disease",
-            Category = "Heals and Cures",
+            Group = "Abilities",
+            Header = "Recovery",
+            Category = "Cures",
             Index = 7,
             Tooltip = "Memorize cure disease spell when possible (depending on other selected options). \n" ..
                 "Please note that we will still memorize a cure out-of-combat if needed, and AA will always be used if available.",
@@ -1120,7 +1154,9 @@ local _ClassConfig = {
         },
         ['KeepCurseMemmed']   = {
             DisplayName = "Mem Remove Curse",
-            Category = "Heals and Cures",
+            Group = "Abilities",
+            Header = "Recovery",
+            Category = "Cures",
             Index = 8,
             Tooltip = "Memorize remove curese spell when possible (depending on other selected options). \n" ..
                 "Please note that we will still memorize a cure out-of-combat if needed, and AA will always be used if available.",
@@ -1133,7 +1169,9 @@ local _ClassConfig = {
         },
         ['GroupHealAsCure']   = {
             DisplayName = "Use Group Heal to Cure",
-            Category = "Heals and Cures",
+            Group = "Abilities",
+            Header = "Recovery",
+            Category = "Cures",
             Index = 9,
             Tooltip = "If Word of Replenishment or Vivification are available, use these to cure instead of individual cure spells. \n" ..
                 "Please note that we will prioritize single target cures if you have selected to keep them memmed above (due to the counter disparity).",
@@ -1148,7 +1186,9 @@ local _ClassConfig = {
         --Damage(AE)
         ['DoAEDamage']        = {
             DisplayName = "Do AE Damage",
-            Category = "Damage(AE)",
+            Group = "Abilities",
+            Header = "Damage",
+            Category = "AE",
             Index = 1,
             Tooltip = "**WILL BREAK MEZ** Use AE damage Spells and AA. **WILL BREAK MEZ**\n" ..
                 "This is a top-level setting that governs all AE damage, and can be used as a quick-toggle to enable/disable abilities without reloading spells.",
@@ -1158,7 +1198,9 @@ local _ClassConfig = {
         },
         ['DoPBAENuke']        = {
             DisplayName = "Use PBAE Nuke",
-            Category = "Damage(AE)",
+            Group = "Abilities",
+            Header = "Damage",
+            Category = "AE",
             Index = 2,
             RequiresLoadoutChange = true,
             Tooltip =
@@ -1169,7 +1211,9 @@ local _ClassConfig = {
         },
         ['DoPBAEStun']        = {
             DisplayName = "Use PBAE Stun",
-            Category = "Damage(AE)",
+            Group = "Abilities",
+            Header = "Damage",
+            Category = "AE",
             Index = 4,
             RequiresLoadoutChange = true,
             Tooltip =
@@ -1180,7 +1224,9 @@ local _ClassConfig = {
         },
         ['AETargetCnt']       = {
             DisplayName = "AE Tgt Cnt",
-            Category = "Damage(AE)",
+            Group = "Abilities",
+            Header = "Damage",
+            Category = "AE",
             Index = 5,
             Tooltip = "Minimum number of valid targets before using PB Spells like the of Flame line.",
             Default = 4,
@@ -1192,7 +1238,9 @@ local _ClassConfig = {
         },
         ['MaxAETargetCnt']    = {
             DisplayName = "Max AE Targets",
-            Category = "Damage(AE)",
+            Group = "Abilities",
+            Header = "Damage",
+            Category = "AE",
             Index = 6,
             Tooltip =
             "Maximum number of valid targets before using AE Spells, Disciplines or AA.\nUseful for setting up AE Mez at a higher threshold on another character in case you are overwhelmed.",
@@ -1205,7 +1253,9 @@ local _ClassConfig = {
         },
         ['SafeAEDamage']      = {
             DisplayName = "AE Proximity Check",
-            Category = "Damage(AE)",
+            Group = "Abilities",
+            Header = "Damage",
+            Category = "AE",
             Index = 7,
             Tooltip = "Check to ensure there aren't neutral mobs in range we could aggro if AE damage is used. May result in non-use due to false positives.",
             Default = false,
@@ -1218,7 +1268,9 @@ local _ClassConfig = {
         --Utility
         ['DoManaRestore']     = {
             DisplayName = "Use Mana Restore AAs",
-            Category = "Utility",
+            Group = "Abilities",
+            Header = "Recovery",
+            Category = "Other Recovery",
             Index = 1,
             Tooltip = "Use Veturika's Prescence (on self) or Quiet Miracle (on others) at critically low mana.",
             RequiresLoadoutChange = true, -- used as a load condition
@@ -1231,7 +1283,9 @@ local _ClassConfig = {
         },
         ['ManaRestorePct']    = {
             DisplayName = "Mana Restore Pct",
-            Category = "Utility",
+            Group = "Abilities",
+            Header = "Recovery",
+            Category = "Other Recovery",
             Index = 2,
             Tooltip = "Min Mana to use restore AA.",
             Default = 10,
@@ -1243,7 +1297,9 @@ local _ClassConfig = {
         },
         ['DoYaulp']           = {
             DisplayName = "Use Yaulp",
-            Category = "Utility",
+            Group = "Abilities",
+            Header = "Buffs",
+            Category = "Self",
             Index = 3,
             Tooltip = "Use your Yaulp (AA or spell line) to help maintain your mana and buff your melee ability.",
             Default = true,
@@ -1252,7 +1308,9 @@ local _ClassConfig = {
         },
         ['DoVetAA']           = {
             DisplayName = "Use Vet AA",
-            Category = "Utility",
+            Group = "Abilities",
+            Header = "Buffs",
+            Category = "Self",
             Index = 4,
             Tooltip = "Use Veteran AA's in emergencies or during Burn. (See FAQ)",
             Default = true,
