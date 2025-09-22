@@ -636,8 +636,21 @@ return {
         },
         ['PetSummon']      = {
             {
+                name = "Artifact of Razorclaw",
+                type = "Item",
+                load_cond = function(self) return Config:GetSetting("UseDonorPet") and mq.TLO.FindItem("=Artifact of Razorclaw") end,
+                active_cond = function(self, _) return mq.TLO.Me.Pet.ID() > 0 end,
+                post_activate = function(self, spell, success)
+                    if success and mq.TLO.Me.Pet.ID() > 0 then
+                        mq.delay(50) -- slight delay to prevent chat bug with command issue
+                        self:SetPetHold()
+                    end
+                end,
+            },
+            {
                 name = "PetSpell",
                 type = "Spell",
+                load_cond = function(self) return not Config:GetSetting("UseDonorPet") or not mq.TLO.FindItem("=Artifact of Razorclaw") end,
                 cond = function(self, spell)
                     return mq.TLO.Me.Pet.ID() == 0
                 end,
@@ -939,6 +952,16 @@ return {
             Default = false,
             FAQ = "Why won't I resummon my pet on combat?",
             Answer = "Enable the setting to Always Mem your Pet on the Pet Management tab in the class options.",
+        },
+        ['UseDonorPet']    = {
+            DisplayName = "Summon Razorclaw",
+            Group = "Abilities",
+            Header = "Pet",
+            Category = "Pet Summoning",
+            Index = 102,
+            Tooltip = "Use your Artifact of Razorclaw to summon the donor raptor warder.",
+            RequiresLoadoutChange = true, -- this is a load condition
+            Default = true,
         },
         --Spells/Abilities
         ['DoHeals']        = {

@@ -850,9 +850,21 @@ local _ClassConfig = {
         },
         ['PetSummon']       = {
             {
+                name = "Artifact of the Red Demon",
+                type = "Item",
+                load_cond = function(self) return Config:GetSetting("UseDonorPet") and mq.TLO.FindItem("=Artifact of the Red Demon") end,
+                active_cond = function(self, _) return mq.TLO.Me.Pet.ID() > 0 end,
+                post_activate = function(self, spell, success)
+                    if success and mq.TLO.Me.Pet.ID() > 0 then
+                        mq.delay(50) -- slight delay to prevent chat bug with command issue
+                        self:SetPetHold()
+                    end
+                end,
+            },
+            {
                 name = "PetSpellWar",
                 type = "Spell",
-                load_cond = function(self) return Config:GetSetting('PetType') == 1 end,
+                load_cond = function(self) return Config:GetSetting('PetType') == 1 and (not Config:GetSetting("UseDonorPet") or not mq.TLO.FindItem("=Artifact of the Red Demon")) end,
                 active_cond = function(self, _) return mq.TLO.Me.Pet.ID() ~= 0 and mq.TLO.Me.Pet.Class.ShortName():lower() == ("war" or "mnk") end,
                 cond = function(self, spell)
                     return Casting.ReagentCheck(spell)
@@ -869,7 +881,7 @@ local _ClassConfig = {
             {
                 name = "PetSpellRog",
                 type = "Spell",
-                load_cond = function(self) return Config:GetSetting('PetType') == 2 end,
+                load_cond = function(self) return Config:GetSetting('PetType') == 2 and (not Config:GetSetting("UseDonorPet") or not mq.TLO.FindItem("=Artifact of the Red Demon")) end,
                 active_cond = function(self, _) return mq.TLO.Me.Pet.ID() ~= 0 and mq.TLO.Me.Pet.Class.ShortName():lower() == "rog" end,
                 cond = function(self, spell)
                     return Casting.ReagentCheck(spell)
@@ -997,6 +1009,16 @@ local _ClassConfig = {
             Max = 2,
             FAQ = "I want to only use a Rogue Pet for the Backstabs, how do I do that?",
             Answer = "Set the [PetType] setting to Rog and the Necro will only summon Rogue pets.",
+        },
+        ['UseDonorPet']       = {
+            DisplayName = "Summon Red Demon",
+            Group = "Abilities",
+            Header = "Pet",
+            Category = "Pet Summoning",
+            Index = 102,
+            Tooltip = "Use your Artifact of the Red Demon to summon the donor rogue skeleton pet.",
+            RequiresLoadoutChange = true, -- this is a load condition
+            Default = true,
         },
         ['DoPetHealSpell']    = {
             DisplayName = "Pet Heal Spell",

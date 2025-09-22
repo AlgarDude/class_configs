@@ -547,8 +547,23 @@ local _ClassConfig = {
         },
         ['PetSummon'] = {
             {
+                name = "Artifact of Asterion",
+                type = "Item",
+                load_cond = function(self) return Config:GetSetting("UseDonorPet") and mq.TLO.FindItem("=Artifact of Asterion") end,
+                active_cond = function(self, _) return mq.TLO.Me.Pet.ID() > 0 end,
+                post_activate = function(self, spell, success)
+                    if success and mq.TLO.Me.Pet.ID() > 0 then
+                        mq.delay(50) -- slight delay to prevent chat bug with command issue
+                        self:SetPetHold()
+                    end
+                end,
+            },
+            {
                 name = "PetSpell",
                 type = "Spell",
+                load_cond = function(self)
+                    return not Config:GetSetting("UseDonorPet") or not mq.TLO.FindItem("=Artifact of Asterion")
+                end,
                 active_cond = function(self, _) return mq.TLO.Me.Pet.ID() > 0 end,
                 cond = function(self, spell) return Casting.ReagentCheck(spell) end,
                 post_activate = function(self, spell, success)
@@ -1465,6 +1480,16 @@ local _ClassConfig = {
             FAQ = "Why do I always have items stuck on the cursor?",
             Answer = "You can adjust the delay before autoinventory by setting the [AICrystalDelay] setting.\n" ..
                 "Increase the delay if you notice items left on cursors regularly.",
+        },
+        ['UseDonorPet']        = {
+            DisplayName = "Summon Asterion",
+            Group = "Abilities",
+            Header = "Pet",
+            Category = "Pet Summoning",
+            Index = 101,
+            Tooltip = "Use your Artifact of Asterion to summon the donor minotaur pet.",
+            RequiresLoadoutChange = true, -- this is a load condition
+            Default = true,
         },
     },
 }

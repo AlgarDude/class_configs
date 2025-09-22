@@ -1277,8 +1277,21 @@ _ClassConfig      = {
     ['Rotations']         = {
         ['PetSummon'] = {
             {
+                name = "Artifact of Asterion",
+                type = "Item",
+                load_cond = function(self) return Config:GetSetting("UseDonorPet") and mq.TLO.FindItem("=Artifact of Asterion") end,
+                active_cond = function(self, _) return mq.TLO.Me.Pet.ID() > 0 end,
+                post_activate = function(self, spell, success)
+                    if success and mq.TLO.Me.Pet.ID() > 0 then
+                        mq.delay(50) -- slight delay to prevent chat bug with command issue
+                        self:SetPetHold()
+                    end
+                end,
+            },
+            {
                 name = "Pet Summon",
                 type = "CustomFunc",
+                load_cond = function(self) return not Config:GetSetting("UseDonorPet") or not mq.TLO.FindItem("=Artifact of Asterion") end,
                 active_cond = function(self)
                     return mq.TLO.Me.Pet.ID() > 0
                 end,
@@ -1917,6 +1930,16 @@ _ClassConfig      = {
             RequiresLoadoutChange = true,
             FAQ = "I have suspend Minion AA, how do I keep a spare pet suspended?",
             Answer = "You can use the [DoPocketPet] feature to keep a spare pet suspended.",
+        },
+        ['UseDonorPet']    = {
+            DisplayName = "Summon Asterion",
+            Group = "Abilities",
+            Header = "Pet",
+            Category = "Pet Summoning",
+            Index = 103,
+            Tooltip = "Use your Artifact of Asterion to summon the donor minotaur pet.",
+            RequiresLoadoutChange = true, -- this is a load condition
+            Default = true,
         },
         ['DoPetArmor']     = {
             DisplayName = "Do Pet Armor",
