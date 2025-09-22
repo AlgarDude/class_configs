@@ -287,6 +287,11 @@ local _ClassConfig = {
             "Furor",
             "Strike",
         },
+        ['QuickNuke'] = { -- Might specific
+            "Verdict of Ascension",
+            "Verdict of Radiance",
+            "Verdict of Light",
+        },
         -- ['HammerPet'] = {
         --     "Unswerving Hammer of Retribution",
         --     "Unswerving Hammer of Justice",
@@ -719,6 +724,14 @@ local _ClassConfig = {
                 end,
             },
             {
+                name = "QuickNuke",
+                type = "Spell",
+                cond = function(self)
+                    if not Config:GetSetting('DoQuickNuke') then return false end
+                    return Casting.OkayToNuke()
+                end,
+            },
+            {
                 name = "UndeadNuke",
                 type = "Spell",
                 cond = function(self, aaName, target)
@@ -891,6 +904,7 @@ local _ClassConfig = {
                 { name = "TwinHealNuke",  cond = function(self) return Config:GetSetting('DoTwinHeal') end, },
                 { name = "StunTimer6",    cond = function(self) return Config:GetSetting('DoHealStun') end, },
                 { name = "LowLevelStun",  cond = function(self) return mq.TLO.Me.Level() < 59 end, },
+                { name = "QuickNuke",     cond = function(self) return Config:GetSetting('DoQuickNuke') end, },
                 { name = "MagicNuke",     cond = function(self) return Config:GetSetting('DoMagicNuke') end, },
                 { name = "PBAEStun",      cond = function(self) return Config:GetSetting('DoPBAEStun') end, },
                 { name = "PBAENuke",      cond = function(self) return Config:GetSetting('DoPBAENuke') end, },
@@ -1052,6 +1066,18 @@ local _ClassConfig = {
             Tooltip = "Use the Magic nuke line.",
             RequiresLoadoutChange = true,
             Default = false,
+            FAQ = "How can I use my Magic Nuke?",
+            Answer = "You can enable the magic nuke line in the Spells and Abilities tab.",
+        },
+        ['DoQuickNuke']       = {
+            DisplayName = "Do Verdict Nuke",
+            Group = "Abilities",
+            Header = "Damage",
+            Category = "Direct",
+            Index = 6,
+            Tooltip = "Use the Verdict quicknuke line.",
+            RequiresLoadoutChange = true,
+            Default = true,
             FAQ = "How can I use my Magic Nuke?",
             Answer = "You can enable the magic nuke line in the Spells and Abilities tab.",
         },

@@ -209,8 +209,10 @@ local _ClassConfig = {
         ["MeleeProcBuff"] = {
             "Talisman of the Panther",
             -- Below Level 70 This is a single target buff and will be keyed off of the MA
-            "Spirit of the Panther",
-            "Spirit of the Leopard",
+            -- "Spirit of the Panther",
+            "Talisman of the Leopard", -- EQ Might Custom
+            -- "Spirit of the Leopard",
+            "Talisman of the Jaguar",  -- EQ Might Custom, Level 61
             "Spirit of the Jaguar",
             "Spirit of the Puma",
         },
