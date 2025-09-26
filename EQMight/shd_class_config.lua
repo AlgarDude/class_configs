@@ -294,6 +294,12 @@ local _ClassConfig = {
             "Whirlwind Blade",
             "Mayhem Blade",
         },
+        ['Minionskin'] = { --EQM Custom: HP/Regen/mitigation (May need to block druid HP buff line on pet)
+            "Major Minionskin",
+            "Greater Minionskin",
+            "Minionskin",
+            "Lesser Minionskin",
+        },
     },
     ['HelperFunctions'] = {
         --function to determine if we should AE taunt and optionally, if it is safe to do so
@@ -617,6 +623,13 @@ local _ClassConfig = {
                 type = "Item",
                 cond = function(self, itemName)
                     return Casting.PetBuffItemCheck(itemName)
+                end,
+            },
+            {
+                name = "Minionskin",
+                type = "Spell",
+                cond = function(self, spell)
+                    return Casting.PetBuffCheck(spell)
                 end,
             },
 

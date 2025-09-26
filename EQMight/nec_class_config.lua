@@ -300,6 +300,12 @@ local _ClassConfig = {
         --     "Chill Bones",
         --     "Ignite Bones",
         -- },
+        ['Minionskin'] = { --EQM Custom: HP/Regen/mitigation (May need to block druid HP buff line on pet)
+            "Major Minionskin",
+            "Greater Minionskin",
+            "Minionskin",
+            "Lesser Minionskin",
+        },
     },
     ['RotationOrder']   = {
         { --Summon pet even when buffs are off on emu
@@ -562,6 +568,18 @@ local _ClassConfig = {
                 end,
                 custom_func = function(self)
                     Core.SafeCallFunc("Stop Necro Lich", self.ClassConfig.HelperFunctions.CancelLich, self)
+                end,
+            },
+            {
+                name = "Artifact of the Red Demon",
+                type = "Item",
+                load_cond = function(self) return Config:GetSetting("UseDonorPet") and mq.TLO.FindItem("=Artifact of the Red Demon") end,
+                cond = function(self, _) return mq.TLO.Me.Pet.ID() == 0 end,
+                post_activate = function(self, spell, success)
+                    if success and mq.TLO.Me.Pet.ID() > 0 then
+                        mq.delay(50) -- slight delay to prevent chat bug with command issue
+                        self:SetPetHold()
+                    end
                 end,
             },
         },
@@ -908,6 +926,13 @@ local _ClassConfig = {
                 type = "AA",
                 cond = function(self, aaName)
                     return Casting.PetBuffAACheck(aaName)
+                end,
+            },
+            {
+                name = "Minionskin",
+                type = "Spell",
+                cond = function(self, spell)
+                    return Casting.PetBuffCheck(spell)
                 end,
             },
         },

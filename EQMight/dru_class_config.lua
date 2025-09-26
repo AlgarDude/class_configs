@@ -336,13 +336,19 @@ local _ClassConfig = {
             "Succor",
             "Lesser Succor",
         },
+        ['Minionskin'] = { --EQM Custom: HP/Regen/mitigation (May need to block druid HP buff line on pet)
+            "Major Minionskin",
+            "Greater Minionskin",
+            "Minionskin",
+            "Lesser Minionskin",
+        },
     },
     ['HealRotationOrder'] = {
         {
             name  = 'BigHealPoint',
             state = 1,
             steps = 1,
-            cond  = function(self, target) return Targeting.BigHealsNeeded(target) end,
+            cond  = function(self, target) return Targeting.BigHealsNeeded(target) and not Targeting.TargetIsType("pet", target) end,
         },
         {
             name = 'GroupHealPoint',
@@ -871,6 +877,13 @@ local _ClassConfig = {
                 type = "Item",
                 cond = function(self, itemName)
                     return Casting.PetBuffItemCheck(itemName)
+                end,
+            },
+            {
+                name = "Minionskin",
+                type = "Spell",
+                cond = function(self, spell)
+                    return Casting.PetBuffCheck(spell)
                 end,
             },
         },

@@ -191,6 +191,12 @@ return {
         ['VigorBuff'] = {
             "Feral Vigor",
         },
+        ['Minionskin'] = { --EQM Custom: HP/Regen/mitigation (May need to block druid HP buff line on pet)
+            "Major Minionskin",
+            "Greater Minionskin",
+            "Minionskin",
+            "Lesser Minionskin",
+        },
     },
     ['HealRotationOrder'] = {
         { -- configured as a backup healer, will not cast in the mainpoint
@@ -750,7 +756,14 @@ return {
                 end,
             },
         },
-        ['Vigor']          = {
+        {
+            name = "Minionskin",
+            type = "Spell",
+            cond = function(self, spell)
+                return not mq.TLO.Me.Pet.Buff(spell.Name() or "None")()
+            end,
+        },
+        ['Vigor'] = {
             {
                 name = "VigorBuff",
                 type = "Spell",
@@ -880,7 +893,7 @@ return {
         },
         --Pets
         ['DoPetHealSpell'] = {
-            DisplayName = "Do Pet Heals",
+            DisplayName = "Pet Heal Spell",
             Group = "Abilities",
             Header = "Recovery",
             Category = "General Healing",

@@ -311,6 +311,12 @@ local _ClassConfig = {
         ['Chromaburst'] = {
             "Chromaburst",
         },
+        ['Minionskin'] = { --EQM Custom: HP/Regen/mitigation (May need to block druid HP buff line on pet)
+            "Major Minionskin",
+            "Greater Minionskin",
+            "Minionskin",
+            "Lesser Minionskin",
+        },
     },
     ['RotationOrder']   = {
         {
@@ -595,6 +601,13 @@ local _ClassConfig = {
                     return Casting.PetBuffItemCheck(itemName)
                 end,
             },
+            {
+                name = "Minionskin",
+                type = "Spell",
+                cond = function(self, spell)
+                    return Casting.PetBuffCheck(spell)
+                end,
+            },
         },
         ['GroupBuff'] = {
             {
@@ -768,7 +781,18 @@ local _ClassConfig = {
                     return Targeting.IsNamed(target) and (mq.TLO.Me.TargetOfTarget.ID() or Core.GetMainAssistId()) ~= Core.GetMainAssistId()
                 end,
             },
-
+            {
+                name = "Artifact of Asterion",
+                type = "Item",
+                load_cond = function(self) return Config:GetSetting("UseDonorPet") and mq.TLO.FindItem("=Artifact of Asterion") end,
+                cond = function(self, _) return mq.TLO.Me.Pet.ID() == 0 end,
+                post_activate = function(self, spell, success)
+                    if success and mq.TLO.Me.Pet.ID() > 0 then
+                        mq.delay(50) -- slight delay to prevent chat bug with command issue
+                        self:SetPetHold()
+                    end
+                end,
+            },
         },
         ['Emergency'] = {
             {

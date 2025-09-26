@@ -805,6 +805,12 @@ _ClassConfig      = {
         ['FranticDS'] = {
             "Frantic Flames",
         },
+        ['Minionskin'] = { --EQM Custom: HP/Regen/mitigation (May need to block druid HP buff line on pet)
+            "Major Minionskin",
+            "Greater Minionskin",
+            "Minionskin",
+            "Lesser Minionskin",
+        },
     },
     ['HealRotationOrder'] = {
 
@@ -875,6 +881,7 @@ _ClassConfig      = {
             name = 'Combat Pocket Pet',
             state = 1,
             steps = 1,
+            doFullRotation = true,
             load_cond = function() return Config:GetSetting('DoPocketPet') end,
             targetId = function(self) return { mq.TLO.Me.ID(), } end,
             cond = function(self, combat_state)
@@ -1415,6 +1422,13 @@ _ClassConfig      = {
                     return Casting.PetBuffAACheck(aaName)
                 end,
             },
+            {
+                name = "Minionskin",
+                type = "Spell",
+                cond = function(self, spell)
+                    return Casting.PetBuffCheck(spell)
+                end,
+            },
         },
         ['Combat Pocket Pet'] = {
             {
@@ -1434,6 +1448,18 @@ _ClassConfig      = {
                     self.TempSettings.PocketPet = false
 
                     return true
+                end,
+            },
+            {
+                name = "Artifact of Asterion",
+                type = "Item",
+                load_cond = function(self) return Config:GetSetting("UseDonorPet") and mq.TLO.FindItem("=Artifact of Asterion") end,
+                cond = function(self, _) return mq.TLO.Me.Pet.ID() == 0 end,
+                post_activate = function(self, spell, success)
+                    if success and mq.TLO.Me.Pet.ID() > 0 then
+                        mq.delay(50) -- slight delay to prevent chat bug with command issue
+                        self:SetPetHold()
+                    end
                 end,
             },
         },

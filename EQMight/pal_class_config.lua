@@ -168,7 +168,7 @@ return {
         ["ArmorSelfBuff"] = {
             --- Self Buff Armor Line Ac/Hp/Mana regen
             "Armor of the Divine",   -- Level 60
-            "Armor of the Crusader", -- Level 64
+            "Aura of the Crusader",  -- Level 64
             "Armor of the Champion", -- Level 69
         },
         ["SymbolBuff"] = {
@@ -242,6 +242,7 @@ return {
             "Remove Lesser Curse",
             "Remove Curse",
             "Remove Greater Curse",
+            "Eradicate Cures",
         },
         ["ForgeDisc"] = {
             "Hallowforge Discipline",
@@ -395,7 +396,7 @@ return {
             state = 1,
             steps = 1,
             cond = function(self, target)
-                return Targeting.BigHealsNeeded(target)
+                return Targeting.BigHealsNeeded(target) and not Targeting.TargetIsType("pet", target)
             end,
         },
         {
