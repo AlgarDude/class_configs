@@ -166,6 +166,7 @@ _ClassConfig      = {
         },
         ['BigFireDD'] = { -- Longer cast time bolts we can use when mobs are at higher health.
             "Bolt of Jerikor",
+            "Ancient: Chaos Vortex",
             "Firebolt of Tallon",
             "Seeking Flame of Seukor",
         },
@@ -1450,18 +1451,6 @@ _ClassConfig      = {
                     return true
                 end,
             },
-            {
-                name = "Artifact of Asterion",
-                type = "Item",
-                load_cond = function(self) return Config:GetSetting("UseDonorPet") and mq.TLO.FindItem("=Artifact of Asterion") end,
-                cond = function(self, _) return mq.TLO.Me.Pet.ID() == 0 end,
-                post_activate = function(self, spell, success)
-                    if success and mq.TLO.Me.Pet.ID() > 0 then
-                        mq.delay(50) -- slight delay to prevent chat bug with command issue
-                        self:SetPetHold()
-                    end
-                end,
-            },
         },
         ['Burn'] = {
             {
@@ -1672,6 +1661,18 @@ _ClassConfig      = {
                 name = "Dagger of Evil Summons",
                 type = "Item",
             },
+            {
+                name = "Artifact of Asterion",
+                type = "Item",
+                load_cond = function(self) return Config:GetSetting("UseDonorPet") and mq.TLO.FindItem("=Artifact of Asterion") end,
+                cond = function(self, _) return mq.TLO.Me.Pet.ID() == 0 end,
+                post_activate = function(self, spell, success)
+                    if success and mq.TLO.Me.Pet.ID() > 0 then
+                        mq.delay(50) -- slight delay to prevent chat bug with command issue
+                        self:SetPetHold()
+                    end
+                end,
+            },
         },
         ['DPS(1-69)'] = {
             {
@@ -1717,6 +1718,18 @@ _ClassConfig      = {
             {
                 name = "ChaoticNuke",
                 type = "Spell",
+            },
+            {
+                name = "Artifact of Asterion",
+                type = "Item",
+                load_cond = function(self) return Config:GetSetting("UseDonorPet") and mq.TLO.FindItem("=Artifact of Asterion") end,
+                cond = function(self, _) return mq.TLO.Me.Pet.ID() == 0 end,
+                post_activate = function(self, spell, success)
+                    if success and mq.TLO.Me.Pet.ID() > 0 then
+                        mq.delay(50) -- slight delay to prevent chat bug with command issue
+                        self:SetPetHold()
+                    end
+                end,
             },
         },
         ['Malo'] = {

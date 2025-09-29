@@ -626,8 +626,8 @@ local _ClassConfig = {
                 name = "MeleeProcBuff",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    if not Casting.CastReady(spell) then return false end --avoid constant group buff checks
-                    return Casting.GroupBuffCheck(spell, target)
+                    if not Casting.CastReady(spell) then return false end                                          --avoid constant group buff checks
+                    return Casting.GroupBuffCheck(spell, target) and not Casting.PeerBuffCheck(9975, target, true) --Panther Rk. II
                 end,
             },
         },

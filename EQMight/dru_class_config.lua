@@ -385,7 +385,7 @@ local _ClassConfig = {
                 type = "Item",
             },
             {
-                name = "Aged Dragon Spine Staff",
+                name = "Legendary Aged Dragon Spine Staff",
                 type = "Item",
             },
             { --Let's make the mainheal autocrit since we have nothing better

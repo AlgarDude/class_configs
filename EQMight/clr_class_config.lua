@@ -465,6 +465,10 @@ local _ClassConfig = {
                 end,
             },
             {
+                name = "Legendary Aged Shissar Apothic Staff",
+                type = "Item",
+            },
+            {
                 name = "Weighted Hammer of Conviction",
                 type = "Item",
             },
