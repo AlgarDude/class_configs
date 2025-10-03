@@ -8,49 +8,78 @@ local DanNet       = require('lib.dannet.helpers')
 local Logger       = require("utils.logger")
 
 local _ClassConfig = {
-    _version              = "2.2 - Project Lazarus",
+    _version              = "2.2 - The Hidden Forest WIP",
     _author               = "Algar, Derple, Robban",
     ['ModeChecks']        = {
         IsHealing = function() return true end,
-        IsCuring = function() return true end,
+        IsCuring = function() return Config:GetSetting('DoCureAA') or Config:GetSetting('DoCureSpells') end,
         IsRezing = function() return Config:GetSetting('DoBattleRez') or Targeting.GetXTHaterCount() == 0 end,
     },
     ['Modes']             = {
         'Heal',
     },
     ['Cures']             = {
+        GetCureSpells = function(self)
+            --(re)initialize the table for loadout changes
+            self.TempSettings.CureSpells = {}
+
+            -- Choose whether we should be trying to resolve the groupheal based on our settings and whether it cures at its level
+            local ghealSpell = Core.GetResolvedActionMapItem('GroupHeal')
+            local groupHeal = (Config:GetSetting('GroupHealAsCure') and (ghealSpell and ghealSpell.Level() or 0) >= 64) and "GroupHeal"
+
+            -- Find the map for each cure spell we need, given availability of groupheal, groupcure. fallback to curespell
+            -- These are convoluted: If Keepmemmed, always use cure, if not, use groupheal if available and fallback to cure
+            local neededCures = {
+                ['Poison'] = not Config:GetSetting('KeepPoisonMemmed') and (groupHeal or 'CurePoison') or 'CurePoison',
+                ['Disease'] = not Config:GetSetting('KeepDiseaseMemmed') and (groupHeal or 'CureDisease') or 'CureDisease',
+                ['Curse'] = not Config:GetSetting('KeepCurseMemmed') and (groupHeal or 'CureCurse') or 'CureCurse',
+                -- ['Corruption'] = -- Project Lazarus does not currently have any Corruption Cures.
+            }
+
+            -- iterate to actually resolve the selected map item, if it is valid, add it to the cure table
+            for k, v in pairs(neededCures) do
+                local cureSpell = Core.GetResolvedActionMapItem(v)
+                if cureSpell then
+                    self.TempSettings.CureSpells[k] = cureSpell
+                end
+            end
+        end,
         CureNow = function(self, type, targetId)
+            local targetSpawn = mq.TLO.Spawn(targetId)
+            if not targetSpawn and targetSpawn() then return false, false end
+
             if Config:GetSetting('DoCureAA') then
-                if Casting.AAReady("Group Purify Soul") then
-                    return Casting.UseAA("Group Purify Soul", targetId)
+                local cureAA = Casting.AAReady("Purify Soul") and "Purify Soul"
+                if Casting.AAReady("Group Purify Soul") and Targeting.GroupedWithTarget(targetSpawn) then
+                    cureAA = "Group Purify Soul"
                 elseif Casting.AAReady("Radiant Cure") then
-                    return Casting.UseAA("Radiant Cure", targetId)
-                elseif targetId == mq.TLO.Me.ID() and Casting.AAReady("Purified Spirits") then
-                    return Casting.UseAA("Purified Spirits", targetId)
-                elseif Casting.AAReady("Purify Soul") then
-                    return Casting.UseAA("Purify Soul", targetId)
+                    cureAA = "Radiant Cure"
+                    -- I am finding self-cures to be less than helpful when most effects on a healer are group-wide
+                    -- elseif targetId == mq.TLO.Me.ID() and Casting.AAReady("Purified Spirits") then
+                    --   cureAA = "Purified Spirits"
+                end
+                if cureAA then
+                    Logger.log_debug("CureNow: Using %s for %s on %s.", cureAA, type:lower() or "unknown", mq.TLO.Spawn(targetId).CleanName() or "Unknown")
+                    return Casting.UseAA(cureAA, targetId), true
                 end
             end
 
             if Config:GetSetting('DoCureSpells') then
-                local cureSpell
-                --If our group heal removes counters, we can use it if selected.
-                --However, if we selecte to keep a cure memmed, prioritize it over the group heal, since it clears a LOT more counters (and that may be preferred).
-                local groupHeal = (Config:GetSetting('GroupHealAsCure') and (Core.GetResolvedActionMapItem('GroupHeal').Level() or 0) >= 64) and "GroupHeal"
-
-                if type:lower() == "disease" then
-                    cureSpell = Core.GetResolvedActionMapItem((not Config:GetSetting('KeepDiseaseMemmed') and (groupHeal or 'CureDisease') or 'CureDisease'))
-                elseif type:lower() == "poison" then
-                    cureSpell = Core.GetResolvedActionMapItem((not Config:GetSetting('KeepPoisonMemmed') and (groupHeal or 'CurePoison') or 'CurePoison'))
-                elseif type:lower() == "curse" then
-                    cureSpell = Core.GetResolvedActionMapItem((not Config:GetSetting('KeepCurseMemmed') and (groupHeal or 'CureCurse') or 'CureCurse'))
+                for effectType, cureSpell in pairs(self.TempSettings.CureSpells) do
+                    if type:lower() == effectType:lower() then
+                        if cureSpell.TargetType():lower() == "group v1" and not Targeting.GroupedWithTarget(targetSpawn) then
+                            Logger.log_debug("CureNow: We cannot use %s on %s, because it is a group-only spell and they are not in our group!", cureSpell.RankName(),
+                                targetSpawn.CleanName() or "Unknown")
+                        else
+                            Logger.log_debug("CureNow: Using %s for %s on %s.", cureSpell.RankName(), type:lower() or "unknown", targetSpawn.CleanName() or "Unknown")
+                            return Casting.UseSpell(cureSpell.RankName(), targetId, true), true
+                        end
+                    end
                 end
-
-                if not cureSpell or not cureSpell() then return false end
-                return Casting.UseSpell(cureSpell.RankName.Name(), targetId, true)
             end
 
-            return false
+            Logger.log_debug("CureNow: No valid cure at this time for %s on %s.", type:lower() or "unknown", targetSpawn.CleanName() or "Unknown")
+            return false, false
         end,
     },
     ['ItemSets']          = {
@@ -221,18 +250,18 @@ local _ClassConfig = {
         ['YaulpSpell'] = {
             "Yaulp VII",
             "Yaulp VI",
-            "Yaulp V",     -- Level 56, first rank with haste/mana regen. We won't use it before this.
+            "Yaulp V",           -- Level 56, first rank with haste/mana regen. We won't use it before this.
         },
-        ['StunTimer6'] = { -- Timer 6 Stun, Fast Cast, Level 63+ (with ToT Heal 88+)
+        ['StunTimer6'] = {       -- Timer 6 Stun, Fast Cast, Level 63+ (with ToT Heal 88+)
             "Ancient: Divine Admiration",
-            "Sound of Divinity",
+            "Sound of Divinity", -- works up to level 70
             "Sound of Might",
             --Filler before this
-            "Staar's Tarnation", -- Timer 4, up to Level 65
-            "Staar's Force",     -- No Timer #, up to Level 58
-            "Holy Might",        -- No Timer #, up to Level 55
+            "Staar's Tarnation",     -- Timer 4, up to Level 65
+            "Staar's Force",         -- No Timer #, up to Level 58
+            "Holy Might",    -- No Timer #, up to Level 55
         },
-        ['LowLevelStun'] = {     --Adding a second stun at low levels
+        ['LowLevelStun'] = { --Adding a second stun at low levels
             "Stun",
         },
         ['UndeadNuke'] = { -- Level 4+
@@ -266,7 +295,7 @@ local _ClassConfig = {
         ['CompleteHeal'] = {
             "Complete Heal",
         },
-        ['PBAENuke'] = { --This isn't worthwhile before these spells come around.
+        ['PBAENuke'] = {  --This isn't worthwhile before these spells come around.
             "Staar's Calamity",
             "Staar's Catastrophe",
         },
@@ -353,7 +382,7 @@ local _ClassConfig = {
             state = 1,
             steps = 1,
             cond = function(self, target)
-                return Targeting.BigHealsNeeded(target)
+                return Targeting.BigHealsNeeded(target) and not Targeting.TargetIsType("pet", target)
             end,
         },
         {
@@ -662,30 +691,30 @@ local _ClassConfig = {
                 type = "Spell",
                 cond = function(self, spell)
                     if not Config:GetSetting('DoTwinHeal') then return false end
-                    return not Casting.IHaveBuff("Twincast")
+                    return not mq.TLO.Me.Buff("Twincast")()
                 end,
             },
             {
                 name = "StunTimer6",
                 type = "Spell",
-                cond = function(self, spell)
+                cond = function(self, spell, target)
                     if not Config:GetSetting('DoHealStun') then return false end
-                    return Casting.DetSpellCheck(spell) and Casting.HaveManaToNuke()
+                    return Casting.HaveManaToNuke(true) and Targeting.TargetNotStunned() and not Targeting.IsNamed(target) and not Casting.StunImmuneTarget(target)
                 end,
             },
             {
                 name = "LowLevelStun",
                 type = "Spell",
-                cond = function(self, spell)
+                cond = function(self, spell, target)
                     if not Config:GetSetting('DoLLStun') then return false end
-                    return Casting.DetSpellCheck(spell) and Casting.HaveManaToDebuff()
+                    return Casting.HaveManaToNuke(true) and Targeting.TargetNotStunned() and not Targeting.IsNamed(target) and not Casting.StunImmuneTarget(target)
                 end,
             },
             {
                 name = "Turn Undead",
                 type = "AA",
                 cond = function(self, aaName, target)
-                    return Targeting.TargetBodyIs(target, "Undead")
+                    return Targeting.TargetBodyIs(target, "Undead") and Targeting.AggroCheckOkay()
                 end,
             },
             {
@@ -693,7 +722,7 @@ local _ClassConfig = {
                 type = "Spell",
                 cond = function(self, aaName, target)
                     if not Config:GetSetting('DoUndeadNuke') or not Targeting.TargetBodyIs(target, "Undead") then return false end
-                    return Casting.HaveManaToNuke()
+                    return Casting.OkayToNuke()
                 end,
             },
             {
@@ -701,7 +730,7 @@ local _ClassConfig = {
                 type = "Spell",
                 cond = function(self)
                     if not Config:GetSetting('DoMagicNuke') then return false end
-                    return Casting.HaveManaToNuke()
+                    return Casting.OkayToNuke()
                 end,
             },
             {
@@ -726,7 +755,7 @@ local _ClassConfig = {
                 type = "Spell",
                 allowDead = true,
                 cond = function(self, spell, target)
-                    return Casting.HaveManaToNuke(true) and Targeting.InSpellRange(spell, target)
+                    return Casting.OkayToNuke() and Targeting.InSpellRange(spell, target)
                 end,
             },
         },
@@ -737,6 +766,17 @@ local _ClassConfig = {
                 cond = function(self, spell)
                     if Config:GetSetting('AegoSymbol') == 3 then return false end
                     return Casting.SelfBuffCheck(spell)
+                end,
+            },
+            {
+                name = "Spirit Mastery",
+                type = "AA",
+                pre_activate = function(self, aaName) --remove the old aura if we just purchased the AA, otherwise we will be spammed because of no focus.
+                    ---@diagnostic disable-next-line: undefined-field
+                    if not Casting.AuraActiveByName("Aura of Pious Divinity") then mq.TLO.Me.Aura(1).Remove() end
+                end,
+                cond = function(self, aaName)
+                    return not Casting.AuraActiveByName("Aura of Pious Divinity")
                 end,
             },
             {
@@ -765,6 +805,14 @@ local _ClassConfig = {
             },
         },
         ['GroupBuff'] = {
+            {
+                name = "Divine Guardian",
+                type = "AA",
+                cond = function(self, aaName, target)
+                    if not Targeting.TargetIsMA(target) then return false end
+                    return Casting.GroupBuffAACheck(aaName, target)
+                end,
+            },
             {
                 name = "AegoBuff",
                 type = "Spell",
@@ -803,13 +851,6 @@ local _ClassConfig = {
                 cond = function(self, spell, target)
                     if not Config:GetSetting('DoVieBuff') or self:GetResolvedActionMapItem('GroupVieBuff') or not Targeting.TargetIsMA(target) then return false end
                     return Casting.GroupBuffCheck(spell, target)
-                end,
-            },
-            {
-                name = "Frozen Faithbringer's Leggings (Tier 2)",
-                type = "Item",
-                cond = function(self, itemName, target)
-                    return Casting.GroupBuffItemCheck(itemName, target)
                 end,
             },
             {
@@ -874,8 +915,10 @@ local _ClassConfig = {
         --Buffs
         ['AegoSymbol']        = {
             DisplayName = "Aego/Symbol Choice:",
-            Category = "Buffs",
-            Index = 1,
+            Group = "Abilities",
+            Header = "Buffs",
+            Category = "Group",
+            Index = 101,
             Tooltip =
             "Choose whether to use the Aegolism or Symbol Line of HP Buffs.\nPlease note using both is supported for party members who block buffs, but these buffs do not stack once we transition from using a HP Type-One buff in place of Aegolism.",
             Type = "Combo",
@@ -888,8 +931,10 @@ local _ClassConfig = {
         },
         ['DoACBuff']          = {
             DisplayName = "Use AC Buff",
-            Category = "Buffs",
-            Index = 2,
+            Group = "Abilities",
+            Header = "Buffs",
+            Category = "Group",
+            Index = 102,
             Tooltip =
                 "Use your single-slot AC Buff on the Main Assist. USE CASES:\n" ..
                 "You have Aegolism selected and are below level 40 (We are still using a HP Type One buff).\n" ..
@@ -902,8 +947,10 @@ local _ClassConfig = {
         },
         ['DoVieBuff']         = {
             DisplayName = "Use Vie Buff",
-            Category = "Buffs",
-            Index = 3,
+            Group = "Abilities",
+            Header = "Buffs",
+            Category = "Group",
+            Index = 103,
             Tooltip = "Use your Melee Damage absorb (Vie) line.",
             Default = true,
             FAQ = "Why am I using the Vie and Shining buffs together when the melee gaurd does not stack?",
@@ -912,8 +959,10 @@ local _ClassConfig = {
         },
         ['UseAura']           = {
             DisplayName = "Aura Spell Choice:",
-            Category = "Buffs",
-            Index = 4,
+            Group = "Abilities",
+            Header = "Buffs",
+            Category = "Group",
+            Index = 104,
             Tooltip = "Select the Aura to be used, prior to purchasing the Spirit Mastery AA.",
             Type = "Combo",
             ComboOptions = { 'Absorb', 'HP', 'None', },
@@ -925,8 +974,10 @@ local _ClassConfig = {
         },
         ['DoDivineBuff']      = {
             DisplayName = "Do Divine Buff",
-            Category = "Buffs",
-            Index = 5,
+            Group = "Abilities",
+            Header = "Buffs",
+            Category = "Group",
+            Index = 105,
             Tooltip = "Use your Divine Intervention line (death save) on the MA.",
             RequiresLoadoutChange = true,
             Default = true,
@@ -938,8 +989,10 @@ local _ClassConfig = {
         --Combat
         ['DoTwinHeal']        = {
             DisplayName = "Twin Heal Nuke",
-            Category = "Combat",
-            Index = 1,
+            Group = "Abilities",
+            Header = "Damage",
+            Category = "Direct",
+            Index = 101,
             Tooltip = "Use Twin Heal Nuke Spells",
             RequiresLoadoutChange = true,
             Default = true,
@@ -950,8 +1003,10 @@ local _ClassConfig = {
         },
         ['DoHealStun']        = {
             DisplayName = "Timer 6 Stun",
-            Category = "Combat",
-            Index = 2,
+            Group = "Abilities",
+            Header = "Debuffs",
+            Category = "Stun",
+            Index = 101,
             Tooltip = "Use the Timer 6 Stun (\"Sound of\" Line).",
             RequiresLoadoutChange = true,
             Default = true,
@@ -963,8 +1018,10 @@ local _ClassConfig = {
         },
         ['DoLLStun']          = {
             DisplayName = "Low Level Stun",
-            Category = "Combat",
-            Index = 3,
+            Group = "Abilities",
+            Header = "Debuffs",
+            Category = "Stun",
+            Index = 102,
             Tooltip = "Use the Level 2 \"Stun\" spell, as long as it is level-appropriate (works on targets up to Level 58).",
             RequiresLoadoutChange = true,
             Default = true,
@@ -975,8 +1032,10 @@ local _ClassConfig = {
         },
         ['DoUndeadNuke']      = {
             DisplayName = "Do Undead Nuke",
-            Category = "Combat",
-            Index = 4,
+            Group = "Abilities",
+            Header = "Damage",
+            Category = "Direct",
+            Index = 102,
             Tooltip = "Use the Undead nuke line.",
             RequiresLoadoutChange = true,
             Default = false,
@@ -985,8 +1044,10 @@ local _ClassConfig = {
         },
         ['DoMagicNuke']       = {
             DisplayName = "Do Magic Nuke",
-            Category = "Combat",
-            Index = 5,
+            Group = "Abilities",
+            Header = "Damage",
+            Category = "Direct",
+            Index = 103,
             Tooltip = "Use the Magic nuke line.",
             RequiresLoadoutChange = true,
             Default = false,
@@ -996,8 +1057,10 @@ local _ClassConfig = {
         -- Heals and Cures
         ['DoCompleteHeal']    = {
             DisplayName = "Use Complete Heal",
-            Category = "Heals and Cures",
-            Index = 1,
+            Group = "Abilities",
+            Header = "Recovery",
+            Category = "General Healing",
+            Index = 104,
             Tooltip = "Use Complete Heal on the MA (instead of the healing Light line).",
             RequiresLoadoutChange = true,
             Default = false,
@@ -1008,8 +1071,10 @@ local _ClassConfig = {
         },
         ['CompleteHealPct']   = {
             DisplayName = "Complete Heal Pct",
-            Category = "Heals and Cures",
-            Index = 2,
+            Group = "Abilities",
+            Header = "Recovery",
+            Category = "Healing Thresholds",
+            Index = 101,
             Tooltip = "Pct we will use Complete Heal on the MA.",
             Default = 80,
             Min = 1,
@@ -1020,8 +1085,10 @@ local _ClassConfig = {
         },
         ['DoSingleElixir']    = {
             DisplayName = "Single Elixir",
-            Category = "Heals and Cures",
-            Index = 3,
+            Group = "Abilities",
+            Header = "Recovery",
+            Category = "General Healing",
+            Index = 101,
             Tooltip = "Use your single-target Elixir Line.",
             RequiresLoadoutChange = true,
             Default = true,
@@ -1031,8 +1098,10 @@ local _ClassConfig = {
         },
         ['DoGroupElixir']     = {
             DisplayName = "Group Elixir",
-            Category = "Heals and Cures",
-            Index = 4,
+            Group = "Abilities",
+            Header = "Recovery",
+            Category = "General Healing",
+            Index = 102,
             Tooltip = "Use your group-wide Elixir Line.",
             RequiresLoadoutChange = true,
             Default = true,
@@ -1042,8 +1111,10 @@ local _ClassConfig = {
         },
         ['GroupElixirUptime'] = {
             DisplayName = "Group Elixir Uptime",
-            Category = "Heals and Cures",
-            Index = 5,
+            Group = "Abilities",
+            Header = "Recovery",
+            Category = "General Healing",
+            Index = 103,
             Tooltip = "In combat, attempt to keep full uptime on your Group Elixir. Note: There are scenarios where single elixirs could interfere with uptime.",
             Default = true,
             ConfigType = "Advanced",
@@ -1052,8 +1123,10 @@ local _ClassConfig = {
         },
         ['KeepPoisonMemmed']  = {
             DisplayName = "Mem Cure Poison",
-            Category = "Heals and Cures",
-            Index = 6,
+            Group = "Abilities",
+            Header = "Recovery",
+            Category = "Curing",
+            Index = 101,
             Tooltip = "Memorize cure poison spell when possible (depending on other selected options). \n" ..
                 "Please note that we will still memorize a cure out-of-combat if needed, and AA will always be used if available.",
             RequiresLoadoutChange = true,
@@ -1065,8 +1138,10 @@ local _ClassConfig = {
         },
         ['KeepDiseaseMemmed'] = {
             DisplayName = "Mem Cure Disease",
-            Category = "Heals and Cures",
-            Index = 7,
+            Group = "Abilities",
+            Header = "Recovery",
+            Category = "Curing",
+            Index = 102,
             Tooltip = "Memorize cure disease spell when possible (depending on other selected options). \n" ..
                 "Please note that we will still memorize a cure out-of-combat if needed, and AA will always be used if available.",
             RequiresLoadoutChange = true,
@@ -1078,8 +1153,10 @@ local _ClassConfig = {
         },
         ['KeepCurseMemmed']   = {
             DisplayName = "Mem Remove Curse",
-            Category = "Heals and Cures",
-            Index = 8,
+            Group = "Abilities",
+            Header = "Recovery",
+            Category = "Curing",
+            Index = 103,
             Tooltip = "Memorize remove curese spell when possible (depending on other selected options). \n" ..
                 "Please note that we will still memorize a cure out-of-combat if needed, and AA will always be used if available.",
             RequiresLoadoutChange = true,
@@ -1091,8 +1168,10 @@ local _ClassConfig = {
         },
         ['GroupHealAsCure']   = {
             DisplayName = "Use Group Heal to Cure",
-            Category = "Heals and Cures",
-            Index = 9,
+            Group = "Abilities",
+            Header = "Recovery",
+            Category = "Curing",
+            Index = 104,
             Tooltip = "If Word of Replenishment or Vivification are available, use these to cure instead of individual cure spells. \n" ..
                 "Please note that we will prioritize single target cures if you have selected to keep them memmed above (due to the counter disparity).",
             Default = true,
@@ -1106,8 +1185,10 @@ local _ClassConfig = {
         --Damage(AE)
         ['DoAEDamage']        = {
             DisplayName = "Do AE Damage",
-            Category = "Damage(AE)",
-            Index = 1,
+            Group = "Abilities",
+            Header = "Damage",
+            Category = "AE",
+            Index = 101,
             Tooltip = "**WILL BREAK MEZ** Use AE damage Spells and AA. **WILL BREAK MEZ**\n" ..
                 "This is a top-level setting that governs all AE damage, and can be used as a quick-toggle to enable/disable abilities without reloading spells.",
             Default = false,
@@ -1116,8 +1197,10 @@ local _ClassConfig = {
         },
         ['DoPBAENuke']        = {
             DisplayName = "Use PBAE Nuke",
-            Category = "Damage(AE)",
-            Index = 2,
+            Group = "Abilities",
+            Header = "Damage",
+            Category = "AE",
+            Index = 102,
             RequiresLoadoutChange = true,
             Tooltip =
             "**WILL BREAK MEZ** Use your Magic PB AE Spells . **WILL BREAK MEZ**",
@@ -1127,8 +1210,10 @@ local _ClassConfig = {
         },
         ['DoPBAEStun']        = {
             DisplayName = "Use PBAE Stun",
-            Category = "Damage(AE)",
-            Index = 4,
+            Group = "Abilities",
+            Header = "Damage",
+            Category = "AE",
+            Index = 104,
             RequiresLoadoutChange = true,
             Tooltip =
             "**WILL BREAK MEZ** Use your Magic PB AE Stun Spells . **WILL BREAK MEZ**",
@@ -1138,8 +1223,10 @@ local _ClassConfig = {
         },
         ['AETargetCnt']       = {
             DisplayName = "AE Tgt Cnt",
-            Category = "Damage(AE)",
-            Index = 5,
+            Group = "Abilities",
+            Header = "Damage",
+            Category = "AE",
+            Index = 105,
             Tooltip = "Minimum number of valid targets before using PB Spells like the of Flame line.",
             Default = 4,
             Min = 1,
@@ -1150,8 +1237,10 @@ local _ClassConfig = {
         },
         ['MaxAETargetCnt']    = {
             DisplayName = "Max AE Targets",
-            Category = "Damage(AE)",
-            Index = 6,
+            Group = "Abilities",
+            Header = "Damage",
+            Category = "AE",
+            Index = 106,
             Tooltip =
             "Maximum number of valid targets before using AE Spells, Disciplines or AA.\nUseful for setting up AE Mez at a higher threshold on another character in case you are overwhelmed.",
             Default = 6,
@@ -1163,8 +1252,10 @@ local _ClassConfig = {
         },
         ['SafeAEDamage']      = {
             DisplayName = "AE Proximity Check",
-            Category = "Damage(AE)",
-            Index = 7,
+            Group = "Abilities",
+            Header = "Damage",
+            Category = "AE",
+            Index = 107,
             Tooltip = "Check to ensure there aren't neutral mobs in range we could aggro if AE damage is used. May result in non-use due to false positives.",
             Default = false,
             FAQ = "Can you better explain the AE Proximity Check?",
@@ -1176,8 +1267,10 @@ local _ClassConfig = {
         --Utility
         ['DoManaRestore']     = {
             DisplayName = "Use Mana Restore AAs",
-            Category = "Utility",
-            Index = 1,
+            Group = "Abilities",
+            Header = "Recovery",
+            Category = "Other Recovery",
+            Index = 101,
             Tooltip = "Use Veturika's Prescence (on self) or Quiet Miracle (on others) at critically low mana.",
             RequiresLoadoutChange = true, -- used as a load condition
             Default = true,
@@ -1189,8 +1282,10 @@ local _ClassConfig = {
         },
         ['ManaRestorePct']    = {
             DisplayName = "Mana Restore Pct",
-            Category = "Utility",
-            Index = 2,
+            Group = "Abilities",
+            Header = "Recovery",
+            Category = "Other Recovery",
+            Index = 102,
             Tooltip = "Min Mana to use restore AA.",
             Default = 10,
             Min = 1,
@@ -1201,8 +1296,10 @@ local _ClassConfig = {
         },
         ['DoYaulp']           = {
             DisplayName = "Use Yaulp",
-            Category = "Utility",
-            Index = 3,
+            Group = "Abilities",
+            Header = "Buffs",
+            Category = "Self",
+            Index = 101,
             Tooltip = "Use your Yaulp (AA or spell line) to help maintain your mana and buff your melee ability.",
             Default = true,
             FAQ = "Why am I using Yaulp? Clerics are not supposed to melee!",
@@ -1210,8 +1307,10 @@ local _ClassConfig = {
         },
         ['DoVetAA']           = {
             DisplayName = "Use Vet AA",
-            Category = "Utility",
-            Index = 4,
+            Group = "Abilities",
+            Header = "Buffs",
+            Category = "Self",
+            Index = 102,
             Tooltip = "Use Veteran AA's in emergencies or during Burn. (See FAQ)",
             Default = true,
             FAQ = "What Vet AA's does CLR use?",

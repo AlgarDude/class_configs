@@ -491,6 +491,10 @@ local _ClassConfig = {
                 type = "AA",
             },
             {
+                name = "Selo's Kick",
+                type = "AA",
+            },
+            {
                 name = "Vainglorious Shout",
                 type = "AA",
                 cond = function(self, aaName, target)

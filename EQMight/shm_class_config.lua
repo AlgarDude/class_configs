@@ -471,7 +471,7 @@ local _ClassConfig = {
                 end,
             },
             {
-                name = "Aged Hammer of the Dragonborn",
+                name = "Legendary Aged Hammer of the Dragonborn",
                 type = "Item",
             },
             {

@@ -39,7 +39,7 @@ local Tooltips     = {
 }
 
 local _ClassConfig = {
-    _version            = "3.1 - Project Lazarus",
+    _version            = "3.1 - The Hidden Forest WIP",
     _author             = "Algar, Derple, Grimmier, Tiddliestix, SonicZentropy",
     ['Modes']           = { --other modes to reorder spell priorities may be added back in at a later date.
         'General',
@@ -54,16 +54,23 @@ local _ClassConfig = {
     },
     ['Cures']           = {
         CureNow = function(self, type, targetId)
+            local targetSpawn = mq.TLO.Spawn(targetId)
+            if not targetSpawn and targetSpawn() then return false, false end
+
             local cureSong = Core.GetResolvedActionMapItem('CureSong')
             local downtime = mq.TLO.Me.CombatState():lower() ~= "combat"
             if type:lower() == ("disease" or "poison") and Casting.SongReady(cureSong, downtime) then
-                return Casting.UseSong(cureSong.RankName.Name(), targetId, downtime)
+                Logger.log_debug("CureNow: Using %s for %s on %s.", cureSong.RankName(), type:lower() or "unknown", targetSpawn.CleanName() or "Unknown")
+                return Casting.UseSong(cureSong.RankName.Name(), targetId, downtime), true
             end
+            Logger.log_debug("CureNow: No valid cure at this time for %s on %s.", type:lower() or "unknown", targetSpawn.CleanName() or "Unknown")
+            return false, false
         end,
     },
     ['ItemSets']        = {
         ['Epic'] = {
-            "Ancient Blade of the Singer (Tier 1)",
+            "Blade of Vesagran",
+            "Prismatic Dragon Blade",
         },
     },
     ['AbilitySets']     = {
@@ -83,11 +90,9 @@ local _ClassConfig = {
             "Eriki's Psalm of Power",
             "Yelhun's Mystic Call",
             "Echo of the Trusik",
-            -- "Call of the Muse", -- Lower value than trusik
             "Rizlona's Call of Flame",   -- overhaste/spell damage
             "Battlecry of the Vah Shir", -- overhaste only
             "Warsong of the Vah Shir",   -- overhaste only
-            "Melody of Ervaj",
             -- "Rizlona's Fire",   -- spell damage only
             -- "Rizlona's Embers", -- spell damage only
         },
@@ -126,7 +131,7 @@ local _ClassConfig = {
         },
         ['SlowSong'] = {
             "Requiem of Time",
-            "Znoth's Assonance",        --snare/slow
+            "Znoth's Assonance",    --snare/slow
             "Largo's Assonant Binding", --snare/slow
             "Selo`s Consonant Chain",   --snare/slow
         },
@@ -214,7 +219,7 @@ local _ClassConfig = {
             "Echoes of the Past",
         },
         ['ResistDebuff'] = {
-            "Znoth's Harmony of Sound",
+            "Harmony of Sound",
         },
     },
     ['HelperFunctions'] = {
@@ -432,15 +437,16 @@ local _ClassConfig = {
             {
                 name = "AESlowSong",
                 type = "Song",
-                cond = function(self, songSpell)
-                    return Config:GetSetting("DoAESlow") and Casting.DetSpellCheck(songSpell) and Targeting.GetXTHaterCount() > 2 and not mq.TLO.Target.Slowed()
+                cond = function(self, songSpell, target)
+                    return Config:GetSetting("DoAESlow") and Casting.DetSpellCheck(songSpell) and Targeting.GetXTHaterCount() > 2 and not mq.TLO.Target.Slowed() and
+                        not Casting.SlowImmuneTarget(target)
                 end,
             },
             {
                 name = "SlowSong",
                 type = "Song",
-                cond = function(self, songSpell)
-                    return Config:GetSetting("DoSTSlow") and Casting.DetSpellCheck(songSpell) and not mq.TLO.Target.Slowed()
+                cond = function(self, songSpell, target)
+                    return Config:GetSetting("DoSTSlow") and Casting.DetSpellCheck(songSpell) and not mq.TLO.Target.Slowed() and not Casting.SlowImmuneTarget(target)
                 end,
             },
             {
@@ -489,6 +495,10 @@ local _ClassConfig = {
                 cond = function(self, aaName, target)
                     return Config:GetSetting("UseShout")
                 end,
+            },
+            {
+                name = "Kick",
+                type = "Ability",
             },
         },
         ['CombatSongs'] = {
@@ -584,27 +594,6 @@ local _ClassConfig = {
                 end,
             },
             {
-                name = "GroupRegenSong",
-                type = "Song",
-                cond = function(self, songSpell)
-                    if Config:GetSetting('RegenSong') ~= 2 then return false end
-                    local pct = Config:GetSetting('GroupManaPct')
-                    return self.ClassConfig.HelperFunctions.RefreshBuffSong(songSpell) and
-                        ((Config:GetSetting('UseRegen') == 1 and (mq.TLO.Group.LowMana(pct)() or 999) >= Config:GetSetting('GroupManaCt'))
-                            or (Config:GetSetting('UseRegen') > 1 and self.ClassConfig.HelperFunctions.CheckSongStateUse(self, "UseRegen")))
-                end,
-            },
-            {
-                name = "AreaRegenSong",
-                type = "Song",
-                cond = function(self, songSpell)
-                    if Config:GetSetting('RegenSong') ~= 3 then return false end
-                    local pct = Config:GetSetting('GroupManaPct')
-                    return self.ClassConfig.HelperFunctions.RefreshBuffSong(songSpell) and
-                        not (mq.TLO.Me.Combat() and (mq.TLO.Group.LowMana(pct)() or 999) < Config:GetSetting('GroupManaCt'))
-                end,
-            },
-            {
                 name = "Jonthan",
                 type = "Song",
                 cond = function(self, songSpell)
@@ -637,6 +626,27 @@ local _ClassConfig = {
                 end,
             },
             {
+                name = "GroupRegenSong",
+                type = "Song",
+                cond = function(self, songSpell)
+                    if Config:GetSetting('RegenSong') ~= 2 then return false end
+                    local pct = Config:GetSetting('GroupManaPct')
+                    return self.ClassConfig.HelperFunctions.RefreshBuffSong(songSpell) and
+                        ((Config:GetSetting('UseRegen') == 1 and (mq.TLO.Group.LowMana(pct)() or 999) >= Config:GetSetting('GroupManaCt'))
+                            or (Config:GetSetting('UseRegen') > 1 and self.ClassConfig.HelperFunctions.CheckSongStateUse(self, "UseRegen")))
+                end,
+            },
+            {
+                name = "AreaRegenSong",
+                type = "Song",
+                cond = function(self, songSpell)
+                    if Config:GetSetting('RegenSong') ~= 3 then return false end
+                    local pct = Config:GetSetting('GroupManaPct')
+                    return self.ClassConfig.HelperFunctions.RefreshBuffSong(songSpell) and
+                        not (mq.TLO.Me.Combat() and (mq.TLO.Group.LowMana(pct)() or 999) < Config:GetSetting('GroupManaCt'))
+                end,
+            },
+            {
                 name = "AmpSong",
                 type = "Song",
                 cond = function(self, songSpell)
@@ -662,7 +672,7 @@ local _ClassConfig = {
                 targetId = function(self) return { mq.TLO.Me.ID(), } end,
                 cond = function(self, songSpell)
                     if Casting.CanUseAA("Selo's Sonata") or not Config:GetSetting('UseRunBuff') then return false end
-                    return not mq.TLO.Zone.Indoor() and self.ClassConfig.HelperFunctions.RefreshBuffSong(songSpell)
+                    return self.ClassConfig.HelperFunctions.RefreshBuffSong(songSpell)
                 end,
             },
             {
@@ -796,8 +806,10 @@ local _ClassConfig = {
         -- Buffs
         ['UseRunBuff']          = {
             DisplayName = "Use RunSpeed Buff",
-            Category = "Buffs",
-            Index = 1,
+            Group = "Abilities",
+            Header = "Buffs",
+            Category = "Group",
+            Index = 101,
             Tooltip = "Use your run speed buff song or AA.",
             Default = true,
             RequiresLoadoutChange = true,
@@ -806,8 +818,10 @@ local _ClassConfig = {
         },
         ['UseEndBreath']        = {
             DisplayName = "Use Enduring Breath",
-            Category = "Buffs",
-            Index = 2,
+            Group = "Abilities",
+            Header = "Buffs",
+            Category = "Group",
+            Index = 102,
             Tooltip = Tooltips.EndBreathSong,
             Default = false,
             RequiresLoadoutChange = true,
@@ -817,8 +831,10 @@ local _ClassConfig = {
         },
         ['UseAura']             = {
             DisplayName = "Use Aura",
-            Category = "Buffs",
-            Index = 3,
+            Group = "Abilities",
+            Header = "Buffs",
+            Category = "Group",
+            Index = 103,
             Tooltip = "Use Bard Aura.",
             Default = true,
             ConfigType = "Advanced",
@@ -827,8 +843,10 @@ local _ClassConfig = {
         },
         ['UseAmp']              = {
             DisplayName = "Use Amp",
-            Category = "Buffs",
-            Index = 4,
+            Group = "Abilities",
+            Header = "Buffs",
+            Category = "Self",
+            Index = 101,
             Tooltip = Tooltips.AmpSong,
             Type = "Combo",
             ComboOptions = { 'Never', 'In-Combat Only', 'Always', 'Out-of-Combat Only', },
@@ -843,8 +861,10 @@ local _ClassConfig = {
         },
         ['SpireChoice']         = {
             DisplayName = "Spire Choice:",
-            Category = "Buffs",
-            Index = 5,
+            Group = "Abilities",
+            Header = "Buffs",
+            Category = "Group",
+            Index = 103,
             Tooltip = "Choose which Fundament you would like to use during burns:\n" ..
                 "First Spire: Spell Crit Buff to Self.\n" ..
                 "Second Spire: Healing Power Buff to Self.\n" ..
@@ -859,8 +879,10 @@ local _ClassConfig = {
         },
         ['DoVetAA']             = {
             DisplayName = "Use Vet AA",
-            Category = "Buffs",
-            Index = 6,
+            Group = "Abilities",
+            Header = "Buffs",
+            Category = "Self",
+            Index = 102,
             Tooltip = "Use Veteran AA's in emergencies or during Burn",
             Default = true,
             ConfigType = "Advanced",
@@ -871,8 +893,10 @@ local _ClassConfig = {
         -- Debuffs
         ['DoSTSlow']            = {
             DisplayName = "Use Slow (ST)",
-            Category = "Debuffs",
-            Index = 1,
+            Group = "Abilities",
+            Header = "Debuffs",
+            Category = "Slow",
+            Index = 101,
             Tooltip = Tooltips.SlowSong,
             RequiresLoadoutChange = true,
             Default = false,
@@ -881,8 +905,10 @@ local _ClassConfig = {
         },
         ['DoAESlow']            = {
             DisplayName = "Use Slow (AE)",
-            Category = "Debuffs",
-            Index = 2,
+            Group = "Abilities",
+            Header = "Debuffs",
+            Category = "Slow",
+            Index = 102,
             Tooltip = Tooltips.AESlowSong,
             RequiresLoadoutChange = true,
             Default = false,
@@ -891,8 +917,10 @@ local _ClassConfig = {
         },
         ['DoResistDebuff']      = {
             DisplayName = "Use Resist Debuff",
-            Category = "Debuffs",
-            Index = 3,
+            Group = "Abilities",
+            Header = "Debuffs",
+            Category = "Resist",
+            Index = 101,
             Tooltip = "Use the Harmony of Sound Resist Debuff.",
             RequiresLoadoutChange = true,
             Default = false,
@@ -901,8 +929,10 @@ local _ClassConfig = {
         },
         ['DoDispel']            = {
             DisplayName = "Use Dispel",
-            Category = "Debuffs",
-            Index = 4,
+            Group = "Abilities",
+            Header = "Debuffs",
+            Category = "Dispel",
+            Index = 101,
             Tooltip = Tooltips.DispelSong,
             RequiresLoadoutChange = true,
             Default = false,
@@ -913,8 +943,10 @@ local _ClassConfig = {
         -- Defensive
         ['UseResist']           = {
             DisplayName = "Use Resist Buff",
-            Category = "Defensive",
-            Index = 1,
+            Group = "Abilities",
+            Header = "Buffs",
+            Category = "Group",
+            Index = 104,
             Tooltip = Tooltips.ResistSong,
             Type = "Combo",
             ComboOptions = { 'Never', 'In-Combat Only', 'Always', 'Out-of-Combat Only', },
@@ -928,8 +960,10 @@ local _ClassConfig = {
         },
         ['UseSpellAbsorb']      = {
             DisplayName = "Use Spell Absorb",
-            Category = "Defensive",
-            Index = 2,
+            Group = "Abilities",
+            Header = "Buffs",
+            Category = "Group",
+            Index = 105,
             Default = true,
             RequiresLoadoutChange = true,
             FAQ = "When is the Spell Damage Absorb/Shield used?",
@@ -937,8 +971,10 @@ local _ClassConfig = {
         },
         ['UseFading']           = {
             DisplayName = "Use Combat Escape",
-            Category = "Defensive",
-            Index = 3,
+            Group = "Abilities",
+            Header = "Utility",
+            Category = "Emergency",
+            Index = 102,
             Tooltip = "Use Fading Memories when you have aggro and you aren't the Main Assist.",
             Default = true,
             ConfigType = "Advanced",
@@ -948,8 +984,10 @@ local _ClassConfig = {
         },
         ['DoCoating']           = {
             DisplayName = "Use Coating",
-            Category = "Defensive",
-            Index = 4,
+            Group = "Items",
+            Header = "Clickies",
+            Category = "Class Config Clickies",
+            Index = 102,
             Tooltip = "Click your Blood Drinker's Coating in an emergency.",
             Default = false,
             ConfigType = "Advanced",
@@ -958,8 +996,10 @@ local _ClassConfig = {
         },
         ['EmergencyStart']      = {
             DisplayName = "Emergency HP%",
-            Category = "Defensive",
-            Index = 5,
+            Group = "Abilities",
+            Header = "Utility",
+            Category = "Emergency",
+            Index = 101,
             Tooltip = "Your HP % before we begin to use emergency mitigation abilities.",
             Default = 50,
             Min = 1,
@@ -973,8 +1013,10 @@ local _ClassConfig = {
         -- Healing
         ['RegenSong']           = {
             DisplayName = "Regen Song Choice:",
-            Category = "Healing",
-            Index = 1,
+            Group = "Abilities",
+            Header = "Recovery",
+            Category = "Other Recovery",
+            Index = 110,
             Tooltip = "Select the Regen Song to be used, if any. Always used out of combat if selected. Use in-combat is determined by sustain settings.",
             RequiresLoadoutChange = true,
             Type = "Combo",
@@ -988,8 +1030,10 @@ local _ClassConfig = {
         },
         ['UseRegen']            = {
             DisplayName = "Regen Song Use:",
-            Category = "Healing",
-            Index = 2,
+            Group = "Abilities",
+            Header = "Recovery",
+            Category = "Other Recovery",
+            Index = 102,
             Tooltip = "When to use the Regen Song selected above.",
             Type = "Combo",
             ComboOptions = { 'Under Group Mana % (Advanced Options Setting)', 'In-Combat Only', 'Always', 'Out-of-Combat Only', },
@@ -1002,8 +1046,10 @@ local _ClassConfig = {
         },
         ['GroupManaPct']        = {
             DisplayName = "Group Mana %",
-            Category = "Healing",
-            Index = 3,
+            Group = "Abilities",
+            Header = "Recovery",
+            Category = "Other Recovery",
+            Index = 103,
             Tooltip = "Mana% to begin managing group mana (See FAQ)",
             Default = 80,
             Min = 1,
@@ -1015,8 +1061,10 @@ local _ClassConfig = {
         },
         ['GroupManaCt']         = {
             DisplayName = "Group Mana Count",
-            Category = "Healing",
-            Index = 4,
+            Group = "Abilities",
+            Header = "Recovery",
+            Category = "Other Recovery",
+            Index = 104,
             Tooltip = "The number of party members (including yourself) that need to be under the above mana percentage.",
             Default = 2,
             Min = 1,
@@ -1028,8 +1076,10 @@ local _ClassConfig = {
         },
         ['UseCure']             = {
             DisplayName = "Cure Ailments",
-            Category = "Healing",
-            Index = 5,
+            Group = "Abilities",
+            Header = "Recovery",
+            Category = "Curing",
+            Index = 101,
             Tooltip = Tooltips.CureSong,
             RequiresLoadoutChange = true,
             Default = false,
@@ -1038,8 +1088,10 @@ local _ClassConfig = {
         },
         ['BardRespectMedState'] = {
             DisplayName = "Respect Med Settings",
-            Category = "Healing",
-            Index = 6,
+            Group = "Movement",
+            Header = "Meditation",
+            Category = "Med Rules",
+            Index = 101,
             Tooltip = "Allows the bard to meditate.\nPlease note that this comes at the cost of disabling all normal downtime actions while meditating.",
             Default = false,
             ConfigType = "Advanced",
@@ -1051,7 +1103,9 @@ local _ClassConfig = {
         -- Instruments
         ['SwapInstruments']     = {
             DisplayName = "Auto Swap Instruments",
-            Index = 1,
+            Index = 101,
+            Group = "Items",
+            Header = "Instruments",
             Category = "Instruments",
             Tooltip = "Auto swap instruments for songs",
             Default = false,
@@ -1061,7 +1115,9 @@ local _ClassConfig = {
         },
         ['UseBandolier']        = {
             DisplayName = "Use Bandolier",
-            Index = 2,
+            Index = 102,
+            Group = "Items",
+            Header = "Instruments",
             Category = "Instruments",
             Tooltip = "Auto swap instruments using bandolier if avail, valid names (wind, drum, brass, string or main), if a bandolier is missing we will direct swap instead.",
             Default = true,
@@ -1070,7 +1126,9 @@ local _ClassConfig = {
         },
         ['Offhand']             = {
             DisplayName = "Offhand",
-            Index = 3,
+            Index = 103,
+            Group = "Items",
+            Header = "Instruments",
             Category = "Instruments",
             Tooltip = "Item to swap in when no instrument is available or needed.",
             Type = "ClickyItem",
@@ -1082,7 +1140,9 @@ local _ClassConfig = {
         },
         ['BrassInst']           = {
             DisplayName = "Brass Instrument",
-            Index = 4,
+            Index = 104,
+            Group = "Items",
+            Header = "Instruments",
             Category = "Instruments",
             Tooltip = "Brass Instrument to Swap in as needed.",
             Type = "ClickyItem",
@@ -1093,7 +1153,9 @@ local _ClassConfig = {
         },
         ['WindInst']            = {
             DisplayName = "Wind Instrument",
-            Index = 5,
+            Index = 105,
+            Group = "Items",
+            Header = "Instruments",
             Category = "Instruments",
             Tooltip = "Wind Instrument to Swap in as needed.",
             Type = "ClickyItem",
@@ -1104,7 +1166,9 @@ local _ClassConfig = {
         },
         ['PercInst']            = {
             DisplayName = "Percussion Instrument",
-            Index = 6,
+            Index = 106,
+            Group = "Items",
+            Header = "Instruments",
             Category = "Instruments",
             Tooltip = "Percussion Instrument to Swap in as needed.",
             Type = "ClickyItem",
@@ -1115,7 +1179,9 @@ local _ClassConfig = {
         },
         ['StringedInst']        = {
             DisplayName = "Stringed Instrument",
-            Index = 7,
+            Index = 107,
+            Group = "Items",
+            Header = "Instruments",
             Category = "Instruments",
             Tooltip = "Stringed Instrument to Swap in as needed.",
             Type = "ClickyItem",
@@ -1128,8 +1194,10 @@ local _ClassConfig = {
         -- Offensive
         ['UseAria']             = {
             DisplayName = "Use Aria",
-            Category = "Offensive",
-            Index = 1,
+            Group = "Abilities",
+            Header = "Buffs",
+            Category = "Group",
+            Index = 104,
             Tooltip = Tooltips.AriaSong,
             Type = "Combo",
             ComboOptions = { 'Never', 'In-Combat Only', 'Always', 'Out-of-Combat Only', },
@@ -1142,8 +1210,10 @@ local _ClassConfig = {
         },
         ['UseMarch']            = {
             DisplayName = "Use War March",
-            Category = "Offensive",
-            Index = 2,
+            Group = "Abilities",
+            Header = "Buffs",
+            Category = "Group",
+            Index = 105,
             Tooltip = Tooltips.WarMarchSong,
             Type = "Combo",
             ComboOptions = { 'Never', 'In-Combat Only', 'Always', 'Out-of-Combat Only', },
@@ -1156,8 +1226,10 @@ local _ClassConfig = {
         },
         ['UseProcSong']         = {
             DisplayName = "Use Group Proc",
-            Category = "Offensive",
-            Index = 3,
+            Group = "Abilities",
+            Header = "Buffs",
+            Category = "Group",
+            Index = 107,
             Tooltip = Tooltips.ProcSong,
             Type = "Combo",
             ComboOptions = { 'Never', 'In-Combat Only', 'Always', 'Out-of-Combat Only', },
@@ -1170,8 +1242,10 @@ local _ClassConfig = {
         },
         ['UseArcane']           = {
             DisplayName = "Use Arcane Line",
-            Category = "Offensive",
-            Index = 4,
+            Group = "Abilities",
+            Header = "Buffs",
+            Category = "Group",
+            Index = 106,
             Tooltip = Tooltips.ArcaneSong,
             Type = "Combo",
             ComboOptions = { 'Never', 'In-Combat Only', 'Always', 'Out-of-Combat Only', },
@@ -1184,8 +1258,10 @@ local _ClassConfig = {
         },
         ['UseEpic']             = {
             DisplayName = "Epic Use:",
-            Category = "Offensive",
-            Index = 5,
+            Group = "Items",
+            Header = "Clickies",
+            Category = "Class Config Clickies",
+            Index = 101,
             Tooltip = "Use Epic 1-Never 2-Burns 3-Always",
             Type = "Combo",
             ComboOptions = { 'Never', 'Burns Only', 'All Combat', },
@@ -1198,8 +1274,10 @@ local _ClassConfig = {
         },
         ['UseFireDots']         = {
             DisplayName = "Use Fire Dots",
-            Category = "Offensive",
-            Index = 6,
+            Group = "Abilities",
+            Header = "Damage",
+            Category = "Over Time",
+            Index = 101,
             Tooltip = Tooltips.FireDotSong,
             RequiresLoadoutChange = true,
             Default = false,
@@ -1208,8 +1286,10 @@ local _ClassConfig = {
         },
         ['UseIceDots']          = {
             DisplayName = "Use Ice Dots",
-            Category = "Offensive",
-            Index = 7,
+            Group = "Abilities",
+            Header = "Damage",
+            Category = "Over Time",
+            Index = 102,
             Tooltip = Tooltips.IceDotSong,
             RequiresLoadoutChange = true,
             Default = false,
@@ -1218,8 +1298,10 @@ local _ClassConfig = {
         },
         ['UsePoisonDots']       = {
             DisplayName = "Use Poison Dots",
-            Category = "Offensive",
-            Index = 8,
+            Group = "Abilities",
+            Header = "Damage",
+            Category = "Over Time",
+            Index = 103,
             Tooltip = Tooltips.PoisonDotSong,
             RequiresLoadoutChange = true,
             Default = false,
@@ -1228,8 +1310,10 @@ local _ClassConfig = {
         },
         ['UseDiseaseDots']      = {
             DisplayName = "Use Disease Dots",
-            Category = "Offensive",
-            Index = 9,
+            Group = "Abilities",
+            Header = "Damage",
+            Category = "Over Time",
+            Index = 104,
             Tooltip = Tooltips.DiseaseDotSong,
             RequiresLoadoutChange = true,
             Default = false,
@@ -1239,8 +1323,10 @@ local _ClassConfig = {
         },
         ['UseJonthan']          = {
             DisplayName = "Use Jonthan",
-            Category = "Offensive",
-            Index = 10,
+            Group = "Abilities",
+            Header = "Buffs",
+            Category = "Self",
+            Index = 102,
             Tooltip = Tooltips.Jonthan,
             Type = "Combo",
             ComboOptions = { 'Never', 'In-Combat Only', 'Always', 'Out-of-Combat Only', },
@@ -1255,8 +1341,10 @@ local _ClassConfig = {
         },
         ['UseShout']            = {
             DisplayName = "Use Vain. Shout",
-            Category = "Offensive",
-            Index = 11,
+            Group = "Abilities",
+            Header = "Damage",
+            Category = "AE",
+            Index = 101,
             Tooltip = "Use Vainglorious Shout (Conal DD/Resist Debuff) ***WILL BREAK MEZ***",
             Default = false,
             FAQ = "Where are my AE checks for Vainglorious Shout?",
@@ -1266,8 +1354,10 @@ local _ClassConfig = {
         -- Song Duration Adjustment
         ['RefreshDT']           = {
             DisplayName = "Downtime Threshold",
-            Category = "Song Duration",
-            Index = 1,
+            Group = "Abilities",
+            Header = "Common",
+            Category = "Under the Hood",
+            Index = 101,
             Tooltip =
             "The duration threshold for refreshing a buff song outside of combat. ***WARNING: Editing this value can drastically alter your ability to maintain buff songs!*** This needs to be carefully tailored towards your song line-up.",
             Default = 12,
@@ -1280,8 +1370,10 @@ local _ClassConfig = {
         },
         ['RefreshCombat']       = {
             DisplayName = "Combat Threshold",
-            Category = "Song Duration",
-            Index = 2,
+            Group = "Abilities",
+            Header = "Common",
+            Category = "Under the Hood",
+            Index = 102,
             Tooltip =
             "The duration threshold for refreshing a buff song in combat. ***WARNING: Editing this value can drastically alter your ability to maintain buff songs!*** This needs to be carefully tailored towards your song line-up.",
             Default = 6,
