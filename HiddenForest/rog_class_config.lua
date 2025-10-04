@@ -18,7 +18,7 @@ return {
             "Whispering Tunic of Shadows",
             "Darkraider's Vest",
         },
-        ['Epic']      = {
+        ['Epic'] = {
             "Ancient Tool of the Thieves (Tier 1)",
         },
     },
