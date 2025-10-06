@@ -812,6 +812,9 @@ _ClassConfig      = {
             "Minionskin",
             "Lesser Minionskin",
         },
+        ['EpicPetOrb'] = {
+            "Summon Orb",
+        },
     },
     ['HealRotationOrder'] = {
 
@@ -984,6 +987,28 @@ _ClassConfig      = {
     },
     -- Really the meat of this class.
     ['HelperFunctions']   = {
+        DeleteEpicOrb = function(self)
+            if mq.TLO.Cursor() and mq.TLO.Cursor.ID() > 0 then
+                Core.DoCmd("/autoinventory")
+                mq.delay(50, function() return not mq.TLO.Cursor() end)
+            end
+            if not mq.TLO.Cursor() then
+                Core.DoCmd("/nomodkey /itemnotify \"Orb of Mastery\" leftmouseup")
+                mq.delay(50, function() return mq.TLO.Cursor() end)
+                if mq.TLO.Cursor() then
+                    if mq.TLO.Cursor.ID() == 28034 then
+                        Core.DoCmd("/destroy")
+                        mq.delay(50, function() return not mq.TLO.Cursor() end)
+                        if not mq.TLO.FindItem("28034")() then
+                            return
+                        end
+                    else
+                        Logger.Log_warning("Warning: We seem to have something else on the cursor! Do you have another item named 'Orb of Mastery'? Aborting delete.")
+                    end
+                end
+            end
+            Logger.log_warning("Warning: Mage pet orb not destroyed! An error or conflict has occured.")
+        end,
         DoRez = function(self, corpseId)
             if mq.TLO.Me.ItemReady("Legendary Staff of Forbidden Rites")() then
                 if Casting.OkayToRez(corpseId) then
@@ -1287,7 +1312,7 @@ _ClassConfig      = {
             {
                 name = "Artifact of Asterion",
                 type = "Item",
-                load_cond = function(self) return Config:GetSetting("UseDonorPet") and mq.TLO.FindItem("=Artifact of Asterion") end,
+                load_cond = function(self) return Config:GetSetting("UseDonorPet") and mq.TLO.FindItem("=Artifact of Asterion")() end,
                 active_cond = function(self, _) return mq.TLO.Me.Pet.ID() > 0 end,
                 post_activate = function(self, spell, success)
                     if success and mq.TLO.Me.Pet.ID() > 0 then
@@ -1297,9 +1322,28 @@ _ClassConfig      = {
                 end,
             },
             {
+                name = "Orb of Mastery",
+                type = "Item",
+                load_cond = function(self) return Config:GetSetting("UseEpicPet") end,
+                active_cond = function(self, _) return mq.TLO.Me.Pet.ID() > 0 end,
+                cond = function(self, itemName, target)
+                    return mq.TLO.FindItem("28034")() and (mq.TLO.FindItem("28034").Charges() or 0) == 1
+                end,
+                post_activate = function(self, itemName, success)
+                    if success and mq.TLO.Me.Pet.ID() > 0 then
+                        mq.delay(50)
+                        self:SetPetHold()
+                        self.ClassConfig.HelperFunctions.DeleteEpicOrb(self)
+                    end
+                end,
+            },
+            {
                 name = "Pet Summon",
                 type = "CustomFunc",
-                load_cond = function(self) return not Config:GetSetting("UseDonorPet") or not mq.TLO.FindItem("=Artifact of Asterion") end,
+                load_cond = function(self)
+                    return (not Config:GetSetting("UseEpicPet") or not mq.TLO.Me.Book("Summon Orb")()) and
+                        (not Config:GetSetting("UseDonorPet") or not mq.TLO.FindItem("=Artifact of Asterion")())
+                end,
                 active_cond = function(self)
                     return mq.TLO.Me.Pet.ID() > 0
                 end,
@@ -1664,7 +1708,7 @@ _ClassConfig      = {
             {
                 name = "Artifact of Asterion",
                 type = "Item",
-                load_cond = function(self) return Config:GetSetting("UseDonorPet") and mq.TLO.FindItem("=Artifact of Asterion") end,
+                load_cond = function(self) return Config:GetSetting("UseDonorPet") and mq.TLO.FindItem("=Artifact of Asterion")() end,
                 cond = function(self, _) return mq.TLO.Me.Pet.ID() == 0 end,
                 post_activate = function(self, spell, success)
                     if success and mq.TLO.Me.Pet.ID() > 0 then
@@ -1722,7 +1766,7 @@ _ClassConfig      = {
             {
                 name = "Artifact of Asterion",
                 type = "Item",
-                load_cond = function(self) return Config:GetSetting("UseDonorPet") and mq.TLO.FindItem("=Artifact of Asterion") end,
+                load_cond = function(self) return Config:GetSetting("UseDonorPet") and mq.TLO.FindItem("=Artifact of Asterion")() end,
                 cond = function(self, _) return mq.TLO.Me.Pet.ID() == 0 end,
                 post_activate = function(self, spell, success)
                     if success and mq.TLO.Me.Pet.ID() > 0 then
@@ -1819,6 +1863,28 @@ _ClassConfig      = {
                 end,
             },
             {
+                name = "EpicPetOrb",
+                type = "Spell",
+                load_cond = function(self) return Config:GetSetting('UseEpicPet') end,
+                cond = function(self, spell, target)
+                    return not mq.TLO.FindItem("28034")()
+                end,
+                post_activate = function(self, spell, success)
+                    if success then
+                        Core.SafeCallFunc("Autoinventory", self.ClassConfig.HelperFunctions.HandleItemSummon, self, spell, "personal")
+                    end
+                end,
+            },
+            {
+                name = "Delete Used Epic Orb",
+                type = "CustomFunc",
+                load_cond = function(self) return Config:GetSetting('UseEpicPet') end,
+                cond = function(self)
+                    return mq.TLO.FindItem("28034")() and (mq.TLO.FindItem("28034").Charges() or 999) == 0
+                end,
+                custom_func = function(self) return self.ClassConfig.HelperFunctions.DeleteEpicOrb(self) end,
+            },
+            {
                 name = "FireOrbSummon",
                 type = "Spell",
                 cond = function(self, spell)
@@ -1908,6 +1974,7 @@ _ClassConfig      = {
                 { name = "MagicDD", },
                 { name = "Bladegusts", },
                 { name = "SwarmPet", },
+                { name = "EpicPetOrb",       cond = function(self) return Config:GetSetting('UseEpicPet') end, },
                 { name = "PBAE1",            cond = function(self) return Core.IsModeActive("PBAE") end, },
                 { name = "PBAE2",            cond = function(self) return Core.IsModeActive("PBAE") end, },
                 { name = "MaloDebuff",       cond = function(self) return Config:GetSetting('DoMalo') and not Casting.CanUseAA("Malosinete") end, },
@@ -1977,6 +2044,16 @@ _ClassConfig      = {
             Category = "Pet Summoning",
             Index = 103,
             Tooltip = "Use your Artifact of Asterion to summon the donor minotaur pet.",
+            RequiresLoadoutChange = true, -- this is a load condition
+            Default = true,
+        },
+        ['UseEpicPet']     = {
+            DisplayName = "Summon Epic Pet",
+            Group = "Abilities",
+            Header = "Pet",
+            Category = "Pet Summoning",
+            Index = 104,
+            Tooltip = "Use your Orb of Mastery to summon the epic pet.",
             RequiresLoadoutChange = true, -- this is a load condition
             Default = true,
         },

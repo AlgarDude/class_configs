@@ -555,7 +555,7 @@ local _ClassConfig = {
             {
                 name = "Artifact of Asterion",
                 type = "Item",
-                load_cond = function(self) return Config:GetSetting("UseDonorPet") and mq.TLO.FindItem("=Artifact of Asterion") end,
+                load_cond = function(self) return Config:GetSetting("UseDonorPet") and mq.TLO.FindItem("=Artifact of Asterion")() end,
                 active_cond = function(self, _) return mq.TLO.Me.Pet.ID() > 0 end,
                 post_activate = function(self, spell, success)
                     if success and mq.TLO.Me.Pet.ID() > 0 then
@@ -568,7 +568,7 @@ local _ClassConfig = {
                 name = "PetSpell",
                 type = "Spell",
                 load_cond = function(self)
-                    return not Config:GetSetting("UseDonorPet") or not mq.TLO.FindItem("=Artifact of Asterion")
+                    return not Config:GetSetting("UseDonorPet") or not mq.TLO.FindItem("=Artifact of Asterion")()
                 end,
                 active_cond = function(self, _) return mq.TLO.Me.Pet.ID() > 0 end,
                 cond = function(self, spell) return Casting.ReagentCheck(spell) end,
@@ -784,7 +784,7 @@ local _ClassConfig = {
             {
                 name = "Artifact of Asterion",
                 type = "Item",
-                load_cond = function(self) return Config:GetSetting("UseDonorPet") and mq.TLO.FindItem("=Artifact of Asterion") end,
+                load_cond = function(self) return Config:GetSetting("UseDonorPet") and mq.TLO.FindItem("=Artifact of Asterion")() end,
                 cond = function(self, _) return mq.TLO.Me.Pet.ID() == 0 end,
                 post_activate = function(self, spell, success)
                     if success and mq.TLO.Me.Pet.ID() > 0 then

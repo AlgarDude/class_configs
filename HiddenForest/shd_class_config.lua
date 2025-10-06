@@ -33,7 +33,7 @@ local Tooltips     = {
     CloakHP             = "Spell Line: Increase HP and Stacking DS",
     Covenant            = "Spell Line: Increase Mana Regen + Ultravision / Decrease HP Per Tick",
     CallAtk             = "Spell Line: Increase Attack / Decrease HP Per Tick",
-    AETaunt             = "Spell Line: PBAE Hate Increase + Taunt",
+    AETauntSpell        = "Spell Line: PBAE Hate Increase + Taunt",
     PoisonDot           = "Spell Line: Poison Dot",
     SpearNuke           = "Spell Line: Instacast Disease Nuke",
     AESpearNuke         = "Spell Line: Instacast Directional Disease Nuke",
@@ -184,7 +184,7 @@ local _ClassConfig = {
         -- ['CallAtk'] = {
         --     "Call of Darkness",
         -- },
-        ['AETaunt'] = {
+        ['AETauntSpell'] = {
             "Arel's Dread Gaze", -- Level 69
         },
         ['PoisonDot'] = {
@@ -775,7 +775,7 @@ local _ClassConfig = {
                 tooltip = Tooltips.ExplosionOfSpite,
             },
             {
-                name = "AETaunt",
+                name = "AETauntSpell",
                 type = "Spell",
                 tooltip = Tooltips.AETaunt,
                 cond = function(self, spell, target)
@@ -1098,21 +1098,21 @@ local _ClassConfig = {
                     end, -- This will set the spell name to "AESpearNuke" if the setting is enabled and we have a valid spell in our book.
                 },
                 { name = "LifeTap", },
-                { name = "SnareDot",    cond = function(self) return Config:GetSetting('DoSnare') and not Casting.CanUseAA("Encroaching Darkness") end, },
-                { name = "Terror",      cond = function(self) return Config:GetSetting('DoTerror') end, },
-                { name = "AETaunt",     cond = function(self) return Config:GetSetting('AETauntSpell') end, },
-                { name = "Anger",       cond = function(self) return Core.IsTanking() end, },
+                { name = "SnareDot",     cond = function(self) return Config:GetSetting('DoSnare') and not Casting.CanUseAA("Encroaching Darkness") end, },
+                { name = "Terror",       cond = function(self) return Config:GetSetting('DoTerror') end, },
+                { name = "AETauntSpell", cond = function(self) return Config:GetSetting('AETauntSpell') end, },
+                { name = "Anger",        cond = function(self) return Core.IsTanking() end, },
                 { name = "BiteTap", },
-                { name = "BondTap",     cond = function(self) return Config:GetSetting('DoBondTap') end, },
-                { name = "PoisonDot",   cond = function(self) return Config:GetSetting('DoPoisonDot') end, },
-                { name = "DireDot",     cond = function(self) return Config:GetSetting('DoDireDot') end, },
-                { name = "PowerTapAC",  cond = function(self) return Config:GetSetting('DoACTap') end, },
-                { name = "PowerTapAtk", cond = function(self) return Config:GetSetting('DoAtkTap') end, },
-                { name = "AELifeTap",   cond = function(self) return Config:GetSetting('DoAELifeTap') end, },
+                { name = "BondTap",      cond = function(self) return Config:GetSetting('DoBondTap') end, },
+                { name = "PoisonDot",    cond = function(self) return Config:GetSetting('DoPoisonDot') end, },
+                { name = "DireDot",      cond = function(self) return Config:GetSetting('DoDireDot') end, },
+                { name = "PowerTapAC",   cond = function(self) return Config:GetSetting('DoACTap') end, },
+                { name = "PowerTapAtk",  cond = function(self) return Config:GetSetting('DoAtkTap') end, },
+                { name = "AELifeTap",    cond = function(self) return Config:GetSetting('DoAELifeTap') end, },
                 { name = "Skin", },
-                { name = "HateBuff",    cond = function(self) return Config:GetSetting('DoHateBuff') and not Casting.CanUseAA("Voice of Thule") end, },
+                { name = "HateBuff",     cond = function(self) return Config:GetSetting('DoHateBuff') and not Casting.CanUseAA("Voice of Thule") end, },
                 { name = "LifeTap2", },
-                { name = "Terror2",     cond = function(self) return Config:GetSetting('DoTerror') end, },
+                { name = "Terror2",      cond = function(self) return Config:GetSetting('DoTerror') end, },
             },
         },
     },

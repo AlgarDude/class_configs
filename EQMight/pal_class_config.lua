@@ -285,6 +285,10 @@ return {
             "Shield of Words",
             "Armor of Faith",
         },
+        ['AEBlades'] = {
+            "Whirlwind Blade",
+            "Mayhem Blade",
+        },
     },
     ['SpellList']         = {
         {
@@ -566,7 +570,7 @@ return {
             load_cond = function()
                 local hateSpell = Config:GetSetting('DoAEStun') and (Core.GetResolvedActionMapItem('AEStun') or Core.GetResolvedActionMapItem('PBAEStun'))
                 local hateAA = Config:GetSetting('AETauntAA') and Casting.CanUseAA("Beacon of the Righteous")
-                return Core.IsTanking() and (hateSpell or hateAA)
+                return Core.IsTanking() and (Core.GetResolvedActionMapItem('AEBlades') or hateSpell or hateAA)
             end,
             targetId = function(self) return Targeting.CheckForAutoTargetID() end,
             cond = function(self, combat_state)
@@ -840,6 +844,13 @@ return {
             },
         },
         ['AEHateTools'] = {
+            {
+                name = "AEBlades",
+                type = "Disc",
+                cond = function(self, discSpell)
+                    return Config:GetSetting('DoAEDamage')
+                end,
+            },
             {
                 name = "Beacon of the Righteous",
                 type = "AA",
