@@ -9,7 +9,7 @@ local Set          = require('mq.set')
 
 local _ClassConfig = {
     -- Added Mayhem line for AE taunt
-    _version            = "3.0 - Project Lazarus (EQM Adjustments)",
+    _version            = "3.0 - EQ Might (WIP)",
     _author             = "Algar, Derple",
     ['ModeChecks']      = {
         IsTanking = function() return Core.IsModeActive("Tank") end,
@@ -620,8 +620,6 @@ local _ClassConfig = {
             Category = "Direct",
             Tooltip = "Do Battle Leap",
             Default = true,
-            FAQ = "How do I use Battle Leap?",
-            Answer = "Enable [DoBattleLeap] in the settings and you will use Battle Leap.",
         },
         ['DoPress']         = {
             DisplayName = "Do Press the Attack",
@@ -630,8 +628,6 @@ local _ClassConfig = {
             Category = "Stun",
             Tooltip = "Use the Press to Attack stun/push AA.",
             Default = false,
-            FAQ = "Why isn't Press the Attack working?",
-            Answer = "This ability must be turned on in the Abilities tab.",
         },
         ['DoSnare']         = {
             DisplayName = "Use Snares",
@@ -640,8 +636,6 @@ local _ClassConfig = {
             Category = "Snare",
             Tooltip = "Use Call of Challenge to snare enemies.",
             Default = true,
-            FAQ = "How do I use Snares?",
-            Answer = "Enable [DoSnare] in the settings and you will use Snares.",
         },
         ['DoVetAA']         = {
             DisplayName = "Use Vet AA",
@@ -649,10 +643,8 @@ local _ClassConfig = {
             Header = "Buffs",
             Category = "Self",
             Index = 8,
-            Tooltip = "Use Veteran AA's in emergencies or during Burn. (See FAQ)",
+            Tooltip = "Use Veteran AA such as Intensity of the Resolute or Armor of Experience as necessary.",
             Default = true,
-            FAQ = "What Vet AA's does WAR use?",
-            Answer = "If Use Vet AA is enabled, Intensity of the Resolute will be used on burns and Armor of Experience will be used in emergencies.",
         },
 
         --AE Damage
@@ -677,9 +669,6 @@ local _ClassConfig = {
             Default = 2,
             Min = 1,
             Max = 10,
-            FAQ = "Why am I using AE abilities on only a couple of targets?",
-            Answer =
-            "You can adjust the AE Target Count to control when you will use actions with AE damage attached.",
         },
         ['MaxAETargetCnt']  = {
             DisplayName = "Max AE Targets",
@@ -722,9 +711,6 @@ local _ClassConfig = {
             Min = 1,
             Max = 3,
             ConfigType = "Advanced",
-            FAQ = "Why is my WAR using Rampage on these trash mobs?",
-            Answer = "By default, we use the Rampage in any combat with enough AE targets (per your AE settings).\n" ..
-                "This can be adjusted in the Buffs tab.",
         },
 
         --Hate Tools
@@ -736,9 +722,6 @@ local _ClassConfig = {
             Index = 101,
             Tooltip = "Use AE hatred Discs and AA (see FAQ for specifics).",
             Default = false,
-            FAQ = "What AE Taunts are used?",
-            Answer =
-            "If Do AE Taunts is enabled, we will use (Enhanced) Area Taunt as needed. If we also enable Do AE Damage, we will use the blades line, and if the epic is enabled, it will be used.",
         },
         ['AETauntCnt']      = {
             DisplayName = "AE Taunt Count",
@@ -779,8 +762,6 @@ local _ClassConfig = {
             Min = 1,
             Max = 10,
             ConfigType = "Advanced",
-            FAQ = "What are the Defensive Discs and what order are they triggered in when the Disc Count is met?",
-            Answer = "Carapace, Mantle, Guardian, Unholy Aura, in that order. Note some may also be used preemptively on named, or in emergencies.",
         },
         ['DefenseStart']    = {
             DisplayName = "Defense HP",
@@ -793,8 +774,6 @@ local _ClassConfig = {
             Min = 1,
             Max = 100,
             ConfigType = "Advanced",
-            FAQ = "My SHD health spikes up and down a lot and abilities aren't being triggered, what gives?",
-            Answer = "You may need to tailor the emergency thresholds to your current survivability and target choice.",
         },
         ['EmergencyStart']  = {
             DisplayName = "Emergency Start",
@@ -807,8 +786,6 @@ local _ClassConfig = {
             Min = 1,
             Max = 100,
             ConfigType = "Advanced",
-            FAQ = "What rotations are cut during emergencies?",
-            Answer = "Snare, Burn, Combat Weave and Combat rotations are disabled when your health is at emergency levels.\nAdditionally, we will only use non-spell hate tools.",
         },
         ['HPCritical']      = {
             DisplayName = "HP Critical",
@@ -817,14 +794,11 @@ local _ClassConfig = {
             Category = "Defenses",
             Index = 104,
             Tooltip =
-            "The HP % that we will use disciplines like Deflection, Leechcurse, and Leech Touch.\nMost other rotations are cut to give our full focus to survival (See FAQ).",
+            "The HP % that most other rotations are cut to give our full focus to survival.",
             Default = 20,
             Min = 1,
             Max = 100,
             ConfigType = "Advanced",
-            FAQ = "What rotations are cut when HP % is critical?",
-            Answer =
-            "Hate Tools (including AE) and Leech Effect rotations are cut when HP% is critical.\nAdditionally, reaching the emergency threshold would've also cut the Snare, Burn, Combat Weave and Combat Rotations.",
         },
 
         --Equipment
@@ -836,8 +810,6 @@ local _ClassConfig = {
             Index = 101,
             Tooltip = "Click your Epic Weapon when AE Threat is needed. Also relies on Do AE Damage setting.",
             Default = false,
-            FAQ = "How do I use my Epic Weapon?",
-            Answer = "Enable Do Epic to click your Epic Weapon.",
         },
         ['DoCoating']       = {
             DisplayName = "Use Coating",
@@ -845,10 +817,8 @@ local _ClassConfig = {
             Header = "Clickies",
             Category = "Class Config Clickies",
             Index = 102,
-            Tooltip = "Click your Blood/Spirit Drinker's Coating when defenses are triggered.",
+            Tooltip = "Click your Blood Drinker's Coating when defenses are triggered.",
             Default = false,
-            FAQ = "What is a Coating?",
-            Answer = "Blood Drinker's Coating is a clickable lifesteal effect added in CotF. Spirit Drinker's Coating is an upgrade added in NoS.",
         },
         ['UseBandolier']    = {
             DisplayName = "Dynamic Weapon Swap",
@@ -859,9 +829,6 @@ local _ClassConfig = {
             Tooltip = "Enable 1H+S/2H swapping based off of current health. ***YOU MUST HAVE BANDOLIER ENTRIES NAMED \"Shield\" and \"DW\" TO USE THIS FUNCTION.***",
             RequiresLoadoutChange = true,
             Default = false,
-            FAQ = "Why is my Warrior not using Dynamic Weapon Swapping?",
-            Answer = "Make sure you have [UseBandolier] enabled in your class settings.\n" ..
-                "You must also have Bandolier entries named \"Shield\" and \"DW\" to use this function.",
         },
         ['EquipShield']     = {
             DisplayName = "Equip Shield",
@@ -873,10 +840,6 @@ local _ClassConfig = {
             Default = 50,
             Min = 1,
             Max = 100,
-            ConfigType = "Advanced",
-            FAQ = "Why is my Warrior not using a shield?",
-            Answer = "Make sure you have [UseBandolier] enabled in your class settings.\n" ..
-                "You must also have Bandolier entries named \"Shield\" and \"DW\" to use this function.",
         },
         ['EquipDW']         = {
             DisplayName = "Equip DW",
@@ -888,10 +851,6 @@ local _ClassConfig = {
             Default = 75,
             Min = 1,
             Max = 100,
-            ConfigType = "Advanced",
-            FAQ = "Why is my Warrior not using DW?",
-            Answer = "Make sure you have [UseBandolier] enabled in your class settings.\n" ..
-                "You must also have Bandolier entries named \"Shield\" and \"DW\" to use this function.",
         },
         ['NamedShieldLock'] = {
             DisplayName = "Shield on Named",

@@ -11,7 +11,7 @@ local Core      = require("utils.core")
 local Logger    = require("utils.logger")
 
 return {
-    _version            = "2.0 - Project Lazarus",
+    _version            = "2.0 - EQ Might (WIP)",
     _author             = "Derple, Algar",
     ['Modes']           = {
         'DPS',
@@ -945,8 +945,6 @@ return {
             Min = 1,
             Max = 3,
             RequiresLoadoutChange = true,
-            FAQ = "WIP?",
-            Answer = "WIP.",
         },
         ['DoManaBurn']           = {
             DisplayName = "Use Mana Burn AA",
@@ -957,8 +955,6 @@ return {
             Tooltip = "Enable usage of the Mana Burn series of AA.",
             RequiresLoadoutChange = true,
             Default = true,
-            FAQ = "Can I use Mana Burn?",
-            Answer = "Yes, you can enable [DoManaBurn] to use Mana Burn when it is available.",
         },
         ['DoRain']               = {
             DisplayName = "Do Rain",
@@ -981,12 +977,10 @@ return {
             Category = "Direct",
             Index = 104,
             ConfigType = "Advanced",
-            Tooltip = "The minimum distance a target must be to use a Rain (Rain AE Range: 25').",
+            Tooltip = "The minimum distance a target must be to use a Rain (Rain AE Range: 25'). Used to avoid harming the caster.",
             Default = 30,
             Min = 0,
             Max = 100,
-            FAQ = "Why does minimum rain distance matter?",
-            Answer = "Rain spells, if cast close enough, can damage the caster. The AE range of a Rain is 25'.",
         },
 
         --Damage (AE)
@@ -1012,9 +1006,6 @@ return {
             Default = 4,
             Min = 1,
             Max = 10,
-            FAQ = "Why am I not using my PBAE spells?",
-            Answer =
-            "You can adjust the PB Target Count to control when you will use actions PBAE Spells such as the of Flame line.",
         },
         ['MaxAETargetCnt']       = {
             DisplayName = "Max AE Targets",
@@ -1056,8 +1047,6 @@ return {
             Default = 90,
             Min = 1,
             Max = 100,
-            FAQ = "Can I customize when to use Jolt?",
-            Answer = "Yes, you can set the aggro % at which to use Jolt with the [JoltAggro] setting.",
         },
         ['DoSnare']              = {
             DisplayName = "Use Snares",
@@ -1068,8 +1057,6 @@ return {
             Tooltip = "Use Snare Spells.",
             Default = false,
             RequiresLoadoutChange = true,
-            FAQ = "Why is my Shadow Knight not snaring?",
-            Answer = "Make sure Use Snares is enabled in your class settings.",
         },
         ['SnareCount']           = {
             DisplayName = "Snare Max Mob Count",
@@ -1082,8 +1069,6 @@ return {
             Min = 1,
             Max = 99,
             FAQ = "Why is my Shadow Knight Not snaring?",
-            Answer = "Make sure you have [DoSnare] enabled in your class settings.\n" ..
-                "Double check the Snare Max Mob Count setting, it will prevent snare from being used if there are more than [x] mobs on aggro.",
         },
         ['DoStun']               = {
             DisplayName = "Do Stun",
@@ -1094,9 +1079,6 @@ return {
             Tooltip = "Use your Stun Nukes (Stun with DD, not mana efficient).",
             RequiresLoadoutChange = true,
             Default = false,
-            FAQ = "WIP?",
-            Answer =
-            "WIP.",
         },
         ['HarvestManaPct']       = {
             DisplayName = "Harvest Mana %",
@@ -1109,8 +1091,6 @@ return {
             Default = 85,
             Min = 1,
             Max = 99,
-            FAQ = "How do I use Harvest Spells?",
-            Answer = "Set the [HarvestManaPct] to the minimum mana % you want to be at before using a harvest spell or aa.",
         },
         ['CombatHarvestManaPct'] = {
             DisplayName = "Combat Harvest %",
@@ -1123,8 +1103,6 @@ return {
             Default = 60,
             Min = 1,
             Max = 99,
-            FAQ = "How do I use Harvest Spells?",
-            Answer = "Set the [HarvestManaPct] to the minimum mana % you want to be at before using a harvest spell or aa.",
         },
         ['DoArcanumWeave']       = {
             DisplayName = "Weave Arcanums",
@@ -1135,9 +1113,6 @@ return {
             Tooltip = "Weave Empowered/Enlighted/Acute Focus of Arcanum into your standard combat routine (Focus of Arcanum is saved for burns).",
             RequiresLoadoutChange = true, --this setting is used as a load condition
             Default = true,
-            FAQ = "What is an Arcanum and why would I want to weave them?",
-            Answer =
-            "The Focus of Arcanum series of AA decreases your spell resist rates.\nIf you have purchased all four, you can likely easily weave them to keep 100% uptime on one.",
         },
     },
 }
