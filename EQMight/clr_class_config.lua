@@ -231,18 +231,18 @@ local _ClassConfig = {
         ['CurePoison'] = {
             -- "Puratas", -- Excessive Cast Time
             "Antidote",
-            -- "Eradicate Poison", -- not currently available on Laz
+            "Eradicate Poison",
             "Abolish Poison",
             "Counteract Poison",
             "Cure Poison",
         },
         ['CureDisease'] = {
-            -- "Eradicate Disease", -- not currently available on Laz
+            "Eradicate Disease",
             "Counteract Disease",
             "Cure Disease",
         },
         ['CureCurse'] = {
-            -- "Eradicate Curse", -- not currently available on Laz
+            "Eradicate Curse",
             "Remove Greater Curse",
             "Remove Curse",
             "Remove Lesser Curse",

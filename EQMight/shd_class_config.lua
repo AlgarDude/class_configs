@@ -942,7 +942,7 @@ local _ClassConfig = {
                 tooltip = Tooltips.BondTap,
                 cond = function(self, spell, target)
                     if not Config:GetSetting('DoBondTap') or (Config:GetSetting('DotNamedOnly') and not Targeting.IsNamed(target)) then return false end
-                    return Casting.HaveManaToDot() and Casting.DotSpellCheck(spell)
+                    return Casting.HaveManaToDot() and Casting.SelfBuffCheck(spell) -- use for recourse --Casting.DotSpellCheck(spell)
                 end,
             },
             {
