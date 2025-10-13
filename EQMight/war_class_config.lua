@@ -87,8 +87,11 @@ local _ClassConfig = {
         ['Flaunt'] = {
             "Flaunt",
         },
-        ['ShockDisc'] = { -- Timer 7, defensive stun proc
-            "Shocking Defense Discipline",
+        -- ['ShockDisc'] = { -- Timer 7, defensive stun proc
+        --     "Shocking Defense Discipline",
+        -- },
+        ['Protective'] = {
+            "Protective Discipline",
         },
     },
     ['HelperFunctions'] = {
@@ -162,6 +165,7 @@ local _ClassConfig = {
         DefenseBuffCheck = function(self)
             local standDisc = Core.GetResolvedActionMapItem('StandDisc')
             if standDisc() and mq.TLO.Me.ActiveDisc.Name() == standDisc.RankName() then return false end
+            if mq.TLO.Me.ActiveDisc.Name() == "Protective Discipline" then return false end
             local defBuff = { "Guardian's Boon", "Guardian's Bravery", "Warlord's Bravery", }
             for _, buffName in ipairs(defBuff) do
                 if mq.TLO.Me.Buff(buffName)() then return false end
@@ -414,6 +418,13 @@ local _ClassConfig = {
             },
         },
         ['Defenses'] = {
+            {
+                name = "Protective",
+                type = "Disc",
+                cond = function(self, discSpell, target)
+                    return self.ClassConfig.HelperFunctions.DefenseBuffCheck(self)
+                end,
+            },
             { --shares effect with OoW Chest and Warlord's Bravery
                 name = "StandDisc",
                 type = "Disc",

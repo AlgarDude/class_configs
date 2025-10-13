@@ -116,10 +116,6 @@ local _ClassConfig = {
             "Heartstiller's Mail Chestguard",
             "Duskbringer's Plate Chestguard of the Hateful",
         },
-        ['Coating'] = {
-            "Spirit Drinker's Coating",
-            "Blood Drinker's Coating",
-        },
     },
     ['AbilitySets']     = {
         --Laz spells to look into: Fickle Shadows
@@ -129,7 +125,6 @@ local _ClassConfig = {
             "Ichor Guard", -- Level 56, Timer 5
         },
         ['BlockDisc'] = {
-            "Rampart Discipline",
             "Deflection Discipline",
         },
 
@@ -156,14 +151,15 @@ local _ClassConfig = {
             "Augment Death",
             "Strengthen Death",
         },
-        ['Horror'] = {           -- HP Tap Proc
-            "Shroud of Discord", -- Level 67 -- Buff Slot 1 <
-            "Shroud of Chaos",   -- Level 63
-            "Shroud of Death",   -- Level 55
+        ['Horror'] = {             -- HP Tap Proc
+            "Marrowthirst Horror", -- EQM Added
+            "Shroud of Discord",   -- Level 67 -- Buff Slot 1 <
+            "Shroud of Chaos",     -- Level 63
+            "Shroud of Death",     -- Level 55
         },
-        ['Mental'] = {           -- Mana Tap Proc
-            "Mental Horror",     -- Level 65 --Buff Slot 1 >
-            "Mental Corruption", -- Level 52
+        ['Mental'] = {             -- Mana Tap Proc
+            "Mental Horror",       -- Level 65 --Buff Slot 1 >
+            "Mental Corruption",   -- Level 52
         },
         ['Skin'] = {
             "Decrepit Skin", -- Level 70
@@ -198,6 +194,7 @@ local _ClassConfig = {
             "Spear of Plague",
         },
         ['BondTap'] = {
+            "Bond of the Blacktalon", -- EQM Added
             "Bond of Inruku",
             "Bond of Death",
             "Vampiric Curse", -- Level 57
@@ -237,6 +234,7 @@ local _ClassConfig = {
             "Zevfeer's Bite", -- Level 62
             "Inruku's Bite",
             "Ancient: Bite of Muram",
+            "Blacktalon Bite", -- EQM Added
         },
         ['Terror'] = {
             "Terror of Darkness", -- Level 33
@@ -245,6 +243,7 @@ local _ClassConfig = {
             "Terror of Terris",
             "Terror of Thule",
             "Terror of Discord",
+            "Terror of Vergalid", -- EQM added
         },
         ['Terror2'] = {
             "Terror of Darkness",
@@ -253,6 +252,7 @@ local _ClassConfig = {
             "Terror of Terris",
             "Terror of Thule",
             "Terror of Discord",
+            "Terror of Vergalid", -- EQM added
         },
         ['PowerTapAC'] = {
             "Theft of Agony",
@@ -299,6 +299,9 @@ local _ClassConfig = {
             "Greater Minionskin",
             "Minionskin",
             "Lesser Minionskin",
+        },
+        ['Protective'] = {
+            "Protective Discipline",
         },
     },
     ['HelperFunctions'] = {
@@ -669,7 +672,7 @@ local _ClassConfig = {
                 type = "Disc",
                 tooltip = Tooltips.LeechCurse,
                 cond = function(self)
-                    return Casting.NoDiscActive() and not mq.TLO.Me.Song("Rampart")()
+                    return Casting.NoDiscActive()
                 end,
             },
             {
@@ -790,7 +793,7 @@ local _ClassConfig = {
                 type = "Disc",
                 tooltip = Tooltips.UnholyAura,
                 cond = function(self)
-                    return not Core.IsTanking() and Casting.NoDiscActive() and not mq.TLO.Me.Song("Rampart")()
+                    return not Core.IsTanking() and Casting.NoDiscActive()
                 end,
             },
             {
@@ -862,12 +865,20 @@ local _ClassConfig = {
         },
         ['Defenses'] = {
             {
+                name = "Protective",
+                type = "Disc",
+                cond = function(self, discSpell, target)
+                    if not Core.IsTanking() then return false end
+                    return Casting.NoDiscActive()
+                end,
+            },
+            {
                 name = "Mantle",
                 type = "Disc",
                 tooltip = Tooltips.Mantle,
                 cond = function(self, discSpell, target)
                     if not Core.IsTanking() then return false end
-                    return Casting.NoDiscActive() and not mq.TLO.Me.Song("Rampart")()
+                    return Casting.NoDiscActive()
                 end,
             },
             {
@@ -876,14 +887,6 @@ local _ClassConfig = {
                 tooltip = Tooltips.Epic,
                 cond = function(self, itemName, target)
                     return self.ClassConfig.HelperFunctions.LeechCheck(self) or Targeting.IsNamed(target)
-                end,
-            },
-            {
-                name = "Coating",
-                type = "Item",
-                cond = function(self, itemName, target)
-                    if not Config:GetSetting('DoCoating') then return false end
-                    return Casting.SelfBuffItemCheck(itemName) and self.ClassConfig.HelperFunctions.LeechCheck(self)
                 end,
             },
             {
@@ -1032,7 +1035,7 @@ local _ClassConfig = {
                 type = "CustomFunc",
                 cond = function()
                     if mq.TLO.Me.Bandolier("2Hand").Active() then return false end
-                    return mq.TLO.Me.PctHPs() >= Config:GetSetting('Equip2Hand') and mq.TLO.Me.ActiveDisc() ~= "Deflection Discipline" and not mq.TLO.Me.Song("Rampart")() and
+                    return mq.TLO.Me.PctHPs() >= Config:GetSetting('Equip2Hand') and mq.TLO.Me.ActiveDisc() ~= "Deflection Discipline" and
                         not (Targeting.IsNamed(Targeting.GetAutoTarget()) and Config:GetSetting('NamedShieldLock'))
                 end,
                 custom_func = function(self) return ItemManager.BandolierSwap("2Hand") end,
@@ -1482,15 +1485,6 @@ local _ClassConfig = {
         },
 
         --Equipment
-        ['DoCoating']       = {
-            DisplayName = "Use Coating",
-            Group = "Items",
-            Header = "Clickies",
-            Category = "Class Config Clickies",
-            Index = 102,
-            Tooltip = "Click your Blood Drinker's Coating when defenses are triggered.",
-            Default = false,
-        },
         ['UseBandolier']    = {
             DisplayName = "Dynamic Weapon Swap",
             Group = "Items",

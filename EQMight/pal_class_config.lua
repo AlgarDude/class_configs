@@ -265,7 +265,6 @@ return {
             "Sacred Word",        -- does damage
         },
         ['BlockDisc'] = {
-            "Rampart Discipline",
             "Deflection Discipline",
         },
         ['SancDisc'] = {
@@ -288,6 +287,9 @@ return {
         ['AEBlades'] = {
             "Whirlwind Blade",
             "Mayhem Blade",
+        },
+        ['Protective'] = {
+            "Protective Discipline",
         },
     },
     ['SpellList']         = {
@@ -928,17 +930,25 @@ return {
                 load_cond = function(self) return not Core.IsTanking() end,
                 cond = function(self, discSpell, target)
                     if not Targeting.TargetBodyIs(target, "Undead") then return false end
-                    return Targeting.IsNamed(target) and Casting.NoDiscActive() and not mq.TLO.Me.Song("Rampart")()
+                    return Targeting.IsNamed(target) and Casting.NoDiscActive()
                 end,
             },
         },
         ['Defenses'] = {
             {
+                name = "Protective",
+                type = "Disc",
+                cond = function(self, discSpell, target)
+                    if not Core.IsTanking() then return false end
+                    return Casting.NoDiscActive()
+                end,
+            },
+            {
                 name = "GuardDisc",
                 type = "Disc",
                 load_cond = function(self) return Core.IsTanking() end,
                 cond = function(self, discSpell, target)
-                    return Casting.NoDiscActive() and not mq.TLO.Me.Song("Rampart")()
+                    return Casting.NoDiscActive()
                 end,
             },
             {
@@ -1086,7 +1096,7 @@ return {
                 type = "CustomFunc",
                 cond = function()
                     if mq.TLO.Me.Bandolier("2Hand").Active() then return false end
-                    return mq.TLO.Me.PctHPs() >= Config:GetSetting('Equip2Hand') and mq.TLO.Me.ActiveDisc() ~= "Deflection Discipline" and not mq.TLO.Me.Song("Rampart")() and
+                    return mq.TLO.Me.PctHPs() >= Config:GetSetting('Equip2Hand') and mq.TLO.Me.ActiveDisc() ~= "Deflection Discipline" and
                         not (Targeting.IsNamed(Targeting.GetAutoTarget()) and Config:GetSetting('NamedShieldLock'))
                 end,
                 custom_func = function(self) return ItemManager.BandolierSwap("2Hand") end,
