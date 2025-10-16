@@ -69,6 +69,9 @@ local _ClassConfig = {
         ['MezBuff'] = {
             "Ward of Bedazzlement",
         },
+        ['NdtTankBuff'] = {
+            "Boon of the Brute",
+        },
         ['NdtBuff'] = {
             "Boon of the Sanguinarch",
             "Boon of the Vampire",
@@ -119,7 +122,6 @@ local _ClassConfig = {
             "Circle of Alendar",
         },
         ['SpellProcBuff'] = {
-            "Mana Recursion",
             "Mana Flare",
         },
         ['PBAEStunSpell'] = {
@@ -658,12 +660,32 @@ local _ClassConfig = {
                 end,
             },
             {
+                name = "NdtTankBuff",
+                type = "Spell",
+                load_cond = function() return Config:GetSetting('DoNDTBuff') end,
+                active_cond = function(self, spell) return mq.TLO.Me.FindBuff("id " .. tostring(spell.ID()))() ~= nil end,
+                cond = function(self, spell, target)
+                    if not Targeting.TargetIsATank() then return false end
+                    return Casting.CastReady(spell) and Casting.GroupBuffCheck(spell, target)
+                end,
+            },
+            {
                 name = "NdtBuff",
                 type = "Spell",
                 load_cond = function() return Config:GetSetting('DoNDTBuff') end,
                 active_cond = function(self, spell) return mq.TLO.Me.FindBuff("id " .. tostring(spell.ID()))() ~= nil end,
                 cond = function(self, spell, target)
+                    if Targeting.TargetIsATank() and Core.GetResolvedActionMapItem('NdtTankBuff') then return false end
                     return Casting.CastReady(spell) and Casting.GroupBuffCheck(spell, target)
+                end,
+            },
+            {
+                name = "Artifact of Mana Strike",
+                type = "Spell",
+                load_cond = function() return Config:GetSetting('DoProcBuff') and mq.TLO.FindItem("=Artifact of Mana Strike")() end,
+                cond = function(self, itemName, target)
+                    if not Targeting.TargetIsACaster(target) then return false end
+                    return Casting.CastReady(itemName) and Casting.GroupBuffCheck(itemName, target)
                 end,
             },
             {
@@ -1067,6 +1089,7 @@ local _ClassConfig = {
                 { name = "SpinStunSpell",    cond = function(self) return Config:GetSetting('DoSpinStun') > 1 end, },
                 { name = "PBAEStunSpell",    cond = function(self) return Config:GetSetting('DoAEStun') > 1 end, },
                 { name = "NdtBuff",          cond = function(self) return Config:GetSetting('DoNDTBuff') end, },
+                { name = "NdtTankBuff",      cond = function(self) return Config:GetSetting('DoNDTBuff') end, },
                 { name = "SpellProcBuff",    cond = function(self) return Config:GetSetting('DoProcBuff') end, },
                 { name = "Dispel",           cond = function(self) return Config:GetSetting('DoDispel') end, },
                 { name = "ColoredNuke",      cond = function(self) return Config:GetSetting('DoColored') end, },

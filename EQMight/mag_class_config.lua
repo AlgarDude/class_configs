@@ -448,6 +448,7 @@ _ClassConfig      = {
             "Revival of Aenro",
             "Renewal of Aenda",
             "Renewal of Jerikor",
+            "Renewal of Lucifer", -- EQM Custom
             "Planar Renewal",
             "Transon's Elemental Renewal",
             "Transon's Elemental Infusion",

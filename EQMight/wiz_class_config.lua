@@ -57,7 +57,7 @@ return {
         },
         ['BigFireNuke'] = { -- Level 51-70, Long Cast, Heavy Damage
             -- "Ancient: Core Fire", --Ether Flame beats this soundly at the same level
-            -- "Corona Flare",       --Ether Flame beats this soundly at the same level
+            "Corona Flare", --67 on EQM
             "Ancient: Strike of Chaos",
             "White Fire",
             "Strike of Solusek",

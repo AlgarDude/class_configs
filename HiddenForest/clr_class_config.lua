@@ -257,11 +257,11 @@ local _ClassConfig = {
             "Sound of Divinity", -- works up to level 70
             "Sound of Might",
             --Filler before this
-            "Staar's Tarnation",     -- Timer 4, up to Level 65
-            "Staar's Force",         -- No Timer #, up to Level 58
-            "Holy Might",    -- No Timer #, up to Level 55
+            "Staar's Tarnation", -- Timer 4, up to Level 65
+            "Staar's Force",     -- No Timer #, up to Level 58
+            "Holy Might",        -- No Timer #, up to Level 55
         },
-        ['LowLevelStun'] = { --Adding a second stun at low levels
+        ['LowLevelStun'] = {     --Adding a second stun at low levels
             "Stun",
         },
         ['UndeadNuke'] = { -- Level 4+
@@ -295,7 +295,7 @@ local _ClassConfig = {
         ['CompleteHeal'] = {
             "Complete Heal",
         },
-        ['PBAENuke'] = {  --This isn't worthwhile before these spells come around.
+        ['PBAENuke'] = { --This isn't worthwhile before these spells come around.
             "Staar's Calamity",
             "Staar's Catastrophe",
         },
@@ -698,7 +698,7 @@ local _ClassConfig = {
                 name = "StunTimer6",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    if not Config:GetSetting('DoHealStun') then return false end
+                    if not Config:GetSetting('DoTimer6Stun') then return false end
                     return Casting.HaveManaToNuke(true) and Targeting.TargetNotStunned() and not Targeting.IsNamed(target) and not Casting.StunImmuneTarget(target)
                 end,
             },
@@ -888,7 +888,7 @@ local _ClassConfig = {
                 { name = "YaulpSpell",    cond = function(self) return Config:GetSetting('DoYaulp') and not Casting.CanUseAA("Yaulp") end, },
                 { name = "SingleVieBuff", cond = function(self) return Config:GetSetting('DoVieBuff') end, },
                 { name = "TwinHealNuke",  cond = function(self) return Config:GetSetting('DoTwinHeal') end, },
-                { name = "StunTimer6",    cond = function(self) return Config:GetSetting('DoHealStun') end, },
+                { name = "StunTimer6",    cond = function(self) return Config:GetSetting('DoTimer6Stun') end, },
                 { name = "LowLevelStun",  cond = function(self) return mq.TLO.Me.Level() < 59 end, },
                 { name = "MagicNuke",     cond = function(self) return Config:GetSetting('DoMagicNuke') end, },
                 { name = "PBAEStun",      cond = function(self) return Config:GetSetting('DoPBAEStun') end, },
@@ -1001,7 +1001,7 @@ local _ClassConfig = {
             Answer =
             "You can turn off the Twin Heal Nuke in the Spells and Abilities tab.",
         },
-        ['DoHealStun']        = {
+        ['DoTimer6Stun']      = {
             DisplayName = "Timer 6 Stun",
             Group = "Abilities",
             Header = "Debuffs",

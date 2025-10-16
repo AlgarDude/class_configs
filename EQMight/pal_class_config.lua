@@ -291,6 +291,9 @@ return {
         ['Protective'] = {
             "Protective Discipline",
         },
+        ['SelfHeal'] = { -- EQM Custom Zero-Casttime Self-heal
+            "Blessed Mantle Heal",
+        },
     },
     ['SpellList']         = {
         {

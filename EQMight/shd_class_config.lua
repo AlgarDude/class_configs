@@ -40,7 +40,6 @@ local Tooltips     = {
     BondTap             = "Spell Line: LifeTap DOT",
     DireTap             = "Spell Line: LifeTap",
     LifeTap             = "Spell Line: LifeTap",
-    AELifeTap           = "Spell Line: AE Dmg + Max HP Buff",
     BiteTap             = "Spell Line: LifeTap + ManaTap",
     ForPower            = "Spell Line: Hate Increase + Hate Increase DOT + AC Buff 'BY THE POWER OF GRAYSKULL, I HAVE THE POWER -- HE-MAN'",
     Terror              = "Spell Line: Hate Increase + Taunt",
@@ -154,6 +153,7 @@ local _ClassConfig = {
         ['Horror'] = {             -- HP Tap Proc
             "Marrowthirst Horror", -- EQM Added
             "Shroud of Discord",   -- Level 67 -- Buff Slot 1 <
+            "Black Shroud",        -- Level 65
             "Shroud of Chaos",     -- Level 63
             "Shroud of Death",     -- Level 55
         },
@@ -227,9 +227,9 @@ local _ClassConfig = {
             "Lifespike",
             "Lifetap", -- Level 8
         },
-        ['AELifeTap'] = {
-            "Grasp of Lhranc",
-        },
+        -- ['TouchTap'] = {
+        --     "Touch of Draygun",
+        -- },
         ['BiteTap'] = {
             "Zevfeer's Bite", -- Level 62
             "Inruku's Bite",
@@ -622,13 +622,6 @@ local _ClassConfig = {
                 end,
             },
             {
-                name = "Crystalized Soul Gem", -- This isn't a typo
-                type = "Item",
-                cond = function(self, itemName)
-                    return Casting.PetBuffItemCheck(itemName)
-                end,
-            },
-            {
                 name = "Minionskin",
                 type = "Spell",
                 cond = function(self, spell)
@@ -784,7 +777,7 @@ local _ClassConfig = {
             },
             {
                 name_func = function(self)
-                    return string.format("Fundament: %s Spire of Holiness", Core.IsTanking() and "Third" or "Second")
+                    return string.format("Fundament: %s Spire of the Reavers", Core.IsTanking() and "Third" or "Second")
                 end,
                 type = "AA",
             },
@@ -917,15 +910,6 @@ local _ClassConfig = {
                 cond = function(self, spell)
                     local myHP = mq.TLO.Me.PctHPs()
                     return Casting.HaveManaToNuke() and myHP <= Config:GetSetting('StartLifeTap') or myHP <= Config:GetSetting('EmergencyStart')
-                end,
-            },
-            {
-                name = "AELifeTap", --conditions on this may require further tuning, right now it does not respect the start tap settings
-                type = "Spell",
-                tooltip = Tooltips.AELifeTap,
-                cond = function(self, spell)
-                    if not (Config:GetSetting('DoAELifeTap') and Config:GetSetting('DoAEDamage')) or not spell or not spell() then return false end
-                    return Casting.SelfBuffCheck(spell) and self.ClassConfig.HelperFunctions.AETargetCheck(true)
                 end,
             },
             {
@@ -1064,7 +1048,6 @@ local _ClassConfig = {
                 { name = "DireDot",     cond = function(self) return Config:GetSetting('DoDireDot') end, },
                 { name = "PowerTapAC",  cond = function(self) return Config:GetSetting('DoACTap') end, },
                 { name = "PowerTapAtk", cond = function(self) return Config:GetSetting('DoAtkTap') end, },
-                { name = "AELifeTap",   cond = function(self) return Config:GetSetting('DoAELifeTap') end, },
                 { name = "Skin", },
                 { name = "HateBuff",    cond = function(self) return Config:GetSetting('DoHateBuff') end, },
                 { name = "LifeTap2", },
@@ -1310,16 +1293,6 @@ local _ClassConfig = {
             FAQ = "Why am I still using a lower-level spear spell?",
             Answer =
             "The three best Spears on Laz have been converted to AE spells. Enable Use AE Spear for these spells to be memorized.\nAE Damage must also be enabled for them to be used.",
-        },
-        ['DoAELifeTap']     = {
-            DisplayName = "Use AE Hate/LifeTap",
-            Group = "Abilities",
-            Header = "Damage",
-            Category = "AE",
-            Index = 103,
-            Tooltip = function() return Ui.GetDynamicTooltipForSpell("AELifeTap") end,
-            RequiresLoadoutChange = true,
-            Default = false,
         },
         ['AETargetCnt']     = {
             DisplayName = "AE Target Count",

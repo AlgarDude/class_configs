@@ -92,6 +92,7 @@ return {
             "Sha's Restoration",       -- Level 55
             "Healing of Sorsha",       -- Level 61
             "Healing of Mikkily",      -- Level 66
+            "Renewal of Lucifer",      -- EQM Custom
         },
         ['PetSpell'] = {
             "Spirit of Sharik",    -- Level 8

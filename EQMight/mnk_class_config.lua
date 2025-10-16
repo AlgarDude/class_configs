@@ -64,6 +64,9 @@ local _ClassConfig = {
         --     "Dreamwalk Discipline",
         --     "Resistant Discipline",
         -- },
+        ['HealingDisc'] = { --EQM Custom, 2m duration, 5m reuse, 500 hp/tick regen
+            "Healing Determination Discipline",
+        },
     },
     ['HelperFunctions'] = {
         --function to make sure we don't have non-hostiles in range before we use AE damage
@@ -178,7 +181,7 @@ local _ClassConfig = {
             {
                 name = "MeleeMit",
                 type = "Disc",
-                cond = function(self, aaName)
+                cond = function(self, discName)
                     return mq.TLO.Me.PctHPs() < 35
                 end,
             },
@@ -198,11 +201,10 @@ local _ClassConfig = {
                 end,
             },
             {
-                name = "Blood Drinker's Coating",
-                type = "Item",
-                load_cond = function(self) return Config:GetSetting('DoCoating') end,
-                cond = function(self, itemName, target)
-                    return Casting.SelfBuffItemCheck(itemName)
+                name = "HealingDisc",
+                type = "Disc",
+                cond = function(self, discName)
+                    return mq.TLO.Me.PctHPs() < Config:GetSetting('EmergencyStart')
                 end,
             },
             {

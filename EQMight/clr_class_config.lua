@@ -257,9 +257,12 @@ local _ClassConfig = {
             "Sound of Divinity", -- works up to level 70
             "Sound of Might",
             --Filler before this
-            "Tarnation",     -- Timer 4, up to Level 65
-            "Force",         -- No Timer #, up to Level 58
-            "Holy Might",    -- No Timer #, up to Level 55
+            "Tarnation",   -- Timer 4, up to Level 65
+            "Force",       -- No Timer #, up to Level 58
+            "Holy Might",  -- No Timer #, up to Level 55
+        },
+        ['StunTimer4'] = { -- EQM Custom (I think?)
+            "Shock of Wonder",
         },
         ['LowLevelStun'] = { --Adding a second stun at low levels
             "Stun",
@@ -673,8 +676,9 @@ local _ClassConfig = {
                 name = "GroupElixir",
                 type = "Spell",
                 allowDead = true,
+                load_cond = function(self) return Config:GetSetting('DoGroupElixir') end,
                 cond = function(self, spell)
-                    if not Config:GetSetting('DoGroupElixir') or not Config:GetSetting('GroupElixirUptime') then return false end
+                    if not Config:GetSetting('GroupElixirUptime') then return false end
                     return spell.RankName.Stacks() and (mq.TLO.Me.Song(spell).Duration.TotalSeconds() or 0) < 6
                 end,
             },
@@ -682,8 +686,8 @@ local _ClassConfig = {
                 name = "Yaulp",
                 type = "AA",
                 allowDead = true,
+                load_cond = function(self) return Config:GetSetting('DoYaulp') and Casting.CanUseAA("Yaulp") end,
                 cond = function(self, aaName)
-                    if not Config:GetSetting('DoYaulp') then return false end
                     return not mq.TLO.Me.Mount() and Casting.SelfBuffAACheck(aaName)
                 end,
             },
@@ -691,32 +695,40 @@ local _ClassConfig = {
                 name = "YaulpSpell",
                 type = "Spell",
                 allowDead = true,
+                load_cond = function(self) return Config:GetSetting('DoYaulp') and not Casting.CanUseAA("Yaulp") end,
                 cond = function(self, spell)
-                    if not Config:GetSetting('DoYaulp') or Casting.CanUseAA("Yaulp") then return false end
                     return not mq.TLO.Me.Mount() and Casting.SelfBuffCheck(spell)
                 end,
             },
             {
                 name = "TwinHealNuke",
                 type = "Spell",
+                load_cond = function(self) return Config:GetSetting('DoTwinHeal') end,
                 cond = function(self, spell)
-                    if not Config:GetSetting('DoTwinHeal') then return false end
                     return not mq.TLO.Me.Buff("Twincast")()
                 end,
             },
             {
                 name = "StunTimer6",
                 type = "Spell",
+                load_cond = function(self) return Config:GetSetting('DoTimer6Stun') end,
                 cond = function(self, spell, target)
-                    if not Config:GetSetting('DoHealStun') then return false end
-                    return Casting.HaveManaToNuke(true) and Targeting.TargetNotStunned() and not Targeting.IsNamed(target)
+                    return Casting.HaveManaToNuke(true) -- no stun checks because these are Recourse of Life procs as well
+                end,
+            },
+            {
+                name = "StunTimer4",
+                type = "Spell",
+                load_cond = function(self) return Config:GetSetting('DoTimer4Stun') end,
+                cond = function(self, spell, target)
+                    return Casting.HaveManaToNuke(true) -- no stun checks because these are Recourse of Life procs as well
                 end,
             },
             {
                 name = "LowLevelStun",
                 type = "Spell",
+                load_cond = function(self) return Config:GetSetting('DoLLStun') end,
                 cond = function(self, spell, target)
-                    if not Config:GetSetting('DoLLStun') then return false end
                     return Casting.HaveManaToNuke(true) and Targeting.TargetNotStunned() and not Targeting.IsNamed(target)
                 end,
             },
@@ -730,24 +742,25 @@ local _ClassConfig = {
             {
                 name = "QuickNuke",
                 type = "Spell",
+                load_cond = function(self) return Config:GetSetting('DoQuickNuke') end,
                 cond = function(self)
-                    if not Config:GetSetting('DoQuickNuke') then return false end
                     return Casting.OkayToNuke()
                 end,
             },
             {
                 name = "UndeadNuke",
                 type = "Spell",
+                load_cond = function(self) return Config:GetSetting('DoUndeadNuke') end,
                 cond = function(self, aaName, target)
-                    if not Config:GetSetting('DoUndeadNuke') or not Targeting.TargetBodyIs(target, "Undead") then return false end
+                    if not Targeting.TargetBodyIs(target, "Undead") then return false end
                     return Casting.OkayToNuke()
                 end,
             },
             {
                 name = "MagicNuke",
                 type = "Spell",
+                load_cond = function(self) return Config:GetSetting('DoMagicNuke') end,
                 cond = function(self)
-                    if not Config:GetSetting('DoMagicNuke') then return false end
                     return Casting.OkayToNuke()
                 end,
             },
@@ -764,6 +777,7 @@ local _ClassConfig = {
                 name = "PBAEStun",
                 type = "Spell",
                 allowDead = true,
+                load_cond = function(self) return Config:GetSetting('DoPBAEStun') end,
                 cond = function(self, spell, target)
                     return Casting.HaveManaToNuke(true) and Targeting.InSpellRange(spell, target)
                 end,
@@ -772,6 +786,7 @@ local _ClassConfig = {
                 name = "PBAENuke",
                 type = "Spell",
                 allowDead = true,
+                load_cond = function(self) return Config:GetSetting('DoPBAENuke') end,
                 cond = function(self, spell, target)
                     return Casting.OkayToNuke() and Targeting.InSpellRange(spell, target)
                 end,
@@ -906,7 +921,8 @@ local _ClassConfig = {
                 { name = "YaulpSpell",    cond = function(self) return Config:GetSetting('DoYaulp') and not Casting.CanUseAA("Yaulp") end, },
                 { name = "SingleVieBuff", cond = function(self) return Config:GetSetting('DoVieBuff') end, },
                 { name = "TwinHealNuke",  cond = function(self) return Config:GetSetting('DoTwinHeal') end, },
-                { name = "StunTimer6",    cond = function(self) return Config:GetSetting('DoHealStun') end, },
+                { name = "StunTimer6",    cond = function(self) return Config:GetSetting('DoTimer6Stun') end, },
+                { name = "StunTimer4",    cond = function(self) return Config:GetSetting('DoTimer4Stun') end, },
                 { name = "LowLevelStun",  cond = function(self) return mq.TLO.Me.Level() < 59 end, },
                 { name = "QuickNuke",     cond = function(self) return Config:GetSetting('DoQuickNuke') end, },
                 { name = "MagicNuke",     cond = function(self) return Config:GetSetting('DoMagicNuke') end, },
@@ -1004,7 +1020,7 @@ local _ClassConfig = {
             Default = true,
             ConfigType = "Advanced",
         },
-        ['DoHealStun']        = {
+        ['DoTimer6Stun']      = {
             DisplayName = "Timer 6 Stun",
             Group = "Abilities",
             Header = "Debuffs",
@@ -1014,12 +1030,22 @@ local _ClassConfig = {
             RequiresLoadoutChange = true,
             Default = true,
         },
+        ['DoTimer4Stun']      = {
+            DisplayName = "Timer 4 Stun",
+            Group = "Abilities",
+            Header = "Debuffs",
+            Category = "Stun",
+            Index = 102,
+            Tooltip = "Use the Timer 4 Stun (Shock of Wonder, EQM Custom).",
+            RequiresLoadoutChange = true,
+            Default = true,
+        },
         ['DoLLStun']          = {
             DisplayName = "Low Level Stun",
             Group = "Abilities",
             Header = "Debuffs",
             Category = "Stun",
-            Index = 102,
+            Index = 103,
             Tooltip = "Use the Level 2 \"Stun\" spell, as long as it is level-appropriate (works on targets up to Level 58).",
             RequiresLoadoutChange = true,
             Default = true,

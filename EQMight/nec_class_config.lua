@@ -274,8 +274,9 @@ local _ClassConfig = {
         --     "Guard of Calliav",
         --     "Ward of Calliav",
         -- },
-        ['PetHealSpell'] = { -- Also has cure effect for pet
+        ['PetHealSpell'] = {      -- Also has cure effect for pet
             "Dark Salve",
+            "Renewal of Lucifer", -- EQM Custom
             "Touch of Death",
             "Renew Bones",
             "Mend Bones",

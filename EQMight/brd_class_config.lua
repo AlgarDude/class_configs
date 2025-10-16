@@ -198,6 +198,9 @@ local _ClassConfig = {
             "Crission's Pixie Strike",
             "Kelin's Lucid Lullaby",
         },
+        ['MezAESong'] = {
+            "Wave of Morell",
+        },
         ['Jonthan'] = {
             "Jonthan's Inspiration",
             "Jonthan's Provocation",
@@ -749,6 +752,7 @@ local _ClassConfig = {
             -- cond = function(self) return true end, --Code kept here for illustration, if there is no condition to check, this line is not required
             spells = {
                 --role and critical functions
+                { name = "MezAESong",       cond = function(self) return Config:GetSetting('DoAEMez') end, },
                 { name = "MezSong",         cond = function(self) return Config:GetSetting('DoSTMez') end, },
                 { name = "CharmSong",       cond = function(self) return Config:GetSetting('CharmOn') end, },
                 { name = "SlowSong",        cond = function(self) return Config:GetSetting('DoSTSlow') end, },
