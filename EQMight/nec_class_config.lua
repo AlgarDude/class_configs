@@ -355,17 +355,6 @@ local _ClassConfig = {
             end,
         },
         {
-            name = 'OrbMAHeal',
-            state = 1,
-            steps = 1,
-            load_cond = function() return Config:GetSetting('DoMAOrbHeal') end,
-            targetId = function(self) return { Core.GetMainAssistId(), } or {} end,
-            cond = function(self, combat_state)
-                if not mq.TLO.FindItem("=Orb of Shadows")() or mq.TLO.FindItem("=Orb of Souls")() then return false end
-                return combat_state == "Combat" and Targeting.BigHealsNeeded(Core.GetMainAssistSpawn())
-            end,
-        },
-        {
             name = 'Scent(Terris)',
             state = 1,
             steps = 1,
@@ -477,17 +466,25 @@ local _ClassConfig = {
         },
         ['Scent(Terris)']   = {
             {
-                name = "Scent of Terris",
-                type = "AA",
-                load_cond = function(self) return Casting.CanUseAA("Scent of Terris") end,
-                cond = function(self, aaName, target)
-                    return Casting.DetAACheck(aaName)
+                name_func = function(self)
+                    local scentItems = { "Legendary Fabled Nightshade Scented Staff", "Fabled Nightshade Scented Staff", "Scent of Terris", }
+                    for _, v in ipairs(scentItems) do
+                        if mq.TLO.FindItem("=" .. v)() then
+                            return v
+                        end
+                    end
+                    return "No Scent Item Found"
+                end,
+                type = "item",
+                load_cond = function(self) return self.ClassConfig.HelperFunctions.GetScentItem ~= nil end,
+                cond = function(self, itemName, target)
+                    return Casting.DetItemCheck(itemName)
                 end,
             },
             {
                 name = "ScentDebuff",
                 type = "Spell",
-                load_cond = function(self) return not Casting.CanUseAA("Scent of Terris") end,
+                load_cond = function(self) return not self.ClassConfig.HelperFunctions.GetScentItem end,
                 cond = function(self, spell, target)
                     return Casting.DetSpellCheck(spell)
                 end,
@@ -946,18 +943,6 @@ local _ClassConfig = {
                 end,
             },
         },
-        ['OrbMAHeal']       = {
-            {
-                name = "Orb of Shadows",
-                type = "Item",
-                load_cond = function(self) return mq.TLO.Me.Book("Shadow Orb")() end,
-            },
-            {
-                name = "Orb of Souls",
-                type = "Item",
-                load_cond = function(self) return not mq.TLO.Me.Book("Shadow Orb")() end,
-            },
-        },
     },
     ['HelperFunctions'] = {
         CancelLich = function(self)
@@ -979,6 +964,15 @@ local _ClassConfig = {
                     queuedTime = os.clock(),
                 })
             end
+        end,
+        GetScentItem = function(self)
+            local scentItems = { "Legendary Fabled Nightshade Scented Staff", "Fabled Nightshade Scented Staff", "Scent of Terris", }
+            for _, v in ipairs(scentItems) do
+                if mq.TLO.FindItem("=" .. v)() then
+                    return v
+                end
+            end
+            return "No Scent Item Found"
         end,
     },
     ['SpellList']       = { -- New style spell list, gemless, priority-based. Will use the first set whose conditions are met.
