@@ -30,7 +30,6 @@ _ClassConfig      = {
             Config:SetSetting('DoAutoEngage', true)
             Config:SetSetting('DoAutoTarget', true)
             Config:SetSetting('AllowMezBreak', true)
-            Config:SetSetting('WaitOnGlobalCooldown', false)
         else
             Core.DoCmd("/pet taunt off")
             if Config:GetSetting('AutoAssistAt') == 100 then
@@ -1323,9 +1322,21 @@ _ClassConfig      = {
                 end,
             },
             {
+                name = "Ornate Orb of Mastery",
+                type = "Item",
+                load_cond = function(self) return Config:GetSetting("UseEpicPet") and mq.TLO.FindItem("=Ornate Orb of Mastery")() end,
+                active_cond = function(self, _) return mq.TLO.Me.Pet.ID() > 0 end,
+                post_activate = function(self, itemName, success)
+                    if success and mq.TLO.Me.Pet.ID() > 0 then
+                        mq.delay(50)
+                        self:SetPetHold()
+                    end
+                end,
+            },
+            {
                 name = "Orb of Mastery",
                 type = "Item",
-                load_cond = function(self) return Config:GetSetting("UseEpicPet") end,
+                load_cond = function(self) return Config:GetSetting("UseEpicPet") and not mq.TLO.FindItem("=Ornate Orb of Mastery")() end,
                 active_cond = function(self, _) return mq.TLO.Me.Pet.ID() > 0 end,
                 cond = function(self, itemName, target)
                     return mq.TLO.FindItem("28034")() and (mq.TLO.FindItem("28034").Charges() or 0) == 1
@@ -1866,7 +1877,7 @@ _ClassConfig      = {
             {
                 name = "EpicPetOrb",
                 type = "Spell",
-                load_cond = function(self) return Config:GetSetting('UseEpicPet') end,
+                load_cond = function(self) return Config:GetSetting('UseEpicPet') and not mq.TLO.FindItem("=Ornate Orb of Mastery")() end,
                 cond = function(self, spell, target)
                     return not mq.TLO.FindItem("28034")()
                 end,
@@ -1879,7 +1890,7 @@ _ClassConfig      = {
             {
                 name = "Delete Used Epic Orb",
                 type = "CustomFunc",
-                load_cond = function(self) return Config:GetSetting('UseEpicPet') end,
+                load_cond = function(self) return Config:GetSetting('UseEpicPet') and not mq.TLO.FindItem("=Ornate Orb of Mastery")() end,
                 cond = function(self)
                     return mq.TLO.FindItem("28034")() and (mq.TLO.FindItem("28034").Charges() or 999) == 0
                 end,
@@ -1975,7 +1986,7 @@ _ClassConfig      = {
                 { name = "MagicDD", },
                 { name = "Bladegusts", },
                 { name = "SwarmPet", },
-                { name = "EpicPetOrb",       cond = function(self) return Config:GetSetting('UseEpicPet') end, },
+                { name = "EpicPetOrb",       cond = function(self) return Config:GetSetting('UseEpicPet') and not mq.TLO.FindItem("=Ornate Orb of Mastery")() end, },
                 { name = "PBAE1",            cond = function(self) return Core.IsModeActive("PBAE") end, },
                 { name = "PBAE2",            cond = function(self) return Core.IsModeActive("PBAE") end, },
                 { name = "MaloDebuff",       cond = function(self) return Config:GetSetting('DoMalo') and not Casting.CanUseAA("Malosinete") end, },
