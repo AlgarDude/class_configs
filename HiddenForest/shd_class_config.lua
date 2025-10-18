@@ -17,7 +17,7 @@ local Tooltips     = {
     Blade               = "Ability Line: Double 2HS Attack w/ Accuracy Mod",
     Crimson             = "Disicpline Line: Triple Attack w/ Accuracy Mod",
     MeleeMit            = "Discipline Line: Absorb Incoming Dmg",
-    Deflection          = "Discipline: Shield Block Chance 100%",
+    BlockDisc           = "Discipline: Shield Block Chance 98-99%",
     LeechCurse          = "Discipline: Melee LifeTap w/ Increase Hit Chance",
     UnholyAura          = "Discipline: Increase LifeTap Spell Damage",
     Guardian            = "Discipline: Melee Mitigation w/ Defensive LifeTap & Lowered Melee DMG Output",
@@ -33,7 +33,7 @@ local Tooltips     = {
     CloakHP             = "Spell Line: Increase HP and Stacking DS",
     Covenant            = "Spell Line: Increase Mana Regen + Ultravision / Decrease HP Per Tick",
     CallAtk             = "Spell Line: Increase Attack / Decrease HP Per Tick",
-    AETauntSpell        = "Spell Line: PBAE Hate Increase + Taunt",
+    AETaunt             = "Spell Line: PBAE Hate Increase + Taunt",
     PoisonDot           = "Spell Line: Poison Dot",
     SpearNuke           = "Spell Line: Instacast Disease Nuke",
     AESpearNuke         = "Spell Line: Instacast Directional Disease Nuke",
@@ -125,8 +125,7 @@ local _ClassConfig = {
             "Soul Guard",
             "Ichor Guard", -- Level 56, Timer 5
         },
-        ['Deflection'] = {
-            "Rampart Discipline",
+        ['BlockDisc'] = {
             "Deflection Discipline",
         },
 
@@ -150,7 +149,6 @@ local _ClassConfig = {
             "Restless Bones",
             "Bone Walk",
             "Convoke Shadow",
-            "Leering Corpse,",
         },
         ['PetHaste'] = {
             "Rune of Decay",
@@ -184,7 +182,7 @@ local _ClassConfig = {
         -- ['CallAtk'] = {
         --     "Call of Darkness",
         -- },
-        ['AETauntSpell'] = {
+        ['AETaunt'] = {
             "Arel's Dread Gaze", -- Level 69
         },
         ['PoisonDot'] = {
@@ -407,8 +405,7 @@ local _ClassConfig = {
             targetId = function(self) return Targeting.CheckForAutoTargetID() end,
             cond = function(self, combat_state)
                 if mq.TLO.Me.PctHPs() <= Config:GetSetting('HPCritical') then return false end
-                ---@diagnostic disable-next-line: undefined-field -- doesn't like secondarypct
-                return combat_state == "Combat" and (mq.TLO.Me.PctAggro() < 100 or (mq.TLO.Target.SecondaryPctAggro() or 0) > 60 or Targeting.IsNamed(Targeting.GetAutoTarget()))
+                return combat_state == "Combat" and Targeting.HateToolsNeeded()
             end,
         },
         { --Actions that establish or maintain hatred
@@ -500,6 +497,13 @@ local _ClassConfig = {
     },
     ['Rotations']       = {
         ['Downtime'] = {
+            {
+                name = "Touch of the Cursed",
+                type = "AA",
+                cond = function(self, aaName, target)
+                    return Casting.SelfBuffAACheck(aaName)
+                end,
+            },
             {
                 name = "Horror",
                 type = "Spell",
@@ -659,8 +663,9 @@ local _ClassConfig = {
                 name = "Armor of Experience",
                 type = "AA",
                 tooltip = Tooltips.ArmorofExperience,
+                load_cond = function(self) return Config:GetSetting('DoVetAA') end,
                 cond = function(self)
-                    return mq.TLO.Me.PctHPs() <= Config:GetSetting('HPCritical') and Config:GetSetting('DoVetAA')
+                    return mq.TLO.Me.PctHPs() <= Config:GetSetting('HPCritical')
                 end,
             },
             {
@@ -669,9 +674,9 @@ local _ClassConfig = {
                 tooltip = Tooltips.OoW_BP,
             },
             { --Note that on named we may already have a defensive disc running already, could make this remove other discs, but we have other options.
-                name = "Deflection",
+                name = "BlockDisc",
                 type = "Disc",
-                tooltip = Tooltips.Deflection,
+                tooltip = Tooltips.BlockDisc,
                 pre_activate = function(self)
                     if Config:GetSetting('UseBandolier') then
                         Core.SafeCallFunc("Equip Shield", ItemManager.BandolierSwap, "Shield")
@@ -713,33 +718,28 @@ local _ClassConfig = {
                 type = "Ability",
                 tooltip = Tooltips.Taunt,
                 cond = function(self, abilityName, target)
-                    return mq.TLO.Me.TargetOfTarget.ID() ~= mq.TLO.Me.ID() and target.ID() > 0 and Targeting.GetTargetDistance(target) < 30
+                    return Targeting.LostAutoTargetAggro() and Targeting.GetTargetDistance(target) < 30
+                end,
+            },
+
+            { --8min reuse, save for we still can't get a mob back after trying to taunt
+                name = "Ageless Enmity",
+                type = "AA",
+                tooltip = Tooltips.AgelessEnmity,
+                cond = function(self, aaName, target)
+                    return (Targeting.IsNamed(target) or Targeting.GetAutoTargetPctHPs() < 90) and Targeting.LostAutoTargetAggro()
                 end,
             },
             { --pull does not work on Laz, it is just a hate tool
                 name = "Hate's Attraction",
                 type = "AA",
-                tooltip = Tooltips.AgelessEnmity,
-                cond = function(self, aaName, target)
-                    return (Targeting.GetAutoTargetPctHPs() < 90 and mq.TLO.Me.PctAggro() < 100) or Targeting.IsNamed(target)
-                end,
-            },
-
-            { --8min reuse, save for named or if we still can't get a mob back on us
-                name = "Ageless Enmity",
-                type = "AA",
-                tooltip = Tooltips.AgelessEnmity,
-                cond = function(self, aaName, target)
-                    return Targeting.GetAutoTargetPctHPs() < 90 and (mq.TLO.Me.PctAggro() < 100 or Targeting.IsNamed(target))
-                end,
             },
             {
                 name = "Projection of Doom",
                 type = "AA",
                 tooltip = Tooltips.ProjectionofDoom,
                 cond = function(self, aaName, target)
-                    ---@diagnostic disable-next-line: undefined-field
-                    return Targeting.IsNamed(target) and (mq.TLO.Target.SecondaryPctAggro() or 0) > 80
+                    return Targeting.IsNamed(target)
                 end,
             },
             {
@@ -747,9 +747,7 @@ local _ClassConfig = {
                 type = "Spell",
                 tooltip = Tooltips.Terror,
                 cond = function(self, spell, target)
-                    if Config:GetSetting('DoTerror') == 1 or mq.TLO.Me.PctHPs() <= Config:GetSetting('EmergencyStart') then return false end
-                    ---@diagnostic disable-next-line: undefined-field
-                    return (mq.TLO.Target.SecondaryPctAggro() or 0) > 60
+                    return Config:GetSetting('DoTerror')
                 end,
             },
             {
@@ -757,9 +755,7 @@ local _ClassConfig = {
                 type = "Spell",
                 tooltip = Tooltips.Terror,
                 cond = function(self, spell, target)
-                    if Config:GetSetting('DoTerror') == 1 or mq.TLO.Me.PctHPs() <= Config:GetSetting('EmergencyStart') then return false end
-                    ---@diagnostic disable-next-line: undefined-field
-                    return (mq.TLO.Target.SecondaryPctAggro() or 0) > 60
+                    return Config:GetSetting('DoTerror')
                 end,
             },
         },
@@ -775,7 +771,7 @@ local _ClassConfig = {
                 tooltip = Tooltips.ExplosionOfSpite,
             },
             {
-                name = "AETauntSpell",
+                name = "AETaunt",
                 type = "Spell",
                 tooltip = Tooltips.AETaunt,
                 cond = function(self, spell, target)
@@ -794,16 +790,13 @@ local _ClassConfig = {
             {
                 name = "Intensity of the Resolute",
                 type = "AA",
-                cond = function(self, aaName)
-                    return Config:GetSetting('DoVetAA')
-                end,
+                load_cond = function(self) return Config:GetSetting('DoVetAA') end,
             },
             {
-                name = "Fundament: Third Spire of the Reavers",
-                type = "AA",
-                cond = function(self, aaName, target)
-                    return Core.IsTanking()
+                name_func = function(self)
+                    return string.format("Fundament: %s Spire of the Reavers", Core.IsTanking() and "Third" or "Second")
                 end,
+                type = "AA",
             },
             { -- for DPS mode
                 name = "UnholyAura",
@@ -874,7 +867,7 @@ local _ClassConfig = {
                 tooltip = Tooltips.EncroachingDarkness,
                 type = "AA",
                 cond = function(self, aaName, target)
-                    return Casting.DetAACheck(aaName) and Targeting.MobHasLowHP(target)
+                    return Casting.DetAACheck(aaName) and Targeting.MobHasLowHP(target) and not Casting.SnareImmuneTarget(target)
                 end,
             },
             {
@@ -883,7 +876,7 @@ local _ClassConfig = {
                 tooltip = Tooltips.SnareDot,
                 cond = function(self, spell, target)
                     if Casting.CanUseAA("Encroaching Darkness") then return false end
-                    return Casting.DetSpellCheck(spell) and Targeting.MobHasLowHP(target)
+                    return Casting.DetSpellCheck(spell) and Targeting.MobHasLowHP(target) and not Casting.SnareImmuneTarget(target)
                 end,
             },
         },
@@ -1103,16 +1096,16 @@ local _ClassConfig = {
                 { name = "AETauntSpell", cond = function(self) return Config:GetSetting('AETauntSpell') end, },
                 { name = "Anger",        cond = function(self) return Core.IsTanking() end, },
                 { name = "BiteTap", },
-                { name = "BondTap",      cond = function(self) return Config:GetSetting('DoBondTap') end, },
-                { name = "PoisonDot",    cond = function(self) return Config:GetSetting('DoPoisonDot') end, },
-                { name = "DireDot",      cond = function(self) return Config:GetSetting('DoDireDot') end, },
-                { name = "PowerTapAC",   cond = function(self) return Config:GetSetting('DoACTap') end, },
-                { name = "PowerTapAtk",  cond = function(self) return Config:GetSetting('DoAtkTap') end, },
-                { name = "AELifeTap",    cond = function(self) return Config:GetSetting('DoAELifeTap') end, },
+                { name = "BondTap",     cond = function(self) return Config:GetSetting('DoBondTap') end, },
+                { name = "PoisonDot",   cond = function(self) return Config:GetSetting('DoPoisonDot') end, },
+                { name = "DireDot",     cond = function(self) return Config:GetSetting('DoDireDot') end, },
+                { name = "PowerTapAC",  cond = function(self) return Config:GetSetting('DoACTap') end, },
+                { name = "PowerTapAtk", cond = function(self) return Config:GetSetting('DoAtkTap') end, },
+                { name = "AELifeTap",   cond = function(self) return Config:GetSetting('DoAELifeTap') end, },
                 { name = "Skin", },
-                { name = "HateBuff",     cond = function(self) return Config:GetSetting('DoHateBuff') and not Casting.CanUseAA("Voice of Thule") end, },
+                { name = "HateBuff",    cond = function(self) return Config:GetSetting('DoHateBuff') and not Casting.CanUseAA("Voice of Thule") end, },
                 { name = "LifeTap2", },
-                { name = "Terror2",      cond = function(self) return Config:GetSetting('DoTerror') end, },
+                { name = "Terror2",     cond = function(self) return Config:GetSetting('DoTerror') end, },
             },
         },
     },
@@ -1177,8 +1170,8 @@ local _ClassConfig = {
             Default = 1,
             Min = 1,
             Max = 2,
-            FAQ = "What do the different Modes do?",
-            Answer = "Tank Mode will focus on tanking and aggro, while DPS mode will focus on DPS.",
+            FAQ = "What Modes does the Shadowknight have?",
+            Answer = "Shadowknights have a mode for Tanking and a mode for DPS.",
         },
 
         --Buffs and Debuffs
@@ -1191,8 +1184,6 @@ local _ClassConfig = {
             Tooltip = "Use Snare(Snare Dot used until AA is available).",
             Default = false,
             RequiresLoadoutChange = true,
-            FAQ = "Why is my Shadow Knight not snaring?",
-            Answer = "Make sure Use Snares is enabled in your class settings.",
         },
         ['SnareCount']      = {
             DisplayName = "Snare Max Mob Count",
@@ -1204,25 +1195,19 @@ local _ClassConfig = {
             Default = 3,
             Min = 1,
             Max = 99,
-            FAQ = "Why is my Shadow Knight Not snaring?",
-            Answer = "Make sure you have [DoSnare] enabled in your class settings.\n" ..
-                "Double check the Snare Max Mob Count setting, it will prevent snare from being used if there are more than [x] mobs on aggro.",
         },
         ['ProcChoice']      = {
-            DisplayName = "HP/Mana Proc:",
+            DisplayName = "Proc Self-Buff Choice:",
             Group = "Abilities",
             Header = "Buffs",
             Category = "Self",
             Index = 101,
-            Tooltip = "Prefer HP Proc and DLU(Azia) or Mana Proc and DLU(Beza)",
+            Tooltip = "Choose which proc you prefer, if any.",
             Type = "Combo",
-            ComboOptions = { 'HP Proc: Terror Line, DLU(Azia)', 'Mana Proc: Mental Line, DLU(Beza)', 'Disabled', },
+            ComboOptions = { 'HP Proc: Terror Line', 'Mana Proc: Mental Line,', 'Disabled', },
             Default = 1,
             Min = 1,
             Max = 3,
-            FAQ = "I am constantly running out of mana, what can I do to help?",
-            Answer = "During certain level ranges, it may be helpful to use the Mana Proc (Mental) line over the HP proc (Terror) line.\n" ..
-                "This can be adjusted on the Buffs/Debuffs tab.",
         },
         ['DoVisage']        = {
             DisplayName = "Use Visage of Death",
@@ -1242,10 +1227,10 @@ local _ClassConfig = {
             Header = "Buffs",
             Category = "Self",
             Index = 103,
-            Tooltip = "Use Veteran AA's in emergencies or during Burn. (See FAQ)",
+            Tooltip = "Use Veteran AA such as Intensity of the Resolute or Armor of Experience as necessary.",
             Default = true,
-            FAQ = "What Vet AA's does SHD use?",
-            Answer = "If Use Vet AA is enabled, Intensity of the Resolute will be used on burns and Armor of Experience will be used in emergencies.",
+            ConfigType = "Advanced",
+            RequiresLoadoutChange = true,
         },
 
         --Taps
@@ -1259,9 +1244,6 @@ local _ClassConfig = {
             Default = 99,
             Min = 1,
             Max = 100,
-            FAQ = "Why is my Shadow Knight not using Life Taps?",
-            Answer = "Make sure you have [DoLifeTap] enabled in your class settings.\n" ..
-                "Double check [StartLifeTap] seetting, this setting will prevent Life Taps from being used if your HP is above [x]%",
         },
         ['DoACTap']         = {
             DisplayName = "Use AC Tap",
@@ -1273,8 +1255,6 @@ local _ClassConfig = {
             RequiresLoadoutChange = true,
             Default = true,
             ConfigType = "Advanced",
-            FAQ = "Why am I not using my AC Tap?",
-            Answer = "AC Taps have a large period of receiving no updates (between 71 and 99). We will avoid using them after Level 75 until they are updated again.",
         },
         ['DoAtkTap']        = {
             DisplayName = "Use Attack Tap",
@@ -1286,8 +1266,6 @@ local _ClassConfig = {
             RequiresLoadoutChange = true,
             Default = true,
             ConfigType = "Advanced",
-            FAQ = "Why am I not using my Attack Tap?",
-            Answer = "Attack Taps don't receive an update after level 70; by default we will not use them after level 75.",
         },
         ['DoLeechTouch']    = {
             DisplayName = "Leech Touch Use:",
@@ -1302,8 +1280,6 @@ local _ClassConfig = {
             Min = 1,
             Max = 3,
             ConfigType = "Advanced",
-            FAQ = "Why is my Shadow Knight not using Leech Touch?",
-            Answer = "You can choose the conditions under which you will use Leech Touch on the Taps tab.",
         },
 
         --DoT Spells
@@ -1316,8 +1292,6 @@ local _ClassConfig = {
             Tooltip = function() return Ui.GetDynamicTooltipForSpell("BondTap") end,
             RequiresLoadoutChange = true,
             Default = false,
-            FAQ = "Why do I spend so much mana using these DoTs?",
-            Answer = "Dots have additional settings in the RGMercs Main config, such as the min mana% to use them.",
         },
         ['DoPoisonDot']     = {
             DisplayName = "Use Poison Dot",
@@ -1328,8 +1302,6 @@ local _ClassConfig = {
             ToolTip = function() return Ui.GetDynamicTooltipForSpell("PoisonDot") end,
             RequiresLoadoutChange = false,
             Default = true,
-            FAQ = "Why do I use a DoT just before a mob dies?",
-            Answer = "Dots have additional settings in the RGMercs Main config, such as the HP% to stop using them (for both trash and named).",
         },
         ['DoDireDot']       = {
             DisplayName = "Use Dire Dot",
@@ -1340,8 +1312,6 @@ local _ClassConfig = {
             Tooltip = function() return Ui.GetDynamicTooltipForSpell("DireDot") end,
             RequiresLoadoutChange = true,
             Default = false,
-            FAQ = "Why is my Shadow Knight not using Dire Dot?",
-            Answer = "Dire Dot is not enabled by default, you may need to select it.",
         },
         ['DotNamedOnly']    = {
             DisplayName = "Only Dot Named",
@@ -1351,9 +1321,6 @@ local _ClassConfig = {
             Index = 104,
             Tooltip = "Any selected dot above will only be used on a named mob.",
             Default = true,
-            FAQ = "Why am I not using my dots?",
-            Answer = "Make sure the dot is enabled in your class settings and make sure that the mob is named if that option is selected.\n" ..
-                "You can read more about named mobs on the RGMercs named tab (and learn how to add one on your own!)",
         },
 
         -- AE Damage
@@ -1381,7 +1348,7 @@ local _ClassConfig = {
             ConfigType = "Advanced",
             FAQ = "Why am I still using a lower-level spear spell?",
             Answer =
-            "Recently, the three best Spears on Laz were converted to AE spells. Enable Use AE Spear for these spells to be memorized.\nAE Damage must also be enabled for them to be used.",
+            "The three best Spears on Laz have been converted to AE spells. Enable Use AE Spear for these spells to be memorized.\nAE Damage must also be enabled for them to be used.",
         },
         ['DoAELifeTap']     = {
             DisplayName = "Use AE Hate/LifeTap",
@@ -1392,8 +1359,6 @@ local _ClassConfig = {
             Tooltip = function() return Ui.GetDynamicTooltipForSpell("AELifeTap") end,
             RequiresLoadoutChange = true,
             Default = false,
-            FAQ = "Why is my Shadow Knight not using the AE Tap (Insidious) Line?",
-            Answer = "The Insidious AE Hate Life Tap is not enabled by default, you may need to select it.",
         },
         ['AETargetCnt']     = {
             DisplayName = "AE Target Count",
@@ -1405,9 +1370,6 @@ local _ClassConfig = {
             Default = 2,
             Min = 1,
             Max = 10,
-            FAQ = "Why am I using AE abilities on only a couple of targets?",
-            Answer =
-            "You can adjust the AE Target Count to control when you will use actions with AE damage attached.",
         },
         ['MaxAETargetCnt']  = {
             DisplayName = "Max AE Targets",
@@ -1445,13 +1407,11 @@ local _ClassConfig = {
             Header = "Buffs",
             Category = "Self",
             Index = 103,
-            Tooltip = "Use your Visage buff (Voice of ... line). If the AA is not available, we will use/memorize the spell if we have enough open slots.",
+            Tooltip =
+            "Use your Visage buff (Voice of ... line). We will continue to use the spell if slots are available (for the damage shield). The spell can be disabled directly in rotations.",
             Default = true,
             ConfigType = "Advanced",
             RequiresLoadoutChange = true,
-            FAQ = "Why am I not using my Visage Buff, Voice of ...?",
-            Answer = "If you have the option selected in Buffs/Debuffs, you may not have enough spell gems to keep the spell on your bar with other options.\n" ..
-                "Do to the incredibly long recast time (around 9 minutes), we will not memorize these to use them on the fly.",
         },
         ['DoTerror']        = {
             DisplayName = "Use Terror Taunts",
@@ -1462,8 +1422,6 @@ local _ClassConfig = {
             Tooltip = "Use Terror line taunts (the number memorized is based on your other selected options).",
             Default = true,
             ConfigType = "Advanced",
-            FAQ = "Why is my Shadow Knight Not using Terror Taunts?",
-            Answer = "You can elect to use Terrors on the Hate Tool tab. Bear in mind we won't use them until Secondary Aggro is above 60%.",
         },
         ['AETauntAA']       = {
             DisplayName = "Use AE Taunt AA",
@@ -1486,8 +1444,6 @@ local _ClassConfig = {
             Tooltip = "Use your AE Taunt spell line.",
             Default = true,
             ConfigType = "Advanced",
-            FAQ = "Why is my Shadow Knight not using AE Taunt Spells?",
-            Answer = "Make sure you have [AETauntSpell] enabled in your class settings and ensure you set [AETauntCnt] settings to match your current needs.",
         },
         ['AETauntCnt']      = {
             DisplayName = "AE Taunt Count",
@@ -1528,8 +1484,6 @@ local _ClassConfig = {
             Min = 1,
             Max = 10,
             ConfigType = "Advanced",
-            FAQ = "What are the Defensive Discs and what order are they triggered in when the Disc Count is met?",
-            Answer = "Carapace, Mantle, Guardian, Unholy Aura, in that order. Note some may also be used preemptively on named, or in emergencies.",
         },
         ['DefenseStart']    = {
             DisplayName = "Defense HP",
@@ -1542,8 +1496,6 @@ local _ClassConfig = {
             Min = 1,
             Max = 100,
             ConfigType = "Advanced",
-            FAQ = "My SHD health spikes up and down a lot and abilities aren't being triggered, what gives?",
-            Answer = "You may need to tailor the emergency thresholds to your current survivability and target choice.",
         },
         ['EmergencyStart']  = {
             DisplayName = "Emergency Start",
@@ -1556,8 +1508,6 @@ local _ClassConfig = {
             Min = 1,
             Max = 100,
             ConfigType = "Advanced",
-            FAQ = "What rotations are cut during emergencies?",
-            Answer = "Snare, Burn, Combat Weave and Combat rotations are disabled when your health is at emergency levels.\nAdditionally, we will only use non-spell hate tools.",
         },
         ['HPCritical']      = {
             DisplayName = "HP Critical",
@@ -1566,14 +1516,11 @@ local _ClassConfig = {
             Category = "Defenses",
             Index = 104,
             Tooltip =
-            "The HP % that we will use abilities like Leechcurse and Leech Touch.\nMost other rotations are cut to give our full focus to survival (See FAQ).",
+            "The HP % that we will use abilities like Leechcurse and Leech Touch.\nMost other rotations are cut to give our full focus to survival.",
             Default = 20,
             Min = 1,
             Max = 100,
             ConfigType = "Advanced",
-            FAQ = "What rotations are cut when HP % is critical?",
-            Answer =
-            "Hate Tools (including AE) and Leech Effect rotations are cut when HP% is critical.\nAdditionally, reaching the emergency threshold would've also cut the Snare, Burn, Combat Weave and Combat Rotations.",
         },
 
         --Equipment
@@ -1583,10 +1530,8 @@ local _ClassConfig = {
             Header = "Clickies",
             Category = "Class Config Clickies",
             Index = 102,
-            Tooltip = "Click your Blood/Spirit Drinker's Coating when defenses are triggered.",
+            Tooltip = "Click your Blood Drinker's Coating when defenses are triggered.",
             Default = false,
-            FAQ = "What is a Coating?",
-            Answer = "Blood Drinker's Coating is a clickable lifesteal effect added in CotF. Spirit Drinker's Coating is an upgrade added in NoS.",
         },
         ['UseBandolier']    = {
             DisplayName = "Dynamic Weapon Swap",
@@ -1597,9 +1542,6 @@ local _ClassConfig = {
             Tooltip = "Enable 1H+S/2H swapping based off of current health. ***YOU MUST HAVE BANDOLIER ENTRIES NAMED \"Shield\" and \"2Hand\" TO USE THIS FUNCTION.***",
             Default = false,
             RequiresLoadoutChange = true,
-            FAQ = "Why is my Shadow Knight not using Dynamic Weapon Swapping?",
-            Answer = "Make sure you have [UseBandolier] enabled in your class settings.\n" ..
-                "You must also have Bandolier entries named \"Shield\" and \"2Hand\" to use this function.",
         },
         ['EquipShield']     = {
             DisplayName = "Equip Shield",
@@ -1612,9 +1554,6 @@ local _ClassConfig = {
             Min = 1,
             Max = 100,
             ConfigType = "Advanced",
-            FAQ = "Why is my Shadow Knight not using a shield?",
-            Answer = "Make sure you have [UseBandolier] enabled in your class settings.\n" ..
-                "You must also have Bandolier entries named \"Shield\" and \"2Hand\" to use this function.",
         },
         ['Equip2Hand']      = {
             DisplayName = "Equip 2Hand",
@@ -1627,9 +1566,6 @@ local _ClassConfig = {
             Min = 1,
             Max = 100,
             ConfigType = "Advanced",
-            FAQ = "Why is my Shadow Knight not using a 2Hand?",
-            Answer = "Make sure you have [UseBandolier] enabled in your class settings.\n" ..
-                "You must also have Bandolier entries named \"Shield\" and \"2Hand\" to use this function.",
         },
         ['NamedShieldLock'] = {
             DisplayName = "Shield on Named",

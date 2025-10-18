@@ -8,7 +8,7 @@ local Logger      = require("utils.logger")
 local Set         = require('mq.set')
 
 return {
-    _version              = "2.0 - EQ Might (WIP)",
+    _version              = "2.0 - Project Lazarus",
     _author               = "Derple, Algar",
     ['ModeChecks']        = {
         IsTanking = function() return Core.IsModeActive("Tank") end,
@@ -168,7 +168,7 @@ return {
         ["ArmorSelfBuff"] = {
             --- Self Buff Armor Line Ac/Hp/Mana regen
             "Armor of the Divine",   -- Level 60
-            "Aura of the Crusader",  -- Level 64
+            "Armor of the Crusader", -- Level 64
             "Armor of the Champion", -- Level 69
         },
         ["SymbolBuff"] = {
@@ -242,7 +242,6 @@ return {
             "Remove Lesser Curse",
             "Remove Curse",
             "Remove Greater Curse",
-            "Eradicate Cures",
         },
         ["ForgeDisc"] = {
             "Hallowforge Discipline",
@@ -265,6 +264,7 @@ return {
             "Sacred Word",        -- does damage
         },
         ['BlockDisc'] = {
+            "Rampart Discipline",
             "Deflection Discipline",
         },
         ['SancDisc'] = {
@@ -284,16 +284,6 @@ return {
             "Shield of Words",
             "Armor of Faith",
         },
-        ['AEBlades'] = {
-            "Whirlwind Blade",
-            "Mayhem Blade",
-        },
-        ['Protective'] = {
-            "Protective Discipline",
-        },
-        ['SelfHeal'] = { -- EQM Custom Zero-Casttime Self-heal
-            "Blessed Mantle Heal",
-        },
     },
     ['SpellList']         = {
         {
@@ -305,7 +295,6 @@ return {
                 { name = "LightHeal2",      cond = function(self) return Config:GetSetting('DoLightHeal') == 2 end, },
                 { name = "WaveHeal",        cond = function(self) return Config:GetSetting('DoWaveHeal') < 3 end, },
                 { name = "WaveHeal2",       cond = function(self) return Config:GetSetting('DoWaveHeal') == 2 end, },
-                { name = "SelfHeal", },
                 { name = "Cleansing",       cond = function(self) return Config:GetSetting('DoCleansing') < 3 end, },
                 { name = "TwinHealNuke",    cond = function(self) return Config:GetSetting('DoTwinHealNuke') end, },
                 { name = "SereneStun",      cond = function(self) return Config:GetSetting('DoSereneStun') end, },
@@ -429,8 +418,9 @@ return {
                 end,
             },
             {
-                name = "Fabled Blue Band of the Oak",
+                name = "Imbued Rune of Piety",
                 type = "Item",
+                load_cond = function(self) return mq.TLO.FindItem("=Imbued Rune of Piety")() end,
             },
             {
                 name = "WaveHeal",
@@ -575,7 +565,7 @@ return {
             load_cond = function()
                 local hateSpell = Config:GetSetting('DoAEStun') and (Core.GetResolvedActionMapItem('AEStun') or Core.GetResolvedActionMapItem('PBAEStun'))
                 local hateAA = Config:GetSetting('AETauntAA') and Casting.CanUseAA("Beacon of the Righteous")
-                return Core.IsTanking() and (Core.GetResolvedActionMapItem('AEBlades') or hateSpell or hateAA)
+                return Core.IsTanking() and (hateSpell or hateAA)
             end,
             targetId = function(self) return Targeting.CheckForAutoTargetID() end,
             cond = function(self, combat_state)
@@ -774,8 +764,9 @@ return {
             {
                 name = "Armor of Experience",
                 type = "AA",
+                load_cond = function(self) return Config:GetSetting('DoVetAA') end,
                 cond = function(self)
-                    return mq.TLO.Me.PctHPs() <= Config:GetSetting('HPCritical') and Config:GetSetting('DoVetAA')
+                    return mq.TLO.Me.PctHPs() <= Config:GetSetting('HPCritical')
                 end,
             },
             {
@@ -784,11 +775,6 @@ return {
                 cond = function(self, itemName, target)
                     return Casting.SelfBuffItemCheck(itemName)
                 end,
-            },
-            {
-                name = "Forsaken Fungus Covered Scale Tunic",
-                type = "Item",
-                load_cond = function(self) return mq.TLO.FindItem("=Forsaken Fungus Covered Scale Tunic")() end,
             },
             { --Note that on named we may already have a defensive disc running already, could make this remove other discs, but we have other options.
                 name = "BlockDisc",
@@ -849,13 +835,6 @@ return {
             },
         },
         ['AEHateTools'] = {
-            {
-                name = "AEBlades",
-                type = "Disc",
-                cond = function(self, discSpell)
-                    return Config:GetSetting('DoAEDamage')
-                end,
-            },
             {
                 name = "Beacon of the Righteous",
                 type = "AA",
@@ -934,25 +913,17 @@ return {
                 load_cond = function(self) return not Core.IsTanking() end,
                 cond = function(self, discSpell, target)
                     if not Targeting.TargetBodyIs(target, "Undead") then return false end
-                    return Targeting.IsNamed(target) and Casting.NoDiscActive()
+                    return Targeting.IsNamed(target) and Casting.NoDiscActive() and not mq.TLO.Me.Song("Rampart")()
                 end,
             },
         },
         ['Defenses'] = {
             {
-                name = "Protective",
-                type = "Disc",
-                cond = function(self, discSpell, target)
-                    if not Core.IsTanking() then return false end
-                    return Casting.NoDiscActive()
-                end,
-            },
-            {
                 name = "GuardDisc",
                 type = "Disc",
                 load_cond = function(self) return Core.IsTanking() end,
                 cond = function(self, discSpell, target)
-                    return Casting.NoDiscActive()
+                    return Casting.NoDiscActive() and not mq.TLO.Me.Song("Rampart")()
                 end,
             },
             {
@@ -1076,14 +1047,6 @@ return {
                 name = "Slam",
                 type = "Ability",
             },
-            {
-                name = "Forsaken Fungus Covered Scale Tunic",
-                type = "Item",
-                load_cond = function(self) return mq.TLO.FindItem("=Forsaken Fungus Covered Scale Tunic")() end,
-                cond = function(self, itemName, target)
-                    return mq.TLO.Me.PctMana() < 30 or mq.TLO.Me.PctEndurance() < 30
-                end,
-            },
         },
         ['Weapon Management'] = {
             {
@@ -1100,7 +1063,7 @@ return {
                 type = "CustomFunc",
                 cond = function()
                     if mq.TLO.Me.Bandolier("2Hand").Active() then return false end
-                    return mq.TLO.Me.PctHPs() >= Config:GetSetting('Equip2Hand') and mq.TLO.Me.ActiveDisc() ~= "Deflection Discipline" and
+                    return mq.TLO.Me.PctHPs() >= Config:GetSetting('Equip2Hand') and mq.TLO.Me.ActiveDisc() ~= "Deflection Discipline" and not mq.TLO.Me.Song("Rampart")() and
                         not (Targeting.IsNamed(Targeting.GetAutoTarget()) and Config:GetSetting('NamedShieldLock'))
                 end,
                 custom_func = function(self) return ItemManager.BandolierSwap("2Hand") end,
@@ -1559,6 +1522,8 @@ return {
             Index = 102,
             Tooltip = "Use Veteran AA such as Intensity of the Resolute or Armor of Experience as necessary.",
             Default = true,
+            ConfigType = "Advanced",
+            RequiresLoadoutChange = true,
         },
 
         --Buffs

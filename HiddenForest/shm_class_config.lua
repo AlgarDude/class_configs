@@ -7,7 +7,7 @@ local Casting      = require("utils.casting")
 local Logger       = require("utils.logger")
 
 local _ClassConfig = {
-    _version              = "3.0 - EQ Might (WIP)",
+    _version              = "3.0 - Project Lazarus",
     _author               = "Algar, Derple",
     ['ModeChecks']        = {
         IsHealing = function() return true end,
@@ -158,14 +158,10 @@ local _ClassConfig = {
             "Spirit of Monkey",
             "Dexterous Aura",
         },
-        ['EvasionBuff'] = { -- on EQM these are evasion buffs, not AGI.
-            "Talisman of Sense",
-            "Spirit of Sense",
-        },
         ["LowLvlAgiBuff"] = {
             --- Low Level AGI Buff -- This has no real place outside of raids on select tanks. Waste of mana.
-            -- "Talisman of Sense",
-            -- "Spirit of Sense",
+            "Talisman of Sense",
+            "Spirit of Sense",
             "Talisman of the Wrulan",
             "Agility of the Wrulan",
             "Talisman of the Cat",
@@ -213,10 +209,8 @@ local _ClassConfig = {
         ["MeleeProcBuff"] = {
             "Talisman of the Panther",
             -- Below Level 70 This is a single target buff and will be keyed off of the MA
-            -- "Spirit of the Panther",
-            --"Talisman of the Leopard", -- EQ Might Custom, but item only currently
-            -- "Spirit of the Leopard",
-            "Talisman of the Jaguar", -- EQ Might Custom, Level 61
+            "Spirit of the Panther",
+            "Spirit of the Leopard",
             "Spirit of the Jaguar",
             "Spirit of the Puma",
         },
@@ -279,6 +273,9 @@ local _ClassConfig = {
             "Cannibalize II",
             "Cannibalize",
         },
+        -- ["CureSpell"] = { --This is not useful in light of the alternatives
+        --     "Blood of Nadox",
+        -- },
         ["TwinHealNuke"] = {
             -- Nuke the MA Not the assist target - Levels 70
             "Frostfall Boon",
@@ -386,12 +383,6 @@ local _ClassConfig = {
         ["PutridDecay"] = { -- Level 66 Poi/Dis resist debuff
             "Putrid Decay",
         },
-        ['Minionskin'] = { --EQM Custom: HP/Regen/mitigation (May need to block druid HP buff line on pet)
-            "Major Minionskin",
-            "Greater Minionskin",
-            "Minionskin",
-            "Lesser Minionskin",
-        },
     },
     ['HelperFunctions']   = {
         DoRez = function(self, corpseId, ownerName)
@@ -450,10 +441,6 @@ local _ClassConfig = {
                 end,
             },
             {
-                name = "Fabled Blue Band of the Oak",
-                type = "Item",
-            },
-            {
                 name = "GroupHeal",
                 type = "Spell",
             },
@@ -473,10 +460,6 @@ local _ClassConfig = {
                 cond = function(self, aaName, target)
                     return Targeting.TargetIsMyself(target)
                 end,
-            },
-            {
-                name = "Legendary Aged Hammer of the Dragonborn",
-                type = "Item",
             },
             {
                 name = "Zun'Muram's Spear of Doom",
@@ -627,26 +610,11 @@ local _ClassConfig = {
     ['Rotations']         = {
         ['CombatBuff'] = {
             {
-                name = "Artifact of the Leopard",
-                type = "Item",
-                load_cond = function(self)
-                    return mq.TLO.FindItem("=Artifact of the Leopard")() and mq.TLO.Me.Level() >= 65 and
-                        (Core.GetResolvedActionMapItem('MeleeProcBuff').Level() or 999) < 70
-                end,
-                cond = function(self, itemName, target)
-                    return Targeting.IsNamed(target) and Casting.DotItemCheck(itemName, target)
-                end,
-            },
-            {
                 name = "MeleeProcBuff",
                 type = "Spell",
-                load_cond = function(self)
-                    return not mq.TLO.FindItem("=Artifact of the Leopard")() or mq.TLO.Me.Level() < 65 or
-                        (Core.GetResolvedActionMapItem('MeleeProcBuff').Level() or 0) == 70
-                end,
                 cond = function(self, spell, target)
-                    if not Casting.CastReady(spell) then return false end                                          --avoid constant group buff checks
-                    return Casting.GroupBuffCheck(spell, target) and not Casting.PeerBuffCheck(9975, target, true) --Panther Rk. II
+                    if not Casting.CastReady(spell) then return false end --avoid constant group buff checks
+                    return Casting.GroupBuffCheck(spell, target)
                 end,
             },
         },
@@ -702,9 +670,7 @@ local _ClassConfig = {
             {
                 name = "Intensity of the Resolute",
                 type = "AA",
-                cond = function(self, aaName)
-                    return Config:GetSetting('DoVetAA')
-                end,
+                load_cond = function(self) return Config:GetSetting('DoVetAA') end,
             },
             {
                 name = "Shattered Gnoll Slayer",
@@ -743,7 +709,7 @@ local _ClassConfig = {
                 type = "AA",
                 cond = function(self, aaName, target)
                     if not Config:GetSetting('DoAESlow') then return false end
-                    return Targeting.GetXTHaterCount() >= Config:GetSetting('AESlowCount') and Casting.DetAACheck(aaName)
+                    return Targeting.GetXTHaterCount() >= Config:GetSetting('AESlowCount') and Casting.DetAACheck(aaName) and not Casting.SlowImmuneTarget(target)
                 end,
             },
             {
@@ -751,7 +717,7 @@ local _ClassConfig = {
                 type = "Spell",
                 cond = function(self, spell, target)
                     if not Config:GetSetting('DoAESlow') or Casting.CanUseAA("Tigir's Insect Swarm") then return false end
-                    return Targeting.GetXTHaterCount() >= Config:GetSetting('AESlowCount') and Casting.DetSpellCheck(spell)
+                    return Targeting.GetXTHaterCount() >= Config:GetSetting('AESlowCount') and Casting.DetSpellCheck(spell) and not Casting.SlowImmuneTarget(target)
                 end,
             },
             {
@@ -759,7 +725,7 @@ local _ClassConfig = {
                 type = "AA",
                 cond = function(self, aaName, target)
                     if not Config:GetSetting('DoSTSlow') or Config:GetSetting('DoDiseaseSlow') then return false end
-                    return Casting.DetAACheck(aaName)
+                    return Casting.DetAACheck(aaName) and not Casting.SlowImmuneTarget(target)
                 end,
             },
             {
@@ -934,13 +900,6 @@ local _ClassConfig = {
                     return Casting.PetBuffItemCheck(itemName)
                 end,
             },
-            {
-                name = "Minionskin",
-                type = "Spell",
-                cond = function(self, spell)
-                    return Casting.PetBuffCheck(spell)
-                end,
-            },
         },
         ['GroupBuff'] = {
             {
@@ -985,13 +944,6 @@ local _ClassConfig = {
                 type = "Spell",
                 cond = function(self, spell, target)
                     return Targeting.TargetIsAMelee(target) and Casting.CastReady(spell) and Casting.GroupBuffCheck(spell, target)
-                end,
-            },
-            {
-                name = "EvasionBuff",
-                type = "Spell",
-                cond = function(self, spell, target)
-                    return Targeting.TargetIsATank(target) and Casting.GroupBuffCheck(spell, target)
                 end,
             },
             {
@@ -1147,20 +1099,15 @@ local _ClassConfig = {
                             not Casting.CanUseAA("Radiant Cure")
                     end,
                 },
-                { name = "CureCurse",   cond = function(self) return Config:GetSetting('KeepCurseMemmed') end, },
-                { name = "SlowSpell",   cond = function(self) return not Casting.CanUseAA("Turgur's Swarm") and Config:GetSetting('DoSTSlow') end, },
-                { name = "AESlowSpell", cond = function(self) return not Casting.CanUseAA("Tigir's Insect Swarm") and Config:GetSetting('DoAESlow') end, },
-                { name = "DiseaseSlow", cond = function(self) return Config:GetSetting('DoSTSlow') and Config:GetSetting('DoDiseaseSlow') end, },
-                { name = "MaloSpell",   cond = function(self) return not Casting.CanUseAA("Malosinete") and Config:GetSetting('DoSTMalo') end, },
-                { name = "AEMaloSpell", cond = function(self) return Config:GetSetting('DoAEMalo') end, },
-                { name = "PutridDecay", cond = function(self) return Config:GetSetting('DoPutrid') end, },
-                { name = "CanniSpell",  cond = function(self) return Config:GetSetting('DoSpellCanni') end, },
-                {
-                    name = "MeleeProcBuff",
-                    cond = function(self)
-                        return (Core.GetResolvedActionMapItem('MeleeProcBuff').Level() or 0) == 70 or not mq.TLO.FindItem("=Artifact of the Leopard")() or mq.TLO.Me.Level() < 65
-                    end,
-                },
+                { name = "CureCurse",       cond = function(self) return Config:GetSetting('KeepCurseMemmed') end, },
+                { name = "SlowSpell",       cond = function(self) return not Casting.CanUseAA("Turgur's Swarm") and Config:GetSetting('DoSTSlow') end, },
+                { name = "AESlowSpell",     cond = function(self) return not Casting.CanUseAA("Tigir's Insect Swarm") and Config:GetSetting('DoAESlow') end, },
+                { name = "DiseaseSlow",     cond = function(self) return Config:GetSetting('DoSTSlow') and Config:GetSetting('DoDiseaseSlow') end, },
+                { name = "MaloSpell",       cond = function(self) return not Casting.CanUseAA("Malosinete") and Config:GetSetting('DoSTMalo') end, },
+                { name = "AEMaloSpell",     cond = function(self) return Config:GetSetting('DoAEMalo') end, },
+                { name = "PutridDecay",     cond = function(self) return Config:GetSetting('DoPutrid') end, },
+                { name = "CanniSpell",      cond = function(self) return Config:GetSetting('DoSpellCanni') end, },
+                { name = "MeleeProcBuff", },
                 { name = "SlowProcBuff", },
                 { name = "LowLvlAtkBuff", },
                 { name = "SingleRegenBuff", cond = function(self) return not Core.GetResolvedActionMapItem('GroupRegenBuff') and Config:GetSetting('DoRegenBuff') end, },
@@ -1542,14 +1489,15 @@ local _ClassConfig = {
             Default = true,
         },
         ['DoVetAA']           = {
-            DisplayName = "Do Vet AA",
+            DisplayName = "Use Vet AA",
             Group = "Abilities",
             Header = "Buffs",
             Category = "Self",
             Index = 102,
-            Tooltip = "Use Veteran AA during burns (See FAQ).",
+            Tooltip = "Use Veteran AA such as Intensity of the Resolute or Armor of Experience as necessary.",
             Default = true,
             ConfigType = "Advanced",
+            RequiresLoadoutChange = true,
         },
 
         -- Debuffs
