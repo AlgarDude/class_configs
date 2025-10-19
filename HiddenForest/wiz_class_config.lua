@@ -11,7 +11,7 @@ local Core      = require("utils.core")
 local Logger    = require("utils.logger")
 
 return {
-    _version            = "2.0 - Project Lazarus",
+    _version            = "2.0 - The Hidden Forest WIP",
     _author             = "Derple, Algar",
     ['Modes']           = {
         'DPS',
@@ -33,78 +33,79 @@ return {
     },
     ['AbilitySets']     = {
         ['IceClaw'] = {
-            "Claw of Vox",
-            "Claw of Frost",
+            "Fluxin's Claw of Vox",
+            "Fluxin's Claw of Frost",
         },
         ['FireEtherealNuke'] = {
             "Ether Flame",
         },
-        ['ChaosNuke'] = {
-            "Chaos Flame",
-        },
-        ['WildNuke'] = {
-            "Wildmagic Burst",
-        },
+        -- ['ChaosNuke'] = {
+        --     "Chaos Flame",
+        -- },
+        -- ['WildNuke'] = {
+        --     "Wildmagic Burst",
+        -- },
         ['FireNuke'] = {
             "Spark of Fire",
             "Draught of Ro",
-            "Draught of Fire",
-            "Conflagration",
-            "Inferno Shock",
-            "Flame Shock",
-            "Fire Bolt",
-            "Shock of Fire",
+            "Fluxin's Draught of Fire",
+            "Fluxin's Conflagration",
+            "Fluxin's Inferno Shock",
+            "Fluxin's Flame Shock",
+            "Fluxin's Fire Bolt",
+            "Fluxin's Shock of Fire",
         },
         ['BigFireNuke'] = { -- Level 51-70, Long Cast, Heavy Damage
             -- "Ancient: Core Fire", --Ether Flame beats this soundly at the same level
             -- "Corona Flare",       --Ether Flame beats this soundly at the same level
-            "Ancient: Strike of Chaos",
-            "White Fire",
-            "Strike of Solusek",
-            "Garrison's Superior Sundering",
-            "Sunstrike",
+            "Fluxin's Ancient: Strike of Chaos",
+            "Fluxin's White Fire",
+            "Fluxin's Strike of Solusek",
+            "Fluxin's Garrisons Superior Sundering",
+            "Fluxin's Sunstrike",
         },
         ['IceNuke'] = {
             -- "Ancient: Spear of Gelaqua" -- Commented for now, because of the recast... considering, need to playtest.
-            "Spark of Ice",
-            "Black Ice",
-            "Draught of E`ci",
-            "Draught of Ice",
-            "Ice Comet",
-            "Ice Shock",
-            "Frost Shock",
-            "Shock of Ice",
-            "Blast of Cold",
+            "Fluxin's Spark of Ice",
+            "Fluxin's Black Ice",
+            "Fluxin's Draught of E`ci",
+            "Fluxin's Draught of Ice",
+            "Fluxin's Ice Comet",
+            "Fluxin's Ice Shock",
+            "Fluxin's Frost Shock",
+            "Fluxin's Shock of Ice",
+            "Fluxin's Blast of Cold",
         },
         ['BigIceNuke'] = { -- Level 60-70, Timed with great Ratio or High Cast Time/Damage
-            "Gelidin Comet",
-            "Ice Meteor",
-            "Ancient: Destruction of Ice", --13s T1
-            "Ice Spear of Solist",         --13s T2
+            "Fluxin's Gelidin Comet",
+            "Fluxin's Ice Meteor",
+            "Fluxin's Ancient: Destruction of Ice", --13s T1
+            "Fluxin's Ice Spear Solist",            --13s T2
         },
         ['MagicNuke'] = {
-            "Spark of Lightning",
+            "Fluxin's Spark of Lightning",
             "Draught of Lightning",
-            "Voltaic Draught",
-            "Rend",
-            "Lightning Shock",
-            "Garrison's Mighty Mana Shock",
-            "Shock of Lightning",
+            "Fluxin's Voltaic Draught",
+            "Fluxin's Rend",
+            "Fluxin's Lightning Shock",
+            "Fluxin's Garrisons Mighty Mana Shock",
+            "Fluxin's Shock of Lightning",
         },
         ['BigMagicNuke'] = { -- Level 60-68, High Cast Time/Damage
-            "Thundaka",
+            "Fluxin's Thundaka",
             "Shock of Magic",
-            "Agnarr's Thunder",
-            "Elnerick's Electrical Rending",
+            "Fluxin's Thunder",
+            "Fluxin's Electrical Rending",
         },
         ['StunSpell'] = {
             "Telakemara",
             "Telekara",
             "Telaka",
             "Telekin",
-            "Markar's Discord",
+            "Fluxin's Discord",
             "Markar's Clash",
             "Tishan's Clash",
+            "Fluxin's Clash",
         },
         ['SelfHPBuff'] = {
             "Ether Shield",
@@ -192,40 +193,40 @@ return {
         -- },
         ['IceRain'] = {
             "Gelid Rains",
-            "Tears of Marr",
-            "Tears of Prexus",
-            "Frost Storm",
-            "Icestrike",
+            "Fluxin's Tears of Marr",
+            "Fluxin's Tears of Prexus",
+            "Fluxin's Frost Storm",
+            "Fluxin's Icestrike",
         },
         ['FireRain'] = {
-            "Tears of the Sun",
-            "Tears of Ro",
-            "Tears of Solusek",
-            "Lava Storm",
-            "Firestorm",
+            "Fluxin's Tears of the Sun",
+            "Fluxin's Tears of Ro",
+            "Fluxin's Tears of Solusek",
+            "Fluxin's Lava Storm",
+            "Fluxin's Firestorm",
         },
         -- ['FireLureRain'] = {
         --     "Meteor Storm",
         --     "Tears of Arlyxir",
         -- },
         ['PBTimer4'] = {
-            "Circle of Thunder", -- Level 70, Magic
-            "Circle of Fire",    -- Level 67, Fire
-            "Winds of Gelid",    -- Level 60, Ice
-            "Supernova",         -- Level 45, Fire
-            "Thunderclap",       -- Level 30, Magic
+            "Circle of Thunder",       -- Level 70, Magic
+            "Fluxin's Circle of Fire", -- Level 67, Fire
+            "Fluxin's Winds of Gelid", -- Level 60, Ice
+            "Fluxin's Supernova",      -- Level 45, Fire
+            "Fluxin's Thunderclap",    -- Level 30, Magic
         },
         ['FireJyll'] = {
-            "Jyll's Wave of Heat", -- Level 59
+            "Fluxin's  Wave of Heat", -- Level 59
         },
         ['IceJyll'] = {
-            "Jyll's Zephyr of Ice", -- Level 56
+            "Fluxin's  Zephyr of Ice", -- Level 56
         },
         ['MagicJyll'] = {
-            "Jyll's Static Pulse", -- Level 53
+            "Fluxin's  Static Pulse", -- Level 53
         },
         ['ManaWeave'] = {
-            "Mana Weave",
+            "Fluxin's Mana Weave",
         },
         ['SwarmPet'] = {
             -- "Solist's Frozen Sword", -- Bugged, does not attack on Laz/Emu
@@ -562,14 +563,14 @@ return {
                     return not Casting.IHaveBuff("Weave of Power")
                 end,
             },
-            {
-                name = "ChaosNuke",
-                type = "Spell",
-            },
-            {
-                name = "WildNuke",
-                type = "Spell",
-            },
+            -- {
+            --     name = "ChaosNuke",
+            --     type = "Spell",
+            -- },
+            -- {
+            --     name = "WildNuke",
+            --     type = "Spell",
+            -- },
             {
                 name = "Scepter of Incantations",
                 type = "Item",
@@ -777,7 +778,7 @@ return {
         {
             gem = 3,
             spells = {
-                { name = "WildNuke", },
+                -- { name = "WildNuke", },
                 { name = "FireRain",     cond = function() return Config:GetSetting('DoRain') and Config:GetSetting('ElementChoice') == 1 end, },
                 { name = "IceRain",      cond = function() return Config:GetSetting('DoRain') and Config:GetSetting('ElementChoice') == 2 end, },
                 { name = "HarvestSpell", cond = function() return not Casting.CanUseAA("Harvest of Druzzil") end, },
@@ -792,7 +793,7 @@ return {
         {
             gem = 4,
             spells = {
-                { name = "ChaosNuke", },
+                -- { name = "ChaosNuke", },
                 { name = "HarvestSpell", cond = function() return not Casting.CanUseAA("Harvest of Druzzil") end, },
                 { name = "SnareSpell",   cond = function() return Config:GetSetting('DoSnare') and not Casting.CanUseAA("Atol's Shackles") end, },
                 { name = "StunSpell",    cond = function() return Config:GetSetting('DoStun') end, },

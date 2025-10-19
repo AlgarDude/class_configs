@@ -8,7 +8,7 @@ local Logger      = require("utils.logger")
 local Set         = require('mq.set')
 
 return {
-    _version              = "2.0 - Project Lazarus",
+    _version              = "2.0 - The Hidden Forest WIP",
     _author               = "Derple, Algar",
     ['ModeChecks']        = {
         IsTanking = function() return Core.IsModeActive("Tank") end,
@@ -90,7 +90,7 @@ return {
         },
         ["QuickUndeadNuke"] = {
             -- Undead Quick Nuke with chance to snare and reduce AC
-            "Last Rites", -- Level 68 - Timer 7
+            "Auron's Last Rites", -- Level 68 - Timer 7
         },
         ["DDProc"] = {
             --- Fury Proc Strike
@@ -114,7 +114,8 @@ return {
         },
         ["StunTimer4"] = {
             "Cease",           -- Level 7 - Not Timer 4, use for TLP Low Level Stun
-            "Force",           -- Level 52 - Not Timer 4, use for TLP Low Level Stun
+            "Staar's Holy Might",
+            "Staar's Force",   -- Level 52 - Not Timer 4, use for TLP Low Level Stun
             "Force of Akilae", -- Level 62
             "Force of Piety",  -- Level 66
         },
@@ -146,24 +147,24 @@ return {
         ["WaveHeal"] = {
             "Wave of Piety",
             "Wave of Trushar",
-            "Wave of Marr",
-            "Healing Wave of Prexus",
-            "Wave of Healing",
-            "Wave of Life",
+            "Auron's Wave of Marr",
+            "Auron's Healing Wave of Prexus",
+            "Auron's Wave of Healing",
+            "Auron's Wave of Life",
         },
         ["WaveHeal2"] = {
             "Wave of Piety",
             "Wave of Trushar",
-            "Wave of Marr",
-            "Healing Wave of Prexus",
-            "Wave of Healing",
-            "Wave of Life",
+            "Auron's Wave of Marr",
+            "Auron's Healing Wave of Prexus",
+            "Auron's Wave of Healing",
+            "Auron's Wave of Life",
         },
         ["Cleansing"] = {
-            "Pious Cleansing",     -- Level 69
-            "Supernal Cleansing",  -- Level 64
-            "Celestial Cleansing", -- Level 59
-            "Ethereal Cleansing",  -- Level 44
+            "Auron's Pious Cleansing",     -- Level 69
+            "Auron's Supernal Cleansing",  -- Level 64
+            "Auron's Celestial Cleansing", -- Level 59
+            "Auron's Ethereal Cleansing",  -- Level 44
         },
         ["ArmorSelfBuff"] = {
             --- Self Buff Armor Line Ac/Hp/Mana regen
@@ -183,33 +184,33 @@ return {
         ["SereneStun"] = {
             --- Lesson Stun - Timer 6
             "Quellious' Word of Tranquility", -- Level 54
-            "Quellious' Word of Serenity",    -- Level 64
-            "Serene Command",                 -- Level 68
+            "Auron's Word of Serenity",       -- Level 64
+            "Auron's Serene Command",         -- Level 68
         },
         ["TouchHeal"] = {
             -- Target Light Heal
-            "Salve",            -- Level 1
-            "Minor Healing",    -- Level 6
-            "Light Healing",    -- Level 12
-            "Healing",          -- Level 27
-            "Greater Healing",  -- Level 36
-            "Superior Healing", -- Level 57
-            "Touch of Nife",
-            "Touch of Piety",
+            "Murg's Salve",             -- Level 1
+            "Staar's Minor Healing",    -- Level 6
+            "Staar's Light Healing",    -- Level 12
+            "Staar's Healing",          -- Level 27
+            "Staar's Greater Healing",  -- Level 36
+            "Staar's Superior Healing", -- Level 57
+            "Auron's Touch of Nife",
+            "Auron's Touch of Piety",
         },
         ["LightHeal"] = {
             -- ToT Light Heal
-            "Light of Life",  -- Level 52
-            "Light of Nife",  -- Level 63
-            "Light of Order", -- Level 65
-            "Light of Piety", -- Level 68
+            "Light of Life",          -- Level 52
+            "Auron's Light of Nife",  -- Level 63
+            "Auron's Light of Order", -- Level 65
+            "Auron's Light of Piety", -- Level 68
         },
         ["LightHeal2"] = {
             -- ToT Light Heal
-            "Light of Life",  -- Level 52
-            "Light of Nife",  -- Level 63
-            "Light of Order", -- Level 65
-            "Light of Piety", -- Level 68
+            "Light of Life",          -- Level 52
+            "Auron's Light of Nife",  -- Level 63
+            "Auron's Light of Order", -- Level 65
+            "Auron's Light of Piety", -- Level 68
         },
         -- ["Pacify"] = {
         --     "Pacify",
@@ -229,12 +230,12 @@ return {
         },
         ["UndeadNuke"] = {
             -- Undead Nuke
-            "Ward Undead",    -- Level 14
-            "Expulse Undead", -- Level 30
-            "Dismiss Undead", -- Level 46
-            "Expel Undead",   -- Level 54
-            "Deny Undead",    -- Level 62 - Timer 7
-            "Spurn Undead",   -- Level 67 - Timer 7
+            "Staar's Ward Undead",    -- Level 14
+            "Staar's Expulse Undead", -- Level 30
+            "Staar's Dismiss Undead", -- Level 46
+            "Staar's Expel Undead",   -- Level 54
+            "Auron's Deny Undead",    -- Level 62 - Timer 7
+            "Auron's Spurn Undead",   -- Level 67 - Timer 7
         },
         ["CureCurse"] = {
             -- Curse Cure Line
@@ -284,6 +285,7 @@ return {
             "Shield of Words",
             "Armor of Faith",
         },
+        --Auron's Flame of Light... maybe a nuke? Level 50
     },
     ['SpellList']         = {
         {

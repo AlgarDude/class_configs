@@ -8,7 +8,7 @@ local Movement  = require("utils.movement")
 local Strings   = require("utils.strings")
 
 return {
-    _version              = "2.0 - Project Lazarus",
+    _version              = "2.0 - The Hidden Forest WIP",
     _author               = "Algar",
     ['ModeChecks']        = {
         IsHealing = function() return Config:GetSetting('DoHeals') end,
@@ -77,23 +77,23 @@ return {
             "Hawk Eye",
         },
         ['FireNukeT1'] = { -- ST Fire DD, Timer 1, 30s Recast
-            "Hearth Embers",
-            "Sylvan Burn",
-            "Call of Flame",
+            "Reenex's Embers",
+            "Reenex's Sylvan Burn",
+            "Reenex's Call of Flame",
             "Flaming Arrow",
         },
         ['ColdNukeT2'] = { -- ST Cold DD, Timer 2, 30s Recast
-            "Frost Wind",
-            "Icewind",
+            "Reenex's Frost Wind",
+            "Reenex's Icewind",
         },
         ['ColdNukeT3'] = { -- ST Cold DD, Timer 3, 30s Recast
             "Ancient: North Wind",
-            "Frozen Wind",
+            "Reenex's Frozen Wind",
         },
         ['FireNukeT4'] = { -- ST Fire DD, Timer 4, 30s Recast
             "Scorched Earth",
-            "Ancient: Burning Chaos",
-            "Brushfire",
+            "Reenex's Ancient: Burning Chaos",
+            "Reenex's Bushfire",
             "Burning Arrow",
         },
         ["DDProc"] = {
@@ -131,9 +131,9 @@ return {
             "Heartshot",
         },
         ['RegenBuff'] = {
-            "Hunter's Vigor",
-            "Regrowth",
-            "Chloroplast",
+            "Reenex's Vigor",
+            "Murg's Regrowth",
+            "Murg's Chloroplast",
         },
         ['CoatBuff'] = { -- Self DS
             "Briarcoat",
@@ -151,22 +151,22 @@ return {
             "Riftwind's Protection",
         },
         ['HealSpell'] = {
-            "Sylvan Water",
+            "Reenex's Sylvan Water",
             "Sylvan Light",
-            "Chloroblast",
-            "Greater Healing",
-            "Healing",
-            "Light Healing",
-            "Minor Healing",
-            "Salve",
+            "Murg's Chloroblast",
+            "Staar's Greater Healing",
+            "Staar's Healing",
+            "Staar's Light Healing",
+            "Staar's Minor Healing",
+            "Murg's Salve",
         },
         ['SwarmDot'] = {
-            "Locust Swarm",
-            "Drifting Death",
-            "Fire Swarm",
-            "Drones of Doom",
-            "Swarm of Pain",
-            "Stinging Swarm",
+            "Reenex's Locust Swarm",
+            "Erandi's Drifting Death",
+            "Reenex's Fire Swarm",
+            "Erandi's Drones of Doom",
+            "Reenex's Swarm of Pain",
+            "Erandi's Stinging Swarm",
         },
         ['Snapkick'] = { -- 2-hit kick attack
             "Jolting Snapkicks",
@@ -176,11 +176,11 @@ return {
             "Trueshot Discipline",
         },
         ['ShieldDS'] = { -- ST Slot 1 DS
-            "Shield of Briar",
-            "Shield of Thorns",
-            "Shield of Spikes",
-            "Shield of Brambles",
-            "Shield of Thistles",
+            "Reenex's Shield of Briar",
+            "Erandi's Shield of Thorns",
+            "Erandi's Shield of Spikes",
+            "Erandi's Shield of Brambles",
+            "Erandi's Shield of Thistles",
         },
         ['FlameSnap'] = {
             "Flame Snap",

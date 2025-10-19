@@ -975,7 +975,6 @@ local _ClassConfig = {
             {
                 name = "Anger",
                 type = "Spell",
-                tooltip = Tooltips.SpearNuke,
                 cond = function(self, spell, target)
                     return Core.IsTanking()
                 end,

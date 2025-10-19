@@ -7,7 +7,7 @@ local Casting      = require("utils.casting")
 local Logger       = require("utils.logger")
 
 local _ClassConfig = {
-    _version              = "3.0 - Project Lazarus",
+    _version              = "3.0 - The Hidden Forest WIP",
     _author               = "Algar, Derple",
     ['ModeChecks']        = {
         IsHealing = function() return true end,
@@ -227,15 +227,18 @@ local _ClassConfig = {
             "Ancient: Wilslik's Mending",
             "Yoppa's Mending",
             "Daluda's Mending",
-            "Tnarg's Mending",
-            "Chloroblast",
+            "Sham's  Mending",
+            "Sham's Tnarg`s Mending",
+            "Erandi's Healing Water",
+            "Murg's Chloroblast",
             "Kragg's Salve",
             "Superior Healing",
             "Spirit Salve",
-            "Greater Healing",
-            "Healing",
-            "Light Healing",
-            "Minor Healing",
+            "Staar's Superior Healing",
+            "Staar's Greater Healing",
+            "Staar's Healing",
+            "Staar's Light Healing",
+            "Staar's Minor Healing",
         },
         ['GroupHeal'] = { -- Laz specific, some taken from cleric, some custom
             "Word of Reconstitution",
@@ -256,7 +259,7 @@ local _ClassConfig = {
         },
         ["SingleHot"] = { -- some elixirs given to shm/dru on laz
             "Spiritual Serenity",
-            "Breath of Trushar",
+            "Sham's Breath of Trushar",
             "Quiescence",
             -- "Celestial Elixir" -- Quiescence same level and better
             "Celestial Healing",
@@ -266,12 +269,12 @@ local _ClassConfig = {
         ["CanniSpell"] = {
             -- Convert Health to Mana - Level  23 -
             "Ancient: Ancestral Calling",
-            "Pained Memory",
-            "Ancient: Chaotic Pain",
-            "Cannibalize IV",
-            "Cannibalize III",
-            "Cannibalize II",
-            "Cannibalize",
+            "Sham's Pained Memory",
+            "Sham's Ancient: Chaotic Pain",
+            "Sham's Cannibalize IV",
+            "Sham's Cannibalize III",
+            "Sham's Cannibalize II",
+            "Sham's Cannibalize",
         },
         -- ["CureSpell"] = { --This is not useful in light of the alternatives
         --     "Blood of Nadox",
@@ -282,53 +285,53 @@ local _ClassConfig = {
         },
         ["PoisonNuke"] = {
             -- Poison Nuke LVL34 +
-            "Yoppa's Spear of Venom",
-            "Spear of Torment",
-            "Blast of Venom",
-            "Shock of Venom",
-            "Blast of Poison",
-            "Shock of the Tainted",
+            "Sham's  Spear of Venom",
+            "Sham's Spear of Torment",
+            "Sham's Blast of Venom",
+            "Sham's Shock of Venom",
+            "Sham's Blast of Poison",
+            "Sham's Shock of the Tainted",
         },
         ["ColdNuke"] = {
             --- ColdNuke - Level 4+
             --"Dire Avalanche", -- In resources but not scribable I think?
-            "Ice Age",
-            "Velium Strike",
-            "Ice Strike",
-            "Blizzard Blast",
-            "Winter's Roar",
-            "Frost Strike",
-            "Spirit Strike",
+            "Sham's Iceage",
+            "Sham's Velium Strike",
+            "Sham's Ice Strike",
+            "Sham's Blizzard Blast",
+            "Sham's Roar",
+            "Sham's Frost Strike",
+            "Sham's Spirit Strike",
             "Frost Rift",
         },
         ["CurseDot"] = {
             -- Curse Dot 1 Stacking: Curse - Long Dot(30s) - Level 34+
-            "Curse of Sisslak",
-            "Bane",
-            "Anathema",
-            "Odium",
-            "Curse",
+            "Sham's Curse of Sisslak",
+            "Sham's Bane",
+            "Sham's Anathema",
+            "Sham's Odium",
+            "Sham's Curse",
         },
         ["SaryrnDot"] = {
             -- Stacking: Blood of Saryrn - Long Dot(42s) - Level 8+
             "Nectar of Pain",
-            "Blood of Saryrn",
-            "Ancient: Scourge of Nife",
-            "Bane of Nife",
+            "Sham's Blood of Saryn",
+            "Sham's Ancient: Scourge of Nife",
+            "Sham's Bane of Nife",
             "Envenomed Bolt",
-            "Venom of the Snake",
-            "Envenomed Breath",
-            "Tainted Breath",
+            "Murg's Venom of the Snake",
+            "Murg's Envenomed Breath",
+            "Murg's Tainted Breath",
         },
         ["UltorDot"] = {
             ---, Stacking: Breath of Ultor - Long Dot(84s) - Level 4+
             "Breath of Wunshi",
-            "Breath of Ultor",
-            "Pox of Bertoxxulous",
-            "Plague",
+            "Sham's Breath of Ultor",
+            "Sham's Pox of Bertoxxulous",
+            "Murg's Plague",
             "Scourge",
-            "Affliction",
-            "Sicken",
+            "Sham's Affliction",
+            "Murg's Sicken",
         },
         ["AEDot"] = { -- do homework for Laz
             "Blood of Yoppa",
@@ -370,12 +373,14 @@ local _ClassConfig = {
         },
         ["GroupRegenBuff"] = {
             "Talisman of Perseverance",
+            "Erandi's Blessing of Replenishment",
             "Regrowth of Dar Khura", -- Level 56
         },
         ["SingleRegenBuff"] = {
-            "Regrowth",
-            "Chloroplast",
-            "Regeneration", -- Level 22
+            "Murg's Regrowth",
+            "Erandi's Replenishment",
+            "Murg's Chloroplast",
+            "Erandi's Regeneration", -- Level 22
         },
         ["ShrinkSpell"] = {
             "Shrink",
