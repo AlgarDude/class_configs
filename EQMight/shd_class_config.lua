@@ -561,16 +561,6 @@ local _ClassConfig = {
                 end,
             },
             {
-                name = "Voice of Thule",
-                type = "AA",
-                tooltip = Tooltips.HateBuff,
-                active_cond = function(self, aaName) return Casting.IHaveBuff(mq.TLO.Me.AltAbility(aaName).Spell.ID()) end,
-                cond = function(self, aaName)
-                    if not Config:GetSetting('DoHateBuff') then return false end
-                    return Casting.SelfBuffAACheck(aaName)
-                end,
-            },
-            { -- Leve 70 buff less hate mod than Voice of Thule but has a 150pt damage shield; we can use them together.
                 name = "HateBuff",
                 type = "Spell",
                 tooltip = Tooltips.HateBuff,
@@ -639,14 +629,6 @@ local _ClassConfig = {
             --Abilities should be placed in order of lowest to highest triggered HP thresholds
             --Some conditionals are commented out while I tweak percentages (or determine if they are necessary)
             {
-                name = "Armor of Experience",
-                type = "AA",
-                tooltip = Tooltips.ArmorofExperience,
-                cond = function(self)
-                    return mq.TLO.Me.PctHPs() <= Config:GetSetting('HPCritical') and Config:GetSetting('DoVetAA')
-                end,
-            },
-            {
                 name = "OoW_Chest",
                 type = "Item",
                 tooltip = Tooltips.OoW_BP,
@@ -697,27 +679,6 @@ local _ClassConfig = {
                 tooltip = Tooltips.Taunt,
                 cond = function(self, abilityName, target)
                     return Targeting.LostAutoTargetAggro() and Targeting.GetTargetDistance(target) < 30
-                end,
-            },
-
-            { --8min reuse, save for we still can't get a mob back after trying to taunt
-                name = "Ageless Enmity",
-                type = "AA",
-                tooltip = Tooltips.AgelessEnmity,
-                cond = function(self, aaName, target)
-                    return (Targeting.IsNamed(target) or Targeting.GetAutoTargetPctHPs() < 90) and Targeting.LostAutoTargetAggro()
-                end,
-            },
-            { --pull does not work on Laz, it is just a hate tool
-                name = "Hate's Attraction",
-                type = "AA",
-            },
-            {
-                name = "Projection of Doom",
-                type = "AA",
-                tooltip = Tooltips.ProjectionofDoom,
-                cond = function(self, aaName, target)
-                    return Targeting.IsNamed(target)
                 end,
             },
             {
@@ -772,19 +733,6 @@ local _ClassConfig = {
                     return Config:GetSetting('DoVisage')
                 end,
             },
-            {
-                name = "Intensity of the Resolute",
-                type = "AA",
-                cond = function(self, aaName)
-                    return Config:GetSetting('DoVetAA')
-                end,
-            },
-            {
-                name_func = function(self)
-                    return string.format("Fundament: %s Spire of the Reavers", Core.IsTanking() and "Third" or "Second")
-                end,
-                type = "AA",
-            },
             { -- for DPS mode
                 name = "UnholyAura",
                 type = "Disc",
@@ -804,20 +752,6 @@ local _ClassConfig = {
                 tooltip = Tooltips.ThoughtLeech,
                 cond = function(self, aaName, target)
                     return Config:GetSetting('DoLeechTouch') ~= 1
-                end,
-            },
-            {
-                name = "Chattering Bones",
-                type = "AA",
-                tooltip = Tooltips.ChatteringBones,
-            },
-            {
-                name = "Scourge Skin",
-                type = "AA",
-                --tooltip = Tooltips.ScourgeSkin,
-                cond = function(self, aaName)
-                    if not Core.IsTanking() then return false end
-                    return Casting.SelfBuffAACheck(aaName)
                 end,
             },
             {
@@ -884,15 +818,6 @@ local _ClassConfig = {
                 tooltip = Tooltips.Epic,
                 cond = function(self, itemName, target)
                     return self.ClassConfig.HelperFunctions.LeechCheck(self) or Targeting.IsNamed(target)
-                end,
-            },
-            {
-                name = "Purity of Death",
-                type = "AA",
-                tooltip = Tooltips.PurityofDeath,
-                cond = function(self)
-                    ---@diagnostic disable-next-line: undefined-field
-                    return mq.TLO.Me.TotalCounters() > 0
                 end,
             },
         },
@@ -971,10 +896,6 @@ local _ClassConfig = {
                 name = "Vicious Bite of Chaos",
                 type = "AA",
                 tooltip = Tooltips.ViciousBiteOfChaos,
-            },
-            {
-                name = "Unbridled Strike of Fear",
-                type = "AA",
             },
             {
                 name = "PowerTapAC",
@@ -1170,15 +1091,6 @@ local _ClassConfig = {
             FAQ = "Why is my health draining so quickly out of combat?",
             Answer =
             "You may have Visage of Death enabled, which has a sizable self-damage component. While we will attempt to autocancel this at low health in downtime, you can disable VoD use in the Class options.",
-        },
-        ['DoVetAA']         = {
-            DisplayName = "Use Vet AA",
-            Group = "Abilities",
-            Header = "Buffs",
-            Category = "Self",
-            Index = 103,
-            Tooltip = "Use Veteran AA such as Intensity of the Resolute or Armor of Experience as necessary.",
-            Default = true,
         },
 
         --Taps
