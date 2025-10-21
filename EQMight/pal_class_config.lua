@@ -90,7 +90,8 @@ return {
         },
         ["QuickUndeadNuke"] = {
             -- Undead Quick Nuke with chance to snare and reduce AC
-            "Last Rites", -- Level 68 - Timer 7
+            "Burial Rites", -- EQ Custom
+            "Last Rites",   -- Level 68 - Timer 7
         },
         ["DDProc"] = {
             --- Fury Proc Strike
@@ -117,6 +118,7 @@ return {
             "Force",           -- Level 52 - Not Timer 4, use for TLP Low Level Stun
             "Force of Akilae", -- Level 62
             "Force of Piety",  -- Level 66
+            "Sacred Force",    -- EQM Custom
         },
         ["AegoBuff"] = {
             --- Pally Aegolism
@@ -137,6 +139,7 @@ return {
         --     "Resolution",
         -- },
         ["Brells"] = {
+            "Ancient: Brell's Brawny Bulwark",
             "Brell's Vibrant Barricade",
             "Brell's Brawny Bulwark",
             "Brell's Stalwart Shield",
@@ -196,6 +199,7 @@ return {
             "Superior Healing", -- Level 57
             "Touch of Nife",
             "Touch of Piety",
+            "Sacred Touch", -- EQM Custom
         },
         ["LightHeal"] = {
             -- ToT Light Heal
@@ -257,13 +261,14 @@ return {
             'Reconstitution',
             'Reanimation',
         },
-        ['PBAEStun'] = {
-            "The Silent Command", -- does damage
+        ['PBAEStun'] = {                -- does damage
+            "Ancient Command of Might", -- EQM Custom
+            "Ancient: Force of Might",  -- EQM Custom
         },
-        ['AEStun'] = {            --Targeted AE
-            "Stun Command",       -- no damage
-            "Sacred Word",        -- does damage
-        },
+        -- ['AEStun'] = {                  --Targeted AE
+        --     "Stun Command",             -- no damage
+        --     "Sacred Word",              -- does damage
+        -- },
         ['BlockDisc'] = {
             "Deflection Discipline",
         },
@@ -274,6 +279,7 @@ return {
             "Justice of Marr",
         },
         ['GuardDisc'] = {
+            "Ancient: Guard of Chivalry",
             "Guard of Righteousness",
             "Guard of Humility",
             "Guard of Piety",
@@ -312,7 +318,7 @@ return {
                 { name = "StunTimer4",      cond = function(self) return Core.IsTanking() end, },
                 { name = "StunTimer5",      cond = function(self) return Core.IsTanking() end, },
                 { name = "PBAEStun",        cond = function(self) return Config:GetSetting('DoPBAEStun') end, },
-                { name = "AEStun",          cond = function(self) return Config:GetSetting('DoAEStun') end, },
+                -- { name = "AEStun",          cond = function(self) return Config:GetSetting('DoAEStun') end, },
                 { name = "CureCurse",       cond = function(self) return Config:GetSetting('KeepCurseMemmed') end, },
                 { name = "PurityCure",      cond = function(self) return Config:GetSetting('KeepPurityMemmed') end, },
                 { name = "UndeadNuke",      cond = function(self) return Config:GetSetting('DoUndeadNuke') end, },
@@ -573,7 +579,7 @@ return {
             steps = 1,
             doFullRotation = true,
             load_cond = function()
-                local hateSpell = Config:GetSetting('DoAEStun') and (Core.GetResolvedActionMapItem('AEStun') or Core.GetResolvedActionMapItem('PBAEStun'))
+                local hateSpell = Config:GetSetting('DoPBAEStun') and Core.GetResolvedActionMapItem('PBAEStun')
                 local hateAA = Config:GetSetting('AETauntAA') and Casting.CanUseAA("Beacon of the Righteous")
                 return Core.IsTanking() and (Core.GetResolvedActionMapItem('AEBlades') or hateSpell or hateAA)
             end,
@@ -638,9 +644,9 @@ return {
             state = 1,
             steps = 1,
             load_cond = function()
-                local aeSpell = Config:GetSetting('DoAEStun') and Core.GetResolvedActionMapItem('AEStun')
+                -- local aeSpell = Config:GetSetting('DoAEStun') and Core.GetResolvedActionMapItem('AEStun')
                 local pbaeSpell = Config:GetSetting('DoPBAEStun') and Core.GetResolvedActionMapItem('PBAEStun')
-                return (Core.IsTanking() or Config:GetSetting('AEStunUse') > 1) and (aeSpell or pbaeSpell)
+                return (Core.IsTanking() or Config:GetSetting('AEStunUse') > 1) and pbaeSpell
             end,
             targetId = function(self) return Targeting.CheckForAutoTargetID() end,
             cond = function(self, combat_state)
@@ -868,23 +874,23 @@ return {
                     return Config:GetSetting('DoAEDamage')
                 end,
             },
-            {
-                name = "AEStun",
-                type = "Spell",
-                cond = function(self, spell, target)
-                    return Config:GetSetting('DoAEDamage') or spell.Name() ~= "The Sacred Word" -- Sacred Word does damage
-                end,
-            },
+            -- {
+            --     name = "AEStun",
+            --     type = "Spell",
+            --     cond = function(self, spell, target)
+            --         return Config:GetSetting('DoAEDamage') or spell.Name() ~= "The Sacred Word" -- Sacred Word does damage
+            --     end,
+            -- },
         },
         ['AECombat'] = {
-            {
-                name = "AEStun",
-                type = "Spell",
-                cond = function(self, spell, target)
-                    return Core.IsTanking() or Config:GetSetting('AEStunUse') == 3 or Core.GetMainAssistPctHPs() < Config:GetSetting('EmergencyStart')
-                end,
+            -- {
+            --     name = "AEStun",
+            --     type = "Spell",
+            --     cond = function(self, spell, target)
+            --         return Core.IsTanking() or Config:GetSetting('AEStunUse') == 3 or Core.GetMainAssistPctHPs() < Config:GetSetting('EmergencyStart')
+            --     end,
 
-            },
+            -- },
             {
                 name = "PBAEStun",
                 type = "Spell",
@@ -892,11 +898,6 @@ return {
                 cond = function(self, spell, target)
                     return Core.IsTanking() or Config:GetSetting('AEStunUse') == 3 or Core.GetMainAssistPctHPs() < Config:GetSetting('EmergencyStart')
                 end,
-            },
-            {
-                name = "Forsaken Fayguard Bladecatcher",
-                type = "Item",
-                load_cond = function(self) return mq.TLO.FindItem("=Forsaken Fayguard Bladecatcher")() end,
             },
         },
         ['Burn'] = {
@@ -1170,15 +1171,15 @@ return {
             FAQ = "Why am I using AE damage when there are mezzed mobs around?",
             Answer = "It is not currently possible to properly determine Mez status without direct Targeting. If you are mezzing, consider turning this option off.",
         },
-        ['DoAEStun']          = {
-            DisplayName = "Do AE Stun",
-            Group = "Abilities",
-            Header = "Debuff",
-            Category = "Stun",
-            Index = 102,
-            Tooltip = "Use your Targeted AE Stun (Stun Command or Sacred Word) as needed to maintain AE aggro (tank mode) or help with control (dps mode).",
-            Default = true,
-        },
+        -- ['DoAEStun']          = {
+        --     DisplayName = "Do AE Stun",
+        --     Group = "Abilities",
+        --     Header = "Debuff",
+        --     Category = "Stun",
+        --     Index = 102,
+        --     Tooltip = "Use your Targeted AE Stun (Stun Command or Sacred Word) as needed to maintain AE aggro (tank mode) or help with control (dps mode).",
+        --     Default = true,
+        -- },
         ['DoPBAEStun']        = {
             DisplayName = "Do PBAE Stun",
             Group = "Abilities",

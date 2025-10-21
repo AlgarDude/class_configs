@@ -119,6 +119,7 @@ local _ClassConfig = {
     ['AbilitySets']     = {
         --Laz spells to look into: Fickle Shadows
         ['Mantle'] = {
+            "Ancient: Guard of Chivalry", -- EQM Custom
             "Soul Shield",
             "Soul Guard",
             "Ichor Guard", -- Level 56, Timer 5
@@ -201,6 +202,7 @@ local _ClassConfig = {
         },
         ['LifeTap'] = {
             "Touch of the Devourer",
+            "Leech Soul", -- EQM Custom
             "Touch of Inruku",
             "Touch of Innoruuk",
             --"Touch of Volatis", -- Drain Soul buffed on Lazarus and is superior to this.
@@ -215,6 +217,7 @@ local _ClassConfig = {
         },
         ['LifeTap2'] = {
             "Touch of the Devourer",
+            "Leech Soul", -- EQM Custom
             "Touch of Inruku",
             "Touch of Innoruuk",
             --"Touch of Volatis", -- Drain Soul buffed on Lazarus and is superior to this.
@@ -303,6 +306,7 @@ local _ClassConfig = {
         ['Protective'] = {
             "Protective Discipline",
         },
+        -- pact of decay ... is this a lich? level 69
     },
     ['HelperFunctions'] = {
         --function to determine if we should AE taunt and optionally, if it is safe to do so
