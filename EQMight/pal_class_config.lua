@@ -300,6 +300,9 @@ return {
         ['SelfHeal'] = { -- EQM Custom Zero-Casttime Self-heal
             "Blessed Mantle Heal",
         },
+        ['SpellResistBuff'] = {
+            "Silent Piety",
+        },
     },
     ['SpellList']         = {
         {
@@ -663,6 +666,14 @@ return {
                 type = "AA",
                 cond = function(self, aaName, target)
                     return Casting.SelfBuffAACheck(aaName)
+                end,
+            },
+            {
+                name = "SpellResistBuff",
+                type = "Spell",
+                active_cond = function(self, spell) return Casting.IHaveBuff(spell) end,
+                cond = function(self, spell)
+                    return Casting.SelfBuffCheck(spell)
                 end,
             },
             {
