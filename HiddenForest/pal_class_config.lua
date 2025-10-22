@@ -1028,6 +1028,7 @@ return {
             {
                 name = "Slam",
                 type = "Ability",
+                load_cond = function(self) return mq.TLO.Me.Ability("Slam")() end,
             },
         },
         ['Weapon Management'] = {
