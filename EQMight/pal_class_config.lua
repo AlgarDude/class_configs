@@ -275,9 +275,9 @@ return {
         ['SancDisc'] = {
             "Sanctification Discipline",
         },
-        ['TwinHealNuke'] = {
-            "Justice of Marr",
-        },
+        -- ['TwinHealNuke'] = {
+        --     "Justice of Marr",
+        -- },
         ['GuardDisc'] = {
             "Ancient: Guard of Chivalry",
             "Guard of Righteousness",
@@ -313,7 +313,7 @@ return {
                 { name = "WaveHeal2",       cond = function(self) return Config:GetSetting('DoWaveHeal') == 2 end, },
                 { name = "SelfHeal", },
                 { name = "Cleansing",       cond = function(self) return Config:GetSetting('DoCleansing') < 3 end, },
-                { name = "TwinHealNuke",    cond = function(self) return Config:GetSetting('DoTwinHealNuke') end, },
+                -- { name = "TwinHealNuke",    cond = function(self) return Config:GetSetting('DoTwinHealNuke') end, },
                 { name = "SereneStun",      cond = function(self) return Config:GetSetting('DoSereneStun') end, },
                 { name = "StunTimer4",      cond = function(self) return Core.IsTanking() end, },
                 { name = "StunTimer5",      cond = function(self) return Core.IsTanking() end, },
@@ -458,27 +458,18 @@ return {
                 end,
             },
             {
+                name = "Marr's Gift",
+                type = "AA",
+                cond = function(self, aaName, target)
+                    return self.CombatState == "Combat" and Targeting.TargetIsMyself(target)
+                end,
+            },
+            {
                 name = "Hand of Piety",
                 type = "AA",
                 cond = function(self, aaName, target)
                     if not Targeting.GroupedWithTarget(target) then return false end
                     return self.CombatState == "Combat" and (Targeting.TargetIsMyself(target) or Targeting.GetTargetPctHPs() < Config:GetSetting('HPCritical'))
-                end,
-            },
-            {
-                name = "Forsaken Deepwater Helm",
-                type = "Item",
-                load_cond = function(self) return mq.TLO.FindItem("=Forsaken Deepwater Helm")() end,
-                cond = function(self, itemName, target)
-                    return self.CombatState == "Combat" and Targeting.TargetIsMyself(target)
-                end,
-            },
-            {
-                name = "Imbued Rune of Piety",
-                type = "Item",
-                load_cond = function(self) return mq.TLO.FindItem("=Imbued Rune of Piety")() and Config:GetSetting('WaveHealUse') == 1 end,
-                cond = function(self, itemName, target)
-                    return Targeting.GroupedWithTarget(target)
                 end,
             },
             {
@@ -668,13 +659,6 @@ return {
     ['Rotations']         = {
         ['Downtime'] = {
             {
-                name = "Yaulp",
-                type = "AA",
-                cond = function(self, aaName, target)
-                    return Casting.SelfBuffAACheck(aaName)
-                end,
-            },
-            {
                 name = "Blessing of Life",
                 type = "AA",
                 cond = function(self, aaName, target)
@@ -764,37 +748,17 @@ return {
                     return Casting.GroupBuffCheck(spell, target)
                 end,
             },
-            {
-                name = "Marr's Salvation",
-                type = "AA",
-                load_cond = function() return Config:GetSetting('DoSalvation') end,
-                cond = function(self, aaName, target)
-                    return not Targeting.TargetIsATank(target) and Casting.GroupBuffAACheck(aaName, target)
-                end,
-            },
         },
         ['EmergencyDefenses'] = {
             --Note that in Tank Mode, defensive discs are preemptively cycled on named in the (non-emergency) Defenses rotation
             --Abilities should be placed in order of lowest to highest triggered HP thresholds
             --Some conditionals are commented out while I tweak percentages (or determine if they are necessary)
             {
-                name = "Armor of Experience",
-                type = "AA",
-                cond = function(self)
-                    return mq.TLO.Me.PctHPs() <= Config:GetSetting('HPCritical') and Config:GetSetting('DoVetAA')
-                end,
-            },
-            {
                 name = "OoW_Chest",
                 type = "Item",
                 cond = function(self, itemName, target)
                     return Casting.SelfBuffItemCheck(itemName)
                 end,
-            },
-            {
-                name = "Forsaken Fungus Covered Scale Tunic",
-                type = "Item",
-                load_cond = function(self) return mq.TLO.FindItem("=Forsaken Fungus Covered Scale Tunic")() end,
             },
             { --Note that on named we may already have a defensive disc running already, could make this remove other discs, but we have other options.
                 name = "BlockDisc",
@@ -814,7 +778,8 @@ return {
                 cond = function(self, discSpell)
                     local blockReady = mq.TLO.Me.CombatAbilityReady(Core.GetResolvedActionMapItem('BlockDisc') or "")()
                     local guardReady = mq.TLO.Me.CombatAbilityReady(Core.GetResolvedActionMapItem('GuardDisc') or "")()
-                    return Casting.NoDiscActive() and not blockReady and not guardReady
+                    local protReady = mq.TLO.Me.CombatAbilityReady(Core.GetResolvedActionMapItem('Protective') or "")()
+                    return Casting.NoDiscActive() and not blockReady and not guardReady and not protReady
                 end,
             },
         },
@@ -826,24 +791,9 @@ return {
                     return Targeting.LostAutoTargetAggro() and Targeting.GetTargetDistance(target) < 30
                 end,
             },
-            { --8min reuse, save for we still can't get a mob back after trying to taunt
-                name = "Ageless Enmity",
-                type = "AA",
-                cond = function(self, aaName, target)
-                    return (Targeting.IsNamed(target) or Targeting.GetAutoTargetPctHPs() < 90) and Targeting.LostAutoTargetAggro()
-                end,
-            },
             {
                 name = "Force of Disruption",
                 type = "AA",
-            },
-            {
-                name = "Projection of Piety",
-                type = "AA",
-                cond = function(self, aaName, target)
-                    ---@diagnostic disable-next-line: undefined-field
-                    return Targeting.IsNamed(target) and (mq.TLO.Target.SecondaryPctAggro() or 0) > 80
-                end,
             },
             {
                 name = "StunTimer5",
@@ -902,24 +852,9 @@ return {
         },
         ['Burn'] = {
             {
-                name_func = function(self)
-                    return string.format("Fundament: %s Spire of Holiness", Core.IsTanking() and "Third" or "Second")
-                end,
-                type = "AA",
-            },
-            {
-                name = "Inquisitor's Judgment",
-                type = "AA",
-            },
-            {
                 name = "Valorous Rage",
                 type = "AA",
                 load_cond = function(self) return Config:GetSetting('DoValorousRage') end,
-            },
-            {
-                name = "Intensity of the Resolute",
-                type = "AA",
-                load_cond = function(self) return Config:GetSetting('DoVetAA') end,
             },
             {
                 name = "WardProc",
@@ -957,31 +892,11 @@ return {
                 end,
             },
             {
-                name = "Blood Drinker's Coating",
-                type = "Item",
-                load_cond = function(self) return Config:GetSetting('DoCoating') end,
-                cond = function(self, itemName, target)
-                    return Casting.SelfBuffItemCheck(itemName)
-                end,
-            },
-            {
                 name = "Armor of the Inquisitor",
                 type = "AA",
             },
         },
         ['ToTHeals'] = {
-            {
-                name = "Gift of Life",
-                type = "AA",
-                cond = function(self, aaName, target)
-                    return (mq.TLO.Me.TargetOfTarget.PctHPs() or 0) < Config:GetSetting('HPCritical')
-                end,
-            },
-            {
-                name = "Forsaken Deepwater Gauntlets",
-                type = "Item",
-                load_cond = function(self) return mq.TLO.FindItem("=Forsaken Deepwater Gauntlets")() end,
-            },
             {
                 name = "LightHeal",
                 type = "Spell",
@@ -1011,18 +926,11 @@ return {
                     return Targeting.TargetNotStunned() and (Core.IsTanking() or not Casting.StunImmuneTarget(target))
                 end,
             },
-            {
-                name = "TwinHealNuke",
-                type = "Spell",
-                load_cond = function(self) return Config:GetSetting('DoTwinHealNuke') end,
-            },
-            {
-                name = "Yaulp",
-                type = "AA",
-                cond = function(self, aaName, target)
-                    return Casting.SelfBuffAACheck(aaName)
-                end,
-            },
+            -- {
+            --     name = "TwinHealNuke",
+            --     type = "Spell",
+            --     load_cond = function(self) return Config:GetSetting('DoTwinHealNuke') end,
+            -- },
             {
                 name = "StunTimer5",
                 type = "Spell",
@@ -1060,10 +968,10 @@ return {
                 end,
             },
             {
-                name = "Disruptive Persecution",
+                namefunc = function(self) return Casting.GetFirstAA({ "Hand of Disruption", "Divine Stun", }) end,
                 type = "AA",
                 cond = function(self, aaName, target)
-                    return (mq.TLO.Target.SecondaryPctAggro() or 999 < 60) or not Core.IsTanking()
+                    return not Core.IsTanking() or not Casting.CanUseAA("Force of Disruption")
                 end,
             },
             {
@@ -1502,17 +1410,17 @@ return {
         },
 
         --Combat
-        ['DoTwinHealNuke']    = {
-            DisplayName = "Twin Heal Nuke",
-            Group = "Abilities",
-            Header = "Damage",
-            Category = "Direct",
-            Index = 101,
-            Tooltip = "Use Twin Heal Nuke Spells",
-            RequiresLoadoutChange = true,
-            Default = true,
-            ConfigType = "Advanced",
-        },
+        -- ['DoTwinHealNuke']    = {
+        --     DisplayName = "Twin Heal Nuke",
+        --     Group = "Abilities",
+        --     Header = "Damage",
+        --     Category = "Direct",
+        --     Index = 101,
+        --     Tooltip = "Use Twin Heal Nuke Spells",
+        --     RequiresLoadoutChange = true,
+        --     Default = true,
+        --     ConfigType = "Advanced",
+        -- },
         ['DoSereneStun']      = {
             DisplayName = "Do Serene Stun",
             Group = "Abilities",
