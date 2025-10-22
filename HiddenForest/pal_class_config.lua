@@ -764,14 +764,6 @@ return {
             --Abilities should be placed in order of lowest to highest triggered HP thresholds
             --Some conditionals are commented out while I tweak percentages (or determine if they are necessary)
             {
-                name = "Armor of Experience",
-                type = "AA",
-                load_cond = function(self) return Config:GetSetting('DoVetAA') end,
-                cond = function(self)
-                    return mq.TLO.Me.PctHPs() <= Config:GetSetting('HPCritical')
-                end,
-            },
-            {
                 name = "OoW_Chest",
                 type = "Item",
                 cond = function(self, itemName, target)
@@ -896,11 +888,7 @@ return {
                 type = "AA",
                 load_cond = function(self) return Config:GetSetting('DoValorousRage') end,
             },
-            {
-                name = "Intensity of the Resolute",
-                type = "AA",
-                load_cond = function(self) return Config:GetSetting('DoVetAA') end,
-            },
+
             {
                 name = "WardProc",
                 type = "Spell",
@@ -926,14 +914,6 @@ return {
                 load_cond = function(self) return Core.IsTanking() end,
                 cond = function(self, discSpell, target)
                     return Casting.NoDiscActive() and not mq.TLO.Me.Song("Rampart")()
-                end,
-            },
-            {
-                name = "Blood Drinker's Coating",
-                type = "Item",
-                load_cond = function(self) return Config:GetSetting('DoCoating') end,
-                cond = function(self, itemName, target)
-                    return Casting.SelfBuffItemCheck(itemName)
                 end,
             },
             {
@@ -1313,15 +1293,6 @@ return {
             Max = 3,
             ConfigType = "Advanced",
         },
-        ['DoCoating']         = {
-            DisplayName = "Use Coating",
-            Group = "Items",
-            Header = "Clickies",
-            Category = "Class Config Clickies",
-            Index = 102,
-            Tooltip = "Click your Blood/Spirit Drinker's Coating when defenses are triggered.",
-            Default = false,
-        },
         ['UseBandolier']      = {
             DisplayName = "Dynamic Weapon Swap",
             Group = "Items",
@@ -1515,17 +1486,6 @@ return {
             Index = 101,
             Tooltip = "Use the Valorous Rage AA during burns.",
             Default = false,
-        },
-        ['DoVetAA']           = {
-            DisplayName = "Use Vet AA",
-            Group = "Abilities",
-            Header = "Buffs",
-            Category = "Self",
-            Index = 102,
-            Tooltip = "Use Veteran AA such as Intensity of the Resolute or Armor of Experience as necessary.",
-            Default = true,
-            ConfigType = "Advanced",
-            RequiresLoadoutChange = true,
         },
 
         --Buffs

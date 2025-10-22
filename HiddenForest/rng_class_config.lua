@@ -433,11 +433,7 @@ return {
                     return Config:GetSetting('DoMelee') or mq.TLO.Me.PctAggro() >= 60
                 end,
             },
-            {
-                name = "Intensity of the Resolute",
-                type = "AA",
-                load_cond = function(self) return Config:GetSetting('DoVetAA') end,
-            },
+
             {
                 name = "OoW_Chest",
                 type = "Item",
@@ -495,14 +491,6 @@ return {
         },
         ['Emergency']  = {
             {
-                name = "Armor of Experience",
-                type = "AA",
-                load_cond = function(self) return Config:GetSetting('DoVetAA') end,
-                cond = function(self, aaName)
-                    return mq.TLO.Me.PctHPs() < 35 and Targeting.IHaveAggro(100)
-                end,
-            },
-            {
                 name = "Protection of the Spirit Wolf",
                 type = "AA",
             },
@@ -518,14 +506,6 @@ return {
                 type = "Discipline",
                 cond = function(self, discName, target)
                     return Targeting.IHaveAggro(100) and not mq.TLO.Me.Song("Outrider's Evasion")
-                end,
-            },
-            {
-                name = "Blood Drinker's Coating",
-                type = "Item",
-                cond = function(self, itemName, target)
-                    if not Config:GetSetting('DoCoating') then return false end
-                    return Casting.SelfBuffItemCheck(itemName)
                 end,
             },
         },
@@ -965,29 +945,10 @@ return {
             Max = 100,
             ConfigType = "Advanced",
         },
-        ['DoCoating']      = {
-            DisplayName = "Use Coating",
-            Group = "Items",
-            Header = "Clickies",
-            Category = "Class Config Clickies",
-            Index = 102,
-            Tooltip = "Click your Blood Drinker's Coating in an emergency.",
-            Default = false,
-        },
-        ['DoVetAA']        = {
-            DisplayName = "Use Vet AA",
-            Group = "Abilities",
-            Header = "Buffs",
-            Category = "Self",
-            Index = 102,
-            Tooltip = "Use Veteran AA such as Intensity of the Resolute or Armor of Experience as necessary.",
-            Default = true,
-            ConfigType = "Advanced",
-            RequiresLoadoutChange = true,
-        },
+
 
         --Utility
-        ['DoHeals']        = {
+        ['DoHeals']     = {
             DisplayName = "Do Heals",
             Group = "Abilities",
             Header = "Recovery",
@@ -997,7 +958,7 @@ return {
             Default = true,
             RequiresLoadoutChange = true,
         },
-        ['DoJoltSpell']    = {
+        ['DoJoltSpell'] = {
             DisplayName = "Do Jolt Spell",
             Group = "Abilities",
             Header = "Utility",
@@ -1007,7 +968,7 @@ return {
             Default = true,
             RequiresLoadoutChange = true,
         },
-        ['DoSnare']        = {
+        ['DoSnare']     = {
             DisplayName = "Use Snares",
             Group = "Abilities",
             Header = "Debuffs",
@@ -1017,7 +978,7 @@ return {
             Default = false,
             RequiresLoadoutChange = true,
         },
-        ['SnareCount']     = {
+        ['SnareCount']  = {
             DisplayName = "Snare Max Mob Count",
             Group = "Abilities",
             Header = "Debuffs",

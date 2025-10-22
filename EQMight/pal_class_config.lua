@@ -985,14 +985,6 @@ return {
                 name = "Slam",
                 type = "Ability",
             },
-            {
-                name = "Forsaken Fungus Covered Scale Tunic",
-                type = "Item",
-                load_cond = function(self) return mq.TLO.FindItem("=Forsaken Fungus Covered Scale Tunic")() end,
-                cond = function(self, itemName, target)
-                    return mq.TLO.Me.PctMana() < 30 or mq.TLO.Me.PctEndurance() < 30
-                end,
-            },
         },
         ['Weapon Management'] = {
             {
@@ -1257,15 +1249,6 @@ return {
             Max = 3,
             ConfigType = "Advanced",
         },
-        ['DoCoating']         = {
-            DisplayName = "Use Coating",
-            Group = "Items",
-            Header = "Clickies",
-            Category = "Class Config Clickies",
-            Index = 102,
-            Tooltip = "Click your Blood/Spirit Drinker's Coating when defenses are triggered.",
-            Default = false,
-        },
         ['UseBandolier']      = {
             DisplayName = "Dynamic Weapon Swap",
             Group = "Items",
@@ -1459,15 +1442,6 @@ return {
             Index = 101,
             Tooltip = "Use the Valorous Rage AA during burns.",
             Default = false,
-        },
-        ['DoVetAA']           = {
-            DisplayName = "Use Vet AA",
-            Group = "Abilities",
-            Header = "Buffs",
-            Category = "Self",
-            Index = 102,
-            Tooltip = "Use Veteran AA such as Intensity of the Resolute or Armor of Experience as necessary.",
-            Default = true,
         },
 
         --Buffs

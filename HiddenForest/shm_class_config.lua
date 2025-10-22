@@ -672,11 +672,7 @@ local _ClassConfig = {
                     return Targeting.IsNamed(target) and Casting.DotItemCheck(itemName, target)
                 end,
             },
-            {
-                name = "Intensity of the Resolute",
-                type = "AA",
-                load_cond = function(self) return Config:GetSetting('DoVetAA') end,
-            },
+
             {
                 name = "Shattered Gnoll Slayer",
                 type = "Item",
@@ -1493,18 +1489,6 @@ local _ClassConfig = {
             RequiresLoadoutChange = true, --this setting is used as a load condition
             Default = true,
         },
-        ['DoVetAA']           = {
-            DisplayName = "Use Vet AA",
-            Group = "Abilities",
-            Header = "Buffs",
-            Category = "Self",
-            Index = 102,
-            Tooltip = "Use Veteran AA such as Intensity of the Resolute or Armor of Experience as necessary.",
-            Default = true,
-            ConfigType = "Advanced",
-            RequiresLoadoutChange = true,
-        },
-
         -- Debuffs
         ['DoSTMalo']          = {
             DisplayName = "Do ST Malo",

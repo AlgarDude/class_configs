@@ -418,13 +418,6 @@ local _ClassConfig = {
                 type = "AA",
             },
             {
-                name = "Intensity of the Resolute",
-                type = "AA",
-                cond = function(self, aaName)
-                    return Config:GetSetting('DoVetAA')
-                end,
-            },
-            {
                 name = "A Tune Stuck In Your Head",
                 type = "AA",
             },
@@ -706,14 +699,6 @@ local _ClassConfig = {
         },
         ['Emergency'] = {
             {
-                name = "Armor of Experience",
-                type = "AA",
-                cond = function(self, aaName)
-                    if not Config:GetSetting('DoVetAA') then return false end
-                    return mq.TLO.Me.PctHPs() < 35
-                end,
-            },
-            {
                 name = "Fading Memories",
                 type = "AA",
                 cond = function(self, aaName)
@@ -734,14 +719,6 @@ local _ClassConfig = {
                 type = "AA",
                 cond = function(self, aaName)
                     return mq.TLO.Me.PctHPs() <= Config:GetSetting('EmergencyStart')
-                end,
-            },
-            {
-                name = "Blood Drinker's Coating",
-                type = "Item",
-                cond = function(self, itemName, target)
-                    if not Config:GetSetting('DoCoating') then return false end
-                    return mq.TLO.Me.PctHPs() <= Config:GetSetting('EmergencyStart') and Casting.SelfBuffItemCheck(itemName)
                 end,
             },
         },
@@ -874,16 +851,6 @@ local _ClassConfig = {
             Min = 1,
             Max = #Config.Constants.SpireChoices,
         },
-        ['DoVetAA']             = {
-            DisplayName = "Use Vet AA",
-            Group = "Abilities",
-            Header = "Buffs",
-            Category = "Self",
-            Index = 102,
-            Tooltip = "Use Veteran AA such as Intensity of the Resolute or Armor of Experience as necessary.",
-            Default = true,
-            ConfigType = "Advanced",
-        },
 
         -- Debuffs
         ['DoSTSlow']            = {
@@ -965,16 +932,6 @@ local _ClassConfig = {
             FAQ = "Why is my Bard regularly using Fading Memories",
             Answer = "When Use Combat Escape is enabled, Fading Memories will be used when the Bard has any unwanted aggro.\n" ..
                 "This helps the common issue of bards gaining aggro from singing before a tank has the chance to secure it.",
-        },
-        ['DoCoating']           = {
-            DisplayName = "Use Coating",
-            Group = "Items",
-            Header = "Clickies",
-            Category = "Class Config Clickies",
-            Index = 102,
-            Tooltip = "Click your Blood Drinker's Coating in an emergency.",
-            Default = false,
-            ConfigType = "Advanced",
         },
         ['EmergencyStart']      = {
             DisplayName = "Emergency HP%",

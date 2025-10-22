@@ -414,11 +414,7 @@ local _ClassConfig = {
                 name = "Cacophony",
                 type = "AA",
             },
-            {
-                name = "Intensity of the Resolute",
-                type = "AA",
-                load_cond = function(self) return Config:GetSetting('DoVetAA') end,
-            },
+
             {
                 name = "A Tune Stuck In Your Head",
                 type = "AA",
@@ -696,14 +692,7 @@ local _ClassConfig = {
             },
         },
         ['Emergency'] = {
-            {
-                name = "Armor of Experience",
-                type = "AA",
-                load_cond = function(self) return Config:GetSetting('DoVetAA') end,
-                cond = function(self, aaName)
-                    return mq.TLO.Me.PctHPs() < 35
-                end,
-            },
+
             {
                 name = "Fading Memories",
                 type = "AA",
@@ -725,14 +714,6 @@ local _ClassConfig = {
                 type = "AA",
                 cond = function(self, aaName)
                     return mq.TLO.Me.PctHPs() <= Config:GetSetting('EmergencyStart')
-                end,
-            },
-            {
-                name = "Blood Drinker's Coating",
-                type = "Item",
-                cond = function(self, itemName, target)
-                    if not Config:GetSetting('DoCoating') then return false end
-                    return mq.TLO.Me.PctHPs() <= Config:GetSetting('EmergencyStart') and Casting.SelfBuffItemCheck(itemName)
                 end,
             },
         },
@@ -786,7 +767,7 @@ local _ClassConfig = {
         },
     },
     ['DefaultConfig']   = {
-        ['Mode']                = {
+        ['Mode']         = {
             DisplayName = "Mode",
             Category = "Combat",
             Tooltip = "Select the Combat Mode for this Toon",
@@ -799,7 +780,7 @@ local _ClassConfig = {
             Answer = "Currently Bards only have one general mode. More modes may be added in the future.",
         },
         -- Buffs
-        ['UseRunBuff']          = {
+        ['UseRunBuff']   = {
             DisplayName = "Use RunSpeed Buff",
             Group = "Abilities",
             Header = "Buffs",
@@ -811,7 +792,7 @@ local _ClassConfig = {
             FAQ = "Why am I slowing down in combat?",
             Answer = "Runspeed songs, if selected, are only sung in the downtime rotation. Higher level bards will have longer durations.",
         },
-        ['UseEndBreath']        = {
+        ['UseEndBreath'] = {
             DisplayName = "Use Enduring Breath",
             Group = "Abilities",
             Header = "Buffs",
@@ -822,7 +803,7 @@ local _ClassConfig = {
             RequiresLoadoutChange = true,
             ConfigType = "Advanced",
         },
-        ['UseAura']             = {
+        ['UseAura']      = {
             DisplayName = "Use Aura",
             Group = "Abilities",
             Header = "Buffs",
@@ -834,7 +815,7 @@ local _ClassConfig = {
             FAQ = "My bard is spam casting aura, what do I do?",
             Answer = "We have code to prevent this, but if it has slipped the cracks, check what aura you have active in your window (Shift+A by default). You may need to clear it.",
         },
-        ['UseAmp']              = {
+        ['UseAmp']       = {
             DisplayName = "Use Amp",
             Group = "Abilities",
             Header = "Buffs",
@@ -848,7 +829,7 @@ local _ClassConfig = {
             Max = 4,
             RequiresLoadoutChange = true,
         },
-        ['SpireChoice']         = {
+        ['SpireChoice']  = {
             DisplayName = "Spire Choice:",
             Group = "Abilities",
             Header = "Buffs",
@@ -864,17 +845,7 @@ local _ClassConfig = {
             Min = 1,
             Max = #Config.Constants.SpireChoices,
         },
-        ['DoVetAA']             = {
-            DisplayName = "Use Vet AA",
-            Group = "Abilities",
-            Header = "Buffs",
-            Category = "Self",
-            Index = 102,
-            Tooltip = "Use Veteran AA such as Intensity of the Resolute or Armor of Experience as necessary.",
-            Default = true,
-            ConfigType = "Advanced",
-            RequiresLoadoutChange = true,
-        },
+
 
         -- Debuffs
         ['DoSTSlow']            = {
@@ -956,16 +927,6 @@ local _ClassConfig = {
             FAQ = "Why is my Bard regularly using Fading Memories",
             Answer = "When Use Combat Escape is enabled, Fading Memories will be used when the Bard has any unwanted aggro.\n" ..
                 "This helps the common issue of bards gaining aggro from singing before a tank has the chance to secure it.",
-        },
-        ['DoCoating']           = {
-            DisplayName = "Use Coating",
-            Group = "Items",
-            Header = "Clickies",
-            Category = "Class Config Clickies",
-            Index = 102,
-            Tooltip = "Click your Blood Drinker's Coating in an emergency.",
-            Default = false,
-            ConfigType = "Advanced",
         },
         ['EmergencyStart']      = {
             DisplayName = "Emergency HP%",

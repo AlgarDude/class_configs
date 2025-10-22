@@ -173,26 +173,10 @@ return {
         },
         ['Emergency'] = {
             {
-                name = "Armor of Experience",
-                type = "AA",
-                load_cond = function(self) return Config:GetSetting('DoVetAA') end,
-                cond = function(self, aaName)
-                    return mq.TLO.Me.PctHPs() < 35
-                end,
-            },
-            {
                 name = "Uncanny Resilience",
                 type = "AA",
                 cond = function(self, aaName)
                     return Targeting.IHaveAggro(100)
-                end,
-            },
-            {
-                name = "Blood Drinker's Coating",
-                type = "Item",
-                cond = function(self, itemName, target)
-                    if not Config:GetSetting('DoCoating') then return false end
-                    return Casting.SelfBuffItemCheck(itemName)
                 end,
             },
         },
@@ -387,15 +371,6 @@ return {
             Max = 3,
             ConfigType = "Advanced",
         },
-        ['DoCoating']      = {
-            DisplayName = "Use Coating",
-            Group = "Items",
-            Header = "Clickies",
-            Category = "Class Config Clickies",
-            Index = 102,
-            Tooltip = "Click your Blood Drinker's Coating in an emergency.",
-            Default = false,
-        },
 
         -- Combat
         ['DoBattleLeap']   = {
@@ -450,17 +425,7 @@ return {
             Max = 100,
             ConfigType = "Advanced",
         },
-        ['DoVetAA']        = {
-            DisplayName = "Use Vet AA",
-            Group = "Abilities",
-            Header = "Buffs",
-            Category = "Self",
-            Index = 101,
-            Tooltip = "Use Veteran AA such as Intensity of the Resolute or Armor of Experience as necessary.",
-            Default = true,
-            ConfigType = "Advanced",
-            RequiresLoadoutChange = true,
-        },
+
 
         --AE Damage
         ['DoAEDamage']     = {

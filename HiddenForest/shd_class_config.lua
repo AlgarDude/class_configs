@@ -113,10 +113,6 @@ local _ClassConfig = {
         ['OoW_Chest'] = {
             "Frozen Duskbringer's Chestguard (Tier 2)",
         },
-        ['Coating'] = {
-            "Spirit Drinker's Coating",
-            "Blood Drinker's Coating",
-        },
     },
     ['AbilitySets']     = {
         --Laz spells to look into: Fickle Shadows
@@ -660,15 +656,6 @@ local _ClassConfig = {
             --Abilities should be placed in order of lowest to highest triggered HP thresholds
             --Some conditionals are commented out while I tweak percentages (or determine if they are necessary)
             {
-                name = "Armor of Experience",
-                type = "AA",
-                tooltip = Tooltips.ArmorofExperience,
-                load_cond = function(self) return Config:GetSetting('DoVetAA') end,
-                cond = function(self)
-                    return mq.TLO.Me.PctHPs() <= Config:GetSetting('HPCritical')
-                end,
-            },
-            {
                 name = "OoW_Chest",
                 type = "Item",
                 tooltip = Tooltips.OoW_BP,
@@ -787,11 +774,7 @@ local _ClassConfig = {
                     return Config:GetSetting('DoVisage')
                 end,
             },
-            {
-                name = "Intensity of the Resolute",
-                type = "AA",
-                load_cond = function(self) return Config:GetSetting('DoVetAA') end,
-            },
+
             {
                 name_func = function(self)
                     return string.format("Fundament: %s Spire of the Reavers", Core.IsTanking() and "Third" or "Second")
@@ -903,14 +886,6 @@ local _ClassConfig = {
                 tooltip = Tooltips.Epic,
                 cond = function(self, itemName, target)
                     return self.ClassConfig.HelperFunctions.LeechCheck(self) or Targeting.IsNamed(target)
-                end,
-            },
-            {
-                name = "Coating",
-                type = "Item",
-                cond = function(self, itemName, target)
-                    if not Config:GetSetting('DoCoating') then return false end
-                    return Casting.SelfBuffItemCheck(itemName) and self.ClassConfig.HelperFunctions.LeechCheck(self)
                 end,
             },
             {
@@ -1220,17 +1195,6 @@ local _ClassConfig = {
             Answer =
             "You may have Visage of Death enabled, which has a sizable self-damage component. While we will attempt to autocancel this at low health in downtime, you can disable VoD use in the Class options.",
         },
-        ['DoVetAA']         = {
-            DisplayName = "Use Vet AA",
-            Group = "Abilities",
-            Header = "Buffs",
-            Category = "Self",
-            Index = 103,
-            Tooltip = "Use Veteran AA such as Intensity of the Resolute or Armor of Experience as necessary.",
-            Default = true,
-            ConfigType = "Advanced",
-            RequiresLoadoutChange = true,
-        },
 
         --Taps
         ['StartLifeTap']    = {
@@ -1523,15 +1487,6 @@ local _ClassConfig = {
         },
 
         --Equipment
-        ['DoCoating']       = {
-            DisplayName = "Use Coating",
-            Group = "Items",
-            Header = "Clickies",
-            Category = "Class Config Clickies",
-            Index = 102,
-            Tooltip = "Click your Blood Drinker's Coating when defenses are triggered.",
-            Default = false,
-        },
         ['UseBandolier']    = {
             DisplayName = "Dynamic Weapon Swap",
             Group = "Items",

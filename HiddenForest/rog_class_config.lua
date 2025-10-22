@@ -169,11 +169,7 @@ return {
                 name = "Dirty Fighting",
                 type = "AA",
             },
-            {
-                name = "Intensity of the Resolute",
-                type = "AA",
-                load_cond = function(self) return Config:GetSetting('DoVetAA') end,
-            },
+
         },
         ['BurnDisc'] = {
             {
@@ -275,25 +271,10 @@ return {
             },
         },
         ['Emergency'] = {
-            {
-                name = "Armor of Experience",
-                type = "AA",
-                load_cond = function(self) return Config:GetSetting('DoVetAA') end,
-                cond = function(self, aaName)
-                    return mq.TLO.Me.PctHPs() < 35
-                end,
-            },
+
             {
                 name = "Tumble",
                 type = "AA",
-            },
-            {
-                name = "Blood Drinker's Coating",
-                type = "Item",
-                cond = function(self, itemName, target)
-                    if not Config:GetSetting('DoCoating') then return false end
-                    return Casting.SelfBuffItemCheck(itemName)
-                end,
             },
             {
                 name = "CADisc",
@@ -558,17 +539,6 @@ return {
             Min = 1,
             Max = 100,
         },
-        ['DoVetAA']         = {
-            DisplayName = "Use Vet AA",
-            Group = "Abilities",
-            Header = "Buffs",
-            Category = "Self",
-            Index = 102,
-            Tooltip = "Use Veteran AA such as Intensity of the Resolute or Armor of Experience as necessary.",
-            Default = true,
-            ConfigType = "Advanced",
-            RequiresLoadoutChange = true,
-        },
         --Equipment
         ['UseEpic']         = {
             DisplayName = "Epic Use:",
@@ -583,15 +553,6 @@ return {
             Min = 1,
             Max = 3,
             ConfigType = "Advanced",
-        },
-        ['DoCoating']       = {
-            DisplayName = "Use Coating",
-            Group = "Items",
-            Header = "Clickies",
-            Category = "Class Config Clickies",
-            Index = 102,
-            Tooltip = "Click your Blood Drinker's Coating in an emergency.",
-            Default = false,
         },
     },
 }

@@ -655,13 +655,6 @@ local _ClassConfig = {
                 name = "Improved Twincast",
                 type = "AA",
             },
-            {
-                name = "Intensity of the Resolute",
-                type = "AA",
-                cond = function(self)
-                    return Config:GetSetting('DoVetAA')
-                end,
-            },
             { --homework: Check if this is necessary (does not exceed 50% spell haste cap)
                 name = "Celestial Rapidity",
                 type = "AA",
@@ -1300,15 +1293,6 @@ local _ClassConfig = {
             Default = true,
             FAQ = "Why am I using Yaulp? Clerics are not supposed to melee!",
             Answer = "The Yaulp spells we use also contain a mana regen component. You can disable this behavior on the Utility tab in the Class Options.",
-        },
-        ['DoVetAA']           = {
-            DisplayName = "Use Vet AA",
-            Group = "Abilities",
-            Header = "Buffs",
-            Category = "Self",
-            Index = 102,
-            Tooltip = "Use Veteran AA such as Intensity of the Resolute or Armor of Experience as necessary.",
-            Default = true,
         },
     },
 }

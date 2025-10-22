@@ -519,14 +519,6 @@ local _ClassConfig = {
         },
         ['CombatBuff']      = {
             {
-                name = "Forsaken Fungus Covered Scale Tunic",
-                type = "Item",
-                load_cond = function(self) return mq.TLO.FindItem("=Forsaken Fungus Covered Scale Tunic")() end,
-                cond = function(self, itemName, target)
-                    return mq.TLO.Me.PctMana() < Config:GetSetting('DeathBloomPercent') or mq.TLO.Me.PctHPs() < 40
-                end,
-            },
-            {
                 name = "Death Bloom",
                 type = "AA",
                 cond = function(self, aaName)

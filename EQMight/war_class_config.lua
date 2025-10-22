@@ -27,9 +27,6 @@ local _ClassConfig = {
             "Armsmaster's Breastplate",
             "Gladiator's Plate Chestguard of War",
         },
-        ['Coating'] = {
-            "Blood Drinker's Coating",
-        },
     },
     ['AbilitySets']     = {
         ['StandDisc'] = {           -- Timer 2
@@ -358,13 +355,6 @@ local _ClassConfig = {
             --Note that in Tank Mode, defensive discs are preemptively cycled on named in the (non-emergency) Defenses rotation
             --Abilities should be placed in order of lowest to highest triggered HP thresholds
             {
-                name = "Armor of Experience",
-                type = "AA",
-                cond = function(self)
-                    return mq.TLO.Me.PctHPs() <= Config:GetSetting('HPCritical') and Config:GetSetting('DoVetAA')
-                end,
-            },
-            {
                 name = "Fortitude",
                 type = "Disc",
                 cond = function(self, discSpell)
@@ -453,14 +443,6 @@ local _ClassConfig = {
                     return Casting.SelfBuffAACheck(aaName)
                 end,
             },
-            {
-                name = "Coating",
-                type = "Item",
-                cond = function(self, itemName, target)
-                    if not Config:GetSetting('DoCoating') then return false end
-                    return Casting.SelfBuffItemCheck(itemName)
-                end,
-            },
         },
         ['Burn'] = {
             {
@@ -510,13 +492,6 @@ local _ClassConfig = {
                 type = "AA",
                 cond = function(self, aaName)
                     return Core.IsTanking()
-                end,
-            },
-            {
-                name = "Intensity of the Resolute",
-                type = "AA",
-                cond = function(self, aaName)
-                    return Config:GetSetting('DoVetAA')
                 end,
             },
         },
@@ -646,15 +621,6 @@ local _ClassConfig = {
             Header = "Debuffs",
             Category = "Snare",
             Tooltip = "Use Call of Challenge to snare enemies.",
-            Default = true,
-        },
-        ['DoVetAA']         = {
-            DisplayName = "Use Vet AA",
-            Group = "Abilities",
-            Header = "Buffs",
-            Category = "Self",
-            Index = 8,
-            Tooltip = "Use Veteran AA such as Intensity of the Resolute or Armor of Experience as necessary.",
             Default = true,
         },
 
@@ -820,15 +786,6 @@ local _ClassConfig = {
             Category = "Class Config Clickies",
             Index = 101,
             Tooltip = "Click your Epic Weapon when AE Threat is needed. Also relies on Do AE Damage setting.",
-            Default = false,
-        },
-        ['DoCoating']       = {
-            DisplayName = "Use Coating",
-            Group = "Items",
-            Header = "Clickies",
-            Category = "Class Config Clickies",
-            Index = 102,
-            Tooltip = "Click your Blood Drinker's Coating when defenses are triggered.",
             Default = false,
         },
         ['UseBandolier']    = {

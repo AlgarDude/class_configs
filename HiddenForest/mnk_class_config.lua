@@ -189,27 +189,12 @@ local _ClassConfig = {
                     return mq.TLO.Me.PctHPs() < 35
                 end,
             },
-            {
-                name = "Armor of Experience",
-                type = "AA",
-                load_cond = function(self) return Config:GetSetting('DoVetAA') end,
-                cond = function(self, aaName)
-                    return mq.TLO.Me.PctHPs() < 35
-                end,
-            },
+
             {
                 name = "Mend",
                 type = "Ability",
                 cond = function(self, abilityName)
                     return mq.TLO.Me.PctHPs() < Config:GetSetting('EmergencyStart')
-                end,
-            },
-            {
-                name = "Blood Drinker's Coating",
-                type = "Item",
-                load_cond = function(self) return Config:GetSetting('DoCoating') end,
-                cond = function(self, itemName, target)
-                    return Casting.SelfBuffItemCheck(itemName)
                 end,
             },
             {
@@ -248,11 +233,7 @@ local _ClassConfig = {
                     return Targeting.IsNamed(target) and (mq.TLO.Me.PctAggro() or 0) > 60
                 end,
             },
-            {
-                name = "Intensity of the Resolute",
-                type = "AA",
-                load_cond = function(self) return Config:GetSetting('DoVetAA') end,
-            },
+
             {
                 name = "Five Point Palm",
                 type = "AA",
@@ -365,17 +346,6 @@ local _ClassConfig = {
             FAQ = "What do the different Modes Do?",
             Answer = "Currently there is only DPS mode for Monks, more modes may be added in the future.",
         },
-        ['DoVetAA']         = {
-            DisplayName = "Use Vet AA",
-            Group = "Abilities",
-            Header = "Buffs",
-            Category = "Self",
-            Index = 102,
-            Tooltip = "Use Veteran AA such as Intensity of the Resolute or Armor of Experience as necessary.",
-            Default = true,
-            ConfigType = "Advanced",
-            RequiresLoadoutChange = true,
-        },
         ['DoAEDamage']      = {
             DisplayName = "Do AE Damage",
             Group = "Abilities",
@@ -457,16 +427,6 @@ local _ClassConfig = {
             Min = 1,
             Max = 100,
             ConfigType = "Advanced",
-        },
-        ['DoCoating']       = {
-            DisplayName = "Use Coating",
-            Group = "Items",
-            Header = "Clickies",
-            Category = "Class Config Clickies",
-            Index = 101,
-            Tooltip = "Click your Blood Drinker's Coating in an emergency.",
-            Default = false,
-            RequiresLoadoutChange = true,
         },
     },
 }

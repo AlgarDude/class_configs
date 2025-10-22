@@ -699,17 +699,6 @@ local _ClassConfig = {
                     return Targeting.IsNamed(target) and Casting.DotItemCheck(itemName, target)
                 end,
             },
-            {
-                name = "Intensity of the Resolute",
-                type = "AA",
-                cond = function(self, aaName)
-                    return Config:GetSetting('DoVetAA')
-                end,
-            },
-            {
-                name = "Shattered Gnoll Slayer",
-                type = "Item",
-            },
         },
         ['Malo'] = {
             {
@@ -1540,16 +1529,6 @@ local _ClassConfig = {
             Tooltip = "Weave Empowered/Enlighted/Acute Focus of Arcanum into your standard combat routine (Focus of Arcanum is saved for burns).",
             RequiresLoadoutChange = true, --this setting is used as a load condition
             Default = true,
-        },
-        ['DoVetAA']           = {
-            DisplayName = "Do Vet AA",
-            Group = "Abilities",
-            Header = "Buffs",
-            Category = "Self",
-            Index = 102,
-            Tooltip = "Use Veteran AA during burns (See FAQ).",
-            Default = true,
-            ConfigType = "Advanced",
         },
 
         -- Debuffs

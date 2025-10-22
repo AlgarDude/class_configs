@@ -405,13 +405,6 @@ return {
                     return not self.ClassConfig.HelperFunctions.DmgModActive(self)
                 end,
             },
-            {
-                name = "Intensity of the Resolute",
-                type = "AA",
-                cond = function(self, aaName)
-                    return Config:GetSetting('DoVetAA')
-                end,
-            },
         },
         ['Slow']           = {
             {
@@ -424,14 +417,6 @@ return {
         },
         ['Emergency']      = {
             {
-                name = "Armor of Experience",
-                type = "AA",
-                cond = function(self, aaName)
-                    if not Config:GetSetting('DoVetAA') then return false end
-                    return mq.TLO.Me.PctHPs() < 35
-                end,
-            },
-            {
                 name = "Warder's Gift",
                 type = "AA",
                 cond = function(self, aaName)
@@ -443,14 +428,6 @@ return {
                 type = "AA",
                 cond = function(self, aaName)
                     return Targeting.IHaveAggro(100)
-                end,
-            },
-            {
-                name = "Blood Drinker's Coating",
-                type = "Item",
-                cond = function(self, itemName, target)
-                    if not Config:GetSetting('DoCoating') then return false end
-                    return Casting.SelfBuffItemCheck(itemName)
                 end,
             },
             {
@@ -1001,15 +978,6 @@ return {
             Tooltip = "Buff Group/Pet with Infusion of Spirit",
             Default = false,
         },
-        ['DoVetAA']        = {
-            DisplayName = "Use Vet AA",
-            Group = "Abilities",
-            Header = "Buffs",
-            Category = "Self",
-            Index = 101,
-            Tooltip = "Use Veteran AA such as Intensity of the Resolute or Armor of Experience as necessary.",
-            Default = true,
-        },
         --Combat
         ['DoAEDamage']     = {
             DisplayName = "Do AE Damage",
@@ -1071,15 +1039,6 @@ return {
             Min = 1,
             Max = 100,
             ConfigType = "Advanced",
-        },
-        ['DoCoating']      = {
-            DisplayName = "Use Coating",
-            Group = "Items",
-            Header = "Clickies",
-            Category = "Class Config Clickies",
-            Index = 102,
-            Tooltip = "Click your Blood Drinker's Coating in an emergency.",
-            Default = false,
         },
     },
 }

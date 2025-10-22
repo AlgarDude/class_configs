@@ -527,16 +527,7 @@ return {
                 end,
             },
         },
-        ['CombatBuff'] =
-        {
-            {
-                name = "Forsaken Fungus Covered Scale Tunic",
-                type = "Item",
-                load_cond = function(self) return mq.TLO.FindItem("=Forsaken Fungus Covered Scale Tunic")() end,
-                cond = function(self, itemName, target)
-                    return mq.TLO.Me.PctMana() < Config:GetSetting('CombatHarvestManaPct') or mq.TLO.Me.PctHPs() < 40
-                end,
-            },
+        ['CombatBuff'] = {
             {
                 name = "Harvest of Druzzil",
                 type = "AA",
