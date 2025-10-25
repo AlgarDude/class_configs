@@ -85,8 +85,7 @@ return {
     },
     ['AbilitySets']       = {
         ["WardProc"] = {
-            -- Timer 12 - Preservation
-            "Ward of Tunare", -- Level 70
+            "Vengeful Retribution I", -- Level 70
         },
         ["QuickUndeadNuke"] = {
             -- Undead Quick Nuke with chance to snare and reduce AC
@@ -94,10 +93,10 @@ return {
         },
         ["DDProc"] = {
             --- Fury Proc Strike
-            "Divine Might", -- Level 45, 65pt
-            "Pious Might",  -- Level 63, 150pt
-            "Holy Order",   -- Level 65, 180pt
-            "Pious Fury",   -- Level 68, 250pt, + 250pt if undead
+            "Divine Might",   -- Level 45, 65pt
+            "Pious Might",    -- Level 63, 150pt
+            "Holy Order",     -- Level 65, 180pt
+            "Knight's Storm", -- THF Level 69 450
         },
         ["UndeadProc"] = {
             --- Undead Proc Strike : does not stack with Fury Proc, will be used until Fury is available even if setting not enabled.
@@ -284,6 +283,10 @@ return {
             "Bulwark of Faith",
             "Shield of Words",
             "Armor of Faith",
+        },
+        ['SpellResistBuff'] = {
+            "Silent Storm", -- includes slot 9 dd/stun/hate proc
+            "Silent Piety",
         },
         --Auron's Flame of Light... maybe a nuke? Level 50
     },
@@ -675,18 +678,6 @@ return {
                     return Casting.SelfBuffCheck(spell)
                 end,
             },
-            --You'll notice my use of TotalSeconds, this is to keep as close to 100% uptime as possible on these buffs, rebuffing early to decrease the chance of them falling off in combat
-            --I considered creating a function (helper or utils) to govern this as I use it on multiple classes but the difference between buff window/song window/aa/spell etc makes it unwieldy
-            -- if using duration checks, dont use SelfBuffCheck() (as it could return false when the effect is still on)
-            {
-                name = "WardProc",
-                type = "Spell",
-                load_cond = function(self) return Config:GetSetting('DoWardProc') end,
-                active_cond = function(self, spell) return Casting.IHaveBuff(spell) end,
-                cond = function(self, spell)
-                    return spell.RankName.Stacks() and (mq.TLO.Me.Buff(spell).Duration.TotalSeconds() or 0) < 60
-                end,
-            },
             {
                 name_func = function(self)
                     local proc = "Proc Buff Disabled"
@@ -701,6 +692,15 @@ return {
                     end
                 end,
                 type = "Spell",
+                active_cond = function(self, spell) return Casting.IHaveBuff(spell) end,
+                cond = function(self, spell)
+                    return Casting.SelfBuffCheck(spell)
+                end,
+            },
+            {
+                name = "SpellResistBuff",
+                type = "Spell",
+                load_cond = function(self) return Core.IsTanking() end,
                 active_cond = function(self, spell) return Casting.IHaveBuff(spell) end,
                 cond = function(self, spell)
                     return Casting.SelfBuffCheck(spell)
@@ -888,11 +888,10 @@ return {
                 type = "AA",
                 load_cond = function(self) return Config:GetSetting('DoValorousRage') end,
             },
-
             {
                 name = "WardProc",
                 type = "Spell",
-                load_cond = function(self) return Config:GetSetting('DoWardProc') and Core.IsTanking() end,
+                load_cond = function(self) return Config:GetSetting('DoWardProc') end,
                 cond = function(self, spell, target)
                     return Casting.SelfBuffCheck(spell)
                 end,
@@ -906,6 +905,7 @@ return {
                     return Targeting.IsNamed(target) and Casting.NoDiscActive() and not mq.TLO.Me.Song("Rampart")()
                 end,
             },
+
         },
         ['Defenses'] = {
             {

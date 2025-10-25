@@ -320,7 +320,7 @@ return {
             end,
         },
         {
-            name = 'DPS(FireLowLevel)',
+            name = 'DPS(Fire)',
             state = 1,
             steps = 1,
             load_cond = function() return mq.TLO.Me.Level() < 70 and Config:GetSetting('ElementChoice') == 1 end,
@@ -332,7 +332,7 @@ return {
             end,
         },
         {
-            name = 'DPS(IceLowLevel)',
+            name = 'DPS(Ice)',
             state = 1,
             steps = 1,
             load_cond = function() return mq.TLO.Me.Level() < 70 and Config:GetSetting('ElementChoice') == 2 end,
@@ -344,7 +344,7 @@ return {
             end,
         },
         {
-            name = 'DPS(MagicLowLevel)',
+            name = 'DPS(Magic)',
             state = 1,
             steps = 1,
             load_cond = function() return mq.TLO.Me.Level() < 70 and Config:GetSetting('ElementChoice') == 3 end,
@@ -578,7 +578,7 @@ return {
                 type = "Spell",
             },
         },
-        ['DPS(FireLowLevel)'] = {
+        ['DPS(Fire)'] = {
             {
                 name = "FireRain",
                 type = "Spell",
@@ -602,7 +602,7 @@ return {
                 end,
             },
         },
-        ['DPS(IceLowLevel)'] = {
+        ['DPS(Ice)'] = {
             {
                 name = "IceRain",
                 type = "Spell",
@@ -626,7 +626,7 @@ return {
                 end,
             },
         },
-        ['DPS(MagicLowLevel)'] = {
+        ['DPS(Magic)'] = {
             {
                 name = "BigMagicNuke",
                 type = "Spell",

@@ -32,13 +32,13 @@ return {
         },
     },
     ['AbilitySets']     = {
-        ['IceClaw'] = {
-            "Fluxin's Claw of Vox",
-            "Fluxin's Claw of Frost",
-        },
-        ['FireEtherealNuke'] = {
-            "Ether Flame",
-        },
+        -- ['IceClaw'] = {
+        --     "Fluxin's Claw of Vox",
+        --     "Fluxin's Claw of Frost",
+        -- },
+        -- ['FireEtherealNuke'] = {
+        --     "Ether Flame",
+        -- },
         -- ['ChaosNuke'] = {
         --     "Chaos Flame",
         -- },
@@ -56,8 +56,8 @@ return {
             "Fluxin's Shock of Fire",
         },
         ['BigFireNuke'] = { -- Level 51-70, Long Cast, Heavy Damage
-            -- "Ancient: Core Fire", --Ether Flame beats this soundly at the same level
-            -- "Corona Flare",       --Ether Flame beats this soundly at the same level
+            "Ancient: Core Fire",
+            "Corona Flare",
             "Fluxin's Ancient: Strike of Chaos",
             "Fluxin's White Fire",
             "Fluxin's Strike of Solusek",
@@ -65,8 +65,8 @@ return {
             "Fluxin's Sunstrike",
         },
         ['IceNuke'] = {
-            -- "Ancient: Spear of Gelaqua" -- Commented for now, because of the recast... considering, need to playtest.
-            "Fluxin's Spark of Ice",
+            "Ancient: Spear of Gelaqua",
+            -- "Fluxin's Spark of Ice", -- worse than black ice on THF
             "Fluxin's Black Ice",
             "Fluxin's Draught of E`ci",
             "Fluxin's Draught of Ice",
@@ -77,8 +77,10 @@ return {
             "Fluxin's Blast of Cold",
         },
         ['BigIceNuke'] = { -- Level 60-70, Timed with great Ratio or High Cast Time/Damage
-            "Fluxin's Gelidin Comet",
-            "Fluxin's Ice Meteor",
+            -- "Fluxin's Gelidin Comet",
+            "Fluxin's Claw of Vox",
+            --"Fluxin's Ice Meteor",
+            "Fluxin's Claw of Frost",
             "Fluxin's Ancient: Destruction of Ice", --13s T1
             "Fluxin's Ice Spear Solist",            --13s T2
         },
@@ -225,12 +227,18 @@ return {
         ['MagicJyll'] = {
             "Fluxin's  Static Pulse", -- Level 53
         },
-        ['ManaWeave'] = {
-            "Fluxin's Mana Weave",
-        },
+        -- ['ManaWeave'] = {
+        --     "Fluxin's Mana Weave",
+        -- },
         ['SwarmPet'] = {
             -- "Solist's Frozen Sword", -- Bugged, does not attack on Laz/Emu
             "Flaming Sword of Xuzl", --homework
+        },
+        ['MaelstromDot'] = {
+            "Maelstrom of Power IV",
+            "Maelstrom of Power III",
+            "Maelstrom of Power II",
+            "Maelstrom of Power I",
         },
     },
     ['HelperFunctions'] = {
@@ -309,10 +317,10 @@ return {
             end,
         },
         {
-            name = 'DPS(Level70)',
+            name = 'DPS(Common)',
             state = 1,
             steps = 1,
-            load_cond = function() return mq.TLO.Me.Level() < 101 and mq.TLO.Me.Level() > 69 end,
+            load_cond = function() return mq.TLO.Me.Level() > 69 end,
             doFullRotation = true,
             targetId = function(self) return Targeting.CheckForAutoTargetID() end,
             cond = function(self, combat_state)
@@ -321,10 +329,10 @@ return {
             end,
         },
         {
-            name = 'DPS(FireLowLevel)',
+            name = 'DPS(Fire)',
             state = 1,
             steps = 1,
-            load_cond = function() return mq.TLO.Me.Level() < 70 and Config:GetSetting('ElementChoice') == 1 end,
+            load_cond = function() return Config:GetSetting('ElementChoice') == 1 end,
             doFullRotation = true,
             targetId = function(self) return Targeting.CheckForAutoTargetID() end,
             cond = function(self, combat_state)
@@ -333,10 +341,10 @@ return {
             end,
         },
         {
-            name = 'DPS(IceLowLevel)',
+            name = 'DPS(Ice)',
             state = 1,
             steps = 1,
-            load_cond = function() return mq.TLO.Me.Level() < 70 and Config:GetSetting('ElementChoice') == 2 end,
+            load_cond = function() return Config:GetSetting('ElementChoice') == 2 end,
             doFullRotation = true,
             targetId = function(self) return Targeting.CheckForAutoTargetID() end,
             cond = function(self, combat_state)
@@ -345,10 +353,10 @@ return {
             end,
         },
         {
-            name = 'DPS(MagicLowLevel)',
+            name = 'DPS(Magic)',
             state = 1,
             steps = 1,
-            load_cond = function() return mq.TLO.Me.Level() < 70 and Config:GetSetting('ElementChoice') == 3 end,
+            load_cond = function() return Config:GetSetting('ElementChoice') == 3 end,
             doFullRotation = true,
             targetId = function(self) return Targeting.CheckForAutoTargetID() end,
             cond = function(self, combat_state)
@@ -555,32 +563,16 @@ return {
                 type = "AA",
             },
         },
-        ['DPS(Level70)'] = {
+        ['DPS(Common)'] = {
             {
-                name = "ManaWeave",
+                name = "MaelstromDot",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    return not Casting.IHaveBuff("Weave of Power")
+                    return Targeting.DotSpellCheck(target) and Targeting.AggroCheckOkay()
                 end,
             },
-            -- {
-            --     name = "ChaosNuke",
-            --     type = "Spell",
-            -- },
-            -- {
-            --     name = "WildNuke",
-            --     type = "Spell",
-            -- },
-            {
-                name = "Scepter of Incantations",
-                type = "Item",
-            },
-            {
-                name = "FireEtherealNuke",
-                type = "Spell",
-            },
         },
-        ['DPS(FireLowLevel)'] = {
+        ['DPS(Fire)'] = {
             {
                 name = "FireRain",
                 type = "Spell",
@@ -604,7 +596,7 @@ return {
                 end,
             },
         },
-        ['DPS(IceLowLevel)'] = {
+        ['DPS(Ice)'] = {
             {
                 name = "IceRain",
                 type = "Spell",
@@ -628,7 +620,7 @@ return {
                 end,
             },
         },
-        ['DPS(MagicLowLevel)'] = {
+        ['DPS(Magic)'] = {
             {
                 name = "BigMagicNuke",
                 type = "Spell",
@@ -793,7 +785,7 @@ return {
         {
             gem = 4,
             spells = {
-                -- { name = "ChaosNuke", },
+                { name = "MaelstromDot", },
                 { name = "HarvestSpell", cond = function() return not Casting.CanUseAA("Harvest of Druzzil") end, },
                 { name = "SnareSpell",   cond = function() return Config:GetSetting('DoSnare') and not Casting.CanUseAA("Atol's Shackles") end, },
                 { name = "StunSpell",    cond = function() return Config:GetSetting('DoStun') end, },

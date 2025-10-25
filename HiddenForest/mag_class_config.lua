@@ -9,34 +9,12 @@ local DanNet      = require('lib.dannet.helpers')
 local Logger      = require("utils.logger")
 
 _ClassConfig      = {
-    _version              = "1.2 - The Hidden Forest WIP",
+    _version              = "1.3 - The Hidden Forest WIP", -- Updated for base level 70, some tier 1
     _author               = "Derple, Morisato, Algar",
-    ['ModeChecks']        = {
-        IsTanking = function() return Core.IsModeActive("PetTank") end,
-    },
     ['Modes']             = {
         'DPS',
-        'PetTank',
         'PBAE',
     },
-    ['OnModeChange']      = function(self, mode)
-        if mode == "PetTank" then
-            Core.DoCmd("/pet taunt on")
-            Core.DoCmd("/pet resume on")
-            Config:SetSetting('DoPetCommands', true)
-            Config:SetSetting('AutoAssistAt', 100)
-            Config:SetSetting('StayOnTarget', false)
-            Config:SetSetting('DoAutoEngage', true)
-            Config:SetSetting('DoAutoTarget', true)
-            Config:SetSetting('AllowMezBreak', true)
-        else
-            Core.DoCmd("/pet taunt off")
-            if Config:GetSetting('AutoAssistAt') == 100 then
-                Config:SetSetting('AutoAssistAt', 98)
-            end
-            Config:SetSetting('StayOnTarget', true)
-        end
-    end,
     ['ItemSets']          = {
         ['Epic'] = {
             "Focus of Primal Elements",
@@ -61,15 +39,14 @@ _ClassConfig      = {
             "Raging Servant",
             "Rage of Zomm",
         },
-        ['SpearNuke'] = {
-            -- Spear Nuke* >= LVL 70
-            "Spear of Ro",
+        ['BurningEarth'] = {
+            "Felx's Burning Earth",
         },
-        ['ChaoticNuke'] = {
-            -- Chaotic Nuke with Beneficial Effect >= LVL69
-            -- "Fickle Inferno",
-            "Fickle Fire",
-        },
+        -- ['ChaoticNuke'] = {
+        --     -- Chaotic Nuke with Beneficial Effect >= LVL69
+        --     -- "Fickle Inferno",
+        --     "Fickle Fire",
+        -- },
         -- ['FireNuke'] = {
         --     -- Fire Nuke 1 <= LVL <= 70
         --     "Cremating Sands",
@@ -150,7 +127,6 @@ _ClassConfig      = {
         --     "Iron Bolt",
         -- },
         ['FireDD'] = { --Mix of Fire Nukes and Bolts appropriate for use at lower levels.
-            "Felx's Burning Earth",
             "Felx's Burning Sand",
             "Felx's Scars of Sigil",
             "Felx's Lava Bolt",
@@ -162,6 +138,7 @@ _ClassConfig      = {
             "Erandi's Burst of Flame",
         },
         ['BigFireDD'] = { -- Longer cast time bolts we can use when mobs are at higher health.
+            "Star Strike",
             "Felx's Bolt of Jerikor",
             "Felx's Firebolt of Tallon",
             "Felx's Seeking Flame of Seukor",
@@ -432,17 +409,7 @@ _ClassConfig      = {
         },
         ['PetHealSpell'] = {
             -- Pet Heal*
-            "Renewal of Shoru",
-            "Renewal of Iilivina ",
-            "Renewal of Evreth",
-            "Renewal of Ioulin",
-            "Renewal of Calix",
-            "Renewal of Hererra",
-            "Renewal of Sirqo",
-            "Renewal of Volark",
-            "Renewal of Cadwin",
-            "Revival of Aenro",
-            "Renewal of Aenda",
+            "Dranik's Renewal",
             "Renewal of Jerikor",
             "Planar Renewal",
             "Transon's Elemental Renewal",
@@ -495,17 +462,7 @@ _ClassConfig      = {
             "Elemental Draw",
         },
         ['PetHaste'] = {
-            "Burnout XVI",
-            "Burnout XV",
-            "Burnout XIV",
-            "Burnout XIII",
-            "Burnout XII",
-            "Burnout XI",
-            "Burnout XI",
-            "Burnout IX",
-            "Burnout VIII",
-            "Burnout VII",
-            "Burnout VI",
+            "Elemental Magnificence",
             "Elemental Fury",
             "Burnout V",
             "Burnout IV",
@@ -787,17 +744,11 @@ _ClassConfig      = {
         ['GroupCotH'] = {
             "Call of the Heroes",
         },
-        ['Bladegusts'] = {
-            "Burning Bladegusts",
-        },
         ['PBAE2'] = {
             "Felx's Scintillation",
         },
         ['PBAE1'] = {
             "Felx's Wind of the Desert",
-        },
-        ['Myriad'] = {
-            "Shock of Myriad Minions",
         },
         ['FranticDS'] = {
             "Frantic Flames",
@@ -894,7 +845,7 @@ _ClassConfig      = {
             name = 'DPS(70)',
             state = 1,
             steps = 1,
-            load_cond = function(self) return not Core.IsModeActive("PetTank") and self:GetResolvedActionMapItem('SpearNuke') end,
+            load_cond = function(self) return self:GetResolvedActionMapItem('BurningEarth') end,
             targetId = function(self) return Targeting.CheckForAutoTargetID() end,
             cond = function(self, combat_state)
                 return combat_state == "Combat" and Targeting.AggroCheckOkay()
@@ -904,20 +855,10 @@ _ClassConfig      = {
             name = 'DPS(1-69)',
             state = 1,
             steps = 1,
-            load_cond = function(self) return not Core.IsModeActive("PetTank") and not self:GetResolvedActionMapItem('SpearNuke') end,
+            load_cond = function(self) return not self:GetResolvedActionMapItem('BurningEarth') end,
             targetId = function(self) return Targeting.CheckForAutoTargetID() end,
             cond = function(self, combat_state)
                 return combat_state == "Combat" and Targeting.AggroCheckOkay()
-            end,
-        },
-        {
-            name = 'DPS PET',
-            state = 1,
-            steps = 1,
-            load_cond = function() return Core.IsModeActive("PetTank") end,
-            targetId = function(self) return Targeting.CheckForAutoTargetID() end,
-            cond = function(self, combat_state)
-                return combat_state == "Combat"
             end,
         },
         {
@@ -973,159 +914,6 @@ _ClassConfig      = {
     },
     -- Really the meat of this class.
     ['HelperFunctions']   = {
-        user_tu_spell = function(self, aaName)
-            local shroudSpell = self.ResolvedActionMap['ShroudSpell']
-            local aaSpell = Casting.GetAASpell(aaName)
-            if not shroudSpell or not shroudSpell() or not aaSpell or not aaSpell() or not Casting.CanUseAA(aaName) then return false end
-            -- do we need to lookup the spell basename here? I dont think so but if this doesn't fire right take a look.
-            if shroudSpell.Level() > aaSpell.Level() then return false end
-            return true
-        end,
-        give_pet_toys = function(self, petId)
-            if Config:GetSetting('DoPetWeapons') then
-                self.ClassConfig.HelperFunctions.summon_pet_toy(self, "Weapon", petId)
-            end
-            if Config:GetSetting('DoPetArmor') then
-                self.ClassConfig.HelperFunctions.summon_pet_toy(self, "Armor", petId)
-            end
-            if Config:GetSetting('DoPetHeirlooms') then
-                self.ClassConfig.HelperFunctions.summon_pet_toy(self, "Heirlooms", petId)
-            end
-        end,
-        handle_pet_toys = function(self)
-            if mq.TLO.Me.FreeInventory() < 2 or mq.TLO.Me.Level() < 73 then
-                Logger.log_debug("handle_pet_toys() ==> \arFailed your level is below 73 or you dont have inv slots open!")
-                return false
-            end
-            if (mq.TLO.Me.Pet.Equipment("Primary")() or 0) ~= 0 then
-                Logger.log_verbose("handle_pet_toys() ==> \arFailed your pet already has weapons!")
-                return false
-            end
-
-            if mq.TLO.Me.CombatState():lower() ~= "combat" then
-                return self.ClassConfig.HelperFunctions.give_pet_toys(self, mq.TLO.Me.Pet.ID())
-            end
-            return false
-        end,
-        group_toys = function(self)
-            -- first Things first see if i can even Make Pet toys. if i am To Low Level or have no Inventory Return
-            if mq.TLO.Me.FreeInventory() < 2 or mq.TLO.Me.Level() < 73 then return false end
-
-
-            -- Check if the Groups pet need toys by checking if the pet has weapons.
-            -- If they Are Not a Mage - Also Give them Armor
-            for i = 1, mq.TLO.Group.Members() do
-                local member = mq.TLO.Group.Member(i)
-                if member and member() and (member.Pet.ID() or 0) > 0 and (member.Pet.Equipment("primary")() or 0) == 0 then
-                    if mq.TLO.Me.CombatState():lower() ~= "combat" then
-                        self.ClassConfig.HelperFunctions.give_pet_toys(self, member.Pet.ID())
-                    end
-                end
-            end
-        end,
-        summon_pet_toy = function(self, type, targetId)
-            local petToyResolvedSpell = self.ResolvedActionMap[string.format("Pet%sSummon", type)]
-
-            if not petToyResolvedSpell or not petToyResolvedSpell() then
-                Logger.log_super_verbose("summon_pet_toy() ==> \arFailed to resolve Pet%sSummon item type!", type)
-                return false
-            end
-
-            if mq.TLO.Me.Level() < petToyResolvedSpell.Level() then
-                Logger.log_super_verbose("summon_pet_toy() ==> \arFailed your level is below the pet toy spell(%s) level: %d!", petToyResolvedSpell.RankName(),
-                    petToyResolvedSpell.Level())
-                return false
-            end
-
-            if not Casting.SpellReady(petToyResolvedSpell) then
-                Logger.log_super_verbose("summon_pet_toy() ==> \arFailed SpellReady() Check!", type)
-                return false
-            end
-
-            -- find a slot for the item
-            local openSlot = 0
-            for i = 1, 10 do
-                if mq.TLO.InvSlot("pack" .. tostring(i)).Item.Container() == nil and mq.TLO.InvSlot("pack" .. tostring(i)).Item.ID() == nil then
-                    openSlot = i
-                    break
-                end
-            end
-
-            if openSlot == 0 then
-                Logger.log_super_verbose("summon_pet_toy() ==> \arFailed to find open top level inv slot!", openSlot)
-                return
-            end
-
-            Logger.log_super_verbose("summon_pet_toy() ==> \agUsing PackID=%d", openSlot)
-
-            Casting.UseSpell(petToyResolvedSpell.RankName(), mq.TLO.Me.ID(), Targeting.GetXTHaterCount() == 0)
-
-            mq.delay("5s", function() return (mq.TLO.Cursor.ID() or 0) > 0 end)
-
-            if (mq.TLO.Cursor.ID() or 0) == 0 then return false end
-
-            local packName = string.format("pack%d", openSlot)
-
-            while mq.TLO.Cursor.ID() do
-                Core.DoCmd("/shiftkey /itemnotify %s leftmouseup", packName)
-                mq.delay("1s", function() return mq.TLO.Cursor.ID() == nil end)
-            end
-
-            -- What happens if the bag is a Folded Pack
-            while string.find(mq.TLO.InvSlot(packName).Item.Name(), "Folded Pack") ~= nil do
-                Core.DoCmd("/nomodkey /itemnotify %s rightmouseup", packName)
-                -- Folded backs end up on our cursor.
-                mq.delay("5s", function() return (mq.TLO.Cursor.ID() or 0) > 0 end)
-                -- Drop the unfolded pack back in our inventory
-                while mq.TLO.Cursor.ID() do
-                    Core.DoCmd("/nomodkey /itemnotify %s leftmouseup", packName)
-                    mq.delay("1s", function() return mq.TLO.Cursor.ID() == nil end)
-                end
-            end
-
-            -- Hand Toy off to the Pet
-            -- Open our pack
-            Core.DoCmd("/nomodkey /itemnotify %s rightmouseup", packName)
-
-            -- TODO: Need a condition to check if the pack window has opened
-            mq.delay("1s")
-
-            if type == "Armor" or type == "Heirloom" then
-                -- Loop through each item in our bag and give it to the pet
-                for i = 1, mq.TLO.InvSlot(packName).Item.Container() do
-                    if mq.TLO.InvSlot(packName).Item.Item(i).Name() ~= nil then
-                        ItemManager.GiveTo(targetId, mq.TLO.InvSlot(packName).Item.Item(i).Name(), 1)
-                    end
-                end
-            else
-                -- Must be a weapon
-                -- Hand Weapons off to the pet
-                local itemsToGive = { 2, 4, }
-                if Core.IsModeActive("PetTank") then
-                    -- If we're pet tanking, give the pet the hate swords in bag slots
-                    -- 7 and 8. At higher levels this only ends up with one aggro swords
-                    -- so perhaps there's a way of generalizing later.
-                    itemsToGive = { 7, 8, }
-                end
-
-                for _, i in ipairs(itemsToGive) do
-                    Logger.log_debug("Item Name %s", mq.TLO.InvSlot(packName).Item.Item(i).Name())
-                    ItemManager.GiveTo(targetId, mq.TLO.InvSlot(packName).Item.Item(i).Name(), 1)
-                end
-            end
-
-            -- Delete the satchel if it's still there
-            if mq.TLO.InvSlot(packName).Item.ID() ~= nil then
-                Core.DoCmd("/nomodkey /itemnotify %s leftmouseup", packName)
-                mq.delay("5s", function() return mq.TLO.Cursor.ID() ~= nil end)
-
-                -- Just double check and make sure it's a temporary
-                if mq.TLO.Cursor.ID() and mq.TLO.Cursor.NoRent() then
-                    Core.DoCmd("/destroy")
-                    mq.delay(30, function() return mq.TLO.Cursor.ID() == nil end)
-                end
-            end
-        end,
         summon_pet = function(self)
             local petSpellVar = string.format("%sPetSpell", self.ClassConfig.DefaultConfig.PetType.ComboOptions[Config:GetSetting('PetType')])
             local resolvedPetSpell = self.ResolvedActionMap[petSpellVar]
@@ -1176,9 +964,9 @@ _ClassConfig      = {
                         Casting.UseSpell(resolvedPetHasteSpell.RankName(), mq.TLO.Me.Pet.ID(), true)
                         local resolvedPetBuffSpell = self.ResolvedActionMap["PetIceFlame"]
                         Casting.UseSpell(resolvedPetBuffSpell.RankName(), mq.TLO.Me.Pet.ID(), true)
-                        if mq.TLO.Me.Pet.ID() then
-                            self.ClassConfig.HelperFunctions.handle_pet_toys(self)
-                        end
+                        -- if mq.TLO.Me.Pet.ID() then
+                        --     self.ClassConfig.HelperFunctions.handle_pet_toys(self)
+                        -- end
                         Casting.UseAA("Suspended Minion", mq.TLO.Me.ID(), true)
                         self.TempSettings.PocketPet = true
                     end
@@ -1318,14 +1106,6 @@ _ClassConfig      = {
             },
         },
         ['PetBuff'] = {
-            {
-                name = "HandlePetToys",
-                type = "CustomFunc",
-                custom_func = function(self)
-                    if not Config:GetSetting("DoPetWeapons") and not Config:GetSetting("DoPetArmor") and not Config:GetSetting("DoPetHeirlooms") then return false end
-                    return self.ClassConfig.HelperFunctions.handle_pet_toys and self.ClassConfig.HelperFunctions.handle_pet_toys(self) or false
-                end,
-            },
             { --if the buff is removed from the pet, the invisible rathe aura object remains; if we don't check for it, a spam condition could ensue
                 -- buff will be lost on zone
                 name = "PetAura",
@@ -1472,61 +1252,6 @@ _ClassConfig      = {
                 end,
             },
         },
-        ['DPS PET'] = {
-            {
-                name = "OowRobeName",
-                type = "CustomFunc",
-                custom_func = function(self)
-                    if not Core.IsModeActive("PetTank") then return end
-                    local oowItems = { 'Glyphwielder\'s Tunic of the Summoner', 'Runemaster\'s Robe', }
-                    for _, item in ipairs(oowItems) do
-                        if mq.TLO.FindItemCount(item)() == 1 then
-                            self.TempSettings.OowRobeBase = item
-                            return Casting.UseItem(item, mq.TLO.Me.ID())
-                        end
-                    end
-
-                    return false
-                end,
-            },
-            {
-                name = "PetStanceSpell",
-                type = "Spell",
-                cond = function(self, spell)
-                    return Core.IsModeActive("PetTank") and self.TempSettings.OowRobeBase ~= nil and Core.IsModeActive("PetTank") and
-                        Casting.PetBuffCheck(spell) and mq.TLO.Me.Pet.PctHPs() <= 95 and
-                        (mq.TLO.Me.PetBuff(mq.TLO.Spell(self.TempSettings.OowRobeBase).RankName.Base(1)() or "").ID()) or 0 == 0
-                end,
-            },
-            {
-                name = "SurgeDS1",
-                type = "Spell",
-                cond = function(self, spell)
-                    return Casting.PetBuffCheck(spell)
-                end,
-            },
-            {
-                name = "SurgeDS2",
-                type = "Spell",
-                cond = function(self, spell)
-                    return Casting.PetBuffCheck(spell)
-                end,
-            },
-            {
-                name = "ShortDurDmgShield",
-                type = "Spell",
-                cond = function(self, spell)
-                    return Casting.PetBuffCheck(spell)
-                end,
-            },
-            {
-                name = "FireShroud",
-                type = "Spell",
-                cond = function(self, spell)
-                    return Casting.PetBuffCheck(spell)
-                end,
-            },
-        },
         ['Weaves'] = {
             {
                 name = "Summon Companion",
@@ -1585,20 +1310,12 @@ _ClassConfig      = {
                     return Casting.HaveManaToNuke() and not (Config:GetSetting('DoSwarmPet') == 2 and not Targeting.IsNamed(target))
                 end,
             },
+            -- {
+            --     name = "ChaoticNuke",
+            --     type = "Spell",
+            -- },
             {
-                name = "Bladegusts",
-                type = "Spell",
-            },
-            {
-                name = "ChaoticNuke",
-                type = "Spell",
-            },
-            {
-                name = "Myriad",
-                type = "Spell",
-            },
-            {
-                name = "SpearNuke",
+                name = "BurningEarth",
                 type = "Spell",
             },
             {
@@ -1642,14 +1359,10 @@ _ClassConfig      = {
                     return Targeting.TargetBodyIs(target, "Undead Pet")
                 end,
             },
-            {
-                name = "Bladegusts",
-                type = "Spell",
-            },
-            {
-                name = "ChaoticNuke",
-                type = "Spell",
-            },
+            -- {
+            --     name = "ChaoticNuke",
+            --     type = "Spell",
+            -- },
         },
         ['Malo'] = {
             {
@@ -1705,13 +1418,6 @@ _ClassConfig      = {
                         Comms.PrintGroupMessage("It seems %s has triggered combat due to a server bug, calling the pet back.", spell)
                         Core.DoCmd('/pet back off')
                     end
-                end,
-            },
-            {
-                name = "HandleGroupToys",
-                type = "CustomFunc",
-                custom_func = function(self)
-                    return self.ClassConfig.HelperFunctions.group_toys and self.ClassConfig.HelperFunctions.group_toys(self) or false
                 end,
             },
         },
@@ -1825,7 +1531,6 @@ _ClassConfig      = {
                 { name = "FireDD", },
                 { name = "BigFireDD", },
                 { name = "MagicDD", },
-                { name = "Bladegusts", },
                 { name = "PBAE1",            cond = function(self) return Core.IsModeActive("PBAE") end, },
                 { name = "PBAE2",            cond = function(self) return Core.IsModeActive("PBAE") end, },
                 { name = "MaloDebuff",       cond = function(self) return Config:GetSetting('DoMalo') and not Casting.CanUseAA("Malosinete") end, },
@@ -1842,11 +1547,9 @@ _ClassConfig      = {
             name = "Level 70", --This name is abitrary, it is simply what shows up in the UI when this spell list is loaded.
             cond = function(self) return mq.TLO.Me.Level() >= 70 end,
             spells = {         -- Spells will be loaded in order (if the conditions are met), until all gem slots are full.
-                { name = "SpearNuke", },
-                { name = "ChaoticNuke", },
+                { name = "BurningEarth", },
+                -- { name = "ChaoticNuke", },
                 { name = "SwarmPet", },
-                { name = "Bladegusts", },
-                { name = "Myriad", },
                 { name = "PBAE1",            cond = function(self) return Core.IsModeActive("PBAE") end, },
                 { name = "PBAE2",            cond = function(self) return Core.IsModeActive("PBAE") end, },
                 { name = "MaloDebuff",       cond = function(self) return Config:GetSetting('DoMalo') and not Casting.CanUseAA("Malosinete") end, },
@@ -1870,10 +1573,9 @@ _ClassConfig      = {
             RequiresLoadoutChange = true,
             Default = 1,
             Min = 1,
-            Max = 3,
+            Max = 2,
             FAQ = "What is the difference between the modes?",
             Answer = "DPS Mode performs exactly as described.\n" ..
-                "PetTank mode will Focus on keeping the Pet alive as the main tank.\n" ..
                 "PBAE Mode will use PBAE spells when configured, alongside the DPS rotation.",
         },
         ['DoPocketPet']    = {

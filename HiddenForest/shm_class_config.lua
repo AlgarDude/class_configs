@@ -121,9 +121,6 @@ local _ClassConfig = {
             "Talisman of the Boar",
             "Spirit of Fortitude",
             "Talisman of Fortitude",
-            "Talisman of Persistence",
-            "Talisman of Vehemence",
-            "Spirit of Vehemence",
         },
         ["LowLvlAtkBuff"] = {
             -- Low Level Attack Buff --- user under level 86. Including Harnessing of Spirit as they will have similar usecases and targets.
@@ -197,6 +194,7 @@ local _ClassConfig = {
             --"Drowsy", --Too much mana with little benefit at these levels
         },
         ["DiseaseSlow"] = {
+            "Hungry Plague",
             "Cloud of Grummus",
             "Plague of Insects",
         },
@@ -285,7 +283,8 @@ local _ClassConfig = {
         },
         ["PoisonNuke"] = {
             -- Poison Nuke LVL34 +
-            "Sham's  Spear of Venom",
+            "Deadly Venom",
+            "Sham's Spear of Venom",
             "Sham's Spear of Torment",
             "Sham's Blast of Venom",
             "Sham's Shock of Venom",
@@ -294,7 +293,7 @@ local _ClassConfig = {
         },
         ["ColdNuke"] = {
             --- ColdNuke - Level 4+
-            --"Dire Avalanche", -- In resources but not scribable I think?
+            "Ancient: Frost Blast",
             "Sham's Iceage",
             "Sham's Velium Strike",
             "Sham's Ice Strike",
@@ -314,7 +313,7 @@ local _ClassConfig = {
         },
         ["SaryrnDot"] = {
             -- Stacking: Blood of Saryrn - Long Dot(42s) - Level 8+
-            "Nectar of Pain",
+            "Blood of Yoppa",
             "Sham's Blood of Saryn",
             "Sham's Ancient: Scourge of Nife",
             "Sham's Bane of Nife",
@@ -332,9 +331,6 @@ local _ClassConfig = {
             "Scourge",
             "Sham's Affliction",
             "Murg's Sicken",
-        },
-        ["AEDot"] = { -- do homework for Laz
-            "Blood of Yoppa",
         },
         ["PetSpell"] = { --We need to add handling for commune to get the mammoth/etc
             -- Pet Spell - 32+
@@ -387,6 +383,10 @@ local _ClassConfig = {
         },
         ["PutridDecay"] = { -- Level 66 Poi/Dis resist debuff
             "Putrid Decay",
+        },
+        ["HealTotem"] = {
+            "Totem of the Ghelf",
+            "Totem of Jhandra",
         },
     },
     ['HelperFunctions']   = {

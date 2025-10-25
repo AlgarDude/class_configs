@@ -5,7 +5,7 @@ local Casting   = require("utils.casting")
 local Logger    = require("utils.logger")
 
 return {
-    _version            = "2.0 - Project Lazarus",
+    _version            = "2.1 - The Hidden Forest (WIP)", -- all abilities added, audit for use as acquired/needed
     _author             = "Algar, Derple",
     ['Modes']           = {
         'DPS',
@@ -15,28 +15,15 @@ return {
             "Vengeful Taelosian Blood Axe",
             "Raging Taelosian Alloy Axe",
         },
-        ['OoW_Chest'] = {
-            "Wrathbringer's Chain Chestguard of the Vindicator",
-            "Ragebound Chain Chestguard",
-        },
     },
     ['AbilitySets']     = {
-        ['EndRegen'] = {
-            "Third Wind",
-            --"Second Wind",
-        },
-        ['BerAura'] = {
-            "Aura of Rage",
-            "Bloodlust Aura",
-        },
-        ['FrenzyDisc'] = {
-            "Overpowering Frenzy",
-        },
         ['VolleyDisc'] = {
-            "Rage Volley",
+            "Enraged Volley",
             "Destroyer's Volley",
+            "Rage Volley",
         },
         ['FlurryDisc'] = {
+            "Tempest Flurry",
             "Vengeful Flurry Discipline",
         },
         ['RageDisc'] = {
@@ -44,23 +31,21 @@ return {
             "Cleaving Rage Discipline",
         },
         ['AngerDisc'] = {
+            "Vengeful Anger",
             "Cleaving Anger Discipline",
         },
         ['CryDisc'] = {
-            "Battle Cry",
-            "War Cry",
-            "Battle Cry of Dravel",
-            "War Cry of Dravel",
-            "Battle Cry of the Mastruq",
+            "Cry of Dranik",
+            "Cry of Strategy",
             "Ancient: Cry of Chaos",
+            "Battle Cry of the Mastruq",
+            "War Cry of Dravel",
+            "Battle Cry of Dravel",
+            "War Cry",
+            "Battle Cry",
         },
         ['GroupCrit'] = {
             "Cry Havoc",
-        },
-        ['Scream'] = { -- Stun, Throwing/Archery Dmg taken debuff
-            "Bloodcurdling Scream",
-            "Bewildering Scream",
-            "Unsettling Scream",
         },
         ['StunStrike'] = {
             "Mind Strike",
@@ -77,6 +62,18 @@ return {
         ['DmgModProc'] = {
             "Unpredictable Rage Discipline",
         },
+        ['TwinProcBuff'] = {
+            "Echoing Whispers",
+        },
+        ['DmgModDisc'] = {
+            "Flaming Hatred",
+        },
+        ['ColdRage'] = {
+            "Cold Rage IV",
+            "Cold Rage III",
+            "Cold Rage II",
+            "Cold Rage I",
+        },
     },
     ['RotationOrder']   = {
         {
@@ -90,17 +87,17 @@ return {
                 return combat_state == "Combat" or (combat_state == "Downtime" and Casting.OkayToBuff())
             end,
         },
-        {
-            name = 'Emergency',
-            state = 1,
-            steps = 1,
-            doFullRotation = true,
-            targetId = function(self) return Targeting.CheckForAutoTargetID() end,
-            cond = function(self, combat_state)
-                return Targeting.GetXTHaterCount() > 0 and
-                    (mq.TLO.Me.PctHPs() <= Config:GetSetting('EmergencyStart') or (Targeting.IsNamed(Targeting.GetAutoTarget()) and mq.TLO.Me.PctAggro() > 99))
-            end,
-        },
+        -- {
+        --     name = 'Emergency',
+        --     state = 1,
+        --     steps = 1,
+        --     doFullRotation = true,
+        --     targetId = function(self) return Targeting.CheckForAutoTargetID() end,
+        --     cond = function(self, combat_state)
+        --         return Targeting.GetXTHaterCount() > 0 and
+        --             (mq.TLO.Me.PctHPs() <= Config:GetSetting('EmergencyStart') or (Targeting.IsNamed(Targeting.GetAutoTarget()) and mq.TLO.Me.PctAggro() > 99))
+        --     end,
+        -- },
         { --Keep things from running
             name = 'Snare',
             state = 1,
@@ -143,43 +140,15 @@ return {
     ['Rotations']       = {
         ['Buffs'] = {
             {
-                name = "EndRegen",
-                type = "Disc",
-                cond = function(self, discSpell)
-                    return mq.TLO.Me.PctEndurance() <= 15 and mq.TLO.Me.Combat()
-                end,
-            },
-            {
-                name = "BerAura",
-                type = "Disc",
-                cond = function(self, discSpell)
-                    return not mq.TLO.Me.Aura(1).ID() and mq.TLO.Me.PctEndurance() > 10
-                end,
-            },
-            {
                 name = "GroupCrit",
                 type = "Disc",
                 cond = function(self, discSpell)
                     return Casting.SelfBuffCheck(discSpell)
                 end,
             },
-            {
-                name = "Decapitation",
-                type = "AA",
-                cond = function(self, aaName)
-                    return Casting.SelfBuffAACheck(aaName)
-                end,
-            },
         },
-        ['Emergency'] = {
-            {
-                name = "Uncanny Resilience",
-                type = "AA",
-                cond = function(self, aaName)
-                    return Targeting.IHaveAggro(100)
-                end,
-            },
-        },
+        -- ['Emergency'] = {
+        -- },
         ['Snare'] = {
             {
                 name = "SnareStrike",
@@ -211,37 +180,21 @@ return {
                 type = "AA",
             },
             {
+                name = "DmgModDisc",
+                type = "Disc",
+            },
+            {
                 name = "DmgModProc",
                 type = "Disc",
             },
         },
         ['Burn'] = {
             {
-                name = "OoW_Chest",
-                type = "Item",
-            },
-            {
-                name = "Juggernaut Surge",
-                type = "AA",
-            },
-            {
-                name = "Fundament: Third Spire of Savagery",
-                type = "AA",
-            },
-            {
                 name = "CryDisc",
                 type = "Disc",
             },
             {
-                name = "Blinding Fury",
-                type = "AA",
-            },
-            {
                 name = "Blood Pact",
-                type = "AA",
-            },
-            {
-                name = "Vehement Rage",
                 type = "AA",
             },
             {
@@ -249,12 +202,8 @@ return {
                 type = "AA",
             },
             {
-                name = "Reckless Abandon",
+                name = "Cry of Battle",
                 type = "AA",
-            },
-            {
-                name = "Battered Smuggler's Barrel",
-                type = "Item",
             },
         },
         ['DPS'] = {
@@ -264,16 +213,6 @@ return {
                 cond = function(self, itemName)
                     if Config:GetSetting('UseEpic') == 1 then return false end
                     return (Config:GetSetting('UseEpic') == 3 or (Config:GetSetting('UseEpic') == 2 and Casting.BurnCheck())) and Casting.SelfBuffItemCheck(itemName)
-                end,
-            },
-            { --TODO: Verify all of this for laz. cursory exam shows it being the same
-                name = "Battle Leap",
-                type = "AA",
-                cond = function(self, aaName)
-                    if not Config:GetSetting('DoBattleLeap') then return false end
-                    return not Casting.IHaveBuff("Battle Leap Warcry") and not Casting.IHaveBuff("Group Bestial Alignment")
-                        ---@diagnostic disable-next-line: undefined-field --Defs are not updated with HeadWet
-                        and not mq.TLO.Me.HeadWet() --Stops Leap from launching us above the water's surface
                 end,
             },
             {
@@ -286,30 +225,23 @@ return {
                 end,
             },
             {
-                name = "Scream",
+                name = "TwinProcBuff",
                 type = "Disc",
-                cond = function(self, discSpell, target)
-                    return Casting.DetSpellCheck(discSpell, target)
-                end,
-            },
-            {
-                name = "FrenzyDisc",
-                type = "Disc",
-                cond = function(self, discSpell, target)
-                    return Casting.DetSpellCheck(discSpell, target)
-                end,
             },
             {
                 name = "VolleyDisc",
                 type = "Disc",
             },
             {
-                name = "Frenzy",
-                type = "Ability",
+                name = "ColdRage",
+                type = "Disc",
+                cond = function(self, discSpell, target)
+                    return Casting.NoDiscActive()
+                end,
             },
             {
-                name = "Distraction Attack",
-                type = "AA",
+                name = "Frenzy",
+                type = "Ability",
             },
             {
                 name = "StunStrike",
@@ -373,15 +305,6 @@ return {
         },
 
         -- Combat
-        ['DoBattleLeap']   = {
-            DisplayName = "Do Battle Leap",
-            Group = "Abilities",
-            Header = "Damage",
-            Category = "Direct",
-            Index = 101,
-            Tooltip = "Use the Battle Leap AA on cooldown.",
-            Default = true,
-        },
         ['DoSnare']        = {
             DisplayName = "Do Snare",
             Group = "Abilities",
