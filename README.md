@@ -1,3 +1,4 @@
+*26 OCT 2025: For now, all of these configs have been moved to the main RGMercs repo. Thank you.*
 This is simply a copy of my local config directory.
 
 It contains some configs that I have begun adjusting to use on specific emu servers.
