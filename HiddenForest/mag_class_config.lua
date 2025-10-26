@@ -39,9 +39,6 @@ _ClassConfig      = {
             "Raging Servant",
             "Rage of Zomm",
         },
-        ['BurningEarth'] = {
-            "Felx's Burning Earth",
-        },
         -- ['ChaoticNuke'] = {
         --     -- Chaotic Nuke with Beneficial Effect >= LVL69
         --     -- "Fickle Inferno",
@@ -127,6 +124,7 @@ _ClassConfig      = {
         --     "Iron Bolt",
         -- },
         ['FireDD'] = { --Mix of Fire Nukes and Bolts appropriate for use at lower levels.
+            "Felx's Burning Earth",
             "Felx's Burning Sand",
             "Felx's Scars of Sigil",
             "Felx's Lava Bolt",
@@ -138,6 +136,7 @@ _ClassConfig      = {
             "Erandi's Burst of Flame",
         },
         ['BigFireDD'] = { -- Longer cast time bolts we can use when mobs are at higher health.
+            "Ancient: Nova Strike",
             "Star Strike",
             "Felx's Bolt of Jerikor",
             "Felx's Firebolt of Tallon",
@@ -842,20 +841,9 @@ _ClassConfig      = {
             end,
         },
         {
-            name = 'DPS(70)',
+            name = 'DPS',
             state = 1,
             steps = 1,
-            load_cond = function(self) return self:GetResolvedActionMapItem('BurningEarth') end,
-            targetId = function(self) return Targeting.CheckForAutoTargetID() end,
-            cond = function(self, combat_state)
-                return combat_state == "Combat" and Targeting.AggroCheckOkay()
-            end,
-        },
-        {
-            name = 'DPS(1-69)',
-            state = 1,
-            steps = 1,
-            load_cond = function(self) return not self:GetResolvedActionMapItem('BurningEarth') end,
             targetId = function(self) return Targeting.CheckForAutoTargetID() end,
             cond = function(self, combat_state)
                 return combat_state == "Combat" and Targeting.AggroCheckOkay()
@@ -1301,7 +1289,7 @@ _ClassConfig      = {
                 end,
             },
         },
-        ['DPS(70)'] = {
+        ['DPS'] = {
             {
                 name = "SwarmPet",
                 type = "Spell",
@@ -1310,27 +1298,6 @@ _ClassConfig      = {
                     return Casting.HaveManaToNuke() and not (Config:GetSetting('DoSwarmPet') == 2 and not Targeting.IsNamed(target))
                 end,
             },
-            -- {
-            --     name = "ChaoticNuke",
-            --     type = "Spell",
-            -- },
-            {
-                name = "BurningEarth",
-                type = "Spell",
-            },
-            {
-                name = "Turn Summoned",
-                type = "AA",
-                cond = function(self, aaName, target)
-                    return Targeting.TargetBodyIs(target, "Undead Pet")
-                end,
-            },
-            {
-                name = "Dagger of Evil Summons",
-                type = "Item",
-            },
-        },
-        ['DPS(1-69)'] = {
             {
                 name = "BigFireDD",
                 type = "Spell",
@@ -1525,41 +1492,21 @@ _ClassConfig      = {
     },
     ['SpellList']         = {
         {
-            name = "Low Level", --This name is abitrary, it is simply what shows up in the UI when this spell list is loaded.
-            cond = function(self) return mq.TLO.Me.Level() < 70 end,
-            spells = {          -- Spells will be loaded in order (if the conditions are met), until all gem slots are full.
-                { name = "FireDD", },
-                { name = "BigFireDD", },
-                { name = "MagicDD", },
-                { name = "PBAE1",            cond = function(self) return Core.IsModeActive("PBAE") end, },
-                { name = "PBAE2",            cond = function(self) return Core.IsModeActive("PBAE") end, },
-                { name = "MaloDebuff",       cond = function(self) return Config:GetSetting('DoMalo') and not Casting.CanUseAA("Malosinete") end, },
-                { name = "PetHealSpell",     cond = function(self) return Config:GetSetting('DoPetHealSpell') end, },
-                { name = "FireOrbSummon", },
-                { name = "GroupCotH", },
-                { name = "SingleCotH",       cond = function() return not Casting.CanUseAA('Call of the Hero') end, },
-                { name = "ManaRodSummon",    cond = function(self) return Config:GetSetting('SummonModRods') and not Casting.CanUseAA("Small Modulation Shard") end, },
-                { name = "FireShroud", },
-                { name = "LongDurDmgShield", },
-            },
-        },
-        {
-            name = "Level 70", --This name is abitrary, it is simply what shows up in the UI when this spell list is loaded.
-            cond = function(self) return mq.TLO.Me.Level() >= 70 end,
-            spells = {         -- Spells will be loaded in order (if the conditions are met), until all gem slots are full.
-                { name = "BurningEarth", },
-                -- { name = "ChaoticNuke", },
+            name = "Default", --This name is abitrary, it is simply what shows up in the UI when this spell list is loaded.
+            spells = {        -- Spells will be loaded in order (if the conditions are met), until all gem slots are full.
+                { name = "FireDD",           cond = function(self) return Config:GetSetting('ElementChoice') == 1 end, },
+                { name = "BigFireDD",        cond = function(self) return Config:GetSetting('ElementChoice') == 1 end, },
+                { name = "MagicDD",          cond = function(self) return Config:GetSetting('ElementChoice') == 2 end, },
                 { name = "SwarmPet", },
                 { name = "PBAE1",            cond = function(self) return Core.IsModeActive("PBAE") end, },
                 { name = "PBAE2",            cond = function(self) return Core.IsModeActive("PBAE") end, },
                 { name = "MaloDebuff",       cond = function(self) return Config:GetSetting('DoMalo') and not Casting.CanUseAA("Malosinete") end, },
                 { name = "PetHealSpell",     cond = function(self) return Config:GetSetting('DoPetHealSpell') end, },
                 { name = "FireOrbSummon", },
-                { name = "FranticDS",        cond = function(self) return Config:GetSetting('DoFranticDS') end, },
                 { name = "GroupCotH", },
                 { name = "SingleCotH",       cond = function() return not Casting.CanUseAA('Call of the Hero') end, },
-                { name = "FireShroud", },
                 { name = "ManaRodSummon",    cond = function(self) return Config:GetSetting('SummonModRods') and not Casting.CanUseAA("Small Modulation Shard") end, },
+                { name = "FireShroud", },
                 { name = "LongDurDmgShield", },
             },
         },

@@ -123,6 +123,7 @@ local _ClassConfig = {
             "Talisman of Fortitude",
         },
         ["LowLvlAtkBuff"] = {
+            "Champion's Perseverance", -- THF Group wide
             -- Low Level Attack Buff --- user under level 86. Including Harnessing of Spirit as they will have similar usecases and targets.
             "Harnessing of Spirit",
             "Primal Avatar",
@@ -944,7 +945,8 @@ local _ClassConfig = {
                 name = "LowLvlAtkBuff",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    return Targeting.TargetIsAMelee(target) and Casting.CastReady(spell) and Casting.GroupBuffCheck(spell, target)
+                    if (spell.TargetType() or ""):lower() ~= "group v2" and not Targeting.TargetIsAMelee(target) then return false end
+                    return Casting.CastReady(spell) and Casting.GroupBuffCheck(spell, target)
                 end,
             },
             {
@@ -987,7 +989,7 @@ local _ClassConfig = {
                 name = "RunSpeedBuff",
                 type = "Spell",
                 cond = function(self, spell, target) --We get Tala'tak at 74, but don't get the AA version until 90
-                    if not Config:GetSetting('DoRunSpeed') or (mq.TLO.Me.AltAbility("Lupine Spirit").Rank() or -1) > 3 then return false end
+                    if not Config:GetSetting('DoRunSpeed') or not mq.TLO.Zone.Outdoors() or (mq.TLO.Me.AltAbility("Lupine Spirit").Rank() or -1) > 3 then return false end
                     return Casting.GroupBuffCheck(spell, target)
                 end,
             },

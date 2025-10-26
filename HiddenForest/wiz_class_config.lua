@@ -568,7 +568,7 @@ return {
                 name = "MaelstromDot",
                 type = "Spell",
                 cond = function(self, spell, target)
-                    return Targeting.DotSpellCheck(target) and Targeting.AggroCheckOkay()
+                    return Casting.DotSpellCheck(spell) and Targeting.AggroCheckOkay()
                 end,
             },
         },
