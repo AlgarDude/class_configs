@@ -694,6 +694,9 @@ _ClassConfig      = {
             "Summon Imperious Minion",
             "Summon Exigent Minion",
         },
+        ['ForceStaffSummon'] = {
+            "Summon: Staff of Force I",
+        },
         ['ManaRodSummon'] = {
             --- ManaRodSummon - Focuses on group mana rod summon for ease. _
             --  - no TOL spell?
@@ -1369,6 +1372,20 @@ _ClassConfig      = {
                 end,
             },
             {
+                name = "ForceStaffSummon",
+                type = "Spell",
+                cond = function(self, spell, target)
+                    local forceStaff = spell.RankName.Base(1)()
+                    return forceStaff and DanNet.query(target.CleanName(), string.format("FindItemCount[%d]", forceStaff), 1000) == "0" and
+                        (mq.TLO.Cursor.ID() or 0) == 0
+                end,
+                post_activate = function(self, spell, success)
+                    if success then
+                        Core.SafeCallFunc("Autoinventory", self.ClassConfig.HelperFunctions.HandleItemSummon, self, spell, "group")
+                    end
+                end,
+            },
+            {
                 name = "FireShroud",
                 type = "Spell",
                 cond = function(self, spell, target)
@@ -1502,10 +1519,11 @@ _ClassConfig      = {
                 { name = "PBAE2",            cond = function(self) return Core.IsModeActive("PBAE") end, },
                 { name = "MaloDebuff",       cond = function(self) return Config:GetSetting('DoMalo') and not Casting.CanUseAA("Malosinete") end, },
                 { name = "PetHealSpell",     cond = function(self) return Config:GetSetting('DoPetHealSpell') end, },
-                { name = "FireOrbSummon", },
                 { name = "GroupCotH", },
                 { name = "SingleCotH",       cond = function() return not Casting.CanUseAA('Call of the Hero') end, },
+                { name = "ForceStaffSummon", },
                 { name = "ManaRodSummon",    cond = function(self) return Config:GetSetting('SummonModRods') and not Casting.CanUseAA("Small Modulation Shard") end, },
+                { name = "FireOrbSummon", },
                 { name = "FireShroud", },
                 { name = "LongDurDmgShield", },
             },

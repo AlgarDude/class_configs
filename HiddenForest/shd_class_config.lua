@@ -308,6 +308,9 @@ local _ClassConfig = {
             local mobs = mq.TLO.SpawnCount("NPC radius 50 zradius 50")()
             local xtCount = mq.TLO.Me.XTarget() or 0
 
+            --THF has very limited xtargets (5), lets just use the spell if we have more mobs than xtarg and the safety check is off
+            if mobs > 5 and not Config:GetSetting('SafeAETaunt') then return true end
+
             if (mobs or xtCount) < Config:GetSetting('AETauntCnt') then return false end
 
             local tauntme = Set.new({})
@@ -747,16 +750,6 @@ local _ClassConfig = {
             },
         },
         ['AEHateTools'] = {
-            {
-                name = "Explosion of Hatred",
-                type = "AA",
-                tooltip = Tooltips.ExplosionOfHatred,
-            },
-            {
-                name = "Explosion of Spite",
-                type = "AA",
-                tooltip = Tooltips.ExplosionOfSpite,
-            },
             {
                 name = "AETaunt",
                 type = "Spell",

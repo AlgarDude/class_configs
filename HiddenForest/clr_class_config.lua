@@ -303,6 +303,9 @@ local _ClassConfig = {
             "Silent Dictation",
             "Staar's The Silent Command",
         },
+        ['MeleeMitBuff'] = {
+            "Unwavering Faith I",
+        },
     }, -- end AbilitySets
     ['HelperFunctions']   = {
         DoRez = function(self, corpseId)
@@ -852,6 +855,14 @@ local _ClassConfig = {
                 end,
             },
             {
+                name = "MeleeMitBuff",
+                type = "Spell",
+                cond = function(self, spell, target)
+                    if not Targeting.TargetIsATank(target) then return false end
+                    return Casting.CastReady(spell) and Casting.GroupBuffCheck(spell, target)
+                end,
+            },
+            {
                 name = "DivineBuff",
                 type = "Spell",
                 cond = function(self, spell, target)
@@ -883,6 +894,7 @@ local _ClassConfig = {
                 { name = "CureDisease",   cond = function(self) return Config:GetSetting('KeepDiseaseMemmed') end, },
                 { name = "CureCurse",     cond = function(self) return Config:GetSetting('KeepCurseMemmed') end, },
                 { name = "DivineBuff",    cond = function(self) return Config:GetSetting('DoDivineBuff') end, },
+                { name = "MeleeMitBuff", },
                 { name = "YaulpSpell",    cond = function(self) return Config:GetSetting('DoYaulp') and not Casting.CanUseAA("Yaulp") end, },
                 { name = "SingleVieBuff", cond = function(self) return Config:GetSetting('DoVieBuff') end, },
                 { name = "TwinHealNuke",  cond = function(self) return Config:GetSetting('DoTwinHeal') end, },
